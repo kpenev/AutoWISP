@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -445,10 +448,10 @@
             <span class="o">+</span> <span class="n">master</span>
             <span class="o">+</span> <span class="s2">" to apply. No "</span>
             <span class="o">+</span> <span class="n">master</span>
-            <span class="o">+</span> <span class="s2">" correction is applied of not specified. Each master filename "</span>
-            <span class="s2">"should be preceeded by ``&lt;channel name&gt;:`` identifying which "</span>
-            <span class="s2">"channel it applies to. All channels must have a masters specified "</span>
-            <span class="s2">"and no channel should have multpiple."</span><span class="p">,</span>
+            <span class="o">+</span> <span class="s2">" correction is applied if not specified. Each master filename "</span>
+            <span class="s2">"should be preceded by ``&lt;channel name&gt;:`` identifying which "</span>
+            <span class="s2">"channel it applies to. All channels must have a master specified "</span>
+            <span class="s2">"and no channel should have multiple."</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">"--master-mask"</span><span class="p">,</span>
@@ -457,7 +460,7 @@
         <span class="n">action</span><span class="o">=</span><span class="n">ParseChannelDependentAction</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">"Mask(s) to apply, indicating pixel quality. All pixels are "</span>
         <span class="s1">'considered "good" if no mask is specified. If multiple channel images '</span>
-        <span class="s2">"are being processed each master filename should be preceeded by "</span>
+        <span class="s2">"are being processed each master filename should be preceded by "</span>
         <span class="s2">"``&lt;channel name&gt;:`` identifying which channel it applies to. Unlike "</span>
         <span class="s2">"other masters, channels without mask are allowed and multiple masks "</span>
         <span class="s2">"may be used for each channel."</span><span class="p">,</span>

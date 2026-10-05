@@ -22,8 +22,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.tests.test_detrending_stat module" href="autowisp.tests.test_detrending_stat.html" />
-    <link rel="prev" title="autowisp.tests.test_create_lightcurves module" href="autowisp.tests.test_create_lightcurves.html" /> 
+    <link rel="next" title="autowisp.tests.test_detrending_exclusions module" href="autowisp.tests.test_detrending_exclusions.html" />
+    <link rel="prev" title="autowisp.tests.test_custom_group_values module" href="autowisp.tests.test_custom_group_values.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -172,31 +175,30 @@
 <span id="autowisp-tests-test-database-migration-module"></span><h1>autowisp.tests.test_database_migration module<a class="headerlink" href="#module-autowisp.tests.test_database_migration" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-48ba6fa34b5dcd583b833379ea56bd4925be78cd.png" alt="Inheritance diagram of BackendMixin, DataModelBase, DatabaseError, Index, MetaData, NullPool, OperationalError, ScriptDirectory, Table, TestAdditiveMigrations, TestCheckProjectSchema, TestConcurrentMigration, TestMigrateProject, TestRevisionChain, TestSchemaDrift, TestSqliteMigrationLock, TestTimestampTriggers, TestUpgradeFromRelease" usemap="#inheritance5edbc5fe63" class="inheritance graphviz" /></div>
-<map id="inheritance5edbc5fe63" name="inheritance5edbc5fe63">
+<div class="graphviz"><img src="../_images/inheritance-e68d9793bdd425f9ddf450dd4af016366ed56ad3.png" alt="Inheritance diagram of BackendMixin, DataModelBase, DatabaseError, Index, MetaData, NullPool, OperationalError, ScriptDirectory, Table, TestAdditiveMigrations, TestCheckProjectSchema, TestConcurrentMigration, TestMigrateProject, TestRevisionChain, TestSchemaDrift, TestSqliteMigrationLock, TestTimestampTriggers" usemap="#inheritance885ccc5c72" class="inheritance graphviz" /></div>
+<map id="inheritance885ccc5c72" name="inheritance885ccc5c72">
 <area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="2828,5,3083,31"/>
 <area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="2834,79,3077,104"/>
 <area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.DatabaseError" target="_top" title="Failure interacting with the pipeline database." alt="" coords="2829,152,3082,177"/>
-<area shape="rect" id="node9" href="#autowisp.tests.test_database_migration.BackendMixin" target="_top" title="Supplies clean project databases on whichever backend is under test." alt="" coords="4538,5,4917,31"/>
-<area shape="rect" id="node10" href="#autowisp.tests.test_database_migration.TestAdditiveMigrations" target="_top" title="The pre&#45;Alembic helper still adds missing nullable columns." alt="" coords="4043,79,4479,104"/>
-<area shape="rect" id="node12" href="#autowisp.tests.test_database_migration.TestCheckProjectSchema" target="_top" title="The read&#45;only gate every project open &#45;&#45; and every worker &#45;&#45; runs." alt="" coords="4502,79,4953,104"/>
-<area shape="rect" id="node13" href="#autowisp.tests.test_database_migration.TestConcurrentMigration" target="_top" title="Two migrators racing on one database must not corrupt or crash it." alt="" coords="4977,79,5424,104"/>
-<area shape="rect" id="node14" href="#autowisp.tests.test_database_migration.TestMigrateProject" target="_top" title="The three database states :func:`migrate_project` has to handle." alt="" coords="5449,79,5857,104"/>
-<area shape="rect" id="node16" href="#autowisp.tests.test_database_migration.TestSchemaDrift" target="_top" title="The revision chain and the ORM models describe the same schema." alt="" coords="5881,79,6275,104"/>
-<area shape="rect" id="node18" href="#autowisp.tests.test_database_migration.TestTimestampTriggers" target="_top" title="Every table carrying ``timestamp`` keeps a trigger maintaining it." alt="" coords="3101,79,3540,104"/>
-<area shape="rect" id="node19" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease" target="_top" title="A database built by a *released* AutoWISP reaches today&#39;s schema." alt="" coords="3565,79,4018,104"/>
-<area shape="rect" id="node15" href="#autowisp.tests.test_database_migration.TestRevisionChain" target="_top" title="The revision chain is linear, ordered, and consistently named." alt="" coords="6767,79,7173,104"/>
-<area shape="rect" id="node17" href="#autowisp.tests.test_database_migration.TestSqliteMigrationLock" target="_top" title="The SQLite half of the migration lock really does exclude a second" alt="" coords="6299,79,6742,104"/>
-<area shape="rect" id="node21" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DBAPIError" target="_top" title="Raised when the execution of a database operation fails." alt="" coords="7219,225,7417,251"/>
-<area shape="rect" id="node23" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DatabaseError" target="_top" title="Wraps a DB&#45;API DatabaseError." alt="" coords="7209,299,7427,324"/>
-<area shape="rect" id="node22" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.StatementError" target="_top" title="An error occurred during execution of a SQL statement." alt="" coords="7205,152,7431,177"/>
-<area shape="rect" id="node25" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.OperationalError" target="_top" title="Wraps a DB&#45;API OperationalError." alt="" coords="7201,372,7435,397"/>
-<area shape="rect" id="node24" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.HasDescriptionCode" target="_top" title="helper which adds &#39;code&#39; as an attribute and &#39;_code_str&#39; as a method" alt="" coords="7189,5,7447,31"/>
-<area shape="rect" id="node26" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.SQLAlchemyError" target="_top" title="Generic error class." alt="" coords="7198,79,7438,104"/>
-<area shape="rect" id="node29" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="521,739,638,764"/>
-<area shape="rect" id="node30" href="https://docs.sqlalchemy.org/en/20/core/internals.html#sqlalchemy.log.Identified" target="_top" title="sqlalchemy.log.Identified" alt="" coords="2602,5,2786,31"/>
-<area shape="rect" id="node36" href="https://docs.sqlalchemy.org/en/20/core/foundation.html#sqlalchemy.sql.base.DialectKWArgs" target="_top" title="Establish the ability for a class to have dialect&#45;specific arguments" alt="" coords="1308,739,1560,764"/>
-<area shape="rect" id="node40" href="https://docs.sqlalchemy.org/en/20/core/visitors.html#sqlalchemy.sql.visitors.Visitable" target="_top" title="Base class for visitable objects." alt="" coords="2005,79,2236,104"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_database_migration.BackendMixin" target="_top" title="Supplies clean project databases on whichever backend is under test." alt="" coords="4297,5,4675,31"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_database_migration.TestAdditiveMigrations" target="_top" title="The pre&#45;Alembic helper still adds missing nullable columns." alt="" coords="3101,79,3537,104"/>
+<area shape="rect" id="node12" href="#autowisp.tests.test_database_migration.TestCheckProjectSchema" target="_top" title="The read&#45;only gate every project open &#45;&#45; and every worker &#45;&#45; runs." alt="" coords="3561,79,4011,104"/>
+<area shape="rect" id="node13" href="#autowisp.tests.test_database_migration.TestConcurrentMigration" target="_top" title="Two migrators racing on one database must not corrupt or crash it." alt="" coords="4036,79,4483,104"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_database_migration.TestMigrateProject" target="_top" title="The three database states :func:`migrate_project` has to handle." alt="" coords="4507,79,4915,104"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_database_migration.TestSchemaDrift" target="_top" title="The revision chain and the ORM models describe the same schema." alt="" coords="4940,79,5333,104"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_database_migration.TestTimestampTriggers" target="_top" title="Every table carrying ``timestamp`` keeps a trigger maintaining it." alt="" coords="5357,79,5796,104"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_database_migration.TestRevisionChain" target="_top" title="The revision chain is linear, ordered, and consistently named." alt="" coords="5820,79,6227,104"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_database_migration.TestSqliteMigrationLock" target="_top" title="The SQLite half of the migration lock really does exclude a second" alt="" coords="6251,79,6694,104"/>
+<area shape="rect" id="node20" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DBAPIError" target="_top" title="Raised when the execution of a database operation fails." alt="" coords="6739,225,6937,251"/>
+<area shape="rect" id="node22" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DatabaseError" target="_top" title="Wraps a DB&#45;API DatabaseError." alt="" coords="6729,299,6947,324"/>
+<area shape="rect" id="node21" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.StatementError" target="_top" title="An error occurred during execution of a SQL statement." alt="" coords="6725,152,6951,177"/>
+<area shape="rect" id="node24" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.OperationalError" target="_top" title="Wraps a DB&#45;API OperationalError." alt="" coords="6721,372,6955,397"/>
+<area shape="rect" id="node23" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.HasDescriptionCode" target="_top" title="helper which adds &#39;code&#39; as an attribute and &#39;_code_str&#39; as a method" alt="" coords="6709,5,6967,31"/>
+<area shape="rect" id="node25" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.SQLAlchemyError" target="_top" title="Generic error class." alt="" coords="6718,79,6958,104"/>
+<area shape="rect" id="node28" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="521,739,638,764"/>
+<area shape="rect" id="node29" href="https://docs.sqlalchemy.org/en/20/core/internals.html#sqlalchemy.log.Identified" target="_top" title="sqlalchemy.log.Identified" alt="" coords="2603,5,2787,31"/>
+<area shape="rect" id="node35" href="https://docs.sqlalchemy.org/en/20/core/foundation.html#sqlalchemy.sql.base.DialectKWArgs" target="_top" title="Establish the ability for a class to have dialect&#45;specific arguments" alt="" coords="1308,739,1560,764"/>
+<area shape="rect" id="node39" href="https://docs.sqlalchemy.org/en/20/core/visitors.html#sqlalchemy.sql.visitors.Visitable" target="_top" title="Base class for visitable objects." alt="" coords="2005,79,2236,104"/>
 </map><p>Unit tests for project database migration.</p>
 <p>These need only a throwaway SQLite database, not a full project, so they
 subclass <code class="docutils literal notranslate"><span class="pre">unittest.TestCase</span></code> directly.</p>
@@ -535,6 +537,19 @@ applied. Cheaper to catch here.</p>
 <dd><p>Exactly one head: no fork left unresolved by a merge or rebase.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestRevisionChain.test_the_build_installs_every_revision">
+<span class="sig-name descname"><span class="pre">test_the_build_installs_every_revision</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#TestRevisionChain.test_the_build_installs_every_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.TestRevisionChain.test_the_build_installs_every_revision" title="Link to this definition"></a></dt>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">meson.build</span></code> beside the revisions lists each one of them.</p>
+<p>The build installs only the files it lists. A revision left out
+works from a checkout, where the file is, and is absent from an
+installed package, which then stops one revision short and stamps
+projects at the wrong head. Nothing can tell that from the
+installed package: a chain that ends early is still a chain. So
+this compares the list with the directory, where a checkout has
+both.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -573,7 +588,7 @@ get_schema_drift() always returned nothing.</p>
 <dd><p>A database the revisions built agrees with the models.</p>
 <p>Note this cannot catch a model changed with no revision to match:
 the “before” state here comes from today’s metadata too, so both
-sides move together. <a class="reference internal" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease" title="autowisp.tests.test_database_migration.TestUpgradeFromRelease"><code class="xref py py-class docutils literal notranslate"><span class="pre">TestUpgradeFromRelease</span></code></a> is the test
+sides move together. <code class="xref py py-class docutils literal notranslate"><span class="pre">TestUpgradeFromRelease</span></code> is the test
 that catches that, by building the “before” state from released
 code.</p>
 </dd></dl>
@@ -671,102 +686,6 @@ made on the way past.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestUpgradeFromRelease">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_database_migration.</span></span><span class="sig-name descname"><span class="pre">TestUpgradeFromRelease</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#TestUpgradeFromRelease"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_database_migration.BackendMixin" title="autowisp.tests.test_database_migration.BackendMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-ed0f77a3f72b8a24644586f83ede290db32bae7d.png" alt="Inheritance diagram of autowisp.tests.test_database_migration.TestUpgradeFromRelease" usemap="#inheritance297a5cf819" class="inheritance graphviz" /></div>
-<map id="inheritance297a5cf819" name="inheritance297a5cf819">
-<area shape="rect" id="node1" href="#autowisp.tests.test_database_migration.BackendMixin" target="_top" title="Supplies clean project databases on whichever backend is under test." alt="" coords="5,5,384,31"/>
-<area shape="rect" id="node2" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease" target="_top" title="A database built by a *released* AutoWISP reaches today&#39;s schema." alt="" coords="116,79,569,104"/>
-</map><p>A database built by a <em>released</em> AutoWISP reaches today’s schema.</p>
-<p>This is the test that catches a model changed without a revision to
-match. Every other check here builds its “before” state from today’s
-metadata, so a missing revision moves both sides together and goes
-unnoticed. Here the starting schema is built by the released code
-itself, checked out from its tag, so the revision chain is the only
-thing that can close the gap.</p>
-<p>That released package is loaded in a <strong>subprocess</strong>: it defines the
-same module names as the code under test, so importing both into one
-interpreter would have whichever came first shadow the other.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestUpgradeFromRelease._build_release_schema">
-<span class="sig-name descname"><span class="pre">_build_release_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#TestUpgradeFromRelease._build_release_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease._build_release_schema" title="Link to this definition"></a></dt>
-<dd><p>Create the release’s schema, running that release’s own code.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestUpgradeFromRelease._export_release">
-<span class="sig-name descname"><span class="pre">_export_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#TestUpgradeFromRelease._export_release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease._export_release" title="Link to this definition"></a></dt>
-<dd><p>Extract the <code class="docutils literal notranslate"><span class="pre">autowisp</span></code> package as of <em>ref</em> into a temp dir.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestUpgradeFromRelease.release_baselines">
-<span class="sig-name descname"><span class="pre">release_baselines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('1.8.1',</span> <span class="pre">'2.0.0')</span></span><a class="headerlink" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease.release_baselines" title="Link to this definition"></a></dt>
-<dd><p>Released versions a project database may be upgraded from.</p>
-<p>Add each new release tag as it ships; every entry gets its own
-upgrade-to-current check.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestUpgradeFromRelease.setUp">
-<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#TestUpgradeFromRelease.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease.setUp" title="Link to this definition"></a></dt>
-<dd><p>Leave a clean project database ready for the test.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration">
-<span class="sig-name descname"><span class="pre">test_a_value_too_long_to_keep_stops_the_migration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration" title="Link to this definition"></a></dt>
-<dd><p>Narrowing a column refuses rather than truncating.</p>
-<p>Refusing is the point: on a server not running in strict mode the
-ALTER would truncate the value silently.</p>
-<p>Uses <code class="docutils literal notranslate"><span class="pre">condition_expression.expression</span></code> (1000 -&gt; 768 in <code class="docutils literal notranslate"><span class="pre">0005</span></code>)
-rather than <code class="docutils literal notranslate"><span class="pre">image.raw_fname</span></code>, which narrows identically in
-<code class="docutils literal notranslate"><span class="pre">0004</span></code>. The guard lives in the shared <code class="docutils literal notranslate"><span class="pre">resize_varchar_column</span></code>,
-so either exercises it – but condition_expression has no foreign
-keys, whereas an image row needs an image_type and an observing
-session, and that in turn needs an observer, camera, telescope,
-mount, observatory and target. A server enforces every one of
-those, so the alternative was either a dozen rows of fixture or
-switching the checks off, and neither has anything to do with
-column widths.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers">
-<span class="sig-name descname"><span class="pre">test_every_release_keeps_its_timestamp_triggers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers" title="Link to this definition"></a></dt>
-<dd><p>Upgrading does not cost the database its triggers.</p>
-<p>SQLite cannot alter a column in place, so <code class="docutils literal notranslate"><span class="pre">batch_alter_table</span></code>
-rebuilds the table and the drop takes its triggers with it. The
-rebuilt table is created by the revision rather than from the
-models, so nothing puts them back – a 1.8.1 database used to lose
-seven this way, and the check above could not see it.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema">
-<span class="sig-name descname"><span class="pre">test_every_release_upgrades_to_the_current_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema" title="Link to this definition"></a></dt>
-<dd><p>Each released schema, once migrated, agrees with today’s models.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration._git">
-<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_database_migration.</span></span><span class="sig-name descname"><span class="pre">_git</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#_git"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration._git" title="Link to this definition"></a></dt>
-<dd><p>Run git at the repository root; return output, or None if it fails.</p>
-<p>The root, not this file’s directory: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">archive</span></code> refuses a pathspec
-reaching outside the current directory, so it has to be invoked from
-the top level.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.tests.test_database_migration._repo_root">
-<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_database_migration.</span></span><span class="sig-name descname"><span class="pre">_repo_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#_repo_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration._repo_root" title="Link to this definition"></a></dt>
-<dd><p>Return the repository’s top level, or None outside a checkout.</p>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.tests.test_database_migration.expected_timestamp_triggers">
 <span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_database_migration.</span></span><span class="sig-name descname"><span class="pre">expected_timestamp_triggers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_database_migration.html#expected_timestamp_triggers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_database_migration.expected_timestamp_triggers" title="Link to this definition"></a></dt>
@@ -794,8 +713,8 @@ copy that would drift out of step.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="autowisp.tests.test_create_lightcurves.html" class="btn btn-neutral float-left" title="autowisp.tests.test_create_lightcurves module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.tests.test_detrending_stat.html" class="btn btn-neutral float-right" title="autowisp.tests.test_detrending_stat module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.tests.test_custom_group_values.html" class="btn btn-neutral float-left" title="autowisp.tests.test_custom_group_values module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.test_detrending_exclusions.html" class="btn btn-neutral float-right" title="autowisp.tests.test_detrending_exclusions module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

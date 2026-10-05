@@ -1,0 +1,7 @@
+autowisp.browser\_interface.diagnostics.exclusion\_mask module
+==============================================================
+
+.. automodule:: autowisp.browser_interface.diagnostics.exclusion_mask
+   :members:
+   :show-inheritance:
+   :undoc-members:

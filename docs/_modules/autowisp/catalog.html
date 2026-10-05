@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -173,12 +176,14 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hashlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">md5</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">nullcontext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io.votable</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse</span> <span class="k">as</span> <span class="n">parse_votable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkyCoord</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astroquery.gaia</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaiaClass</span><span class="p">,</span> <span class="n">conf</span>
 
@@ -195,6 +200,20 @@
 
 <span class="c1"># Set timeout for Gaia TAP queries (includes result downloads)</span>
 <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">180</span>
+
+
+<div class="viewcode-block" id="TruncatedQuery">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.TruncatedQuery">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TruncatedQuery</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A Gaia result the server itself reported as incomplete.</span>
+
+<span class="sd">    Separate from :class:`autowisp.exceptions.CatalogError` because it is</span>
+<span class="sd">    raised to be caught: it means *ask again*, where a ``CatalogError``</span>
+<span class="sd">    means the query is not going to work.  It only escapes</span>
+<span class="sd">    :meth:`WISPGaia.get_result` as the cause of one, once the retries are</span>
+<span class="sd">    spent.</span>
+<span class="sd">    """</span></div>
+
 
 
 <div class="viewcode-block" id="WISPGaia">
@@ -267,6 +286,67 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">_credentials</span> <span class="o">=</span> <span class="n">credentials</span></div>
 
 
+<div class="viewcode-block" id="WISPGaia._check_query_status">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia._check_query_status">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_query_status</span><span class="p">(</span><span class="n">votable_fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Raise unless the server called the result it just sent complete.</span>
+
+<span class="sd">        A TAP result carries ``&lt;INFO name="QUERY_STATUS"&gt;`` elements saying</span>
+<span class="sd">        how the stream ended, and a stream cut short by trouble at the</span>
+<span class="sd">        server ends with one reading ``ERROR`` -- after a perfectly</span>
+<span class="sd">        well-formed table holding however many rows made it out.  Nothing</span>
+<span class="sd">        else distinguishes that table from a complete one, so a query that</span>
+<span class="sd">        half succeeded otherwise passes for a sky with fewer stars in it.</span>
+
+<span class="sd">        The last status is the one that counts: the first says the query</span>
+<span class="sd">        parsed and began returning rows, and is ``OK`` on a truncated</span>
+<span class="sd">        result too.</span>
+
+<span class="sd">        ``OVERFLOW`` is not an error but is worth saying out loud: the</span>
+<span class="sd">        service stopped at its own row limit, so the catalog is capped by</span>
+<span class="sd">        the server rather than by what was asked for.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            votable_fname(str):    The VOTable as it arrived, before</span>
+<span class="sd">                anything parsed the table out of it.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TruncatedQuery:    If the server reported the result</span>
+<span class="sd">                incomplete, which is worth asking again for.</span>
+<span class="sd">        """</span>
+
+        <span class="n">statuses</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">info</span>
+            <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">parse_votable</span><span class="p">(</span><span class="n">votable_fname</span><span class="p">)</span><span class="o">.</span><span class="n">resources</span>
+            <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">infos</span>
+            <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"QUERY_STATUS"</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">statuses</span><span class="p">:</span>
+            <span class="c1"># Not every service sends one, and a missing status is no</span>
+            <span class="c1"># evidence of trouble. Logged because this check is worth</span>
+            <span class="c1"># nothing without it, and silence would look like success.</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"Gaia result carried no QUERY_STATUS; "</span>
+                <span class="s2">"cannot tell a complete result from a truncated one."</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">final</span> <span class="o">=</span> <span class="n">statuses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Gaia QUERY_STATUS: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">final</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">final</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">"ERROR"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TruncatedQuery</span><span class="p">(</span>
+                <span class="s2">"Gaia reported the result incomplete: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">final</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'no message given'</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">final</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">"OVERFLOW"</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"Gaia stopped at its own row limit, so this catalog is "</span>
+                <span class="s2">"capped by the service rather than by the query."</span>
+            <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="WISPGaia.get_result">
 <a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia.get_result">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">add_propagated</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -286,12 +366,29 @@
                     <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                         <span class="s2">"Gaia credentials undefined. Using anonymous access."</span>
                     <span class="p">)</span>
-                <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">"Retrieving async job results with timeout=</span><span class="si">%d</span><span class="s2"> seconds..."</span><span class="p">,</span>
-                    <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+                <span class="c1"># Downloaded to a file rather than straight to a table,</span>
+                <span class="c1"># because the table is all that survives the parse: the</span>
+                <span class="c1"># statuses saying whether it is the whole result live</span>
+                <span class="c1"># outside it and are dropped. The file is what arrived, so</span>
+                <span class="c1"># both questions can be asked of it, and asked of one</span>
+                <span class="c1"># download rather than two.</span>
+                <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">raw_dir</span><span class="p">:</span>
+                    <span class="n">raw_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raw_dir</span><span class="p">,</span> <span class="s2">"gaia_result.vot.gz"</span><span class="p">)</span>
+                    <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span>
+                        <span class="n">query</span><span class="p">,</span>
+                        <span class="n">output_file</span><span class="o">=</span><span class="n">raw_fname</span><span class="p">,</span>
+                        <span class="n">dump_to_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="s2">"Retrieving async job results with "</span>
+                        <span class="s2">"timeout=</span><span class="si">%d</span><span class="s2"> seconds..."</span><span class="p">,</span>
+                        <span class="n">conf</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_check_query_status</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">outputFile</span><span class="p">)</span>
+                    <span class="c1"># Reads the file just downloaded; the server is not</span>
+                    <span class="c1"># asked a second time.</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
                 <span class="k">break</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
                 <span class="k">if</span> <span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">max_retries</span><span class="p">:</span>
@@ -611,7 +708,7 @@
     <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">"MAGEXPR"</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">"magnitude_expression"</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">query_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"magnitude_limit"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">"MAGMIN"</span><span class="p">],</span> <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">"MAGMAX"</span><span class="p">])</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span>
+            <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">"MAGMIN"</span><span class="p">],</span> <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">"MAGMAX"</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span>
                 <span class="s2">"magnitude_limit"</span>
             <span class="p">]</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>

@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -171,8 +174,12 @@
 <span class="sd">one. It deliberately knows about no database of any kind. The library</span>
 <span class="sd">arrives as a ``{name: expression}`` dictionary and the data as a</span>
 <span class="sd">``{diagnostic_name: array}`` dictionary, so the same rules apply whether the</span>
-<span class="sd">caller is the browser interface reading its own database or a pipeline step</span>
-<span class="sd">handed a library from a file.</span>
+<span class="sd">caller is the browser interface or the pipeline, both of which read the</span>
+<span class="sd">project's library through :mod:`autowisp.diagnostics.expression_library`.</span>
+
+<span class="sd">An exclusion rule is one more expression, taking at most one channel slot</span>
+<span class="sd">and one photometry slot, and evaluated alongside the library under</span>
+<span class="sd">:data:`rule_quantity`.</span>
 
 <span class="sd">Passing the values in rather than fetching them is what keeps this module</span>
 <span class="sd">free of a database and cheap to test exhaustively; it is not a facility for</span>
@@ -195,6 +202,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">is_diagnostic</span><span class="p">,</span>
     <span class="n">is_known_quantity</span><span class="p">,</span>
+    <span class="n">parse_photometry_literal</span><span class="p">,</span>
+    <span class="n">photometry_diagnostic_names</span><span class="p">,</span>
+    <span class="n">photometry_literal</span><span class="p">,</span>
     <span class="n">time_quantity</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span><span class="p">,</span> <span class="n">EvaluatorBase</span>
@@ -258,64 +268,166 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_indexed_names">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_indexed_names</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Return what one expression reads, and in which channel slots.</span>
+<span class="sd">    Return what one expression reads, in which channel and photometry slots.</span>
 
-<span class="sd">    A slot is written as a subscript -- ``bg_center[0]``, or</span>
+<span class="sd">    A channel slot is written as a subscript -- ``bg_center[0]``, or</span>
 <span class="sd">    ``sky_color[0,1]`` for a quantity taking two -- and the numbers are</span>
 <span class="sd">    that expression's own formal parameters, bound to real channels only</span>
 <span class="sd">    when something is plotted. So this reports the *shape* of what the</span>
 <span class="sd">    text asks for, and says nothing about channels.</span>
 
+<span class="sd">    A slot may instead be a quoted channel name, ``bg_center['G0']``,</span>
+<span class="sd">    which binding passes through unchanged: it is already bound. That ties</span>
+<span class="sd">    the text to a camera's channel naming, which is the point in an</span>
+<span class="sd">    exclusion rule and a convenience in a project whose cameras all name</span>
+<span class="sd">    their channels alike.</span>
+
+<span class="sd">    A quantity taking photometries -- a diagnostic ``fit_magnitudes``</span>
+<span class="sd">    produces, or an expression reading one -- is read with a second</span>
+<span class="sd">    subscript for them, numbered in a namespace of its own:</span>
+<span class="sd">    ``magfit_residual[0][1]`` is channel slot 0 and photometry slot 1, and</span>
+<span class="sd">    ``magfit_residual[0]['ap4']`` quotes aperture 4. One taking no channel</span>
+<span class="sd">    is written with an empty channel subscript, ``name[()][0]``.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        expression(str):    The expression text.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list:    ``(name, slots)`` pairs in the order they appear, *slots*</span>
-<span class="sd">            always a tuple however many were written. Repeats are kept:</span>
-<span class="sd">            ``sky_color[0,1] - sky_color[1,2]`` reads one name at two</span>
-<span class="sd">            different slot pairs, which is the whole point of the</span>
-<span class="sd">            parameters being formal.</span>
+<span class="sd">        list:    ``(name, channel_slots, photometry_slots)`` triples in the</span>
+<span class="sd">            order they appear, both always tuples however many were</span>
+<span class="sd">            written, each slot an ``int`` or a quoted ``str``; the</span>
+<span class="sd">            photometry slots empty where there is no second subscript.</span>
+<span class="sd">            Repeats are kept: ``sky_color[0,1] - sky_color[1,2]`` reads one</span>
+<span class="sd">            name at two different slot pairs, which is the whole point of</span>
+<span class="sd">            the parameters being formal.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        SyntaxError:    As for :func:`get_expression_names`.</span>
 
 <span class="sd">        PipelineError:    If a subscript is not a plain name indexed by</span>
-<span class="sd">            integer literals. Anything else -- ``bg_center[i]``,</span>
-<span class="sd">            ``bg_center[1:2]``, ``sky_color[1][2]`` -- cannot name a</span>
-<span class="sd">            channel slot, and saying so here is clearer than letting it</span>
-<span class="sd">            fail as an unresolvable name later.</span>
+<span class="sd">            integer or string literals, at most twice. Anything else --</span>
+<span class="sd">            ``bg_center[i]``, ``bg_center[1:2]``, ``x[0][1][2]`` -- cannot</span>
+<span class="sd">            name a slot, and saying so here is clearer than letting it fail</span>
+<span class="sd">            as an unresolvable name later. So is an empty channel subscript</span>
+<span class="sd">            with no photometries after it.</span>
 <span class="sd">    """</span>
 
-    <span class="n">references</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">):</span>
-            <span class="k">continue</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a channel slot: only "</span>
-                <span class="s2">"a diagnostic or an expression can take one."</span><span class="p">,</span>
-                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"subscript"</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)},</span>
-            <span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">slots</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">slice</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="c1"># Non-literal channel indices is a sub-case of what is handled</span>
-            <span class="c1"># below.</span>
-            <span class="n">slots</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slots</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-            <span class="n">slots</span> <span class="o">=</span> <span class="p">(</span><span class="n">slots</span><span class="p">,)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">slots</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
-            <span class="nb">isinstance</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a channel slot: a "</span>
-                <span class="s2">"slot is written as a whole number, as in bg_center[0]."</span><span class="p">,</span>
-                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"subscript"</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)},</span>
-            <span class="p">)</span>
-        <span class="n">references</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">slots</span><span class="p">))</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">)</span>
+    <span class="n">nested</span> <span class="o">=</span> <span class="n">_nested_reads</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_get_read</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">_in_written_order</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">id</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nested</span>
+    <span class="p">]</span></div>
 
-    <span class="k">return</span> <span class="n">references</span></div>
+
+
+<div class="viewcode-block" id="_in_written_order">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._in_written_order">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_in_written_order</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the nodes of *tree* in the order their text starts.</span>
+
+<span class="sd">    Rather than the breadth-first order of ``ast.walk``, which puts</span>
+<span class="sd">    ``y['R']`` before ``x['B']`` in ``2 * x['B'] + y['R']``, being</span>
+<span class="sd">    shallower.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"col_offset"</span><span class="p">)),</span>
+        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">node</span><span class="p">:</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">col_offset</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_nested_reads">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._nested_reads">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_nested_reads</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the ids of the subscripts in *tree* that are part of another.</span>
+
+<span class="sd">    The ``x[0]`` of ``x[0][1]`` is a subscript node of its own, but it is</span>
+<span class="sd">    part of the whole read rather than a read.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="nb">id</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="_literal_slots">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._literal_slots">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_literal_slots</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the slots *index* writes as a tuple, or ``None`` if it can't.</span>
+
+<span class="sd">    Each slot is an ``int`` or a ``str`` literal; anything else, a name or</span>
+<span class="sd">    a slice, writes no slot. The tuple may be empty, for the caller to</span>
+<span class="sd">    judge.</span>
+<span class="sd">    """</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">written</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="p">(</span><span class="n">written</span><span class="p">,)</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">written</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="n">written</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="_get_read">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._get_read">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_read</span><span class="p">(</span><span class="n">read</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return ``(name, channel_slots, photometry_slots)`` for one read.</span>
+
+<span class="sd">    *read* is the whole read: ``x[0]``, or ``x[0][1]`` with photometries.</span>
+<span class="sd">    The photometry slots are ``()`` where there is no second subscript,</span>
+<span class="sd">    and the channel slots may be empty only where there is one:</span>
+<span class="sd">    ``name[()][0]`` is how a quantity taking photometries but no channel</span>
+<span class="sd">    is read.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        PipelineError:    As described in :func:`get_indexed_names`.</span>
+<span class="sd">    """</span>
+
+    <span class="n">has_photometries</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">read</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span>
+    <span class="n">channel_part</span> <span class="o">=</span> <span class="n">read</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">has_photometries</span> <span class="k">else</span> <span class="n">read</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_part</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">channel_part</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a channel slot: "</span>
+            <span class="s2">"only a diagnostic or an expression can take one."</span><span class="p">,</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"subscript"</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">channel_part</span><span class="p">)},</span>
+        <span class="p">)</span>
+
+    <span class="n">channels</span> <span class="o">=</span> <span class="n">_literal_slots</span><span class="p">(</span><span class="n">channel_part</span><span class="o">.</span><span class="n">slice</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">channels</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">channels</span> <span class="ow">or</span> <span class="n">has_photometries</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">channel_part</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a channel slot: "</span>
+            <span class="s2">"a slot is written as a whole number, as in bg_center[0], or "</span>
+            <span class="s2">"as a quoted channel name, as in bg_center['G0']."</span><span class="p">,</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"subscript"</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">channel_part</span><span class="p">)},</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_photometries</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">channel_part</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="p">()</span>
+    <span class="n">photometries</span> <span class="o">=</span> <span class="n">_literal_slots</span><span class="p">(</span><span class="n">read</span><span class="o">.</span><span class="n">slice</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">photometries</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">read</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a photometry slot: a "</span>
+            <span class="s2">"slot is written as a whole number, as in "</span>
+            <span class="s2">"magfit_residual[0][0], or as a quoted photometry, as in "</span>
+            <span class="s2">"magfit_residual[0]['ap4']."</span><span class="p">,</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"subscript"</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">read</span><span class="p">)},</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">channel_part</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span></div>
 
 
 
@@ -346,9 +458,9 @@
 
 
 
-<div class="viewcode-block" id="get_expression_parameters">
-<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_expression_parameters">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_expression_parameters</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
+<div class="viewcode-block" id="get_channel_parameters">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_channel_parameters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_channel_parameters</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the channel slots one expression takes, in order.</span>
 
@@ -361,12 +473,16 @@
 <span class="sd">    its slots out of sequence -- and the order matters, since a reference's</span>
 <span class="sd">    arguments are matched onto these positionally.</span>
 
+<span class="sd">    A quoted channel is not a parameter: it is already bound. So</span>
+<span class="sd">    ``x[0] - x['G0']`` takes ``(0,)``, and ``sky_color['B', 'R']`` takes</span>
+<span class="sd">    none.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        expression(str):    The expression text.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple:    The distinct slot numbers, ascending. Empty for an</span>
-<span class="sd">            expression that reads no channel at all.</span>
+<span class="sd">            expression that reads no channel at all, or only quoted ones.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        SyntaxError, PipelineError:    As for</span>
@@ -377,17 +493,87 @@
         <span class="nb">sorted</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="n">slot</span>
-                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">slots</span> <span class="ow">in</span> <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">channels</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
             <span class="p">}</span>
         <span class="p">)</span>
     <span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="get_quantity_arity">
-<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_quantity_arity">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_quantity_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<div class="viewcode-block" id="get_photometry_parameters">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_photometry_parameters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_photometry_parameters</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the photometry slots one expression takes, in order.</span>
+
+<span class="sd">    As :func:`get_channel_parameters` returns the channel slots, from</span>
+<span class="sd">    the second subscripts instead:</span>
+<span class="sd">    ``magfit_residual[0][0] - magfit_residual[0][1]`` takes ``(0, 1)``, and</span>
+<span class="sd">    ``magfit_residual[0]['ap4']``, whose photometry is quoted, none.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        expression(str):    The expression text.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:    The distinct slot numbers, ascending.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        SyntaxError, PipelineError:    As for</span>
+<span class="sd">            :func:`get_indexed_names`.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">slot</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">photometries</span> <span class="ow">in</span> <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">photometries</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_bind_channels">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._bind_channels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_bind_channels</span><span class="p">(</span><span class="n">slots</span><span class="p">,</span> <span class="n">binding</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the channels *slots* name under *binding*.</span>
+
+<span class="sd">    A slot number is looked up; a quoted channel is already one.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="n">slot</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">binding</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_bind_photometries">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._bind_photometries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_bind_photometries</span><span class="p">(</span><span class="n">slots</span><span class="p">,</span> <span class="n">binding</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the photometry ids *slots* name under *binding*.</span>
+
+<span class="sd">    A slot number is looked up; a quoted photometry is read as the id it</span>
+<span class="sd">    spells, ``'ap4'`` as 4.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">parse_photometry_literal</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">binding</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_channel_arity">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_channel_arity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_channel_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return how many channels *name* has to be bound to before it can be read.</span>
 
@@ -414,11 +600,48 @@
 <span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_expression_parameters</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
     <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">time_quantity</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="n">is_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Cannot plot </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: no such diagnostic or expression."</span><span class="p">,</span>
+        <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"unknown"</span><span class="p">:</span> <span class="p">[</span><span class="n">name</span><span class="p">]},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_photometry_arity">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_photometry_arity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_photometry_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return how many photometries *name* has to be bound to.</span>
+
+<span class="sd">    As :func:`get_channel_arity` counts channels: a diagnostic recorded per</span>
+<span class="sd">    photometry (see</span>
+<span class="sd">    :func:`~autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names`)</span>
+<span class="sd">    takes exactly one; any other diagnostic, and the time, take none; and an</span>
+<span class="sd">    expression takes however many photometry slots its body mentions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name(str):    A diagnostic, an expression, or</span>
+<span class="sd">            :data:`time_quantity`.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int:    The number of photometries to bind.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        PipelineError:    If *name* is neither a diagnostic nor an</span>
+<span class="sd">            expression nor the time.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">time_quantity</span> <span class="ow">or</span> <span class="n">is_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="n">photometry_diagnostic_names</span><span class="p">())</span>
     <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">"Cannot plot </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: no such diagnostic or expression."</span><span class="p">,</span>
         <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"unknown"</span><span class="p">:</span> <span class="p">[</span><span class="n">name</span><span class="p">]},</span>
@@ -460,6 +683,39 @@
         <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span>
         <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">bare</span>
     <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="get_logical_keywords">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_logical_keywords">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_logical_keywords</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the Python logical keywords an expression uses.</span>
+
+<span class="sd">    ``and``, ``or`` and ``not`` ask for the truth value of their operands,</span>
+<span class="sd">    which an array of more than one element refuses to have ("the truth</span>
+<span class="sd">    value of an array is ambiguous"): element-wise logic is ``|``, ``&amp;``</span>
+<span class="sd">    and ``~``. On a quantity with one value, though, the keywords are</span>
+<span class="sd">    legitimate, so -- like :func:`get_bare_aggregates` -- this is for</span>
+<span class="sd">    callers to warn with, never to refuse.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        expression(str):    The expression text.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        set:    Those of ``"and"``, ``"or"`` and ``"not"`` that appear.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        SyntaxError:    As for :func:`get_expression_names`.</span>
+<span class="sd">    """</span>
+
+    <span class="n">keywords</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">BoolOp</span><span class="p">):</span>
+            <span class="n">keywords</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"and"</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">And</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"or"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Not</span><span class="p">):</span>
+            <span class="n">keywords</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"not"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">keywords</span></div>
 
 
 
@@ -749,7 +1005,15 @@
 
 <div class="viewcode-block" id="QuantityLookUp.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.QuantityLookUp.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shared</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">computed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">shared</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">computed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">takes_photometries</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name(str):    What the expressions call it, used for error</span>
@@ -758,17 +1022,28 @@
 <span class="sd">            shared(tuple):    The binding stack and evaluator this</span>
 <span class="sd">                evaluation's lookups share, from :meth:`library`.</span>
 
-<span class="sd">            definition(tuple):    The expression text and its parameters,</span>
-<span class="sd">                or ``None`` for a diagnostic, which has neither because it</span>
-<span class="sd">                is never evaluated.</span>
+<span class="sd">            definition(tuple):    The expression text, and its channel and</span>
+<span class="sd">                its photometry parameters as a pair, or ``None`` for a</span>
+<span class="sd">                diagnostic, which has none of them because it is never</span>
+<span class="sd">                evaluated.</span>
 
-<span class="sd">            computed(dict):    ``channels -&gt; array`` known in advance: the</span>
-<span class="sd">                whole of a diagnostic, and empty for an expression.</span>
+<span class="sd">            computed(dict):    ``(channels, photometries) -&gt; array`` known</span>
+<span class="sd">                in advance: the whole of a diagnostic, and empty for an</span>
+<span class="sd">                expression.</span>
+
+<span class="sd">            takes_photometries(bool):    Whether a diagnostic is read with a</span>
+<span class="sd">                second subscript, binding a photometry. An expression takes</span>
+<span class="sd">                photometries if it has photometry parameters.</span>
 <span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span> <span class="o">=</span> <span class="n">shared</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">definition</span> <span class="ow">or</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">())</span>
+        <span class="c1"># The channel and the photometry parameters, paired as a binding</span>
+        <span class="c1"># and a stack frame are.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">definition</span> <span class="ow">or</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">((),</span> <span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_takes_photometries</span> <span class="o">=</span> <span class="n">takes_photometries</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_computed</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">computed</span> <span class="ow">or</span> <span class="p">{})</span></div>
 
 
@@ -794,8 +1069,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            expressions(dict):    The library, ``{name: expression}``.</span>
 
-<span class="sd">            values(dict):    ``{name: {channels: array}}``, as fetched for</span>
-<span class="sd">                one series, keyed exactly as</span>
+<span class="sd">            values(dict):    ``{name: {(channels, photometries): array}}``,</span>
+<span class="sd">                as fetched for one series, keyed exactly as</span>
 <span class="sd">                :func:`get_needed_values` asked.</span>
 
 <span class="sd">        Returns:</span>
@@ -803,16 +1078,28 @@
 <span class="sd">        """</span>
 
         <span class="n">shared</span> <span class="o">=</span> <span class="p">([],</span> <span class="n">Evaluator</span><span class="p">({}))</span>
+        <span class="n">per_phot_names</span> <span class="o">=</span> <span class="n">photometry_diagnostic_names</span><span class="p">()</span>
         <span class="n">lookups</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">name</span><span class="p">:</span> <span class="bp">cls</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shared</span><span class="p">,</span> <span class="n">computed</span><span class="o">=</span><span class="n">by_channels</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">by_channels</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="n">name</span><span class="p">:</span> <span class="bp">cls</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">shared</span><span class="p">,</span>
+                <span class="n">computed</span><span class="o">=</span><span class="n">by_binding</span><span class="p">,</span>
+                <span class="n">takes_photometries</span><span class="o">=</span><span class="n">name</span> <span class="ow">in</span> <span class="n">per_phot_names</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">by_binding</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
         <span class="n">lookups</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="n">name</span><span class="p">:</span> <span class="bp">cls</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">shared</span><span class="p">,</span>
-                    <span class="n">definition</span><span class="o">=</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">get_expression_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">)),</span>
+                    <span class="n">definition</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">text</span><span class="p">,</span>
+                        <span class="p">(</span>
+                            <span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+                            <span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+                        <span class="p">),</span>
+                    <span class="p">),</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">expressions</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">}</span>
@@ -821,24 +1108,31 @@
         <span class="n">symtable</span> <span class="o">=</span> <span class="n">shared</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">symtable</span>
         <span class="n">symtable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">lookups</span><span class="p">)</span>
 
-        <span class="c1"># A quantity binding no channels -- the time, and any expression</span>
-        <span class="c1"># over it alone -- is written without a subscript, there being</span>
-        <span class="c1"># nothing to subscript it with. A lookup resolves on</span>
-        <span class="c1"># ``__getitem__`` and a bare name never calls one, so such a</span>
-        <span class="c1"># quantity has to be its *values* here, or it would reach the</span>
-        <span class="c1"># arithmetic as the object itself. The time first, then the</span>
-        <span class="c1"># expressions over it, each after what it reads.</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">by_channels</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="p">()</span> <span class="ow">in</span> <span class="n">by_channels</span><span class="p">:</span>
-                <span class="n">symtable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">by_channels</span><span class="p">[()]</span>
+        <span class="c1"># A quantity binding neither channels nor photometries -- the time,</span>
+        <span class="c1"># and any expression whose channels and photometries, if any, are</span>
+        <span class="c1"># all quoted -- is written without a subscript, there being nothing</span>
+        <span class="c1"># to subscript it with. A lookup resolves on ``__getitem__`` and a</span>
+        <span class="c1"># bare name never calls one, so such a quantity has to be its</span>
+        <span class="c1"># *values* here, or it would reach the arithmetic as the object</span>
+        <span class="c1"># itself. The time first, then the expressions over it, each after</span>
+        <span class="c1"># what it reads. One taking photometries but no channel is written</span>
+        <span class="c1"># ``name[()][0]``, so it stays a lookup.</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">by_binding</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">((),</span> <span class="p">())</span> <span class="ow">in</span> <span class="n">by_binding</span><span class="p">:</span>
+                <span class="n">symtable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">by_binding</span><span class="p">[(),</span> <span class="p">()]</span>
 
-        <span class="n">channel_free</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">parameter_free</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">name</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">expressions</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">get_expression_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_evaluation_order</span><span class="p">(</span><span class="n">channel_free</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-            <span class="n">symtable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">lookups</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">(())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="c1"># The order also holds what they reach by subscript, such as</span>
+        <span class="c1"># ``sky_color`` in ``sky_color['B', 'R']``, which has parameters to</span>
+        <span class="c1"># bind and stays a lookup.</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_evaluation_order</span><span class="p">(</span><span class="n">parameter_free</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">parameter_free</span><span class="p">:</span>
+                <span class="n">symtable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">lookups</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((),</span> <span class="p">())</span>
 
         <span class="k">return</span> <span class="n">lookups</span></div>
 
@@ -853,19 +1147,27 @@
 <span class="sd">        the shapes take care of themselves. The binding read is the top of</span>
 <span class="sd">        the stack, which is always the body asking: a nested evaluation</span>
 <span class="sd">        finishes in here before the outer body's next operand is touched.</span>
+<span class="sd">        A quoted channel, ``x['G0']``, is not looked up in it.</span>
+
+<span class="sd">        A quantity taking photometries is not resolved yet: its channels</span>
+<span class="sd">        are bound, and the :class:`_ChannelBound` returned resolves the</span>
+<span class="sd">        second subscript, which such a quantity always has.</span>
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slots</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="n">slots</span> <span class="o">=</span> <span class="p">(</span><span class="n">slots</span><span class="p">,)</span>
-        <span class="n">binding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">binding</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">))</span></div>
+        <span class="n">channel_binding</span><span class="p">,</span> <span class="n">photometry_binding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">_bind_channels</span><span class="p">(</span><span class="n">slots</span><span class="p">,</span> <span class="n">channel_binding</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_takes_photometries</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_ChannelBound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometry_binding</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="QuantityLookUp.at">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.QuantityLookUp.at">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Return this quantity with its parameters bound to *channels*.</span>
+<span class="sd">        Return this quantity with its parameters bound as given.</span>
 
 <span class="sd">        The cache is what makes an instantiation wanted twice -- by two</span>
 <span class="sd">        references, or by two different expressions -- computed once. For a</span>
@@ -880,61 +1182,146 @@
 <span class="sd">        a finite parameter set and introduces no new symbols.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            channels(tuple):    One channel per parameter, in order.</span>
+<span class="sd">            channels(tuple):    One channel per channel parameter, in</span>
+<span class="sd">                order.</span>
+
+<span class="sd">            photometries(tuple):    One photometry id per photometry</span>
+<span class="sd">                parameter, in order.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            numpy.ndarray:    The values, over the canonical image list.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            PipelineError:    If a diagnostic was not fetched for this</span>
-<span class="sd">                channel.</span>
+<span class="sd">                binding.</span>
 <span class="sd">        """</span>
 
-        <span class="k">if</span> <span class="n">channels</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_computed</span><span class="p">:</span>
+        <span class="n">binding</span> <span class="o">=</span> <span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">binding</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_computed</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"No values supplied for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2"> in "</span>
-                    <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="p">[</span><span class="o">*</span><span class="n">channels</span><span class="p">,</span> <span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">photometry_literal</span><span class="p">,</span> <span class="n">photometries</span><span class="p">)]</span>
+                    <span class="p">)</span>
                     <span class="o">+</span> <span class="s2">"."</span><span class="p">,</span>
-                    <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"missing"</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],</span> <span class="s2">"channels"</span><span class="p">:</span> <span class="n">channels</span><span class="p">},</span>
+                    <span class="n">details</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">"missing"</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],</span>
+                        <span class="s2">"channels"</span><span class="p">:</span> <span class="n">channels</span><span class="p">,</span>
+                        <span class="s2">"photometries"</span><span class="p">:</span> <span class="n">photometries</span><span class="p">,</span>
+                    <span class="p">},</span>
                 <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">,</span> <span class="n">channels</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">bound</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">bound</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">,</span> <span class="n">binding</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_computed</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_computed</span><span class="p">[</span><span class="n">binding</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_computed</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_computed</span><span class="p">[</span><span class="n">binding</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_ChannelBound">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._ChannelBound">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_ChannelBound</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A quantity taking photometries, with its channels bound.</span>
+
+<span class="sd">    What ``x[0]`` gives inside ``x[0][1]``: the second subscript then binds</span>
+<span class="sd">    the photometries, against the binding of the body that wrote it, and</span>
+<span class="sd">    returns the values. Every read of such a quantity has that second</span>
+<span class="sd">    subscript (:func:`check_expression` refuses one without), so this never</span>
+<span class="sd">    reaches the arithmetic in place of values.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="_ChannelBound.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._ChannelBound.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometry_binding</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Args:</span>
+<span class="sd">            lookup(QuantityLookUp):    The quantity read.</span>
+
+<span class="sd">            channels(tuple):    Its channels, already bound.</span>
+
+<span class="sd">            photometry_binding(dict):    The photometry binding of the body</span>
+<span class="sd">                reading it, taken when its channels were bound: the same</span>
+<span class="sd">                body's, since nothing is evaluated between the subscripts.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span> <span class="o">=</span> <span class="n">lookup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_channels</span> <span class="o">=</span> <span class="n">channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_photometry_binding</span> <span class="o">=</span> <span class="n">photometry_binding</span></div>
+
+
+<div class="viewcode-block" id="_ChannelBound.__getitem__">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._ChannelBound.__getitem__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slots</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Resolve the photometries of ``x[...][slots]``, and read it."""</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slots</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">slots</span> <span class="o">=</span> <span class="p">(</span><span class="n">slots</span><span class="p">,)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="o">.</span><span class="n">at</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_channels</span><span class="p">,</span>
+            <span class="n">_bind_photometries</span><span class="p">(</span><span class="n">slots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photometry_binding</span><span class="p">),</span>
+        <span class="p">)</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="_visit_needed">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._visit_needed">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_visit_needed</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">needed</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Add what *name* bound to *channels* reads, recursively."""</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_visit_needed</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">needed</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Add what *name* bound to *channels* and *photometries* reads.</span>
 
-    <span class="n">expected</span> <span class="o">=</span> <span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+<span class="sd">    Recursively, and both kinds of reference are followed. A subscripted</span>
+<span class="sd">    one is bound through *channels* and *photometries*; a bare one takes</span>
+<span class="sd">    neither, being the time or an expression whose channels and</span>
+<span class="sd">    photometries, if any, are all quoted -- and the latter still reads</span>
+<span class="sd">    diagnostics, so stopping at bare names would leave them unfetched.</span>
+<span class="sd">    Other bare names are functions.</span>
+<span class="sd">    """</span>
+
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">get_channel_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2"> channel(s), not </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
             <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"quantity"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"channels"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">channels</span><span class="p">)},</span>
         <span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">get_photometry_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">photometries</span><span class="p">)</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2"> photometries, not "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photometries</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"quantity"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"photometries"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">photometries</span><span class="p">)},</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
         <span class="c1"># A diagnostic, or the time -- either way a leaf, and either way</span>
-        <span class="c1"># named by the channels it is read in, which for the time is none.</span>
-        <span class="n">needed</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+        <span class="c1"># named by the binding it is read in, which for the time is empty.</span>
+        <span class="n">needed</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span><span class="p">))</span>
         <span class="k">return</span>
 
     <span class="n">text</span> <span class="o">=</span> <span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-    <span class="n">binding</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">get_expression_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">channels</span><span class="p">))</span>
-    <span class="k">for</span> <span class="n">referenced</span><span class="p">,</span> <span class="n">slots</span> <span class="ow">in</span> <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">channel_binding</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">channels</span><span class="p">))</span>
+    <span class="n">photometry_binding</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">photometries</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">referenced</span><span class="p">,</span> <span class="n">channel_slots</span><span class="p">,</span> <span class="n">photometry_slots</span> <span class="ow">in</span> <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
         <span class="n">_visit_needed</span><span class="p">(</span>
             <span class="n">referenced</span><span class="p">,</span>
-            <span class="nb">tuple</span><span class="p">(</span><span class="n">binding</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">),</span>
+            <span class="n">_bind_channels</span><span class="p">(</span><span class="n">channel_slots</span><span class="p">,</span> <span class="n">channel_binding</span><span class="p">),</span>
+            <span class="n">_bind_photometries</span><span class="p">(</span><span class="n">photometry_slots</span><span class="p">,</span> <span class="n">photometry_binding</span><span class="p">),</span>
             <span class="n">expressions</span><span class="p">,</span>
             <span class="n">needed</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">referenced</span> <span class="ow">in</span> <span class="n">_get_bare_names</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">referenced</span> <span class="ow">in</span> <span class="n">expressions</span> <span class="ow">or</span> <span class="n">referenced</span> <span class="o">==</span> <span class="n">time_quantity</span><span class="p">:</span>
+            <span class="n">_visit_needed</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="p">(),</span> <span class="p">(),</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">needed</span><span class="p">)</span></div>
 
 
 
@@ -957,23 +1344,24 @@
 
 <span class="sd">    It walks what evaluation walks, resolving each reference's arguments</span>
 <span class="sd">    through the binding of the body holding it, and stops at the</span>
-<span class="sd">    diagnostics.</span>
+<span class="sd">    diagnostics and the time.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        wanted(dict):    ``{quantity: set of channel tuples}``, each tuple</span>
-<span class="sd">            holding one channel per parameter of that quantity. A *set*</span>
-<span class="sd">            because one quantity may be wanted at two bindings at once:</span>
-<span class="sd">            ``bg_center`` in R against ``bg_center`` in B is a plot of a</span>
-<span class="sd">            diagnostic between channels.</span>
+<span class="sd">        wanted(dict):    ``{quantity: set of (channels, photometries)}``,</span>
+<span class="sd">            each a tuple holding one channel per channel parameter of that</span>
+<span class="sd">            quantity, and one photometry id per photometry parameter. A</span>
+<span class="sd">            *set* because one quantity may be wanted at two bindings at</span>
+<span class="sd">            once: ``bg_center`` in R against ``bg_center`` in B is a plot of</span>
+<span class="sd">            a diagnostic between channels.</span>
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict:    ``{name: set of channel tuples}`` -- the same shape it</span>
-<span class="sd">            takes, which is what it means: what is wanted, resolved into</span>
-<span class="sd">            what must be read. One entry per diagnostic, holding every</span>
-<span class="sd">            combination it is read in, plus :data:`time_quantity` with the</span>
-<span class="sd">            empty tuple where an expression reads the time.</span>
+<span class="sd">        dict:    ``{name: set of (channels, photometries)}`` -- the same</span>
+<span class="sd">            shape it takes, which is what it means: what is wanted, resolved</span>
+<span class="sd">            into what must be read. One entry per diagnostic, holding every</span>
+<span class="sd">            binding it is read in, plus :data:`time_quantity` with</span>
+<span class="sd">            ``((), ())`` where an expression reads the time.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    On a reference cycle, on a name that resolves to</span>
@@ -982,23 +1370,18 @@
 
     <span class="c1"># Refuses a cycle and an unresolvable name, so the walk below cannot</span>
     <span class="c1"># recurse for ever and neither it nor the evaluation need check again.</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">channel_free</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">wanted</span><span class="p">),</span> <span class="n">expressions</span><span class="p">)</span>
+    <span class="n">order_expressions</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">wanted</span><span class="p">),</span> <span class="n">expressions</span><span class="p">)</span>
 
     <span class="n">needed</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="c1"># The time is the one quantity read without a subscript, so the walk</span>
-    <span class="c1"># below never reaches it however deep it lies: ``bg_center[0] * night``</span>
-    <span class="c1"># reads it only through ``night``. Taking no channel is also why no</span>
-    <span class="c1"># walk is needed -- order_expressions already reports it, having</span>
-    <span class="c1"># flattened bare and subscripted names alike -- and why nothing else</span>
-    <span class="c1"># can hide behind a bare reference, reading a diagnostic taking a</span>
-    <span class="c1"># subscript that would give its expression a parameter.</span>
-    <span class="k">if</span> <span class="n">time_quantity</span> <span class="ow">in</span> <span class="n">channel_free</span><span class="p">:</span>
-        <span class="n">needed</span><span class="p">[</span><span class="n">time_quantity</span><span class="p">]</span> <span class="o">=</span> <span class="p">{()}</span>
-
     <span class="k">for</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">bindings</span> <span class="ow">in</span> <span class="n">wanted</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">channels</span> <span class="ow">in</span> <span class="n">bindings</span><span class="p">:</span>
-            <span class="n">_visit_needed</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">needed</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span> <span class="ow">in</span> <span class="n">bindings</span><span class="p">:</span>
+            <span class="n">_visit_needed</span><span class="p">(</span>
+                <span class="n">quantity</span><span class="p">,</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">photometries</span><span class="p">),</span>
+                <span class="n">expressions</span><span class="p">,</span>
+                <span class="n">needed</span><span class="p">,</span>
+            <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">needed</span></div>
 
@@ -1020,24 +1403,24 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.evaluate_quantities">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_quantities</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Evaluate the quantities of one series, each bound to its channels.</span>
+<span class="sd">    Evaluate the quantities of one series, each bound as asked.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        wanted(dict):    ``{quantity: set of channel tuples}``, as the</span>
-<span class="sd">            table bound them and as :func:`get_needed_values` takes them.</span>
-<span class="sd">            Asking for both axes at once is what lets an instantiation</span>
-<span class="sd">            they share be computed once.</span>
+<span class="sd">        wanted(dict):    ``{quantity: set of (channels, photometries)}``,</span>
+<span class="sd">            as the table bound them and as :func:`get_needed_values` takes</span>
+<span class="sd">            them. Asking for both axes at once is what lets an</span>
+<span class="sd">            instantiation they share be computed once.</span>
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
-<span class="sd">        values(dict):    ``{name: {channels: array}}``, every array on one</span>
-<span class="sd">            canonical image list, holding what</span>
+<span class="sd">        values(dict):    ``{name: {(channels, photometries): array}}``,</span>
+<span class="sd">            every array on one canonical image list, holding what</span>
 <span class="sd">            :func:`get_needed_values` asked for and keyed the same way.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict:    ``{quantity: {channels: array}}``, all of the same</span>
-<span class="sd">            length -- the shape *values* arrives in, being the same kind</span>
-<span class="sd">            of thing: a quantity read in the channels asked for.</span>
+<span class="sd">        dict:    ``{quantity: {(channels, photometries): array}}``, all of</span>
+<span class="sd">            the same length -- the shape *values* arrives in, being the</span>
+<span class="sd">            same kind of thing: a quantity read in the binding asked for.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    If a quantity resolves to nothing, if the</span>
@@ -1058,22 +1441,53 @@
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">quantity</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span> <span class="n">_as_series</span><span class="p">(</span>
-                <span class="n">lookups</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">)),</span> <span class="n">count</span>
+            <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">photometries</span><span class="p">)):</span> <span class="n">_as_series</span><span class="p">(</span>
+                <span class="n">lookups</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">photometries</span><span class="p">)),</span>
+                <span class="n">count</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">channels</span> <span class="ow">in</span> <span class="n">bindings</span>
+            <span class="k">for</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span> <span class="ow">in</span> <span class="n">bindings</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">bindings</span> <span class="ow">in</span> <span class="n">wanted</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span></div>
 
 
 
-<div class="viewcode-block" id="_spell_slots">
-<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._spell_slots">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_spell_slots</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+<div class="viewcode-block" id="_spell_channel_slots">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._spell_channel_slots">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_spell_channel_slots</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Return *count* channel slots, spelled for a message."""</span>
 
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"no channel slot"</span>
     <span class="k">return</span> <span class="s2">"1 channel slot"</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> channel slots"</span></div>
+
+
+
+<div class="viewcode-block" id="_spell_photometry_slots">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._spell_photometry_slots">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_spell_photometry_slots</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return *count* photometry slots, spelled for a message."""</span>
+
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"no photometry slot"</span>
+    <span class="k">return</span> <span class="s2">"1 photometry slot"</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> photometry slots"</span></div>
+
+
+
+<div class="viewcode-block" id="_spell_read">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._spell_read">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_spell_read</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return a read of *name* at these slots, as an expression writes it.</span>
+
+<span class="sd">    The channel subscript is ``[()]`` where there are no channels but</span>
+<span class="sd">    photometries follow, and the photometry one is left out where there are</span>
+<span class="sd">    none.</span>
+<span class="sd">    """</span>
+
+    <span class="n">written</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span><span class="w"> </span><span class="n">channels</span><span class="p">))</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'()'</span><span class="si">}</span><span class="s2">]"</span>
+    <span class="k">if</span> <span class="n">photometries</span><span class="p">:</span>
+        <span class="n">written</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span><span class="w"> </span><span class="n">photometries</span><span class="p">))</span><span class="si">}</span><span class="s2">]"</span>
+    <span class="k">return</span> <span class="n">written</span></div>
 
 
 
@@ -1083,12 +1497,14 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return what is wrong with how *expression* reads its quantities.</span>
 
-<span class="sd">    One rule: a quantity is read with exactly as many channel slots as it</span>
-<span class="sd">    takes, and one taking none is read bare. The first half is what makes</span>
-<span class="sd">    a reference's arguments match a definition's parameters positionally;</span>
-<span class="sd">    the second is what lets :func:`get_needed_values` and</span>
-<span class="sd">    :meth:`QuantityLookUp.library` treat a bare name as a value and still</span>
-<span class="sd">    know they have seen everything.</span>
+<span class="sd">    One rule: a quantity is read with exactly as many channel slots and</span>
+<span class="sd">    photometry slots as it takes, and one taking neither is read bare. The</span>
+<span class="sd">    first half is what makes a reference's arguments match a definition's</span>
+<span class="sd">    parameters positionally, and what makes the second subscript present</span>
+<span class="sd">    exactly where a :class:`_ChannelBound` needs resolving; the second is</span>
+<span class="sd">    what lets :func:`get_needed_values` and :meth:`QuantityLookUp.library`</span>
+<span class="sd">    treat a bare name as a value and still know they have seen everything.</span>
+<span class="sd">    And a quoted photometry must name one.</span>
 
 <span class="sd">    Only names resolving to a quantity are judged, in either direction:</span>
 <span class="sd">    the evaluator's own arrays can be indexed too, and most bare names are</span>
@@ -1116,31 +1532,60 @@
 
     <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">for</span> <span class="n">referenced</span><span class="p">,</span> <span class="n">slots</span> <span class="ow">in</span> <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">referenced</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span> <span class="ow">in</span> <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_quantity</span><span class="p">(</span><span class="n">referenced</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">written</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">slot</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">slots</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
-        <span class="n">arity</span> <span class="o">=</span> <span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">arity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="n">_spell_read</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span><span class="p">)</span>
+        <span class="n">channel_arity</span> <span class="o">=</span> <span class="n">get_channel_arity</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+        <span class="n">photometry_arity</span> <span class="o">=</span> <span class="n">get_photometry_arity</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">channel_arity</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">photometry_arity</span><span class="p">:</span>
             <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes no channel slot, being one value per "</span>
-                <span class="sa">f</span><span class="s2">"image: write </span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> rather than </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">."</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes no slot, being one value per image: "</span>
+                <span class="sa">f</span><span class="s2">"write </span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> rather than </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">arity</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">channel_arity</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
             <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">_spell_slots</span><span class="p">(</span><span class="n">arity</span><span class="p">)</span><span class="si">}</span><span class="s2">, not "</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">."</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">_spell_channel_slots</span><span class="p">(</span><span class="n">channel_arity</span><span class="p">)</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"not </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="n">photometry_arity</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">photometries</span><span class="p">):</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_spell_photometry_slots</span><span class="p">(</span><span class="n">photometry_arity</span><span class="p">)</span><span class="si">}</span><span class="s2">, not "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photometries</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">literal</span><span class="si">!r}</span><span class="s2"> names no photometry in </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">: quote one as "</span>
+            <span class="s2">"'shapefit', or as 'ap' followed by the aperture index, as in "</span>
+            <span class="s2">"'ap4'."</span>
+            <span class="k">for</span> <span class="n">literal</span> <span class="ow">in</span> <span class="n">photometries</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">literal</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">parse_photometry_literal</span><span class="p">(</span><span class="n">literal</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">referenced</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_get_bare_names</span><span class="p">(</span><span class="n">expression</span><span class="p">)):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_quantity</span><span class="p">(</span><span class="n">referenced</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">arity</span> <span class="o">=</span> <span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">arity</span><span class="p">:</span>
-            <span class="n">sample</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">arity</span><span class="p">))</span>
+        <span class="n">channel_arity</span> <span class="o">=</span> <span class="n">get_channel_arity</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+        <span class="n">photometry_arity</span> <span class="o">=</span> <span class="n">get_photometry_arity</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">channel_arity</span> <span class="ow">or</span> <span class="n">photometry_arity</span><span class="p">:</span>
+            <span class="n">taken</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">spell</span><span class="p">(</span><span class="n">arity</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">spell</span><span class="p">,</span> <span class="n">arity</span> <span class="ow">in</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">_spell_channel_slots</span><span class="p">,</span> <span class="n">channel_arity</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">_spell_photometry_slots</span><span class="p">,</span> <span class="n">photometry_arity</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">arity</span>
+            <span class="p">]</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">_spell_read</span><span class="p">(</span>
+                <span class="n">referenced</span><span class="p">,</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">channel_arity</span><span class="p">)),</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">photometry_arity</span><span class="p">)),</span>
+            <span class="p">)</span>
             <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">_spell_slots</span><span class="p">(</span><span class="n">arity</span><span class="p">)</span><span class="si">}</span><span class="s2">, so it cannot be "</span>
-                <span class="sa">f</span><span class="s2">"read on its own: write </span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">sample</span><span class="si">}</span><span class="s2">]."</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="s1">' and '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">taken</span><span class="p">)</span><span class="si">}</span><span class="s2">, so it cannot be "</span>
+                <span class="sa">f</span><span class="s2">"read on its own: write </span><span class="si">{</span><span class="n">sample</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">problems</span></div>
@@ -1163,8 +1608,8 @@
 <span class="sd">    project creation or created by the ``pixel_q*`` branch of</span>
 <span class="sd">    ``_save_image_diagnostics``, which refuses every other name. So no</span>
 <span class="sd">    project can contain a diagnostic this does not know, and an expression</span>
-<span class="sd">    means the same thing everywhere -- which is what lets one library be</span>
-<span class="sd">    shared by every project.</span>
+<span class="sd">    means the same thing everywhere -- which is what lets expressions be</span>
+<span class="sd">    exported from one project and imported into another.</span>
 
 <span class="sd">    Whether an expression is *usable* in a particular project is a</span>
 <span class="sd">    different question, about whether rows have been recorded, and is</span>
@@ -1200,6 +1645,33 @@
             <span class="s2">"cannot shadow one: the two share a name space, which is what "</span>
             <span class="s2">"lets a selector and a URL treat them alike."</span>
         <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">problems</span> <span class="o">+</span> <span class="n">_body_problems</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">current_library</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_body_problems">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._body_problems">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_body_problems</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">current_library</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what is wrong with the text of an expression or a rule.</span>
+
+<span class="sd">    Everything :func:`check_expression` judges apart from the name, which</span>
+<span class="sd">    is the whole of what applies to an exclusion rule as well.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name(str):    What the text is evaluated under: the proposed name,</span>
+<span class="sd">            or :data:`rule_quantity`.</span>
+
+<span class="sd">        expression(str):    The proposed text.</span>
+
+<span class="sd">        current_library(dict):    As for :func:`check_expression`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    Descriptions of the problems; empty if there are none.</span>
+<span class="sd">    """</span>
+
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">referenced</span> <span class="o">=</span> <span class="n">get_expression_names</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
@@ -1245,6 +1717,135 @@
         <span class="n">order_expressions</span><span class="p">([</span><span class="n">name</span><span class="p">],</span> <span class="n">new_library</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">PipelineError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
         <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">problems</span></div>
+
+
+
+<span class="c1">#: What an exclusion rule is evaluated under, as one more entry in the</span>
+<span class="c1">#: library: ``dict(library, **{rule_quantity: rule})``. A rule taking a</span>
+<span class="c1">#: channel parameter (see :func:`get_channel_parameters`) is bound to each</span>
+<span class="c1">#: channel being decided for, ``(channel,)``, and excludes per channel;</span>
+<span class="c1">#: one taking none reads only quoted channels, is bound to ``()``, and its</span>
+<span class="c1">#: verdict applies to every channel of the image. Photometries likewise</span>
+<span class="c1">#: (see :func:`get_photometry_parameters`): a rule taking a photometry</span>
+<span class="c1">#: parameter excludes per photometry. Not a slug, so</span>
+<span class="c1">#: :func:`check_expression` lets no stored expression take the name, and it</span>
+<span class="c1">#: reads sensibly in an error message.</span>
+<span class="n">rule_quantity</span> <span class="o">=</span> <span class="s2">"&lt;exclusion rule&gt;"</span>
+
+
+<div class="viewcode-block" id="get_quoted_channel_order">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_quoted_channel_order">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_quoted_channel_order</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the channels *quantity* quotes, in the order its text is written.</span>
+
+<span class="sd">    Following the expressions it references where they come, whether read</span>
+<span class="sd">    bare or through a subscript: ``gcol = sky_color['B', 'R']`` quotes</span>
+<span class="sd">    ``B`` and then ``R``, and so does anything reading ``gcol``. Each</span>
+<span class="sd">    channel is listed once, where it is first quoted.</span>
+
+<span class="sd">    The order is the text's rather than any other because two things are</span>
+<span class="sd">    laid out by it. A series whose channels are all quoted binds none of</span>
+<span class="sd">    its own, and is shown in the first -- its colour, and the frame a click</span>
+<span class="sd">    on a point opens. And a quoted channel a magfit diagnostic is read in</span>
+<span class="sd">    gets a column of the series table to choose its photometric reference</span>
+<span class="sd">    in, and those columns follow the order the expression mentions them.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        quantity(str):    A diagnostic, an expression, or the time.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``, which</span>
+<span class="sd">            :func:`order_expressions` has found free of cycles.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    The channels, empty if nothing *quantity* reaches quotes</span>
+<span class="sd">            one -- as for anything but an expression.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        SyntaxError, PipelineError:    As for :func:`get_indexed_names`.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">quantity</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">)</span>
+    <span class="n">nested</span> <span class="o">=</span> <span class="n">_nested_reads</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># A subscript starts where its name does and comes first, so its own</span>
+    <span class="c1"># quoted slots are looked at before the expression it subscripts.</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">_in_written_order</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nested</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">quoted</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">channel</span>
+                <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">_get_read</span><span class="p">(</span><span class="n">node</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+            <span class="n">quoted</span> <span class="o">=</span> <span class="n">get_quoted_channel_order</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">quoted</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">channel</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">found</span><span class="p">:</span>
+                <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">found</span></div>
+
+
+
+<div class="viewcode-block" id="check_rule">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.check_rule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_rule</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">library</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what is wrong with a proposed exclusion rule, as plain strings.</span>
+
+<span class="sd">    A rule is judged as an expression would be, apart from having no name</span>
+<span class="sd">    of its own, and with one more constraint: it takes at most one channel</span>
+<span class="sd">    slot, which is bound to the channel being decided for, and at most one</span>
+<span class="sd">    photometry slot, bound to the photometry being decided for. Any other</span>
+<span class="sd">    channel or photometry it reads is named by quoting it.</span>
+
+<span class="sd">    Whether the quoted channels and photometries exist is a question about</span>
+<span class="sd">    the cameras and the configuration of a project, and is not answered</span>
+<span class="sd">    here.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rule(str):    The proposed rule text.</span>
+
+<span class="sd">        library(dict):    The project's library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    Descriptions of the problems; empty if there are none.</span>
+<span class="sd">    """</span>
+
+    <span class="n">problems</span> <span class="o">=</span> <span class="n">_body_problems</span><span class="p">(</span><span class="n">rule_quantity</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+        <span class="n">photometries</span> <span class="o">=</span> <span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">SyntaxError</span><span class="p">,</span> <span class="n">PipelineError</span><span class="p">):</span>
+        <span class="c1"># Reported above already.</span>
+        <span class="k">return</span> <span class="n">problems</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"An exclusion rule takes at most one channel slot, for the "</span>
+            <span class="s2">"channel being decided for, not "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">channels</span><span class="p">))</span>
+            <span class="o">+</span> <span class="s2">": name any other channel by quoting it, as in "</span>
+            <span class="s2">"bg_center['G0']."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">photometries</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"An exclusion rule takes at most one photometry slot, for the "</span>
+            <span class="s2">"photometry being decided for, not "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">photometries</span><span class="p">))</span>
+            <span class="o">+</span> <span class="s2">": name any other photometry by quoting it, as in "</span>
+            <span class="s2">"magfit_residual[0]['ap4']."</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">problems</span></div>
 

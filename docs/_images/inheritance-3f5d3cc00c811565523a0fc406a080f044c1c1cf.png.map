@@ -1,0 +1,5 @@
+<map id="inheritance2cbe9fef0f" name="inheritance2cbe9fef0f">
+<area shape="rect" id="node1" href="autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject" target="_top" title="A project with one registered single photref, holding no tests itself." alt="" coords="18,79,418,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_photref_candidates.TestRecordedBindings" target="_top" title="What binding a group to a newly chosen photref reports binding." alt="" coords="5,152,431,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="134,5,302,31"/>
+</map>

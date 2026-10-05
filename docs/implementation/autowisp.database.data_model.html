@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -172,40 +175,41 @@
 <span id="autowisp-database-data-model-package"></span><h1>autowisp.database.data_model package<a class="headerlink" href="#module-autowisp.database.data_model" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-745878217ce8e9b9b37c21ecdbb20f8637c11157.png" alt="Inheritance diagram of AlternateParameterName, Condition, ConditionExpression, Configuration, DDL, DataModelBase, DataModelSubBase, DiagnosticType, Error, HDF5Attribute, HDF5DataSet, HDF5Link, HDF5Product, HDF5StructureVersion, Image, ImageDiagnostics, ImageMasterSelection, ImageProcessingProgress, ImageType, InputMasterTypes, LightCurveProcessingProgress, LightCurveStatus, MasterFile, MasterType, ObservingSession, Parameter, PhotometryDiagnostics, PipelineRun, ProcessedImages, ProcessingSequence, Step, StepDependencies, Target" usemap="#inheritance68aeb7d551" class="inheritance graphviz" /></div>
-<map id="inheritance68aeb7d551" name="inheritance68aeb7d551">
-<area shape="rect" id="node5" href="#autowisp.database.data_model.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="4,312,303,333"/>
-<area shape="rect" id="node6" href="#autowisp.database.data_model.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="323,312,747,333"/>
-<area shape="rect" id="node7" href="#autowisp.database.data_model.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="767,312,1108,333"/>
-<area shape="rect" id="node8" href="#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="1128,312,1375,333"/>
-<area shape="rect" id="node9" href="#autowisp.database.data_model.HDF5Attribute" target="_top" title="The table describing how to add attributes in HDF5 files." alt="" coords="1396,312,1753,333"/>
-<area shape="rect" id="node10" href="#autowisp.database.data_model.HDF5DataSet" target="_top" title="The table describing how to include datasets in HDF5 files." alt="" coords="1774,312,2122,333"/>
-<area shape="rect" id="node11" href="#autowisp.database.data_model.HDF5Link" target="_top" title="Table describing links of chosen versions of products in HDF5 files." alt="" coords="2142,312,2447,333"/>
-<area shape="rect" id="node12" href="#autowisp.database.data_model.HDF5Product" target="_top" title="The types of pipeline products stored as HDF5 files." alt="" coords="2468,312,2812,333"/>
-<area shape="rect" id="node13" href="#autowisp.database.data_model.HDF5StructureVersion" target="_top" title="The versions of structures for the HDF5 pipeline products." alt="" coords="2832,312,3279,333"/>
-<area shape="rect" id="node14" href="#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="3300,312,3565,333"/>
-<area shape="rect" id="node15" href="#autowisp.database.data_model.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="3585,312,3956,333"/>
-<area shape="rect" id="node16" href="#autowisp.database.data_model.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="3977,312,4303,333"/>
-<area shape="rect" id="node17" href="#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="4324,312,4705,333"/>
-<area shape="rect" id="node22" href="#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="5164,312,5485,333"/>
-<area shape="rect" id="node23" href="#autowisp.database.data_model.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="5505,312,5906,333"/>
-<area shape="rect" id="node24" href="#autowisp.database.data_model.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="5927,312,6466,333"/>
-<area shape="rect" id="node26" href="#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="6487,312,6807,333"/>
-<area shape="rect" id="node27" href="#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="6828,312,7154,333"/>
-<area shape="rect" id="node28" href="#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="7175,312,7570,333"/>
-<area shape="rect" id="node29" href="#autowisp.database.data_model.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="7590,312,7917,333"/>
-<area shape="rect" id="node30" href="#autowisp.database.data_model.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="7938,312,8363,333"/>
-<area shape="rect" id="node31" href="#autowisp.database.data_model.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="8383,312,8785,333"/>
-<area shape="rect" id="node32" href="#autowisp.database.data_model.AlternateParameterName" target="_top" title="Table describing alternate names for parameters." alt="" coords="8806,312,9265,333"/>
-<area shape="rect" id="node33" href="#autowisp.database.data_model.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="9286,312,9662,333"/>
-<area shape="rect" id="node34" href="#autowisp.database.data_model.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="9683,312,10027,333"/>
-<area shape="rect" id="node35" href="#autowisp.database.data_model.Target" target="_top" title="The table describing the target." alt="" coords="10048,312,10311,333"/>
-<area shape="rect" id="node21" href="#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="5109,250,5562,272"/>
-<area shape="rect" id="node25" href="#autowisp.database.data_model.LightCurveStatus" target="_top" title="Table tracking the status of lightcurves for interrupted steps." alt="" coords="5583,250,5972,272"/>
-<area shape="rect" id="node19" href="#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="4520,373,4917,395"/>
-<area shape="rect" id="node20" href="#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="4937,373,5363,395"/>
-<area shape="rect" id="node38" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="5287,4,5385,26"/>
-<area shape="rect" id="node54" href="https://docs.sqlalchemy.org/en/20/core/visitors.html#sqlalchemy.sql.visitors.Visitable" target="_top" title="Base class for visitable objects." alt="" coords="10420,4,10613,26"/>
+<div class="graphviz"><img src="../_images/inheritance-6f2cfc4850249968b2bf54f11b98b4b90eb8e1f2.png" alt="Inheritance diagram of AlternateParameterName, Condition, ConditionExpression, Configuration, DDL, DataModelBase, DataModelSubBase, DiagnosticExpression, DiagnosticType, Error, HDF5Attribute, HDF5DataSet, HDF5Link, HDF5Product, HDF5StructureVersion, Image, ImageDiagnostics, ImageMasterSelection, ImageProcessingProgress, ImageType, InputMasterTypes, LightCurveProcessingProgress, LightCurveStatus, MasterFile, MasterType, ObservingSession, Parameter, PhotometryDiagnostics, PipelineRun, ProcessedImages, ProcessingSequence, Step, StepDependencies, Target" usemap="#inheritance2ba165e227" class="inheritance graphviz" /></div>
+<map id="inheritance2ba165e227" name="inheritance2ba165e227">
+<area shape="rect" id="node5" href="#autowisp.database.data_model.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="4,300,291,320"/>
+<area shape="rect" id="node6" href="#autowisp.database.data_model.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="311,300,718,320"/>
+<area shape="rect" id="node7" href="#autowisp.database.data_model.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="738,300,1066,320"/>
+<area shape="rect" id="node8" href="#autowisp.database.data_model.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="1085,300,1503,320"/>
+<area shape="rect" id="node9" href="#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="1523,300,1760,320"/>
+<area shape="rect" id="node10" href="#autowisp.database.data_model.HDF5Attribute" target="_top" title="The table describing how to add attributes in HDF5 files." alt="" coords="1780,300,2124,320"/>
+<area shape="rect" id="node11" href="#autowisp.database.data_model.HDF5DataSet" target="_top" title="The table describing how to include datasets in HDF5 files." alt="" coords="2144,300,2479,320"/>
+<area shape="rect" id="node12" href="#autowisp.database.data_model.HDF5Link" target="_top" title="Table describing links of chosen versions of products in HDF5 files." alt="" coords="2498,300,2792,320"/>
+<area shape="rect" id="node13" href="#autowisp.database.data_model.HDF5Product" target="_top" title="The types of pipeline products stored as HDF5 files." alt="" coords="2811,300,3143,320"/>
+<area shape="rect" id="node14" href="#autowisp.database.data_model.HDF5StructureVersion" target="_top" title="The versions of structures for the HDF5 pipeline products." alt="" coords="3162,300,3592,320"/>
+<area shape="rect" id="node15" href="#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="3612,300,3867,320"/>
+<area shape="rect" id="node16" href="#autowisp.database.data_model.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="3887,300,4244,320"/>
+<area shape="rect" id="node17" href="#autowisp.database.data_model.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="4263,300,4577,320"/>
+<area shape="rect" id="node18" href="#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="4597,300,4964,320"/>
+<area shape="rect" id="node23" href="#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="5406,300,5714,320"/>
+<area shape="rect" id="node24" href="#autowisp.database.data_model.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="5734,300,6120,320"/>
+<area shape="rect" id="node25" href="#autowisp.database.data_model.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="6140,300,6658,320"/>
+<area shape="rect" id="node27" href="#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="6678,300,6986,320"/>
+<area shape="rect" id="node28" href="#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="7006,300,7320,320"/>
+<area shape="rect" id="node29" href="#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="7340,300,7720,320"/>
+<area shape="rect" id="node30" href="#autowisp.database.data_model.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="7739,300,8054,320"/>
+<area shape="rect" id="node31" href="#autowisp.database.data_model.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="8074,300,8483,320"/>
+<area shape="rect" id="node32" href="#autowisp.database.data_model.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="8502,300,8889,320"/>
+<area shape="rect" id="node33" href="#autowisp.database.data_model.AlternateParameterName" target="_top" title="Table describing alternate names for parameters." alt="" coords="8909,300,9351,320"/>
+<area shape="rect" id="node34" href="#autowisp.database.data_model.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="9370,300,9733,320"/>
+<area shape="rect" id="node35" href="#autowisp.database.data_model.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="9753,300,10084,320"/>
+<area shape="rect" id="node36" href="#autowisp.database.data_model.Target" target="_top" title="The table describing the target." alt="" coords="10104,300,10356,320"/>
+<area shape="rect" id="node22" href="#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="5151,241,5586,261"/>
+<area shape="rect" id="node26" href="#autowisp.database.data_model.LightCurveStatus" target="_top" title="Table tracking the status of lightcurves for interrupted steps." alt="" coords="5606,241,5980,261"/>
+<area shape="rect" id="node20" href="#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="4786,359,5168,380"/>
+<area shape="rect" id="node21" href="#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="5187,359,5597,380"/>
+<area shape="rect" id="node39" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="5321,4,5416,25"/>
+<area shape="rect" id="node55" href="https://docs.sqlalchemy.org/en/20/core/visitors.html#sqlalchemy.sql.visitors.Visitable" target="_top" title="Base class for visitable objects." alt="" coords="10462,4,10648,25"/>
 </map><p>Add all tables to __all__.</p>
 </section>
 <dl class="py class">
@@ -389,6 +393,60 @@ satisfied simultaneously for the condition to be considered satisfied.</p>
 <dt class="sig sig-object py" id="autowisp.database.data_model.Configuration.version">
 <span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#autowisp.database.data_model.Configuration.version" title="Link to this definition"></a></dt>
 <dd><p>The version of the configuration parameter. Later versions fall back on earlier versions if an entry for the parameter is not found.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.DiagnosticExpression">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.</span></span><span class="sig-name descname"><span class="pre">DiagnosticExpression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/diagnostic_expression.html#DiagnosticExpression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.DiagnosticExpression" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-72aa1b40fb36dc60b5a38d5729061aaeeba38190.png" alt="Inheritance diagram of autowisp.database.data_model.DiagnosticExpression" usemap="#inheritance32f32096ef" class="inheritance graphviz" /></div>
+<map id="inheritance32f32096ef" name="inheritance32f32096ef">
+<area shape="rect" id="node5" href="#autowisp.database.data_model.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="171,372,689,397"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
+</map><p>A named expression over the per-image diagnostics.</p>
+<p>Expressions share a flat name space with the <code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> names
+and with <code class="docutils literal notranslate"><span class="pre">jd</span></code>, so that one can be selected for either axis of a
+diagnostics plot exactly like a recorded diagnostic, and referenced by
+the exclusion rules that decide which images a fit leaves out.</p>
+<p>The library belongs to the project rather than to the browser interface:
+once expressions drive processing they are part of a project’s
+configuration, and a library shared between projects would let an edit
+made for one silently change what an old one excludes and plots.
+Projects share expressions by export and import instead.</p>
+<p>Nothing here resolves the names an expression uses. One naming a
+diagnostic the project has never recorded is not an error – it is
+simply not offered – and what an expression means is the business of
+<a class="reference internal" href="autowisp.diagnostics.expressions.html#module-autowisp.diagnostics.expressions" title="autowisp.diagnostics.expressions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.expressions</span></code></a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.DiagnosticExpression.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#autowisp.database.data_model.DiagnosticExpression.description" title="Link to this definition"></a></dt>
+<dd><p>What the expression is for; empty if left blank.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.DiagnosticExpression.expression">
+<span class="sig-name descname"><span class="pre">expression</span></span><a class="headerlink" href="#autowisp.database.data_model.DiagnosticExpression.expression" title="Link to this definition"></a></dt>
+<dd><p>Python expression over per-image diagnostic names.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.DiagnosticExpression.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.DiagnosticExpression.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.DiagnosticExpression.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#autowisp.database.data_model.DiagnosticExpression.name" title="Link to this definition"></a></dt>
+<dd><p>Name shown in the diagnostics selectors and used by other expressions and exclusion rules to reference this one.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.DiagnosticExpression.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.DiagnosticExpression.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
 </dd></dl>
 
 </dd></dl>
@@ -996,10 +1054,16 @@ removed.</p>
 <area shape="rect" id="node3" href="#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="5,299,545,324"/>
 <area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="217,5,334,31"/>
 </map><p>Records the resolved master file selected for each image/channel/type.</p>
-<p>Populated when a photometric reference is registered in the BUI, binding
-each qualifying image/channel to the selected MasterFile. Downstream steps
-(create_lightcurves, epd, tfa) query this table first to guarantee they
-use the same master as fit_magnitudes, without re-evaluating conditions.</p>
+<p>Holds the single photometric reference of every image/channel
+fit_magnitudes sees. Rows are written when a reference is registered in
+the BUI, binding the qualifying images, and by the pipeline before
+magnitude fitting, for images not yet bound: to a suitable reference
+within <code class="docutils literal notranslate"><span class="pre">max_photref_separation</span></code> if that is finite, otherwise to the one
+the condition expressions select. All go through
+<a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.record_photref_bindings" title="autowisp.database.image_processing.record_photref_bindings"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.database.image_processing.record_photref_bindings()</span></code></a>.
+Downstream steps (create_lightcurves, epd, tfa) query this table first to
+guarantee they use the same master as fit_magnitudes, without
+re-evaluating conditions.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.database.data_model.ImageMasterSelection.channel">
 <span class="sig-name descname"><span class="pre">channel</span></span><a class="headerlink" href="#autowisp.database.data_model.ImageMasterSelection.channel" title="Link to this definition"></a></dt>

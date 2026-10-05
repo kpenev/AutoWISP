@@ -133,21 +133,9 @@ Configuration Options
 
 	Specify a quantization level for compressing the calibrated image.
 
-.. option:: master-bias (--master-bias on command line)
-
-	The master bias to apply. No bias correction is applied of not specified. Each master filename should be preceeded by ``<channel name>:`` identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.
-
-.. option:: master-dark (--master-dark on command line)
-
-	The master dark to apply. No dark correction is applied of not specified. Each master filename should be preceeded by ``<channel name>:`` identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.
-
-.. option:: master-flat (--master-flat on command line)
-
-	The master flat to apply. No flat correction is applied of not specified. Each master filename should be preceeded by ``<channel name>:`` identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.
-
 .. option:: master-mask (--master-mask on command line)
 
-	Mask(s) to apply, indicating pixel quality. All pixels are considered "good" if no mask is specified. If multiple channel images are being processed each master filename should be preceeded by ``<channel name>:`` identifying which channel it applies to. Unlike other masters, channels without mask are allowed and multiple masks may be used for each channel.
+	Mask(s) to apply, indicating pixel quality. All pixels are considered "good" if no mask is specified. If multiple channel images are being processed each master filename should be preceded by ``<channel name>:`` identifying which channel it applies to. Unlike other masters, channels without mask are allowed and multiple masks may be used for each channel.
 
 .. option:: calibrated-fname (--calibrated-fname on command line)
 
@@ -745,17 +733,9 @@ Configuration Options
 
 	The maximum difference in degrees between pointings of individual frames in the RA or Dec directions before frames are considered outliers.
 
-.. option:: single-photref-dr-fname (--single-photref-dr-fname on command line)
-
-	The name of the data reduction file of the single photometric reference to use or used to start the magnitude fitting iterations.
-
 .. option:: max-photref-separation (--max-photref-separation on command line)
 
 	The maximum angular separation between the center of an image and the center of the photometric reference, expressed in units of the image's diagonal field of view (mean angular distance from the image center to its four corners on the sky, stored as the ``diagonal_fov`` astrometry diagnostic). Images whose centers lie farther than this multiple of their diagonal FOV from the photref center are excluded.
-
-.. option:: master-photref-fname (--master-photref-fname on command line)
-
-	The name of a master photometric reference to use. If specified, the sintgle reference is ignored and magnitude fitting proceeds without any iterations.
 
 .. option:: master-photref-fname-format (--master-photref-fname-format on command line)
 
@@ -820,6 +800,10 @@ Configuration Options
 .. option:: stat-rej-level (--stat-rej-level on command line)
 
 	Outlier rejection threshold for the cross-frame statistics collection (used to build the master photometric reference). Points deviating by more than this many times the median absolute deviation from the median across frames are rejected. Default: %(default)s
+
+.. option:: magfit-exclusion-rule (--magfit-exclusion-rule on command line)
+
+	A boolean expression over the image diagnostics and the project's diagnostic expressions, true for the images to leave out of the master photometric reference, e.g. ``(cloud[0] > 0.3) | (srcextract_mag_zeropt['G0'] < 19.5)``. A slot subscript stands for the channel being decided for, a quoted channel name for that channel. Best written as a read of a diagnostic expression, e.g. ``cloudy[0]``, which the diagnostics page can preview; the expressions page shows the read for each expression usable as a rule. The pipeline evaluates it to produce the exclusion list. Excluded images are still fit. If unset, nothing is excluded.
 
 .. option:: lc-fname (--lc-fname on command line)
 
@@ -909,16 +893,6 @@ Configuration Options
 
 	The filename of the master catalog to create, possibly with substitutions from the header of the single photometric reference.
 
-.. option:: merit-function (--merit-function on command line)
-
-	The merit function to use. High values should indicate a better candidate to serve as photometric reference. The function may use any PSF parameter as well as the following frame properties:
-
-		z: the zenith distance of the frame center
-
-		bg: the background level at the center of the frame
-
-	In addition, for each property the standard deviation over all frames can also be used as ``std_<param>`` (e.g. ``std_z``) as well as its quantile as ``qnt_<param>`` (e.g. ``qnt_bg`` for the background quantile).
-
 .. option:: variables (--variables on command line)
 
 	Define variablesto be used in --lc-points-filter-expression, --epd-terms-expression, --fit-weights, etc. Should be formatted as a ``;`` separated list of <varname> = <dataset key> [: <substitutions>]. For example: ``"x = srcproj.columns : src_proj_column_name = x  & srcproj_version = 0; y = srcproj.columns : src_proj_column_name = y"``, defines `x` and `y` variables that correspond to the projected x and y positions of the source in the frame.
@@ -995,6 +969,14 @@ Configuration Options
 
 	The magnitude column to use for the performance statistics. Default: %(default)s
 
+.. option:: tfa-observation-id (--tfa-observation-id on command line)
+
+	The datasets whose values identify an observation, used to match observations across light curves and to list them in --qc-exclude-file. Shared by EPD and TFA. The default suits a single camera; for example, the following works for HAT: fitsheader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.
+
+.. option:: epd-exclusion-rule (--epd-exclusion-rule on command line)
+
+	A boolean expression over the image diagnostics and the project's diagnostic expressions, true for the observations to leave out of the EPD fit, e.g. ``(cloud[0] > 0.3) | (srcextract_mag_zeropt['G0'] < 19.5)``. A slot subscript stands for the channel being decided for, a quoted channel name for that channel. Best written as a read of a diagnostic expression, e.g. ``cloudy[0]``, which the diagnostics page can preview; the expressions page shows the read for each expression usable as a rule. The pipeline evaluates it to produce the exclusion list. Excluded observations are still corrected. If unset, nothing is excluded.
+
 .. option:: epd-terms-expression (--epd-terms-expression on command line)
 
 	A fitting terms expression involving only variables from `epd_variables` which expands to the various terms to use in a linear least squares EPD correction.Default: %(default)s
@@ -1014,6 +996,10 @@ Configuration Options
 .. option:: tfa-datasets (--tfa-datasets on command line)
 
 	A ``;`` separated list of the datasets to detrend. If unspecified, every aperture in the single photometric reference is detrended, plus the shape fitted magnitudes if the PSF/PRF grid used for :option:`shape-grid` has internal splits (i.e. the shape was actually fit, not assumed constant). Each entry is formatted as ``<input-key> -> <output-key> [: <substitution> (= <value> | in <expression>) [& ...]]``, e.g. ``"apphot.magfit.magnitude -> apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in range(39)"``. White space is ignored. Literal ``;`` and ``&`` are escaped as ``;;`` and ``&&``. The fit configuration, residuals and non-rejected points are stored under the output key with its last component replaced by ``".cfg." + <parameter name>`` (configuration) or ``<parameter name>`` (fitting statistics), so ``"shapefit.epd.magnitude"`` also generates ``"shapefit.epd.cfg.fit_terms"`` and ``"shapefit.epd.residual"``.
+
+.. option:: tfa-exclusion-rule (--tfa-exclusion-rule on command line)
+
+	A boolean expression over the image diagnostics and the project's diagnostic expressions, true for the observations to leave out of the TFA fit, e.g. ``(cloud[0] > 0.3) | (srcextract_mag_zeropt['G0'] < 19.5)``. A slot subscript stands for the channel being decided for, a quoted channel name for that channel. Best written as a read of a diagnostic expression, e.g. ``cloudy[0]``, which the diagnostics page can preview; the expressions page shows the read for each expression usable as a rule. The pipeline evaluates it to produce the exclusion list. Excluded observations are still corrected. If unset, nothing is excluded.
 
 .. option:: saturation-magnitude (--saturation-magnitude on command line)
 
@@ -1055,10 +1041,6 @@ Configuration Options
 
 	The number of template stars is the square of this number. Default: %(default)s.
 
-.. option:: tfa-observation-id (--tfa-observation-id on command line)
-
-	The datasets to use for matching observations across light curves. For example, the following works for HAT: fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.
-
 .. option:: tfa-selected-plots (--tfa-selected-plots on command line)
 
 	Optional template for naming plots showing the template selection in action. If not specified, no such plots are generated. Should include %%(plot_id)s and %%(phot_index)d substitutions.
@@ -1074,4 +1056,39 @@ Configuration Options
 .. option:: tfa-statistics-fname (--tfa-statistics-fname on command line)
 
 	The statistics filename for the results of the TFA fit.
+
+Options the Pipeline Sets
+-------------------------
+
+The pipeline gives these to a step for each batch: the masters it selects for the images, and the exclusion list it writes from the step's exclusion rule. They are not part of the configuration and cannot be set there. Give them only when running a step by hand.
+
+.. option:: qc-exclude-file (--qc-exclude-file on command line)
+
+	For fit_magnitudes: A file listing the DR files to leave out of the master photometric reference, one per line. Excluded DR files are still fit. The pipeline writes this file from the step's exclusion rule; a stand-alone run may supply one written by hand. If unspecified, nothing is excluded.
+
+	For epd: A file listing the observations to leave out of the EPD fit, one per line, each given by the values of the --tfa-observation-id datasets separated by white space, optionally followed by the photometry it applies to: shapefit, or ap followed by an aperture index, e.g. ap3. A line naming no photometry applies to every one. Excluded observations are still corrected. The pipeline writes this file from the step's exclusion rule; a stand-alone run may supply one written by hand. If unspecified, nothing is excluded.
+
+	For tfa: A file listing the observations to leave out of the TFA fit, one per line, each given by the values of the --tfa-observation-id datasets separated by white space, optionally followed by the photometry it applies to: shapefit, or ap followed by an aperture index, e.g. ap3. A line naming no photometry applies to every one. Excluded observations are still corrected. The pipeline writes this file from the step's exclusion rule; a stand-alone run may supply one written by hand. If unspecified, nothing is excluded.
+
+.. option:: master-bias (--master-bias on command line)
+
+	The master bias to apply. No bias correction is applied if not specified. Each master filename should be preceded by ``<channel name>:`` identifying which channel it applies to. All channels must have a master specified and no channel should have multiple.
+
+.. option:: master-dark (--master-dark on command line)
+
+	The master dark to apply. No dark correction is applied if not specified. Each master filename should be preceded by ``<channel name>:`` identifying which channel it applies to. All channels must have a master specified and no channel should have multiple.
+
+.. option:: master-flat (--master-flat on command line)
+
+	The master flat to apply. No flat correction is applied if not specified. Each master filename should be preceded by ``<channel name>:`` identifying which channel it applies to. All channels must have a master specified and no channel should have multiple.
+
+.. option:: single-photref-dr-fname (--single-photref-dr-fname on command line)
+
+	For fit_magnitudes, create_lightcurves: The name of the data reduction file of the single photometric reference to use or used to start the magnitude fitting iterations.
+
+	For epd, generate_epd_statistics, tfa, generate_tfa_statistics: The filename of the single photometric reference DR file. Used for string substitutions of command line arguments and to determine the default set of datasets to detrend.
+
+.. option:: master-photref-fname (--master-photref-fname on command line)
+
+	The master photometric reference to fit against, in a single pass, instead of building one. It must have been built from the given single photometric reference: its iteration is read from its name, by expanding --master-photref-fname-format with that reference's header. The pipeline sets this for each batch, to the master built from the batch's single photometric reference, if any.
 

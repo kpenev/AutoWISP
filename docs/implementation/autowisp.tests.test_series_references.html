@@ -1,0 +1,712 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_series_references module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.tests.test_solve_astrometry module" href="autowisp.tests.test_solve_astrometry.html" />
+    <link rel="prev" title="autowisp.tests.test_related_files module" href="autowisp.tests.test_related_files.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.tests.html">autowisp.tests package</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_series_references module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.tests.test_series_references.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.tests.test_series_references">
+<span id="autowisp-tests-test-series-references-module"></span><h1>autowisp.tests.test_series_references module<a class="headerlink" href="#module-autowisp.tests.test_series_references" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-696908b117d80a717b1c9f3a7c351706d5b084c0.png" alt="Inheritance diagram of DiagnosticType, Image, ImageDiagnostics, ImageMasterSelection, ImageType, MasterFile, MasterType, ObservingSession, PhotometryDiagnostics, PipelineError, ReferenceProject, SeriesKey, TestCountUnboundImages, TestPhotometryReads, TestReferenceCounts, TestReferenceRestriction, TestSeriesKeyReferences, TestSplitSeries, datetime" usemap="#inheritancea5812ddd46" class="inheritance graphviz" /></div>
+<map id="inheritancea5812ddd46" name="inheritancea5812ddd46">
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="345,372,800,397"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="1755,372,2137,397"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="2162,372,2551,397"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="2576,372,3047,397"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="1748,299,2288,324"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="580,445,1053,471"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="1077,445,1585,471"/>
+<area shape="rect" id="node15" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="2168,5,2516,31"/>
+<area shape="rect" id="node16" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="2721,5,2976,31"/>
+<area shape="rect" id="node17" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="2727,79,2970,104"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="3085,79,3468,104"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_series_references.TestCountUnboundImages" target="_top" title="The frames a split leaves out, for want of a binding." alt="" coords="2166,152,2609,177"/>
+<area shape="rect" id="node21" href="#autowisp.tests.test_series_references.TestPhotometryReads" target="_top" title="A per&#45;photometry diagnostic, read in the photometry each read binds." alt="" coords="2633,152,3048,177"/>
+<area shape="rect" id="node22" href="#autowisp.tests.test_series_references.TestReferenceCounts" target="_top" title="What the series table offers and counts: per reference, per" alt="" coords="3072,152,3481,177"/>
+<area shape="rect" id="node23" href="#autowisp.tests.test_series_references.TestReferenceRestriction" target="_top" title="A key naming references reads only the images fit against them." alt="" coords="3506,152,3941,177"/>
+<area shape="rect" id="node25" href="#autowisp.tests.test_series_references.TestSplitSeries" target="_top" title="Finding the reference populations a session holds." alt="" coords="3965,152,4332,177"/>
+<area shape="rect" id="node24" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences" target="_top" title="What a key accepts for its references, and what it makes of them." alt="" coords="3493,79,3927,104"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="3966,5,4081,31"/>
+<area shape="rect" id="node27" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="3951,79,4095,104"/>
+<area shape="rect" id="node30" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1935,5,2053,31"/>
+</map><p>Tests for splitting a series by the photometric reference its images used.</p>
+<p>A diagnostic <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> produces depends on the reference an image
+was fit against as well as on the image, so a series reading one is
+restricted to the images bound to one reference in each channel it reads it
+in. These cover the key carrying those references, the restriction and the
+guard refusing to read magfit diagnostics without one, and finding which
+reference populations a session holds.</p>
+<p>The fixture is one night fit against two references, <code class="docutils literal notranslate"><span class="pre">ref1</span></code> and <code class="docutils literal notranslate"><span class="pre">ref2</span></code>,
+in both of its channels, <code class="docutils literal notranslate"><span class="pre">R</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code>: the first three frames against
+<code class="docutils literal notranslate"><span class="pre">ref1</span></code>, the next two against <code class="docutils literal notranslate"><span class="pre">ref2</span></code>, one frame against <code class="docutils literal notranslate"><span class="pre">ref2</span></code> in <code class="docutils literal notranslate"><span class="pre">R</span></code>
+but <code class="docutils literal notranslate"><span class="pre">ref1</span></code> in <code class="docutils literal notranslate"><span class="pre">B</span></code> – rare, and exactly what a split has to keep apart –
+and a last frame magfit-ed but bound to nothing, as processing before every
+magfit-ed image was bound could leave one. The magfit diagnostic is recorded
+per photometry, as <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> records it, in two apertures, with one
+value missing in one of them only.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_series_references.</span></span><span class="sig-name descname"><span class="pre">ReferenceProject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#ReferenceProject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-aef4aee9c7dc115beac896347654bf6ec6742e8f.png" alt="Inheritance diagram of autowisp.tests.test_series_references.ReferenceProject" usemap="#inheritance385d332400" class="inheritance graphviz" /></div>
+<map id="inheritance385d332400" name="inheritance385d332400">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="5,79,388,104"/>
+</map><p>The fixture the classes below share, holding no tests of its own.</p>
+<p>Its own project rather than the shared one: references, bindings and
+magfit diagnostics there would change what every other series test
+sees.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject._add_night">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_add_night</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backgrounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_to</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unrecorded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#ReferenceProject._add_night"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject._add_night" title="Link to this definition"></a></dt>
+<dd><p>Add a night of object frames, with their diagnostics and bindings.</p>
+<p>The diagnostic, image and master types and the references must be in
+the database already. Provenance foreign keys are left dangling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+<li><p><strong>label</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Names the session, and its frames’ files.</p></li>
+<li><p><strong>day</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – How many days after the first night it is.</p></li>
+<li><p><strong>backgrounds</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – <code class="docutils literal notranslate"><span class="pre">bg_center</span></code> in <code class="docutils literal notranslate"><span class="pre">R</span></code> per frame, which
+also says how many frames there are.</p></li>
+<li><p><strong>offsets</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{channel:</span> <span class="pre">[photometry_mag_offset,</span> <span class="pre">...]}</span></code>
+per frame in aperture 0, recorded in every photometry of
+<a class="reference internal" href="#autowisp.tests.test_series_references.ReferenceProject.shifts" title="autowisp.tests.test_series_references.ReferenceProject.shifts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shifts</span></code></a>, each shifted by its own amount.</p></li>
+<li><p><strong>bound_to</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{channel:</span> <span class="pre">[reference,</span> <span class="pre">...]}</span></code>: the name of
+the reference each frame is bound to, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>unrecorded</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">frame,</span> <span class="pre">photometry)</span></code> of an
+offset to leave out, if any.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>int:    The id of the session.</p>
+<p>list:    The ids of its images, in frame order.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject._fill_database">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_fill_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#ReferenceProject._fill_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject._fill_database" title="Link to this definition"></a></dt>
+<dd><p>One night of seven object frames in two channels, two references.</p>
+<p>Provenance foreign keys, and the master type’s condition, are left
+dangling, as SQLite does not enforce them and nothing here reads
+them.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.backgrounds">
+<span class="sig-name descname"><span class="pre">backgrounds</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[100.0,</span> <span class="pre">101.0,</span> <span class="pre">102.0,</span> <span class="pre">103.0,</span> <span class="pre">104.0,</span> <span class="pre">105.0,</span> <span class="pre">106.0]</span></span><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.backgrounds" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">bg_center</span></code> in <code class="docutils literal notranslate"><span class="pre">R</span></code>, which does not depend on the reference.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.bound_to">
+<span class="sig-name descname"><span class="pre">bound_to</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'B':</span> <span class="pre">['ref1',</span> <span class="pre">'ref1',</span> <span class="pre">'ref1',</span> <span class="pre">'ref2',</span> <span class="pre">'ref2',</span> <span class="pre">'ref1',</span> <span class="pre">None],</span> <span class="pre">'R':</span> <span class="pre">['ref1',</span> <span class="pre">'ref1',</span> <span class="pre">'ref1',</span> <span class="pre">'ref2',</span> <span class="pre">'ref2',</span> <span class="pre">'ref2',</span> <span class="pre">None]}</span></span><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.bound_to" title="Link to this definition"></a></dt>
+<dd><p>The reference each frame is bound to, per channel; <code class="docutils literal notranslate"><span class="pre">None</span></code> for the
+frame magfit-ed but bound to nothing. The sixth is bound differently
+in the two channels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.key">
+<span class="sig-name descname"><span class="pre">key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#ReferenceProject.key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.key" title="Link to this definition"></a></dt>
+<dd><p>Return the night’s series binding <em>channels</em> to <em>references</em>.</p>
+<p>Each reference is <code class="docutils literal notranslate"><span class="pre">&quot;ref1&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ref2&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>, per slot, and
+is looked up in that slot’s channel. What is read, and in which
+photometry, is up to <code class="docutils literal notranslate"><span class="pre">wanted</span></code>; the key’s <em>photometries</em> only name
+the series.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.offsets">
+<span class="sig-name descname"><span class="pre">offsets</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'B':</span> <span class="pre">[4.0,</span> <span class="pre">5.0,</span> <span class="pre">6.0,</span> <span class="pre">30.0,</span> <span class="pre">40.0,</span> <span class="pre">60.0,</span> <span class="pre">98.0],</span> <span class="pre">'R':</span> <span class="pre">[1.0,</span> <span class="pre">2.0,</span> <span class="pre">3.0,</span> <span class="pre">10.0,</span> <span class="pre">20.0,</span> <span class="pre">50.0,</span> <span class="pre">99.0]}</span></span><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.offsets" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">photometry_mag_offset</span></code> per channel and frame, distinct everywhere
+so that a value landing on the wrong image cannot pass by luck.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.selected">
+<span class="sig-name descname"><span class="pre">selected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">references</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#ReferenceProject.selected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.selected" title="Link to this definition"></a></dt>
+<dd><p>Return the <em>values</em> of the frames bound as <em>references</em> say.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – One entry per frame, in order.</p></li>
+<li><p><strong>references</strong> – <code class="docutils literal notranslate"><span class="pre">channel=reference</span></code> for every channel the
+frames have to be bound in, <code class="docutils literal notranslate"><span class="pre">reference</span></code> possibly <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.setUpClass">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#ReferenceProject.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.setUpClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.shifts">
+<span class="sig-name descname"><span class="pre">shifts</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{0:</span> <span class="pre">0.0,</span> <span class="pre">2:</span> <span class="pre">1000.0}</span></span><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.shifts" title="Link to this definition"></a></dt>
+<dd><p>The photometries the offsets are recorded in, each shifted by its own
+amount so that a read in the wrong one cannot pass by luck: aperture
+0 as above, aperture 2 a thousand higher.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.tearDownClass">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#ReferenceProject.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.tearDownClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.ReferenceProject.unrecorded">
+<span class="sig-name descname"><span class="pre">unrecorded</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('R',</span> <span class="pre">1,</span> <span class="pre">2)</span></span><a class="headerlink" href="#autowisp.tests.test_series_references.ReferenceProject.unrecorded" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">frame,</span> <span class="pre">photometry)</span></code> of the one offset not recorded, as
+<code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> skips a non-finite one: in one photometry only.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestCountUnboundImages">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_series_references.</span></span><span class="sig-name descname"><span class="pre">TestCountUnboundImages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestCountUnboundImages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestCountUnboundImages" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_series_references.ReferenceProject" title="autowisp.tests.test_series_references.ReferenceProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReferenceProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-5c41fd4ba84f153388689ff969748b61d98b84c2.png" alt="Inheritance diagram of autowisp.tests.test_series_references.TestCountUnboundImages" usemap="#inheritancebf70c1170b" class="inheritance graphviz" /></div>
+<map id="inheritancebf70c1170b" name="inheritancebf70c1170b">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="35,79,418,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_series_references.TestCountUnboundImages" target="_top" title="The frames a split leaves out, for want of a binding." alt="" coords="5,152,448,177"/>
+</map><p>The frames a split leaves out, for want of a binding.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestCountUnboundImages.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestCountUnboundImages.count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestCountUnboundImages.count" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="xref py py-func docutils literal notranslate"><span class="pre">count_unbound_images()</span></code>, in a session of its own.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestCountUnboundImages.test_it_is_in_none_of_the_split_keys">
+<span class="sig-name descname"><span class="pre">test_it_is_in_none_of_the_split_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestCountUnboundImages.test_it_is_in_none_of_the_split_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestCountUnboundImages.test_it_is_in_none_of_the_split_keys" title="Link to this definition"></a></dt>
+<dd><p>Which is what makes it worth reporting.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestCountUnboundImages.test_nothing_is_counted_where_the_key_names_the_reference">
+<span class="sig-name descname"><span class="pre">test_nothing_is_counted_where_the_key_names_the_reference</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestCountUnboundImages.test_nothing_is_counted_where_the_key_names_the_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestCountUnboundImages.test_nothing_is_counted_where_the_key_names_the_reference" title="Link to this definition"></a></dt>
+<dd><p>There is no split to be left out of.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestCountUnboundImages.test_nothing_is_counted_without_a_magfit_read">
+<span class="sig-name descname"><span class="pre">test_nothing_is_counted_without_a_magfit_read</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestCountUnboundImages.test_nothing_is_counted_without_a_magfit_read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestCountUnboundImages.test_nothing_is_counted_without_a_magfit_read" title="Link to this definition"></a></dt>
+<dd><p>Nothing is split, so nothing is left out.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestCountUnboundImages.test_the_unbound_frame_is_counted">
+<span class="sig-name descname"><span class="pre">test_the_unbound_frame_is_counted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestCountUnboundImages.test_the_unbound_frame_is_counted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestCountUnboundImages.test_the_unbound_frame_is_counted" title="Link to this definition"></a></dt>
+<dd><p>Magfit-ed in both channels, bound in neither: counted once.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestPhotometryReads">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_series_references.</span></span><span class="sig-name descname"><span class="pre">TestPhotometryReads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestPhotometryReads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestPhotometryReads" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_series_references.ReferenceProject" title="autowisp.tests.test_series_references.ReferenceProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReferenceProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-00846208cae4d8859a0379ce2753c195d83f8242.png" alt="Inheritance diagram of autowisp.tests.test_series_references.TestPhotometryReads" usemap="#inheritance5a5413748e" class="inheritance graphviz" /></div>
+<map id="inheritance5a5413748e" name="inheritance5a5413748e">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="21,79,404,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_series_references.TestPhotometryReads" target="_top" title="A per&#45;photometry diagnostic, read in the photometry each read binds." alt="" coords="5,152,420,177"/>
+</map><p>A per-photometry diagnostic, read in the photometry each read binds.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestPhotometryReads.recorded">
+<span class="sig-name descname"><span class="pre">recorded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometry</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestPhotometryReads.recorded"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestPhotometryReads.recorded" title="Link to this definition"></a></dt>
+<dd><p>Return the offsets <em>photometry</em> holds per frame, NaN if missing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestPhotometryReads.test_each_read_is_in_its_own_photometry">
+<span class="sig-name descname"><span class="pre">test_each_read_is_in_its_own_photometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestPhotometryReads.test_each_read_is_in_its_own_photometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestPhotometryReads.test_each_read_is_in_its_own_photometry" title="Link to this definition"></a></dt>
+<dd><p>Both apertures, and their difference, in one evaluation.</p>
+<p>The difference is the shift throughout, except on the frame whose
+offset aperture 2 did not record: undefined there, rather than
+taken from the other aperture.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceCounts">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_series_references.</span></span><span class="sig-name descname"><span class="pre">TestReferenceCounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceCounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceCounts" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_series_references.ReferenceProject" title="autowisp.tests.test_series_references.ReferenceProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReferenceProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-62f468a5d05fe01f8058f735aaf6ef695085a90a.png" alt="Inheritance diagram of autowisp.tests.test_series_references.TestReferenceCounts" usemap="#inheritanceac98d593c0" class="inheritance graphviz" /></div>
+<map id="inheritanceac98d593c0" name="inheritanceac98d593c0">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="19,79,401,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_series_references.TestReferenceCounts" target="_top" title="What the series table offers and counts: per reference, per" alt="" coords="5,152,415,177"/>
+</map><p>What the series table offers and counts: per reference, per
+photometry, and per bound row.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceCounts.colour_reads">
+<span class="sig-name descname"><span class="pre">colour_reads</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{('photometry_mag_offset',</span> <span class="pre">'B',</span> <span class="pre">0),</span> <span class="pre">('photometry_mag_offset',</span> <span class="pre">'R',</span> <span class="pre">0)}</span></span><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceCounts.colour_reads" title="Link to this definition"></a></dt>
+<dd><p>What a row comparing the two channels’ offsets in aperture 0 reads.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceCounts.test_a_bound_row_counts_its_photometries">
+<span class="sig-name descname"><span class="pre">test_a_bound_row_counts_its_photometries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceCounts.test_a_bound_row_counts_its_photometries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceCounts.test_a_bound_row_counts_its_photometries" title="Link to this definition"></a></dt>
+<dd><p>R’s offset in either aperture, with B’s in 0 and R’s background.</p>
+<p>Aperture 2 draws one frame fewer: the one whose offset it did not
+record in R. The background, recorded per image, is required
+beside the offsets, recorded per photometry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceCounts.test_a_bound_row_counts_what_it_draws">
+<span class="sig-name descname"><span class="pre">test_a_bound_row_counts_what_it_draws</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceCounts.test_a_bound_row_counts_what_it_draws"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceCounts.test_a_bound_row_counts_what_it_draws" title="Link to this definition"></a></dt>
+<dd><p>For each reference population, the images its series reads.</p>
+<p>Unrestricted, the count is the whole night, the frame bound to
+nothing included, which no population holds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceCounts.test_both_tables_are_recorded">
+<span class="sig-name descname"><span class="pre">test_both_tables_are_recorded</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceCounts.test_both_tables_are_recorded"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceCounts.test_both_tables_are_recorded" title="Link to this definition"></a></dt>
+<dd><p>The offset, recorded per photometry, is offered like the rest.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceCounts.test_options_are_counted_per_photometry">
+<span class="sig-name descname"><span class="pre">test_options_are_counted_per_photometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceCounts.test_options_are_counted_per_photometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceCounts.test_options_are_counted_per_photometry" title="Link to this definition"></a></dt>
+<dd><p>Every frame in both apertures, and once each.</p>
+<p>A frame recorded in two channels is still one image per aperture.
+The frame aperture 2 did not record in R records it in B, and so is
+counted there: which channel it is read in is for the channel
+columns to decide.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceCounts.test_options_are_counted_per_reference">
+<span class="sig-name descname"><span class="pre">test_options_are_counted_per_reference</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceCounts.test_options_are_counted_per_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceCounts.test_options_are_counted_per_reference" title="Link to this definition"></a></dt>
+<dd><p>One count per (channel, photref) the frames are bound to.</p>
+<p>The frame bound differently in its two channels counts under ref2
+in R and under ref1 in B; the frame bound to nothing, under neither.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_series_references.</span></span><span class="sig-name descname"><span class="pre">TestReferenceRestriction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_series_references.ReferenceProject" title="autowisp.tests.test_series_references.ReferenceProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReferenceProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-d9f291434f97874326d8c46909cb7676cce36d60.png" alt="Inheritance diagram of autowisp.tests.test_series_references.TestReferenceRestriction" usemap="#inheritance4043ecf246" class="inheritance graphviz" /></div>
+<map id="inheritance4043ecf246" name="inheritance4043ecf246">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="31,79,414,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_series_references.TestReferenceRestriction" target="_top" title="A key naming references reads only the images fit against them." alt="" coords="5,152,440,177"/>
+</map><p>A key naming references reads only the images fit against them.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction.test_a_magfit_read_needs_a_reference">
+<span class="sig-name descname"><span class="pre">test_a_magfit_read_needs_a_reference</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction.test_a_magfit_read_needs_a_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_magfit_read_needs_a_reference" title="Link to this definition"></a></dt>
+<dd><p>Without one, the series would mix the night’s two references.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction.test_a_quoted_read_takes_its_reference_from_a_tail_slot">
+<span class="sig-name descname"><span class="pre">test_a_quoted_read_takes_its_reference_from_a_tail_slot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction.test_a_quoted_read_takes_its_reference_from_a_tail_slot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_quoted_read_takes_its_reference_from_a_tail_slot" title="Link to this definition"></a></dt>
+<dd><p>The quoted channel binds nothing, but still needs its reference.</p>
+<p>The quantity takes no parameter, so its only slot is the tail one
+for the channel it quotes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction.test_a_quoted_read_without_its_slot_is_refused">
+<span class="sig-name descname"><span class="pre">test_a_quoted_read_without_its_slot_is_refused</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction.test_a_quoted_read_without_its_slot_is_refused"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_quoted_read_without_its_slot_is_refused" title="Link to this definition"></a></dt>
+<dd><p>No tail slot means no reference for the quoted channel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction.test_a_reference_is_needed_in_every_channel_read">
+<span class="sig-name descname"><span class="pre">test_a_reference_is_needed_in_every_channel_read</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction.test_a_reference_is_needed_in_every_channel_read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_reference_is_needed_in_every_channel_read" title="Link to this definition"></a></dt>
+<dd><p>One in R does not cover the magfit read in B.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction.test_a_reference_restricts_what_does_not_need_one">
+<span class="sig-name descname"><span class="pre">test_a_reference_restricts_what_does_not_need_one</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction.test_a_reference_restricts_what_does_not_need_one"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_reference_restricts_what_does_not_need_one" title="Link to this definition"></a></dt>
+<dd><p>The background of the frames fit against ref2, say.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction.test_an_aggregate_sees_one_reference">
+<span class="sig-name descname"><span class="pre">test_an_aggregate_sees_one_reference</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction.test_an_aggregate_sees_one_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction.test_an_aggregate_sees_one_reference" title="Link to this definition"></a></dt>
+<dd><p>A median taken over both references would be neither’s.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction.test_the_image_list_is_the_reference_population">
+<span class="sig-name descname"><span class="pre">test_the_image_list_is_the_reference_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction.test_the_image_list_is_the_reference_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction.test_the_image_list_is_the_reference_population" title="Link to this definition"></a></dt>
+<dd><p>The canonical list itself shrinks, so every array does too.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestReferenceRestriction.test_two_references_on_one_channel_draw_nothing">
+<span class="sig-name descname"><span class="pre">test_two_references_on_one_channel_draw_nothing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestReferenceRestriction.test_two_references_on_one_channel_draw_nothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestReferenceRestriction.test_two_references_on_one_channel_draw_nothing" title="Link to this definition"></a></dt>
+<dd><p>No image is bound to both, since each has one per channel.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSeriesKeyReferences">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_series_references.</span></span><span class="sig-name descname"><span class="pre">TestSeriesKeyReferences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSeriesKeyReferences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-62eaf178cea5a8d8f095db0188feaac5b1da2a07.png" alt="Inheritance diagram of autowisp.tests.test_series_references.TestSeriesKeyReferences" usemap="#inheritance4df0e4e913" class="inheritance graphviz" /></div>
+<map id="inheritance4df0e4e913" name="inheritance4df0e4e913">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences" target="_top" title="What a key accepts for its references, and what it makes of them." alt="" coords="5,79,440,104"/>
+</map><p>What a key accepts for its references, and what it makes of them.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSeriesKeyReferences.test_a_channel_carries_one_reference">
+<span class="sig-name descname"><span class="pre">test_a_channel_carries_one_reference</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSeriesKeyReferences.test_a_channel_carries_one_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_a_channel_carries_one_reference" title="Link to this definition"></a></dt>
+<dd><p>A slot left None takes the reference another slot on its channel has.</p>
+<p>What makes a producer filling only the slots that read magfit build
+the same key as one filling every slot on the channel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSeriesKeyReferences.test_coerced_to_a_hashable_key">
+<span class="sig-name descname"><span class="pre">test_coerced_to_a_hashable_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSeriesKeyReferences.test_coerced_to_a_hashable_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_coerced_to_a_hashable_key" title="Link to this definition"></a></dt>
+<dd><p>References and photometries posted as lists of strings still make
+a usable key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSeriesKeyReferences.test_omitted_is_none_in_every_slot">
+<span class="sig-name descname"><span class="pre">test_omitted_is_none_in_every_slot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSeriesKeyReferences.test_omitted_is_none_in_every_slot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_omitted_is_none_in_every_slot" title="Link to this definition"></a></dt>
+<dd><p>A key built as before equals the one spelling the Nones out.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSeriesKeyReferences.test_one_reference_per_slot">
+<span class="sig-name descname"><span class="pre">test_one_reference_per_slot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSeriesKeyReferences.test_one_reference_per_slot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_one_reference_per_slot" title="Link to this definition"></a></dt>
+<dd><p>A length differing from the channels’ is refused.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSeriesKeyReferences.test_references_and_photometries_by_keyword_only">
+<span class="sig-name descname"><span class="pre">test_references_and_photometries_by_keyword_only</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSeriesKeyReferences.test_references_and_photometries_by_keyword_only"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_references_and_photometries_by_keyword_only" title="Link to this definition"></a></dt>
+<dd><p>Both are tuples of ids, so one in the other’s place is refused
+rather than read wrongly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSeriesKeyReferences.test_replace_goes_through_the_checks">
+<span class="sig-name descname"><span class="pre">test_replace_goes_through_the_checks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSeriesKeyReferences.test_replace_goes_through_the_checks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_replace_goes_through_the_checks" title="Link to this definition"></a></dt>
+<dd><p>Replacing the channels alone leaves the references too short.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSeriesKeyReferences.test_two_references_on_a_channel_are_left_alone">
+<span class="sig-name descname"><span class="pre">test_two_references_on_a_channel_are_left_alone</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSeriesKeyReferences.test_two_references_on_a_channel_are_left_alone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_two_references_on_a_channel_are_left_alone" title="Link to this definition"></a></dt>
+<dd><p>Nothing could be meant by filling from one of them.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_series_references.</span></span><span class="sig-name descname"><span class="pre">TestSplitSeries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_series_references.ReferenceProject" title="autowisp.tests.test_series_references.ReferenceProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReferenceProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-4bc16f74110040bf9629e7d554b15e865c984ce6.png" alt="Inheritance diagram of autowisp.tests.test_series_references.TestSplitSeries" usemap="#inheritance207ec72920" class="inheritance graphviz" /></div>
+<map id="inheritance207ec72920" name="inheritance207ec72920">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="5,79,388,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_series_references.TestSplitSeries" target="_top" title="Finding the reference populations a session holds." alt="" coords="13,152,380,177"/>
+</map><p>Finding the reference populations a session holds.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.colour">
+<span class="sig-name descname"><span class="pre">colour</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'colour':</span> <span class="pre">'photometry_mag_offset[0][0]</span> <span class="pre">-</span> <span class="pre">photometry_mag_offset[1][0]'}</span></span><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.colour" title="Link to this definition"></a></dt>
+<dd><p>Read in both channels, so split by the references of both.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.colour_bound">
+<span class="sig-name descname"><span class="pre">colour_bound</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'colour':</span> <span class="pre">{(('R',</span> <span class="pre">'B'),</span> <span class="pre">(0,))}}</span></span><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.colour_bound" title="Link to this definition"></a></dt>
+<dd><p>R and B, in aperture 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>How <a class="reference internal" href="#autowisp.tests.test_series_references.TestSplitSeries.colour" title="autowisp.tests.test_series_references.TestSplitSeries.colour"><code class="xref py py-attr docutils literal notranslate"><span class="pre">colour</span></code></a> is bound</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.split" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="xref py py-func docutils literal notranslate"><span class="pre">split_series()</span></code> for <em>key</em>, in a session of its own.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.test_a_frame_fit_differently_per_channel_is_its_own_population">
+<span class="sig-name descname"><span class="pre">test_a_frame_fit_differently_per_channel_is_its_own_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.test_a_frame_fit_differently_per_channel_is_its_own_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.test_a_frame_fit_differently_per_channel_is_its_own_population" title="Link to this definition"></a></dt>
+<dd><p>Split by R and B, the frame fit against ref2 and ref1 stands alone.</p>
+<p>Neither with the frames fit against ref1 in both channels, nor with
+those fit against ref2 in both: an aggregate over either would mix
+references in one of its channels. And only combinations some frame
+has come back – never ref1 in R with ref2 in B.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.test_a_quoted_channel_is_split_in_its_tail_slot">
+<span class="sig-name descname"><span class="pre">test_a_quoted_channel_is_split_in_its_tail_slot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.test_a_quoted_channel_is_split_in_its_tail_slot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.test_a_quoted_channel_is_split_in_its_tail_slot" title="Link to this definition"></a></dt>
+<dd><p>With the slot there, it splits like any other.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.test_a_quoted_channel_needs_its_tail_slot">
+<span class="sig-name descname"><span class="pre">test_a_quoted_channel_needs_its_tail_slot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.test_a_quoted_channel_needs_its_tail_slot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.test_a_quoted_channel_needs_its_tail_slot" title="Link to this definition"></a></dt>
+<dd><p>Its reference would have nowhere to go.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.test_a_reference_the_key_names_is_kept">
+<span class="sig-name descname"><span class="pre">test_a_reference_the_key_names_is_kept</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.test_a_reference_the_key_names_is_kept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.test_a_reference_the_key_names_is_kept" title="Link to this definition"></a></dt>
+<dd><p>Pinned to ref1 in B, the split of R meets both of R’s references.</p>
+<p>The frames fit against ref1 in B include the one fit against ref2 in
+R, so the split within them is not the same as pinning R too.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.test_each_key_draws_its_own_population">
+<span class="sig-name descname"><span class="pre">test_each_key_draws_its_own_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.test_each_key_draws_its_own_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.test_each_key_draws_its_own_population" title="Link to this definition"></a></dt>
+<dd><p>What the engine does with the keys: one evaluation each.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.test_every_slot_on_a_split_channel_gets_its_reference">
+<span class="sig-name descname"><span class="pre">test_every_slot_on_a_split_channel_gets_its_reference</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.test_every_slot_on_a_split_channel_gets_its_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.test_every_slot_on_a_split_channel_gets_its_reference" title="Link to this definition"></a></dt>
+<dd><p>The background slot shares the offset slot’s channel, R.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.test_nothing_to_split_without_a_magfit_read">
+<span class="sig-name descname"><span class="pre">test_nothing_to_split_without_a_magfit_read</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.test_nothing_to_split_without_a_magfit_read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.test_nothing_to_split_without_a_magfit_read" title="Link to this definition"></a></dt>
+<dd><p>The background does not depend on the reference.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_series_references.TestSplitSeries.test_one_key_per_reference">
+<span class="sig-name descname"><span class="pre">test_one_key_per_reference</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_series_references.html#TestSplitSeries.test_one_key_per_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_series_references.TestSplitSeries.test_one_key_per_reference" title="Link to this definition"></a></dt>
+<dd><p>The night splits into the frames fit against ref1 and ref2.</p>
+<p>Each key keeps the photometry the series is drawn in.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.tests.test_related_files.html" class="btn btn-neutral float-left" title="autowisp.tests.test_related_files module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.test_solve_astrometry.html" class="btn btn-neutral float-right" title="autowisp.tests.test_solve_astrometry module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

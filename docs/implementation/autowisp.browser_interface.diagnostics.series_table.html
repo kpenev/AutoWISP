@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -173,11 +176,14 @@
 <span id="autowisp-browser-interface-diagnostics-series-table-module"></span><h1>autowisp.browser_interface.diagnostics.series_table module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.series_table" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-9a2ad27236c2f53728dfa328118ab3a34c12bec0.png" alt="Inheritance diagram of ObservingSession, SeriesKey" usemap="#inheritance0b4f65036f" class="inheritance graphviz" /></div>
-<map id="inheritance0b4f65036f" name="inheritance0b4f65036f">
-<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="195,372,665,397"/>
-<area shape="rect" id="node6" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="729,5,1077,31"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
+<div class="graphviz"><img src="../_images/inheritance-7f22139a5d7a12173cd89ee3a8ae2a841a869f82.png" alt="Inheritance diagram of ChannelColumn, MasterFile, ObservingSession, PhotometryColumn, SeriesKey" usemap="#inheritance2eb79c86c7" class="inheritance graphviz" /></div>
+<map id="inheritance2eb79c86c7" name="inheritance2eb79c86c7">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn" target="_top" title="One channel column of the series table: what it reads, and where." alt="" coords="5,5,476,31"/>
+<area shape="rect" id="node2" href="#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn" target="_top" title="One photometry column of the series table: what it reads." alt="" coords="501,5,994,31"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="444,372,827,397"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="851,372,1321,397"/>
+<area shape="rect" id="node9" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="1160,5,1508,31"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1018,5,1135,31"/>
 </map><p>What the table above a diagnostics plot offers, and what it binds.</p>
 <p>The half of the plot page that knows what a <em>row</em> means: which observing
 session and image type a row may be drawn for, which channel each of its
@@ -189,15 +195,242 @@ observing session and image type in the project, so evaluating anything to
 fill them would be work proportional to the whole image collection; every
 question asked here is answered by a SQL aggregate instead.</p>
 </section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.ChannelColumn">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">ChannelColumn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">needed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><span class="pre">frozenset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">quoted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#ChannelColumn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-608ed306f7777bc6d5e4067bbf3213d6513b69e7.png" alt="Inheritance diagram of autowisp.browser_interface.diagnostics.series_table.ChannelColumn" usemap="#inheritance864e023f6d" class="inheritance graphviz" /></div>
+<map id="inheritance864e023f6d" name="inheritance864e023f6d">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn" target="_top" title="One channel column of the series table: what it reads, and where." alt="" coords="5,5,476,31"/>
+</map><p>One channel column of the series table: what it reads, and where.</p>
+<p>Most bind one parameter of an axis quantity. The rest, with <code class="docutils literal notranslate"><span class="pre">quoted</span></code>
+set, choose the photometric reference of a channel the text quotes a
+diagnostic <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> produces in: the channel is written in
+the text rather than bound, but its reference still has to be chosen,
+as for every channel such a diagnostic is read in.</p>
+<p>Hashable, being what a table’s options are keyed by.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.ChannelColumn.by_reference">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">by_reference</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn.by_reference" title="Link to this definition"></a></dt>
+<dd><p>Whether an option binds a photometric reference with a channel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.ChannelColumn.count_options">
+<span class="sig-name descname"><span class="pre">count_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#ChannelColumn.count_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn.count_options" title="Link to this definition"></a></dt>
+<dd><p>Yield each option the column has, with how many images it draws.</p>
+<p>Each (channel, photref) the images recording <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn.needed" title="autowisp.browser_interface.diagnostics.series_table.ChannelColumn.needed"><code class="xref py py-attr docutils literal notranslate"><span class="pre">needed</span></code></a> are
+bound to, where the column reads a diagnostic <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code>
+produces, and each channel alone otherwise; of a quoted column,
+only those of its channel.</p>
+<dl class="field-list">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>tuple</em> –</p>
+<dl class="simple">
+<dt>One per option of each session and image type,</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(session_label,</span> <span class="pre">session_id,</span> <span class="pre">image_type,</span> <span class="pre">option,</span> <span class="pre">count)</span></code>,
+the option <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code>, the photref <code class="docutils literal notranslate"><span class="pre">None</span></code> for
+a column binding channels alone.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.ChannelColumn.needed">
+<span class="sig-name descname"><span class="pre">needed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><span class="pre">frozenset</span></a></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn.needed" title="Link to this definition"></a></dt>
+<dd><p>The diagnostics read in the column’s channel.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.ChannelColumn.quoted">
+<span class="sig-name descname"><span class="pre">quoted</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn.quoted" title="Link to this definition"></a></dt>
+<dd><p>The channel whose reference a quoted column chooses; <code class="docutils literal notranslate"><span class="pre">None</span></code> for a
+column binding a parameter.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.PhotometryColumn">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">PhotometryColumn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">needed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><span class="pre">frozenset</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#PhotometryColumn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-ce1a6be5e1d9b286f625f2b3642afaa99725df44.png" alt="Inheritance diagram of autowisp.browser_interface.diagnostics.series_table.PhotometryColumn" usemap="#inheritancecfedc0c909" class="inheritance graphviz" /></div>
+<map id="inheritancecfedc0c909" name="inheritancecfedc0c909">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn" target="_top" title="One photometry column of the series table: what it reads." alt="" coords="5,5,499,31"/>
+</map><p>One photometry column of the series table: what it reads.</p>
+<p>One per photometry parameter of the two axes. Apart from the channel
+columns rather than folded into their options: a photometry belongs to
+no channel, every image having every photometry in every channel, so
+two reads in one channel may be bound to two photometries.</p>
+<p>Hashable, being what a table’s options are keyed by.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.count_options">
+<span class="sig-name descname"><span class="pre">count_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#PhotometryColumn.count_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.count_options" title="Link to this definition"></a></dt>
+<dd><p>Yield each option the column has, with how many images it draws.</p>
+<p>Each photometry the images record every one of <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.needed" title="autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.needed"><code class="xref py py-attr docutils literal notranslate"><span class="pre">needed</span></code></a> in.</p>
+<dl class="field-list">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>tuple</em> –</p>
+<dl class="simple">
+<dt>One per option of each session and image type,</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(session_label,</span> <span class="pre">session_id,</span> <span class="pre">image_type,</span> <span class="pre">option,</span> <span class="pre">count)</span></code>,
+the option a photometry id.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.needed">
+<span class="sig-name descname"><span class="pre">needed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><span class="pre">frozenset</span></a></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.needed" title="Link to this definition"></a></dt>
+<dd><p>The diagnostics read in the column’s photometry, in whichever
+channels.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table._PhotometryParameter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">_PhotometryParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#_PhotometryParameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table._PhotometryParameter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<p>A photometry column, standing in for the photometry it binds.</p>
+<p>What an axis is walked with where it takes photometries, as it is
+walked with a column index where it takes channels. A type of its own
+rather than the index, because the walk resolves a quoted photometry
+to its id, an int: walked with indices,
+<code class="docutils literal notranslate"><span class="pre">magfit_residual[0][0]</span> <span class="pre">-</span> <span class="pre">magfit_residual[0]['ap0']</span></code> would come back
+as two reads in photometry <code class="docutils literal notranslate"><span class="pre">0</span></code>, one bound by column 0 and one quoted,
+and nothing would tell them apart. Channels need no such thing, a
+quoted channel staying a string.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table._PhotometryParameter.column">
+<span class="sig-name descname"><span class="pre">column</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table._PhotometryParameter.column" title="Link to this definition"></a></dt>
+<dd><p>The column’s position among the photometry columns.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table._chosen_option">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">_chosen_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offered</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">candidate_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#_chosen_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table._chosen_option" title="Link to this definition"></a></dt>
+<dd><p>Return the option of one column the row chooses, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>A column with one option has it chosen, whatever the row says.
+Otherwise the first of <em>candidate_list</em> the column offers: what the row
+binds now, and for a channel column also the channel alone, since the
+row’s key gives a column binding channels alone the reference of
+another slot on its channel, which names no option of this column.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table._common_length">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">_common_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequences</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#_common_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table._common_length" title="Link to this definition"></a></dt>
+<dd><p>Return how many leading elements all <em>sequences</em> share.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table._label_options">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">_label_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offered</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#_label_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table._label_options" title="Link to this definition"></a></dt>
+<dd><p>Return what each <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code> option of one column is called.</p>
+<p>The channel, followed by what tells its reference apart from the
+others offered <em>in the same channel</em> – <code class="docutils literal notranslate"><span class="pre">R:</span> <span class="pre">1234</span></code> – or the channel
+alone where there is nothing to tell apart: a column binding channels
+alone, or a channel offering one reference.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table._make_cell">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">_make_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offered</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chosen</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#_make_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table._make_cell" title="Link to this definition"></a></dt>
+<dd><p>Return one slot cell of a row, as <code class="docutils literal notranslate"><span class="pre">_slot_cell.html</span></code> renders it.</p>
+<p>What a channel column’s cell and a photometry column’s share: one
+offering a single option is settled and states it as text, any other
+is a dropdown starting with an unset entry, and either sorts by what it
+shows.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offered</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{option:</span> <span class="pre">count}</span></code>, what the column may bind
+under the row’s pair.</p></li>
+<li><p><strong>chosen</strong> – The option the cell binds, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>labels</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{option:</span> <span class="pre">text}</span></code>, what the cell says it binds.</p></li>
+<li><p><strong>posted</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{option:</span> <span class="pre">text}</span></code>, what the cell posts for it.</p></li>
+<li><p><strong>titles</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{option:</span> <span class="pre">text}</span></code>, what hovering over it shows,
+missing where nothing does.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The cell, <code class="docutils literal notranslate"><span class="pre">binding</span></code> holding <em>chosen</em> and <code class="docutils literal notranslate"><span class="pre">label</span></code> what</dt><dd><p>the cell says it binds.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table._path_separators">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">_path_separators</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('([/_.-])')</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table._path_separators" title="Link to this definition"></a></dt>
+<dd><p>at
+directory, word and extension boundaries, each kept as a part of its own
+so that what is left between them reads as written.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Where a reference’s path is split to tell it from the others</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table._walk_axis">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">_walk_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#_walk_axis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table._walk_axis" title="Link to this definition"></a></dt>
+<dd><p>Return what one axis reads, and in which columns.</p>
+<p>Walked with a <em>column index</em> standing in for each channel, and a
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table._PhotometryParameter" title="autowisp.browser_interface.diagnostics.series_table._PhotometryParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">_PhotometryParameter</span></code></a> for each photometry. A reference’s
+arguments are matched against the definition’s parameters
+positionally, so whatever is passed here is what comes back at the
+leaves: passing columns asks which column each diagnostic is read in,
+whatever numbers the expression happened to write.
+<code class="docutils literal notranslate"><span class="pre">bg_center[3]</span> <span class="pre">/</span> <span class="pre">pixel_q99[7]</span></code> reports column 0 and column 1.</p>
+<p>A quoted channel comes back as itself rather than as a column, which
+is what tells the two apart: <code class="docutils literal notranslate"><span class="pre">bg_center[3]</span> <span class="pre">/</span> <span class="pre">bg_center['G0']</span></code> reads
+<code class="docutils literal notranslate"><span class="pre">bg_center</span></code> in column 0 and, fixed, in <code class="docutils literal notranslate"><span class="pre">G0</span></code>. A quoted photometry
+comes back as its id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>tuple:    The quantity’s channel parameters, as the definition</dt><dd><p>numbers them; <code class="docutils literal notranslate"><span class="pre">None</span></code> each for a diagnostic, which has no
+numbering of its own.</p>
+</dd>
+</dl>
+<p>tuple:    Its photometry parameters, likewise.</p>
+<dl class="simple">
+<dt>set:    <code class="docutils literal notranslate"><span class="pre">(diagnostic,</span> <span class="pre">channel,</span> <span class="pre">photometry)</span></code> reads: the</dt><dd><p>channel a column index or a quoted channel, and the
+photometry <code class="docutils literal notranslate"><span class="pre">None</span></code> for a diagnostic recorded per image, a
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table._PhotometryParameter" title="autowisp.browser_interface.diagnostics.series_table._PhotometryParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">_PhotometryParameter</span></code></a> or a quoted photometry’s id.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.count_bound_images">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">count_bound_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slot_needs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#count_bound_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.count_bound_images" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">count_bound_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_bindings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometry_bindings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#count_bound_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.count_bound_images" title="Link to this definition"></a></dt>
 <dd><p>Count the images one binding draws on, for every group at once.</p>
 <p>The exact question, where <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="autowisp.browser_interface.diagnostics.series_table.get_slot_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_slot_options()</span></code></a> answers the looser
 one that fills the dropdowns: an image counts when its rows cover
-every (diagnostic, channel) pair <em>between them</em>, which is what a
-quantity comparing channels needs and what reading each channel on its
-own cannot say.</p>
+every read <em>between them</em>, which is what a quantity comparing channels
+or photometries needs and what reading each column on its own cannot
+say – and, where the binding names references, when it was fit
+against each of them, as the series will be restricted to.</p>
 <p>Every group is counted in one aggregate rather than one per row, since
 a binding is usually shared – by every row of a monochrome project at
 render, and by nothing much afterwards, when one row is rebound at a
@@ -205,8 +438,12 @@ time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slot_needs</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What each slot reads, in column order.</p></li>
-<li><p><strong>channels</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The channel bound in each of those slots.</p></li>
+<li><p><strong>reads</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><em>frozenset</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_table_reads" title="autowisp.browser_interface.diagnostics.series_table.get_table_reads"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_table_reads()</span></code></a> returned.</p></li>
+<li><p><strong>channel_bindings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code> bound in each
+channel column, in order, the photref <code class="docutils literal notranslate"><span class="pre">None</span></code> where there is
+none.</p></li>
+<li><p><strong>photometry_bindings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The photometry id bound in each
+photometry column, in order.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
 </dd>
@@ -246,7 +483,7 @@ question about rows, and stays a SQL aggregate.</p>
 rows draw and therefore what their ids name.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>, passed in
 rather than fetched so that nothing below the view has to know
-it came from the browser-interface database.</p></li>
+where it is stored.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 <li><p><strong>marker</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What this section’s rows are drawn with to begin
 with, chosen for the section rather than for the row so that
@@ -271,37 +508,14 @@ expects.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_axes_slot_needs">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_axes_slot_needs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_axes_slot_needs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_axes_slot_needs" title="Link to this definition"></a></dt>
-<dd><p>Return what each channel column of the table reads, in column order.</p>
-<p>The x quantity’s slots followed by the y quantity’s, concatenated
-rather than merged: an expression’s numbers are formal parameters, so
-the two axes’ slots are unrelated even when written alike.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
-<li><p><strong>y_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
-<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>One <code class="docutils literal notranslate"><span class="pre">frozenset</span></code> of diagnostic names per column.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_axis_slots">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_axis_slots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_axis_slots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_axis_slots" title="Link to this definition"></a></dt>
-<dd><p>Return the diagnostics read in each channel one axis binds.</p>
-<p>An axis binds one channel per parameter of the quantity it draws, and
-two axes never share one: their numbers are formal parameters, so the
-first slot of the x quantity and the first of the y quantity are
-unrelated, and tying them together would silently couple the axes.</p>
+<dd><p>Return the diagnostics read in each channel and photometry one axis binds.</p>
+<p>An axis binds one channel per channel parameter of the quantity it
+draws, and one photometry per photometry parameter, and two axes never
+share one: their numbers are formal parameters, so the first slot of
+the x quantity and the first of the y quantity are unrelated, and
+tying them together would silently couple the axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -312,11 +526,111 @@ quantile family already resolved to a member.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>One <code class="docutils literal notranslate"><span class="pre">(parameter,</span> <span class="pre">needed)</span></code> pair per channel to bind, in</dt><dd><p>column order: the slot number the definition writes, which
-names the column, and the diagnostics read in it. The
-parameter is <code class="docutils literal notranslate"><span class="pre">None</span></code> for a diagnostic, which has no numbering
-of its own. Empty for an axis over the time alone, which binds
-nothing.</p>
+<dt>list:    One <code class="docutils literal notranslate"><span class="pre">(parameter,</span> <span class="pre">needed)</span></code> pair per channel to bind,</dt><dd><p>in column order: the slot number the definition writes,
+which names the column, and the diagnostics read in it. The
+parameter is <code class="docutils literal notranslate"><span class="pre">None</span></code> for a diagnostic, which has no
+numbering of its own. Empty for an axis binding no channel:
+one over the time, or over quoted channels alone.</p>
+</dd>
+<dt>list:    The same per photometry to bind, the diagnostics read</dt><dd><p>in it in whichever channels. Empty for an axis reading
+nothing per photometry, or only in quoted photometries.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_channel_columns">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_channel_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_channel_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_channel_columns" title="Link to this definition"></a></dt>
+<dd><p>Return the channel columns of the table, in order.</p>
+<p>The x quantity’s slots followed by the y quantity’s, concatenated
+rather than merged: an expression’s numbers are formal parameters, so
+the two axes’ slots are unrelated even when written alike.</p>
+<p>Then a quoted column per channel a diagnostic <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code>
+produces is read in by quoting it, to choose that channel’s reference
+in: in the order the text first quotes them, x’s and then y’s, so that
+references are chosen in the order the expressions mention them. A
+channel quoted on both axes has one, an image having one reference per
+channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
+<li><p><strong>y_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn" title="autowisp.browser_interface.diagnostics.series_table.ChannelColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChannelColumn</span></code></a> per channel column.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_fixed_reads">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_fixed_reads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reads</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_fixed_reads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_fixed_reads" title="Link to this definition"></a></dt>
+<dd><p>Return what the two axes read where no column binds anything.</p>
+<p>A quoted channel is already bound, so it offers no choice and gets no
+column; but what is read in it still has to be recorded for an image
+to be drawn. So it narrows the (session, image type) pairs a row may
+name, exactly as a column’s reads do – and is what gives a table any
+rows at all when neither axis binds a column.</p>
+<p>A read in a quoted channel and a photometry a column binds is not
+among them: until the column is bound, there is no photometry to look
+for it in. The column’s options narrow the pairs instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reads</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><em>frozenset</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_table_reads" title="autowisp.browser_interface.diagnostics.series_table.get_table_reads"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_table_reads()</span></code></a> returned.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">(diagnostic,</span> <span class="pre">channel,</span> <span class="pre">photometry)</span></code> reads, as</dt><dd><p><code class="xref py py-func docutils literal notranslate"><span class="pre">count_images_with_channels()</span></code> takes them.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)">frozenset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_pair_options">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_pair_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_pair_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_pair_options" title="Link to this definition"></a></dt>
+<dd><p>Return the (session, image type) pairs a row may be drawn for.</p>
+<p>A pair is offered where every column has at least one channel or
+photometry to bind, and where some image records everything read
+where no column binds anything: otherwise a row on it could name no
+data at all.  What a column takes is chosen in the row afterwards, so
+a pair is offered once rather than once per binding it could carry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The table’s columns, channel and photometry
+columns alike.</p></li>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="autowisp.browser_interface.diagnostics.series_table.get_slot_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_slot_options()</span></code></a> returned.</p></li>
+<li><p><strong>labels</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The session labels from the same call.</p></li>
+<li><p><strong>fixed_groups</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The fixed reads’ counts from the same call,
+or <code class="docutils literal notranslate"><span class="pre">None</span></code> where nothing is read in a quoted channel.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">{&quot;value&quot;,</span> <span class="pre">&quot;text&quot;,</span> <span class="pre">&quot;start&quot;,</span> <span class="pre">&quot;end&quot;}</span></code> per pair, by session</dt><dd><p>start time and then image type – which is the order the
+dropdown lists them in, and why the first of them is the
+earliest session. Empty where the axes read no diagnostic at
+all – the time against the time – there being nothing to
+constrain the pairs, and nothing worth drawing.</p>
 </dd>
 </dl>
 </p>
@@ -328,36 +642,75 @@ nothing.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_pair_options">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_pair_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slot_needs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_pair_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_pair_options" title="Link to this definition"></a></dt>
-<dd><p>Return the (session, image type) pairs a row may be drawn for.</p>
-<p>A pair is offered where every channel column has at least one channel
-to bind: unless each of them can be read somewhere in that session’s
-frames of that type, a row on it could name no data at all.  Which
-channel a column takes is chosen in the row afterwards, so a pair is
-offered once rather than once per binding it could carry.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_photometry_columns">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_photometry_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_photometry_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_photometry_columns" title="Link to this definition"></a></dt>
+<dd><p>Return the photometry columns of the table, in order.</p>
+<p>The x quantity’s photometry slots followed by the y quantity’s, as
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_channel_columns" title="autowisp.browser_interface.diagnostics.series_table.get_channel_columns"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_channel_columns()</span></code></a> lays out the channel slots. A quoted
+photometry gets none: it is already bound.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slot_needs</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What each channel column reads, in column
-order.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="autowisp.browser_interface.diagnostics.series_table.get_slot_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_slot_options()</span></code></a> returned.</p></li>
-<li><p><strong>labels</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The session labels from the same call.</p></li>
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
+<li><p><strong>y_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn" title="autowisp.browser_interface.diagnostics.series_table.PhotometryColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhotometryColumn</span></code></a> per photometry column.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_quoted_channel">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_quoted_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_quoted_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_quoted_channel" title="Link to this definition"></a></dt>
+<dd><p>Return the channel a row is shown in when it binds none of its own.</p>
+<p>The first the x quantity quotes, and failing that the y’s – the axes
+in the order their columns would be, had they any.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
+<li><p><strong>y_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The channel, or <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> where neither quotes one.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_reference_paths">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_reference_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_reference_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_reference_paths" title="Link to this definition"></a></dt>
+<dd><p>Return the path of every photometric reference <em>options</em> offers.</p>
+<p>What a reference is labelled from, and what hovering over it shows.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="autowisp.browser_interface.diagnostics.series_table.get_slot_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_slot_options()</span></code></a> returned first,
+for the channel columns alone: a photometry column’s options
+name no reference.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">{&quot;value&quot;,</span> <span class="pre">&quot;text&quot;,</span> <span class="pre">&quot;start&quot;,</span> <span class="pre">&quot;end&quot;}</span></code> per pair, by session</dt><dd><p>start time and then image type – which is the order the
-dropdown lists them in, and why the first of them is the
-earliest session. Empty where the axes bind no channel at all,
-there being nothing to draw and so nothing to offer.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">{photref:</span> <span class="pre">path}</span></code>, read in one query however many</dt><dd><p>references there are.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -366,9 +719,10 @@ there being nothing to draw and so nothing to offer.</p>
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_row_options">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_row_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_row_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_row_options" title="Link to this definition"></a></dt>
 <dd><p>Return what a row drawing one quantity against the page’s x is built from.</p>
-<p>The three things that have to be worked out before any row can be
-built: what each channel column reads, what each may be bound to, and
-the (session, image type) pairs the row may name.</p>
+<p>The things that have to be worked out before any row can be built:
+what each channel and photometry column reads, what the axes read
+altogether, what each column may be bound to, and the (session, image
+type) pairs the row may name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -380,14 +734,18 @@ the (session, image type) pairs the row may name.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">(slot_needs,</span> <span class="pre">options,</span> <span class="pre">pair_options)</span></code>, as</dt><dd><p><a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_axes_slot_needs" title="autowisp.browser_interface.diagnostics.series_table.get_axes_slot_needs"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_axes_slot_needs()</span></code></a>, <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="autowisp.browser_interface.diagnostics.series_table.get_slot_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_slot_options()</span></code></a> and
-<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_pair_options" title="autowisp.browser_interface.diagnostics.series_table.get_pair_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pair_options()</span></code></a> return them.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">columns</span></code>, <code class="docutils literal notranslate"><span class="pre">photometry_columns</span></code>, <code class="docutils literal notranslate"><span class="pre">reads</span></code>,</dt><dd><p><code class="docutils literal notranslate"><span class="pre">quoted_channel</span></code>, <code class="docutils literal notranslate"><span class="pre">options</span></code>, <code class="docutils literal notranslate"><span class="pre">paths</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pair_options</span></code>, as <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_channel_columns" title="autowisp.browser_interface.diagnostics.series_table.get_channel_columns"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_channel_columns()</span></code></a>,
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_photometry_columns" title="autowisp.browser_interface.diagnostics.series_table.get_photometry_columns"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_photometry_columns()</span></code></a>, <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_table_reads" title="autowisp.browser_interface.diagnostics.series_table.get_table_reads"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_table_reads()</span></code></a>,
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_quoted_channel" title="autowisp.browser_interface.diagnostics.series_table.get_quoted_channel"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_quoted_channel()</span></code></a>, <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="autowisp.browser_interface.diagnostics.series_table.get_slot_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_slot_options()</span></code></a>,
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_reference_paths" title="autowisp.browser_interface.diagnostics.series_table.get_reference_paths"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_reference_paths()</span></code></a> and <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_pair_options" title="autowisp.browser_interface.diagnostics.series_table.get_pair_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pair_options()</span></code></a> return
+them – keyed as <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_row_for_pair" title="autowisp.browser_interface.diagnostics.series_table.make_row_for_pair"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_row_for_pair()</span></code></a> takes them.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -401,13 +759,19 @@ the image type and the channels are chosen <em>in</em> the row, so reading any
 of them from anywhere but the dropdown the user just changed would be
 reading a stale value.  What the id carries instead is the quantity,
 which the row cannot change.</p>
+<p>Each channel column posts what <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_channel_value" title="autowisp.browser_interface.diagnostics.series_table.make_channel_value"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_channel_value()</span></code></a> built: its
+channel, and its photometric reference where it has one. They are
+split here into the key’s channels and references. Each photometry
+column posts a photometry id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – One row as the client posted it back.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>What the row identifies, with empty channels where</dt><dd><p>its dropdowns are still unset.</p>
+<dt>What the row identifies, with empty channels where</dt><dd><p>its dropdowns are still unset, and no photometries where any
+photometry column is: a key holds ids, and there is no id
+meaning unset.</p>
 </dd>
 </dl>
 </p>
@@ -450,26 +814,26 @@ query however many of them there are.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_slot_headings">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_slot_headings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slots</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_slot_headings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_headings" title="Link to this definition"></a></dt>
-<dd><p>Return the column heading for each channel one axis binds.</p>
-<p>Named for the axis as well as the quantity because the two axes may
-name one quantity – comparing a diagnostic between channels is
-exactly that – and two columns headed alike would say nothing. Where
-an axis binds several channels the heading is the reference as the
-definition writes it, so a column can be matched to the text it fills
-in.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_slot_headings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slots</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_slot_headings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_headings" title="Link to this definition"></a></dt>
+<dd><p>Return the column heading for each channel or photometry one axis binds.</p>
+<p>Named for the axis, since the two axes’ slots are unrelated however
+alike they are written, and for what the column binds. Not for the
+quantity: the section header and the x selector name those already,
+and the column is only as wide as its heading needs. Where an axis
+binds several the heading is the slot as the definition writes it, so
+a column can be matched to the text it fills in.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Which axis these columns belong to.</p></li>
-<li><p><strong>axis_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The quantity as the selector names it, which
-for the quantile family is the family rather than a member:
-the table has one header for all of them.</p></li>
-<li><p><strong>slots</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_axis_slots" title="autowisp.browser_interface.diagnostics.series_table.get_axis_slots"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_axis_slots()</span></code></a> returned for the axis.</p></li>
+<li><p><strong>kind</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What the columns bind: <code class="docutils literal notranslate"><span class="pre">channel</span></code> or
+<code class="docutils literal notranslate"><span class="pre">photometry</span></code>.</p></li>
+<li><p><strong>slots</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_axis_slots" title="autowisp.browser_interface.diagnostics.series_table.get_axis_slots"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_axis_slots()</span></code></a> returned for the axis,
+for that kind.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>One heading per channel to bind.</p>
+<dd class="field-even"><p>One heading per slot to bind.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
@@ -479,30 +843,72 @@ the table has one header for all of them.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_slot_options">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_slot_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slot_needs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_slot_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="Link to this definition"></a></dt>
-<dd><p>Return what each slot of the table may be bound to, and the labels.</p>
-<p>One aggregate per <em>distinct</em> set of diagnostics among the slots –
-usually one for the whole table, since the commonest axis pairs read
-the same diagnostics in every slot. Nothing is evaluated: which
-channels a slot may offer is a question about rows.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_slot_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_slot_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="Link to this definition"></a></dt>
+<dd><p>Return what each column of the table may be bound to, and the labels.</p>
+<p>One aggregate per <em>distinct</em> column – usually one for the whole
+table, since the commonest axis pairs read the same diagnostics in
+every slot – and one more for the fixed reads, if any. Nothing is
+evaluated: which channels and photometries a column may offer is a
+question about rows.</p>
+<p>What a column offers, and how it is counted, is the column’s own:
+see <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.ChannelColumn.count_options" title="autowisp.browser_interface.diagnostics.series_table.ChannelColumn.count_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ChannelColumn.count_options()</span></code></a> and
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.count_options" title="autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.count_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PhotometryColumn.count_options()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slot_needs</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What each slot reads, from
-<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_axis_slots" title="autowisp.browser_interface.diagnostics.series_table.get_axis_slots"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_axis_slots()</span></code></a> for each axis in turn.</p></li>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The table’s columns, channel and photometry
+columns alike, from <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_channel_columns" title="autowisp.browser_interface.diagnostics.series_table.get_channel_columns"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_channel_columns()</span></code></a> and
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_photometry_columns" title="autowisp.browser_interface.diagnostics.series_table.get_photometry_columns"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_photometry_columns()</span></code></a>.</p></li>
+<li><p><strong>fixed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><em>frozenset</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_fixed_reads" title="autowisp.browser_interface.diagnostics.series_table.get_fixed_reads"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_fixed_reads()</span></code></a> returned.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>dict:    One entry per distinct set of needs, holding</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{(session_id,</span> <span class="pre">image_type):</span> <span class="pre">{channel:</span> <span class="pre">count}}</span></code>.</p>
+<dt>dict:    One entry per distinct column, holding</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{(session_id,</span> <span class="pre">image_type):</span> <span class="pre">{option:</span> <span class="pre">count}}</span></code>, the
+options as the column’s <code class="docutils literal notranslate"><span class="pre">count_options</span></code> gives them.</p>
 </dd>
 </dl>
 <p>dict:    <code class="docutils literal notranslate"><span class="pre">{session_id:</span> <span class="pre">label}</span></code>, the same whatever is read.</p>
+<dl class="simple">
+<dt>dict:    <code class="docutils literal notranslate"><span class="pre">{(session_id,</span> <span class="pre">image_type):</span> <span class="pre">count}</span></code> of the images</dt><dd><p>recording every fixed read, or <code class="docutils literal notranslate"><span class="pre">None</span></code> where there are
+none, which constrains nothing.</p>
+</dd>
+</dl>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.get_table_reads">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">get_table_reads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#get_table_reads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.get_table_reads" title="Link to this definition"></a></dt>
+<dd><p>Return everything the two axes read, in the table’s columns.</p>
+<p>The axes’ reads laid end to end, as their columns are: a column of the
+y axis comes after all of the x axis’s, among the channel columns and
+among the photometry columns alike. What a row’s binding is resolved
+against, to count what it draws.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
+<li><p><strong>y_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">(diagnostic,</span> <span class="pre">channel,</span> <span class="pre">photometry)</span></code> reads, as</dt><dd><p><a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table._walk_axis" title="autowisp.browser_interface.diagnostics.series_table._walk_axis"><code class="xref py py-func docutils literal notranslate"><span class="pre">_walk_axis()</span></code></a> returns them, numbering the table’s columns
+rather than an axis’s.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)">frozenset</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -562,6 +968,104 @@ was edited, which is every other redraw.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.label_references">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">label_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#label_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.label_references" title="Link to this definition"></a></dt>
+<dd><p>Return what tells each of <em>paths</em> apart from the others.</p>
+<p>What they all share at the start and at the end is dropped – the
+directories, the extension, a naming scheme – leaving the part that
+differs: <code class="docutils literal notranslate"><span class="pre">…/DR/IMG_1234_R.h5</span></code> and <code class="docutils literal notranslate"><span class="pre">…/DR/IMG_1289_R.h5</span></code> become
+<code class="docutils literal notranslate"><span class="pre">1234</span></code> and <code class="docutils literal notranslate"><span class="pre">1289</span></code>. Split at separators rather than characters, so
+that a number is never cut: character by character, those two would
+become <code class="docutils literal notranslate"><span class="pre">34</span></code> and <code class="docutils literal notranslate"><span class="pre">89</span></code>.</p>
+<p>Pure, so that the rule can be tested without a database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>paths</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The paths of the references offered in one channel.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>One label per path, in the same order. Empty where nothing</dt><dd><p>is left, which is always so for a single path: there is nothing
+to tell it apart from.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.make_channel_cells">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_channel_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bindings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_channel_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_channel_cells" title="Link to this definition"></a></dt>
+<dd><p>Return what each channel column of one row offers, and what it says.</p>
+<p>A column offering a single option is settled rather than asked about:
+that is the whole of a monochrome camera, and of a colour one whose
+other channels are not processed yet, and demanding a click with one
+possible outcome before anything can be drawn is ceremony. Such a cell
+shows its option as text, which is what lets a row be drawn the moment
+it appears. Should another be recorded later, the column has a choice
+to offer and asks for one.</p>
+<p>What a column may offer depends on the (session, image type) pair the
+row names, so choosing another pair asks this again for all of them.
+An option the new pair still offers is kept – the user chose it, and
+it remains an answer – and one it does not is cleared rather than
+quietly bound to something else.</p>
+<p>An option is a channel, and a photometric reference where the column
+reads a diagnostic <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> produces. The cell text names a
+reference only as far as it has to be told apart from the others in
+its channel; its full path is the option’s <code class="docutils literal notranslate"><span class="pre">title</span></code>, and the cell’s
+for the chosen one, so hovering shows it.</p>
+<p>Pure, so that these rules can be tested without a database or a
+browser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>available</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What each column may be bound to under this
+row’s pair, <code class="docutils literal notranslate"><span class="pre">{(channel,</span> <span class="pre">photref):</span> <span class="pre">count}</span></code> in column order,
+the photref <code class="docutils literal notranslate"><span class="pre">None</span></code> for a column binding channels alone.</p></li>
+<li><p><strong>bindings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – What the row binds now, <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code>
+per column in the same order. Empty, or short, for a row whose
+columns are not all set.</p></li>
+<li><p><strong>paths</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{photref:</span> <span class="pre">path}</span></code> for every reference offered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>One cell per column, as <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table._make_cell" title="autowisp.browser_interface.diagnostics.series_table._make_cell"><code class="xref py py-func docutils literal notranslate"><span class="pre">_make_cell()</span></code></a> builds it,</dt><dd><p><code class="docutils literal notranslate"><span class="pre">binding</span></code> holding the <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code> chosen, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, and <code class="docutils literal notranslate"><span class="pre">label</span></code> what the cell says it binds.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.make_channel_value">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_channel_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_channel_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_channel_value" title="Link to this definition"></a></dt>
+<dd><p>Return what one option of a channel column posts.</p>
+<p>The channel alone where the column binds a channel, and the channel
+with the photometric reference, <code class="docutils literal notranslate"><span class="pre">R|12</span></code>, where it reads a diagnostic
+<code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> produces and so binds a (channel, photref) pair.
+Built as <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_id" title="autowisp.browser_interface.diagnostics.series_table.make_id"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_id()</span></code></a> builds the other ids, and so refused a channel
+containing its separator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The channel.</p></li>
+<li><p><strong>photref</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The <code class="docutils literal notranslate"><span class="pre">MasterFile</span></code> id of the reference, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> for a column binding the channel alone.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.make_id">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">parts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_id" title="Link to this definition"></a></dt>
 <dd><p>Return one of the ids the client round-trips, built from <em>parts</em>.</p>
@@ -590,21 +1094,59 @@ the two differ is in the reading: <a class="reference internal" href="#autowisp.
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.make_photometry_cells">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_photometry_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bindings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_photometry_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_photometry_cells" title="Link to this definition"></a></dt>
+<dd><p>Return what each photometry column of one row offers, and what it says.</p>
+<p>By the rules of <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_channel_cells" title="autowisp.browser_interface.diagnostics.series_table.make_channel_cells"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_channel_cells()</span></code></a>: settled where there is a
+single option, and keeping what the row binds where the row’s pair
+still offers it. An option is a photometry id, called what an
+expression quotes it as, <code class="docutils literal notranslate"><span class="pre">shapefit</span></code> or <code class="docutils literal notranslate"><span class="pre">ap2</span></code>.</p>
+<p>Pure, so that these rules can be tested without a database or a
+browser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>available</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What each photometry column may be bound to
+under this row’s pair, <code class="docutils literal notranslate"><span class="pre">{photometry:</span> <span class="pre">count}</span></code> in column order.</p></li>
+<li><p><strong>bindings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The photometry id the row binds now per column,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> where it binds none. Empty, or short, for a row whose
+columns are not all set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>One cell per column, as <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_channel_cells" title="autowisp.browser_interface.diagnostics.series_table.make_channel_cells"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_channel_cells()</span></code></a> returns</dt><dd><p>them, <code class="docutils literal notranslate"><span class="pre">binding</span></code> holding the photometry id chosen.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.make_row_for_pair">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_row_for_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">slot_needs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pair_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_row_for_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_row_for_pair" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_row_for_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometry_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quoted_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pair_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_row_for_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_row_for_pair" title="Link to this definition"></a></dt>
 <dd><p>Return one row of the series table, bound as far as its pair allows.</p>
 <p>Shared by the first row of a table and by a row whose pair has just
 changed, both asking the same question: what a row on this pair
-offers, which of the channels it names survive there, and how many
-images the result draws.</p>
+offers, which of the channels, references and photometries it names
+survive there, and how many images the result draws.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>row_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_id" title="autowisp.browser_interface.diagnostics.series_table.make_id"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_id()</span></code></a> returned for this row.</p></li>
-<li><p><strong>series_key</strong> (<a class="reference internal" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><em>SeriesKey</em></a>) – The pair the row names, and the channels
-it would keep – those the pair does not offer are dropped.</p></li>
-<li><p><strong>slot_needs</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What each channel column reads.</p></li>
+<li><p><strong>series_key</strong> (<a class="reference internal" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><em>SeriesKey</em></a>) – The pair the row names, and the channels,
+references and photometries it would keep – those the pair
+does not offer are dropped.</p></li>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The table’s channel columns.</p></li>
+<li><p><strong>photometry_columns</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Its photometry columns.</p></li>
+<li><p><strong>reads</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><em>frozenset</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_table_reads" title="autowisp.browser_interface.diagnostics.series_table.get_table_reads"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_table_reads()</span></code></a> returned.</p></li>
+<li><p><strong>quoted_channel</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_quoted_channel" title="autowisp.browser_interface.diagnostics.series_table.get_quoted_channel"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_quoted_channel()</span></code></a> returned.</p></li>
 <li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_slot_options" title="autowisp.browser_interface.diagnostics.series_table.get_slot_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_slot_options()</span></code></a> returned.</p></li>
+<li><p><strong>paths</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_reference_paths" title="autowisp.browser_interface.diagnostics.series_table.get_reference_paths"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_reference_paths()</span></code></a> returned.</p></li>
 <li><p><strong>pair_options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_pair_options" title="autowisp.browser_interface.diagnostics.series_table.get_pair_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pair_options()</span></code></a> returned.</p></li>
 <li><p><strong>marker</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The marker the row’s section starts its rows with.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
@@ -626,8 +1168,11 @@ does not.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.make_series">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_series" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_slots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometry_slots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quoted_channel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_series" title="Link to this definition"></a></dt>
 <dd><p>Build the entry describing one row of the series table.</p>
+<p>Its default colour is that of the channel it is shown in: the first it
+binds, wherever it has a column to bind one in, and otherwise – every
+channel it reads being quoted – the first its quantities quote.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -638,14 +1183,19 @@ does not.</p>
 select, as <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_pair_options" title="autowisp.browser_interface.diagnostics.series_table.get_pair_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pair_options()</span></code></a> returns them.  Carried by
 the row rather than read from the page’s context, so that a row
 can be rendered on its own.</p></li>
-<li><p><strong>slots</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – One cell per channel the axes bind, as
-<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_slot_cells" title="autowisp.browser_interface.diagnostics.series_table.make_slot_cells"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_slot_cells()</span></code></a> builds them.</p></li>
+<li><p><strong>channel_slots</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – One cell per channel the axes bind, as
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_channel_cells" title="autowisp.browser_interface.diagnostics.series_table.make_channel_cells"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_channel_cells()</span></code></a> builds them.</p></li>
 <li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of images contributing, or <code class="docutils literal notranslate"><span class="pre">None</span></code>
 where nothing is bound yet and there is nothing to count.</p></li>
+<li><p><strong>photometry_slots</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – One cell per photometry the axes bind,
+as <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.make_photometry_cells" title="autowisp.browser_interface.diagnostics.series_table.make_photometry_cells"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_photometry_cells()</span></code></a> builds them.</p></li>
 <li><p><strong>marker</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What the row is drawn with to begin with, which
 its section decides: the default tells quantities apart by
 shape, as the colour tells channels apart. Editable
 afterwards, like the colour.</p></li>
+<li><p><strong>quoted_channel</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.series_table.get_quoted_channel" title="autowisp.browser_interface.diagnostics.series_table.get_quoted_channel"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_quoted_channel()</span></code></a> returned
+for the row’s axes, which it is shown in if <em>channel_slots</em> is
+empty.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -658,42 +1208,6 @@ afterwards, like the colour.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.make_slot_cells">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">make_slot_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#make_slot_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.make_slot_cells" title="Link to this definition"></a></dt>
-<dd><p>Return what each channel column of one row offers, and what it says.</p>
-<p>A column offering a single channel is settled rather than asked
-about: that is the whole of a monochrome camera, and of a colour one
-whose other channels are not processed yet, and demanding a click with
-one possible outcome before anything can be drawn is ceremony. Such a
-cell shows its channel as text, which is what lets a row be drawn the
-moment it appears. Should another channel be recorded later, the
-column has a choice to offer and asks for one.</p>
-<p>What a column may offer depends on the (session, image type) pair the
-row names, so choosing another pair asks this again for all of them.
-A channel the new pair still offers is kept – the user chose it, and
-it remains an answer – and one it does not is cleared rather than
-quietly bound to something else.</p>
-<p>Pure, so that both rules can be tested without a database or a
-browser.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>available</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What each column may be bound to under this
-row’s pair, <code class="docutils literal notranslate"><span class="pre">{channel:</span> <span class="pre">count}</span></code> in column order.</p></li>
-<li><p><strong>channels</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – What the row binds now, in the same order.
-Empty, or short, for a row whose columns are not all set.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>One cell per column, as <code class="docutils literal notranslate"><span class="pre">_slot_cells.html</span></code> renders it.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -727,6 +1241,15 @@ to be unique among all of them.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.parse_photometry_value">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">parse_photometry_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#parse_photometry_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.parse_photometry_value" title="Link to this definition"></a></dt>
+<dd><p>Return the photometry id a photometry column posted, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>An option posts its id as text, and an unset column <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>, which is
+<code class="docutils literal notranslate"><span class="pre">None</span></code> here: every id, the shape fit’s <code class="docutils literal notranslate"><span class="pre">-1</span></code> and aperture <code class="docutils literal notranslate"><span class="pre">0</span></code>
+included, is a valid binding, so nothing but <code class="docutils literal notranslate"><span class="pre">None</span></code> can mean unset.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.posted_rows">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">posted_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#posted_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.posted_rows" title="Link to this definition"></a></dt>
 <dd><p>Return the rows of a posted table as a list, each carrying its id.</p>
@@ -749,6 +1272,14 @@ image type nor a diagnostic name can contain this one.</p>
 <dd class="field-odd"><p>Separates the fields of the two ids the client round-trips</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.series_table.split_channel_value">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.series_table.</span></span><span class="sig-name descname"><span class="pre">split_channel_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/series_table.html#split_channel_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.series_table.split_channel_value" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code> from what a channel column posted.</p>
+<p>The photref is <code class="docutils literal notranslate"><span class="pre">None</span></code> where the value names none: a column binding
+a channel alone, or one still unset, whose channel is <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>.</p>
 </dd></dl>
 
 <dl class="py function">

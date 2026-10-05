@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -221,6 +224,7 @@
 <span class="p">)</span>
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.core.plot_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">channel_colors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.image_diagnostics_views</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">collect_series_data</span><span class="p">,</span>
     <span class="n">get_series_data</span><span class="p">,</span>
@@ -482,12 +486,12 @@
         <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">split_pair_id</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"pair"</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"slots"</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"slots"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"fixed"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"channel_slots"</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"channel_slots"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"fixed"</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="s2">"text"</span><span class="p">])</span>
-                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s2">"slots"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"options"</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s2">"channel_slots"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"options"</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span>
             <span class="p">],</span>
             <span class="p">[</span>
@@ -504,7 +508,7 @@
 <span class="w">        </span><span class="sd">"""Two axes over a diagnostic ask for two channels, not one."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)[</span><span class="s2">"slots"</span><span class="p">]),</span> <span class="mi">2</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)[</span><span class="s2">"channel_slots"</span><span class="p">]),</span> <span class="mi">2</span>
         <span class="p">)</span></div>
 </div>
 
@@ -581,7 +585,7 @@
 
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rebind</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">),</span> <span class="s2">""</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">'data-channel="R"'</span><span class="p">,</span> <span class="n">response</span><span class="p">[</span><span class="s2">"slot_cells"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">'data-value="R"'</span><span class="p">,</span> <span class="n">response</span><span class="p">[</span><span class="s2">"slot_cells"</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s2">"count"</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mono_values</span><span class="p">))</span></div>
 
 
@@ -636,7 +640,7 @@
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rebind</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">),</span> <span class="s2">"B"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="n">response</span><span class="p">[</span><span class="s2">"slot_cells"</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">'data-channel="R"'</span><span class="p">,</span> <span class="n">response</span><span class="p">[</span><span class="s2">"slot_cells"</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">'data-value="R"'</span><span class="p">,</span> <span class="n">response</span><span class="p">[</span><span class="s2">"slot_cells"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestRebinding.test_nothing_is_answered_without_a_rebound_row">
@@ -822,7 +826,7 @@
             <span class="s1">'class="add-row"'</span><span class="p">,</span>
             <span class="s1">'class="remove-row"'</span><span class="p">,</span>
             <span class="s1">'class="pair-select"'</span><span class="p">,</span>
-            <span class="s1">'class="slot-cell"'</span><span class="p">,</span>
+            <span class="s1">'class="channel-cell"'</span><span class="p">,</span>
             <span class="s1">'class="series-count"'</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="s2">"added_row"</span><span class="p">])</span></div>
@@ -830,13 +834,150 @@
 
 
 
-<div class="viewcode-block" id="TestSeriesValues">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestSeriesValues">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TestSeriesValues</span><span class="p">(</span><span class="n">TwoChannelProject</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Which of the posted rows are drawn, and what each one reads."""</span>
+<div class="viewcode-block" id="TestFixedChannelReads">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestFixedChannelReads">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestFixedChannelReads</span><span class="p">(</span><span class="n">TwoChannelProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Expressions naming a channel by quoting it, rather than by slot.</span>
 
-<div class="viewcode-block" id="TestSeriesValues.test_which_rows_are_drawn">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestSeriesValues.test_which_rows_are_drawn">[docs]</a>
+<span class="sd">    ``B`` is recorded in the colour session only, so an expression reading</span>
+<span class="sd">    it there is what tells whether quoted channels narrow the pairs a row</span>
+<span class="sd">    may name.</span>
+<span class="sd">    """</span>
+
+    <span class="n">expressions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"against_b"</span><span class="p">:</span> <span class="s2">"bg_center[7] - bg_center['B']"</span><span class="p">,</span>
+        <span class="s2">"colour"</span><span class="p">:</span> <span class="s2">"bg_center['R'] / bg_center['B']"</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="TestFixedChannelReads.table">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestFixedChannelReads.table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return what the table offers, with the library above."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_available_series</span><span class="p">(</span>
+                <span class="n">x_quantity</span><span class="p">,</span>
+                <span class="n">y_quantity</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">,</span>
+                <span class="n">db_session</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFixedChannelReads.test_a_quoted_channel_gets_no_column">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_quoted_channel_gets_no_column">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quoted_channel_gets_no_column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Only the slot is a column: ``B`` is not the user's to choose."""</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"against_b"</span><span class="p">)[</span><span class="s2">"diagnostics_list"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"channel_slots"</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFixedChannelReads.test_a_quoted_channel_narrows_the_pairs">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_quoted_channel_narrows_the_pairs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quoted_channel_narrows_the_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The monochrome session records no ``B``, so is not offered."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">split_pair_id</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"against_b"</span><span class="p">)[</span><span class="s2">"pair_options"</span><span class="p">]</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFixedChannelReads.test_all_channels_quoted_still_makes_a_row">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_still_makes_a_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_all_channels_quoted_still_makes_a_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Neither axis binds a column, and the row is counted at once."""</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"colour"</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"diagnostics_list"</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">"diagnostics_list"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"channel_slots"</span><span class="p">],</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"count"</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">split_pair_id</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"pair"</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFixedChannelReads.test_all_channels_quoted_takes_the_first_quoted_colour">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_takes_the_first_quoted_colour">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_all_channels_quoted_takes_the_first_quoted_colour</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``colour`` quotes ``R`` first, so defaults to R's colour."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"colour"</span><span class="p">)[</span><span class="s2">"diagnostics_list"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"color"</span><span class="p">],</span>
+            <span class="n">channel_colors</span><span class="p">[</span><span class="s2">"R"</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFixedChannelReads.test_a_column_decides_the_colour_despite_quotes">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_column_decides_the_colour_despite_quotes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_column_decides_the_colour_despite_quotes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Any slot to bind makes the binding, not the quotes, decide.</span>
+
+<span class="sd">        So a row still to be bound is uncoloured -- rather than coloured</span>
+<span class="sd">        for ``B``, which ``against_b`` quotes -- until a channel is chosen.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"against_b"</span><span class="p">)[</span><span class="s2">"diagnostics_list"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"color"</span><span class="p">],</span>
+            <span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFixedChannelReads.test_all_channels_quoted_is_drawn">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_is_drawn">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_all_channels_quoted_is_drawn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A row posting no channels is bound when the axes take none."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">drawn</span> <span class="o">=</span> <span class="n">collect_series_data</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">{</span>
+                        <span class="s2">"id"</span><span class="p">:</span> <span class="n">make_id</span><span class="p">(</span><span class="s2">"colour"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                        <span class="s2">"pair"</span><span class="p">:</span> <span class="n">make_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">),</span>
+                        <span class="s2">"marker"</span><span class="p">:</span> <span class="s2">"o"</span><span class="p">,</span>
+                        <span class="s2">"channels"</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="p">}</span>
+                <span class="p">],</span>
+                <span class="s2">"jd"</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">,</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">drawn</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">series</span><span class="p">,</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">drawn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># What a click on a point opens the frame in, binding none itself:</span>
+        <span class="c1"># the first channel quoted, as written.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">],</span> <span class="s2">"R"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">x_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd_values</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">y_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="p">[</span>
+                <span class="n">red</span> <span class="o">/</span> <span class="n">blue</span>
+                <span class="k">for</span> <span class="n">red</span><span class="p">,</span> <span class="n">blue</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"R"</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"B"</span><span class="p">])</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestTwoChannelSeriesValues">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestTwoChannelSeriesValues</span><span class="p">(</span><span class="n">TwoChannelProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Which of the posted rows are drawn, and what each one reads.</span>
+
+<span class="sd">    Named for its fixture rather than for its subject,</span>
+<span class="sd">    ``test_expression_series`` having a ``TestSeriesValues`` of its own: the</span>
+<span class="sd">    suite gathers every test class into one module namespace, where two of a</span>
+<span class="sd">    name means one silently replacing the other.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="TestTwoChannelSeriesValues.test_which_rows_are_drawn">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_which_rows_are_drawn">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_which_rows_are_drawn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Every row is posted, so five of them have to be skipped here.</span>
 
@@ -883,8 +1024,8 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TestSeriesValues.test_one_quantity_on_both_axes_in_two_channels">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestSeriesValues.test_one_quantity_on_both_axes_in_two_channels">[docs]</a>
+<div class="viewcode-block" id="TestTwoChannelSeriesValues.test_one_quantity_on_both_axes_in_two_channels">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_one_quantity_on_both_axes_in_two_channels">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_quantity_on_both_axes_in_two_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""``bg_center`` against ``bg_center``: the plainest colour plot.</span>
 
@@ -910,8 +1051,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]))</span></div>
 
 
-<div class="viewcode-block" id="TestSeriesValues.test_the_columns_are_split_between_the_axes">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestSeriesValues.test_the_columns_are_split_between_the_axes">[docs]</a>
+<div class="viewcode-block" id="TestTwoChannelSeriesValues.test_the_columns_are_split_between_the_axes">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_the_columns_are_split_between_the_axes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_the_columns_are_split_between_the_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""An axis takes as many channels as the quantity it draws.</span>
 

@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -876,6 +879,14 @@
             <span class="n">dtype</span><span class="o">=</span><span class="s2">"numpy.float64"</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">"The RMS residual from the single refence magnitude "</span>
             <span class="s2">"fit."</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">"qc_included"</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"QCIncluded"</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">"numpy.bool_"</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"Does the image pass the magnitude fitting quality "</span>
+            <span class="s2">"cut?"</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">]</span>
     <span class="n">pipeline_key_start</span> <span class="o">=</span> <span class="n">pipeline_key_start</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">".cfg."</span>

@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -203,7 +206,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.series_table</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_series_key</span><span class="p">,</span>
     <span class="n">make_id</span><span class="p">,</span>
-    <span class="n">make_slot_cells</span><span class="p">,</span>
+    <span class="n">make_channel_cells</span><span class="p">,</span>
     <span class="n">next_row_id</span><span class="p">,</span>
     <span class="n">split_pair_id</span><span class="p">,</span>
     <span class="n">split_row_id</span><span class="p">,</span>
@@ -357,6 +360,27 @@
             <span class="p">),</span>
             <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)),</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRowId.test_posted_references_are_split_from_their_channels">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestRowId.test_posted_references_are_split_from_their_channels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_posted_references_are_split_from_their_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A plain slot on a referenced channel takes that reference.</span>
+
+<span class="sd">        A column reading magfit posts its channel with its reference; the</span>
+<span class="sd">        others, the channel alone.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_series_key</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"id"</span><span class="p">:</span> <span class="n">make_id</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                    <span class="s2">"pair"</span><span class="p">:</span> <span class="n">make_id</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">),</span>
+                    <span class="s2">"channels"</span><span class="p">:</span> <span class="p">[</span><span class="n">make_id</span><span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="n">photrefs</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -488,81 +512,130 @@
 
 
 
-<div class="viewcode-block" id="TestSlotCells">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestSlotCells">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TestSlotCells</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TestChannelCells">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestChannelCells</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""What each channel column of a row offers, and what a move keeps.</span>
 
 <span class="sd">    Pure, so the rules can be checked without a database or a browser.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="TestSlotCells.test_a_column_with_one_channel_is_settled">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_column_with_one_channel_is_settled">[docs]</a>
+<div class="viewcode-block" id="TestChannelCells._plain">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells._plain">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plain</span><span class="p">(</span><span class="o">**</span><span class="n">counts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return a column binding channels alone, offering *counts*."""</span>
+
+        <span class="k">return</span> <span class="p">{(</span><span class="n">channel</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span> <span class="n">count</span> <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+<div class="viewcode-block" id="TestChannelCells._cells">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells._cells">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cells</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="o">*</span><span class="n">bindings</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return :func:`make_channel_cells`, knowing no reference's path.</span>
+
+<span class="sd">        What a reference is called is checked by looking at the page; what</span>
+<span class="sd">        is bound does not depend on it.</span>
+<span class="sd">        """</span>
+
+        <span class="k">return</span> <span class="n">make_channel_cells</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">bindings</span><span class="p">,</span> <span class="p">{})</span></div>
+
+
+<div class="viewcode-block" id="TestChannelCells.test_a_column_with_one_channel_is_settled">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_column_with_one_channel_is_settled">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_column_with_one_channel_is_settled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Asking for a click with one possible outcome is ceremony."""</span>
 
-        <span class="n">cells</span> <span class="o">=</span> <span class="n">make_slot_cells</span><span class="p">([{</span><span class="s2">"R"</span><span class="p">:</span> <span class="mi">3</span><span class="p">}],</span> <span class="p">())</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="mi">3</span><span class="p">)])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"fixed"</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">],</span> <span class="s2">"R"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"sort"</span><span class="p">],</span> <span class="s2">"R"</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TestSlotCells.test_a_column_with_a_choice_starts_unset">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_column_with_a_choice_starts_unset">[docs]</a>
+<div class="viewcode-block" id="TestChannelCells.test_a_column_with_a_choice_starts_unset">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_column_with_a_choice_starts_unset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_column_with_a_choice_starts_unset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Nothing picks one of several channels on the user's behalf."""</span>
 
-        <span class="n">cells</span> <span class="o">=</span> <span class="n">make_slot_cells</span><span class="p">([{</span><span class="s2">"R"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}],</span> <span class="p">())</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="mi">2</span><span class="p">)])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"fixed"</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">],</span> <span class="s2">""</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"sort"</span><span class="p">],</span> <span class="n">unset_option_text</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TestSlotCells.test_a_channel_the_pair_still_offers_is_kept">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_channel_the_pair_still_offers_is_kept">[docs]</a>
+<div class="viewcode-block" id="TestChannelCells.test_a_channel_the_pair_still_offers_is_kept">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_channel_the_pair_still_offers_is_kept">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_channel_the_pair_still_offers_is_kept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""The user chose it, and it remains an answer here."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">make_slot_cells</span><span class="p">([{</span><span class="s2">"R"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}],</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,))[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">],</span> <span class="s2">"B"</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="mi">2</span><span class="p">)],</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">],</span> <span class="s2">"B"</span>
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TestSlotCells.test_a_channel_the_pair_does_not_offer_is_cleared">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_channel_the_pair_does_not_offer_is_cleared">[docs]</a>
+<div class="viewcode-block" id="TestChannelCells.test_a_channel_the_pair_does_not_offer_is_cleared">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_channel_the_pair_does_not_offer_is_cleared">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_channel_the_pair_does_not_offer_is_cleared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Rather than quietly bound to something the user never chose."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">make_slot_cells</span><span class="p">([{</span><span class="s2">"R"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}],</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,))[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">],</span> <span class="s2">""</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">],</span> <span class="s2">""</span>
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TestSlotCells.test_each_column_is_decided_on_its_own">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_each_column_is_decided_on_its_own">[docs]</a>
+<div class="viewcode-block" id="TestChannelCells.test_each_column_is_decided_on_its_own">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_each_column_is_decided_on_its_own">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_each_column_is_decided_on_its_own</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""One axis may have a channel to choose where the other has none."""</span>
 
-        <span class="n">cells</span> <span class="o">=</span> <span class="n">make_slot_cells</span><span class="p">([{</span><span class="s2">"R"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="p">{</span><span class="s2">"R"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}],</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">))</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="mi">2</span><span class="p">)],</span>
+            <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="n">cell</span><span class="p">[</span><span class="s2">"fixed"</span><span class="p">]</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">cells</span><span class="p">],</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span></div>
 
 
-<div class="viewcode-block" id="TestSlotCells.test_an_option_carries_the_text_it_shows">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_an_option_carries_the_text_it_shows">[docs]</a>
+<div class="viewcode-block" id="TestChannelCells.test_an_option_carries_the_text_it_shows">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_an_option_carries_the_text_it_shows">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_an_option_carries_the_text_it_shows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""One place decides it, since the cell sorts by that same text."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="s2">"text"</span><span class="p">])</span>
-                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">make_slot_cells</span><span class="p">([{</span><span class="s2">"R"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}],</span> <span class="p">())[</span><span class="mi">0</span><span class="p">][</span>
-                    <span class="s2">"options"</span>
-                <span class="p">]</span>
+                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="mi">2</span><span class="p">)])[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"options"</span><span class="p">]</span>
             <span class="p">],</span>
             <span class="p">[(</span><span class="s2">""</span><span class="p">,</span> <span class="n">unset_option_text</span><span class="p">),</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B (2)"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R (3)"</span><span class="p">)],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestChannelCells.test_a_plain_column_keeps_its_channel_beside_a_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_plain_column_keeps_its_channel_beside_a_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_plain_column_keeps_its_channel_beside_a_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Matched by channel: the key gave it the reference of its channel.</span>
+
+<span class="sd">        A key binding R with a reference in one column and without in</span>
+<span class="sd">        another gives both the reference, which no option of the plain</span>
+<span class="sd">        column names.</span>
+<span class="sd">        """</span>
+
+        <span class="n">cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="mi">2</span><span class="p">)],</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="n">cell</span><span class="p">[</span><span class="s2">"value"</span><span class="p">],</span> <span class="n">cell</span><span class="p">[</span><span class="s2">"binding"</span><span class="p">]),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="TestChannelCells.test_a_reference_the_pair_does_not_offer_is_cleared">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_rules.html#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_reference_the_pair_does_not_offer_is_cleared">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_reference_the_pair_does_not_offer_is_cleared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Not taken to mean its channel, which offers two others here."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">([{(</span><span class="s2">"R"</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mi">3</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">2</span><span class="p">}],</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="mi">5</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">],</span> <span class="s2">""</span>
         <span class="p">)</span></div>
 </div>
 

@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -458,9 +461,11 @@
         <span class="p">(</span><span class="s2">"shapefit.magfit.num_input_src"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"shapefit.magfit.num_fit_src"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"shapefit.magfit.fit_residual"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"shapefit.magfit.qc_included"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"apphot.magfit.num_input_src"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"apphot.magfit.num_fit_src"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"apphot.magfit.fit_residual"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"apphot.magfit.qc_included"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"srcextract.cfg.binning"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"srcextract.psf_map.cfg.psf_params"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"srcextract.psf_map.cfg.terms"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
@@ -808,6 +813,44 @@
                     <span class="s2">"lightcurve that satisfy the Filter "</span>
                     <span class="s2">"expression."</span><span class="p">,</span>
                 <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">"exclusion_rule"</span><span class="p">,</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">"ExclusionRule"</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">"numpy.bytes_"</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">"gzip"</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="s2">"9"</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">"The rule that decided which observations to leave "</span>
+                        <span class="sa">f</span><span class="s2">"out of the </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> fit, empty if they were not "</span>
+                        <span class="s2">"decided by a rule."</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">".num_qc_excluded_points"</span>
+                    <span class="p">),</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">"NumberQCExcludedPoints"</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">"numpy.uint"</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">"gzip"</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="s2">"9"</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">"The number of corrected points that were left out "</span>
+                        <span class="sa">f</span><span class="s2">"of the </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> fit."</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span><span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">".qc_included"</span><span class="p">),</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">"QCIncluded"</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">"numpy.bool_"</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">"gzip"</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="s2">"9"</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"Was each point among those the </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> fit was "</span>
+                        <span class="s2">"derived from? Points the exclusion list left out are "</span>
+                        <span class="s2">"still corrected; points failing the points filter "</span>
+                        <span class="s2">"are not."</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"epd"</span><span class="p">:</span>
@@ -1145,8 +1188,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Return a list of all datasets in light curves."""</span>
 
-    <span class="p">(</span><span class="n">dr_dataset_datasets</span><span class="p">,</span> <span class="n">magfit_datasets</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">_get_data_reduction_dataset_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+    <span class="n">dr_dataset_datasets</span><span class="p">,</span> <span class="n">magfit_datasets</span> <span class="o">=</span> <span class="n">_get_data_reduction_dataset_datasets</span><span class="p">(</span>
+        <span class="n">db_session</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">_get_source_extraction_datasets</span><span class="p">()</span>

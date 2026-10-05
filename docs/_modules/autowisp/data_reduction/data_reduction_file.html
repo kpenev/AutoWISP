@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -171,6 +174,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
@@ -1001,7 +1005,10 @@
 <span class="sd">                ``initial_src_count``, ``final_src_count``, and ``residual``.</span>
 
 <span class="sd">            magfit_configuration:    The configuration structure with which</span>
-<span class="sd">                magnitude fitting was performed.</span>
+<span class="sd">                magnitude fitting was performed. Its ``qc_excluded`` holds</span>
+<span class="sd">                the resolved paths of the DR files that fail the magnitude</span>
+<span class="sd">                fitting quality cut; whether this one passes is recorded with</span>
+<span class="sd">                the first iteration only, like the rest of the configuration.</span>
 
 <span class="sd">            missing_indices:    A list of indices within the file of sources</span>
 <span class="sd">                for which no entries are included in fitted_magnitudes.</span>
@@ -1091,6 +1098,13 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
                         <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">".magfit.cfg.correction_type"</span><span class="p">,</span>
                         <span class="sa">b</span><span class="s2">"linear"</span><span class="p">,</span>
+                        <span class="n">if_exists</span><span class="o">=</span><span class="s2">"error"</span><span class="p">,</span>
+                        <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
+                        <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">".magfit.qc_included"</span><span class="p">,</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+                        <span class="ow">not</span> <span class="ow">in</span> <span class="n">magfit_configuration</span><span class="o">.</span><span class="n">qc_excluded</span><span class="p">,</span>
                         <span class="n">if_exists</span><span class="o">=</span><span class="s2">"error"</span><span class="p">,</span>
                         <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                     <span class="p">)</span>

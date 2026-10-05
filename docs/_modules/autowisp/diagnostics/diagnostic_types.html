@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -301,6 +304,124 @@
 <span class="sd">    """</span>
 
     <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">standard_diagnostic_types</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="magfit_diagnostic_names">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.magfit_diagnostic_names">[docs]</a>
+<span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">magfit_diagnostic_names</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the diagnostics ``fit_magnitudes`` produces.</span>
+
+<span class="sd">    Their values depend on the photometric reference each image was fit</span>
+<span class="sd">    against, not only on the image, so a population they are read over has</span>
+<span class="sd">    to be split by reference as well. Everything deciding that asks here.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        frozenset:    The names, a subset of</span>
+<span class="sd">            :func:`standard_diagnostic_names`.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">(</span><span class="s2">"photometry_mag_offset"</span><span class="p">,</span> <span class="s2">"magfit_residual"</span><span class="p">,</span> <span class="s2">"mag_fit_num_stars"</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="photometry_diagnostic_names">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names">[docs]</a>
+<span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">photometry_diagnostic_names</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the diagnostics recorded per photometry.</span>
+
+<span class="sd">    Stored in ``photometry_diagnostics``, one value per shape fit and per</span>
+<span class="sd">    aperture, rather than in ``image_diagnostics``, so an expression reads</span>
+<span class="sd">    one in a photometry as well as a channel. Not the same question as</span>
+<span class="sd">    :func:`magfit_diagnostic_names`, although today the same names answer</span>
+<span class="sd">    both: a diagnostic ``fit_magnitudes`` recorded once per image would</span>
+<span class="sd">    depend on the reference and still take no photometry.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        frozenset:    The names, a subset of</span>
+<span class="sd">            :func:`magfit_diagnostic_names`.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">(</span><span class="s2">"photometry_mag_offset"</span><span class="p">,</span> <span class="s2">"magfit_residual"</span><span class="p">,</span> <span class="s2">"mag_fit_num_stars"</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1">#: The photometry id of the shape fit. Apertures are numbered by their index,</span>
+<span class="c1">#: from 0, so the shape fit takes a value no aperture can have.</span>
+<span class="n">shapefit_photometry</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+
+<div class="viewcode-block" id="get_photometry_id">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.get_photometry_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_photometry_id</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">has_shape_fit</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the id recorded for the photometry at *position* in magfit's arrays.</span>
+
+<span class="sd">    ``fit_magnitudes`` holds an image's photometries in one array: the shape</span>
+<span class="sd">    fit first, where the image has a usable one, and then every aperture.</span>
+<span class="sd">    So a position is the shape fit on one image and aperture 0 on the next,</span>
+<span class="sd">    and recording it would let a series pinned to one id mix photometries</span>
+<span class="sd">    without saying so. The id is the same on every image instead: the</span>
+<span class="sd">    aperture index, which is what the DR files number apertures by, or</span>
+<span class="sd">    :data:`shapefit_photometry`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        position(int):    The index into magfit's photometry arrays.</span>
+
+<span class="sd">        has_shape_fit(bool):    Whether those arrays start with a shape fit,</span>
+<span class="sd">            as ``get_magfit_sources`` decided when building them.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int:    The photometry id.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_shape_fit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">position</span>
+    <span class="k">return</span> <span class="n">shapefit_photometry</span> <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">position</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="parse_photometry_literal">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.parse_photometry_literal">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_photometry_literal</span><span class="p">(</span><span class="n">literal</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the photometry id a quoted photometry names, or ``None``.</span>
+
+<span class="sd">    An expression quotes a photometry as ``'shapefit'`` or as ``'ap'``</span>
+<span class="sd">    followed by the aperture index, ``'ap4'``, just as it quotes a channel</span>
+<span class="sd">    by name. :func:`photometry_literal` spells an id the same way.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        literal(str):    The quoted text.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int or None:    The id, or ``None`` if *literal* names no</span>
+<span class="sd">            photometry.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">literal</span> <span class="o">==</span> <span class="s2">"shapefit"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">shapefit_photometry</span>
+    <span class="n">aperture</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"ap([0-9]+)"</span><span class="p">,</span> <span class="n">literal</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">aperture</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">aperture</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="photometry_literal">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.photometry_literal">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">photometry_literal</span><span class="p">(</span><span class="n">photometry_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return how an expression quotes the photometry *photometry_id*."""</span>
+
+    <span class="k">if</span> <span class="n">photometry_id</span> <span class="o">==</span> <span class="n">shapefit_photometry</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"shapefit"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"ap</span><span class="si">{</span><span class="n">photometry_id</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 

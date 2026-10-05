@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -600,15 +603,6 @@
             <span class="s2">"Default: </span><span class="si">%(default)s</span><span class="s2">."</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">"--tfa-observation-id"</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-            <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="s2">"fitsheader.fnum"</span><span class="p">,),</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">"The datasets to use for matching observations across light "</span>
-            <span class="s2">"curves. For example, the following works for HAT: "</span>
-            <span class="s2">"fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum."</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">"--tfa-selected-plots"</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="s2">"tfa_template_selection_</span><span class="si">%(plot_id)s</span><span class="s2">_phot</span><span class="si">%(phot_index)s</span><span class="s2">.eps"</span><span class="p">,</span>
@@ -642,6 +636,55 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="LCDetrendingArgumentParser._add_exclusion_arguments">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_exclusion_arguments">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_exclusion_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Add parameters selecting the observations to leave out of fits."""</span>
+
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">"--tfa-observation-id"</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="s2">"fitsheader.fnum"</span><span class="p">,</span> <span class="s2">"fitsheader.cfg.clrchnl"</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"The datasets whose values identify an observation, used to "</span>
+            <span class="s2">"match observations across light curves and to list them in "</span>
+            <span class="s2">"--qc-exclude-file. Shared by EPD and TFA. The default suits a "</span>
+            <span class="s2">"single camera; for example, the following works for HAT: "</span>
+            <span class="s2">"fitsheader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">"--qc-exclude-file"</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">"A file listing the observations to leave out of the </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="s2">"fit, one per line, each given by the values of the "</span>
+            <span class="s2">"--tfa-observation-id datasets separated by white space, "</span>
+            <span class="s2">"optionally followed by the photometry it applies to: shapefit, "</span>
+            <span class="s2">"or ap followed by an aperture index, e.g. ap3. A line naming no "</span>
+            <span class="s2">"photometry applies to every one. Excluded "</span>
+            <span class="s2">"observations are still corrected. The pipeline writes this file "</span>
+            <span class="s2">"from the step's exclusion rule; a stand-alone run may supply one "</span>
+            <span class="s2">"written by hand. If unspecified, nothing is excluded."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pipeline</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="si">}</span><span class="s2">-exclusion-rule"</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">"A boolean expression over the image diagnostics and the "</span>
+                <span class="s2">"project's diagnostic expressions, true for the observations "</span>
+                <span class="sa">f</span><span class="s2">"to leave out of the </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> fit, e.g. ``(cloud[0] &gt; 0.3) | "</span>
+                <span class="s2">"(srcextract_mag_zeropt['G0'] &lt; 19.5)``. A slot subscript "</span>
+                <span class="s2">"stands for the channel being decided for, a quoted channel "</span>
+                <span class="s2">"name for that channel. Best written as a read of a "</span>
+                <span class="s2">"diagnostic expression, e.g. ``cloudy[0]``, which the "</span>
+                <span class="s2">"diagnostics page can preview; the expressions page shows the "</span>
+                <span class="s2">"read for each expression usable as a rule. The pipeline "</span>
+                <span class="s2">"evaluates it to produce the exclusion list. Excluded "</span>
+                <span class="s2">"observations are still corrected. If unset, nothing is "</span>
+                <span class="s2">"excluded."</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="LCDetrendingArgumentParser.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
@@ -651,13 +694,19 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">add_reconstructive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">convert_to_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">input_type</span><span class="o">=</span><span class="s2">"lc"</span><span class="p">,</span>
+        <span class="n">pipeline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the parser with options common to all LC detrending steps.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            See ManualStepArgumentParser.__init__().</span>
+<span class="sd">            pipeline(bool):    Is the step being configured by the pipeline</span>
+<span class="sd">                rather than run stand-alone? The pipeline supplies the</span>
+<span class="sd">                lightcurves itself and evaluates exclusion rules, so only a</span>
+<span class="sd">                stand-alone run takes lightcurve files and only the pipeline</span>
+<span class="sd">                has exclusion rules.</span>
+
+<span class="sd">            See ManualStepArgumentParser.__init__() for the rest.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
@@ -665,7 +714,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">input_type</span><span class="o">=</span><span class="n">input_type</span><span class="p">,</span>
+            <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span> <span class="k">if</span> <span class="n">pipeline</span> <span class="k">else</span> <span class="s2">"lc"</span><span class="p">),</span>
             <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
             <span class="n">allow_parallel_processing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"epd"</span><span class="p">,</span> <span class="s2">"tfa"</span><span class="p">],</span>
             <span class="n">convert_to_dict</span><span class="o">=</span><span class="n">convert_to_dict</span><span class="p">,</span>
@@ -772,9 +821,10 @@
             <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">"Floor on the residual scale (in the units of the fitted "</span>
-            <span class="s2">"quantity) used for outlier rejection. Without it, a (near-)perfect "</span>
-            <span class="s2">"fit has a residual ~0, collapsing the rejection threshold to ~0 so "</span>
-            <span class="s2">"that points get rejected on floating-point noise -- which can, "</span>
+            <span class="s2">"quantity) used for outlier rejection. Without it, a "</span>
+            <span class="s2">"(near-)perfect fit has a residual ~0, collapsing the rejection "</span>
+            <span class="s2">"threshold to ~0 so that points get rejected on floating-point "</span>
+            <span class="s2">"noise -- which can, "</span>
             <span class="s2">"platform-dependently, reject enough points to fail the fit. "</span>
             <span class="s2">"Default: </span><span class="si">%(default)s</span><span class="s2">"</span><span class="p">,</span>
         <span class="p">)</span>
@@ -821,6 +871,7 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"epd"</span><span class="p">,</span> <span class="s2">"tfa"</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_exclusion_arguments</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
             <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"_add_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="si">}</span><span class="s2">_arguments"</span><span class="p">)(</span><span class="bp">self</span><span class="p">)</span></div>
 </div>
 

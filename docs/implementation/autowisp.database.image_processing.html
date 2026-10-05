@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -172,39 +175,39 @@
 <span id="autowisp-database-image-processing-module"></span><h1>autowisp.database.image_processing module<a class="headerlink" href="#module-autowisp.database.image_processing" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-d9c99369c619e98d7c3566eb84f0ac2b3bcdf0f7.png" alt="Inheritance diagram of Camera, CameraChannel, CameraType, Component, Condition, ConditionExpression, DataReductionFile, DiagnosticType, Evaluator, ExpressionMatcher, Image, ImageDiagnostics, ImageMasterSelection, ImageProcessingManager, ImageProcessingProgress, InputMasterTypes, MasterFile, MasterSelectionError, MasterType, NoMasterError, ObservingSession, PhotometryDiagnostics, PipelineError, ProcessedImages, ProcessingManager, SkyCoord, Step, StepDependencies, Transformation" usemap="#inheritanceb6049958c9" class="inheritance graphviz" /></div>
-<map id="inheritanceb6049958c9" name="inheritanceb6049958c9">
+<div class="graphviz"><img src="../_images/inheritance-dafa95a8510297d2e02c115092de4a12279bf5b1.png" alt="Inheritance diagram of Camera, CameraChannel, CameraType, Component, Condition, ConditionExpression, ConfigurationError, DataReductionFile, DiagnosticType, Evaluator, ExpressionMatcher, Image, ImageDiagnostics, ImageMasterSelection, ImageProcessingManager, ImageProcessingProgress, InputMasterTypes, MasterFile, MasterSelectionError, MasterType, NoMasterError, ObservingSession, PhotometryDiagnostics, PipelineError, ProcessedImages, ProcessingManager, SkyCoord, Step, StepDependencies" usemap="#inheritance3a558fbf81" class="inheritance graphviz" /></div>
+<map id="inheritance3a558fbf81" name="inheritance3a558fbf81">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,445,207,471"/>
-<area shape="rect" id="node33" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="131,519,335,544"/>
-<area shape="rect" id="node40" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="1697,79,1941,104"/>
-<area shape="rect" id="node7" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="3421,5,3780,31"/>
-<area shape="rect" id="node8" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="16,665,449,691"/>
-<area shape="rect" id="node9" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,592,460,617"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="401,372,757,397"/>
-<area shape="rect" id="node15" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="781,372,1287,397"/>
-<area shape="rect" id="node16" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="1311,372,1627,397"/>
-<area shape="rect" id="node17" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="1651,372,2094,397"/>
-<area shape="rect" id="node18" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="2118,372,2507,397"/>
-<area shape="rect" id="node19" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="2532,372,2987,397"/>
-<area shape="rect" id="node24" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="3535,372,4013,397"/>
-<area shape="rect" id="node25" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="4037,372,4420,397"/>
-<area shape="rect" id="node26" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="4445,372,4834,397"/>
-<area shape="rect" id="node27" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="4859,372,5329,397"/>
-<area shape="rect" id="node31" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="6846,372,7326,397"/>
-<area shape="rect" id="node32" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="7350,372,7761,397"/>
-<area shape="rect" id="node23" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="4209,299,4749,324"/>
-<area shape="rect" id="node21" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="2767,445,3240,471"/>
-<area shape="rect" id="node22" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="3264,445,3772,471"/>
-<area shape="rect" id="node34" href="#autowisp.database.image_processing.ExpressionMatcher" target="_top" title="Compare condition expressions for an image/channel to a target." alt="" coords="4538,5,4933,31"/>
-<area shape="rect" id="node35" href="#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="4913,79,5352,104"/>
-<area shape="rect" id="node36" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="4957,5,5308,31"/>
-<area shape="rect" id="node37" href="#autowisp.database.image_processing.NoMasterError" target="_top" title="Raised when no suitable master can be found for a batch of frames." alt="" coords="5315,225,5681,251"/>
-<area shape="rect" id="node38" href="autowisp.exceptions.html#autowisp.exceptions.MasterSelectionError" target="_top" title="Failure selecting the master frame(s) for an image." alt="" coords="5350,152,5646,177"/>
-<area shape="rect" id="node39" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1713,152,1925,177"/>
-<area shape="rect" id="node41" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="5371,5,5625,31"/>
+<area shape="rect" id="node32" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="131,519,335,544"/>
+<area shape="rect" id="node39" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="1697,79,1941,104"/>
+<area shape="rect" id="node7" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="16,665,449,691"/>
+<area shape="rect" id="node8" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,592,460,617"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="401,372,757,397"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="781,372,1287,397"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="1311,372,1627,397"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="1651,372,2094,397"/>
+<area shape="rect" id="node17" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="2118,372,2507,397"/>
+<area shape="rect" id="node18" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="2532,372,2987,397"/>
+<area shape="rect" id="node23" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="3535,372,4013,397"/>
+<area shape="rect" id="node24" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="4037,372,4420,397"/>
+<area shape="rect" id="node25" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="4445,372,4834,397"/>
+<area shape="rect" id="node26" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="4859,372,5329,397"/>
+<area shape="rect" id="node30" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="6846,372,7326,397"/>
+<area shape="rect" id="node31" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="7350,372,7761,397"/>
+<area shape="rect" id="node22" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="4209,299,4749,324"/>
+<area shape="rect" id="node20" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="2767,445,3240,471"/>
+<area shape="rect" id="node21" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="3264,445,3772,471"/>
+<area shape="rect" id="node33" href="#autowisp.database.image_processing.ExpressionMatcher" target="_top" title="Compare condition expressions for an image/channel to a target." alt="" coords="4538,5,4933,31"/>
+<area shape="rect" id="node34" href="#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="4913,79,5352,104"/>
+<area shape="rect" id="node35" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="4957,5,5308,31"/>
+<area shape="rect" id="node36" href="#autowisp.database.image_processing.NoMasterError" target="_top" title="Raised when no suitable master can be found for a batch of frames." alt="" coords="5159,225,5525,251"/>
+<area shape="rect" id="node37" href="autowisp.exceptions.html#autowisp.exceptions.MasterSelectionError" target="_top" title="Failure selecting the master frame(s) for an image." alt="" coords="5194,152,5490,177"/>
+<area shape="rect" id="node38" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1713,152,1925,177"/>
+<area shape="rect" id="node40" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="5371,5,5625,31"/>
 <area shape="rect" id="node44" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="5377,79,5619,104"/>
-<area shape="rect" id="node42" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="5643,79,5878,104"/>
-<area shape="rect" id="node43" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="5711,5,5811,31"/>
+<area shape="rect" id="node41" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="5643,79,5878,104"/>
+<area shape="rect" id="node42" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="5711,5,5811,31"/>
+<area shape="rect" id="node43" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="5515,152,5793,177"/>
 <area shape="rect" id="node46" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="448,79,636,104"/>
 <area shape="rect" id="node50" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="453,152,631,177"/>
 <area shape="rect" id="node47" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="272,5,431,31"/>
@@ -289,6 +292,10 @@ match + image center within max_photref_separation * photref
 diagonal_fov + most existing bindings). Returns only the images that
 have a valid binding; the rest are silently left pending until a
 suitable photref is registered via the BUI.</p>
+<p>If max_photref_separation is unlimited, the photref is the one the
+condition expressions select, as for any other master. That is
+recorded as the binding too, and every image is returned: those
+without a photref are excluded when the batches are configured.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -406,15 +413,102 @@ that end up with the same key.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_bound_entries">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_bound_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pending_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_type_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_bound_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_bound_entries" title="Link to this definition"></a></dt>
+<dd><p>Return the <code class="docutils literal notranslate"><span class="pre">(image</span> <span class="pre">ID,</span> <span class="pre">channel)</span></code> pending entries with a photref.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_built_master">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_built_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">single_photref_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_built_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_built_master" title="Link to this definition"></a></dt>
+<dd><p>Return the master photometric reference built from a single photref.</p>
+<p>A master is built by one batch of <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code>, whose images
+are all bound to one single photometric reference, and is recorded
+with the progress of that batch. Found that way, rather than by its
+file name, it does not depend on the file name formats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>single_photref_fname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The single photometric reference.</p></li>
+<li><p><strong>db_session</strong> – The database session to query.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The filename of the enabled master built from the reference,
+or None if there is none, in which case a new one is built.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_condition_bindings">
+<span class="sig-name descname"><span class="pre">_get_condition_bindings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unbound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_type_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_condition_bindings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_condition_bindings" title="Link to this definition"></a></dt>
+<dd><p>Return the bindings to the photrefs the conditions select.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unbound</strong> – The <code class="docutils literal notranslate"><span class="pre">(Image,</span> <span class="pre">channel,</span> <span class="pre">status)</span></code> pending entries to
+bind.</p></li>
+<li><p><strong>photref_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the <code class="docutils literal notranslate"><span class="pre">single_photref</span></code> master
+type.</p></li>
+<li><p><strong>db_session</strong> – The database session to look up photrefs in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <code class="docutils literal notranslate"><span class="pre">(image</span> <span class="pre">ID,</span> <span class="pre">channel,</span> <span class="pre">MasterFile</span> <span class="pre">ID)</span></code> bindings, for the
+entries the conditions select a photref for.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[(<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>)]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_config_batches">
 <span class="sig-name descname"><span class="pre">_get_config_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pending_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_input_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_config_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_config_batches" title="Link to this definition"></a></dt>
 <dd><p>Return the batches of images to process with identical config.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_image_center">
+<span class="sig-name descname"><span class="pre">_get_image_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_image_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_image_center" title="Link to this definition"></a></dt>
+<dd><p>Return the sky position of an image/channel’s center, or None.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_interrupted">
 <span class="sig-name descname"><span class="pre">_get_interrupted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">need_cleanup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_interrupted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_interrupted" title="Link to this definition"></a></dt>
 <dd><p>Return list of interrupted files and configuration for cleanup.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_magfit_exclusions">
+<span class="sig-name descname"><span class="pre">_get_magfit_exclusions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_magfit_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_magfit_exclusions" title="Link to this definition"></a></dt>
+<dd><p>Return the DR files of a batch that fail the magfit quality cut.</p>
+<p>Decided by the <code class="docutils literal notranslate"><span class="pre">magfit-exclusion-rule</span></code>, for the observations of the
+batch, which are fit together. They are left out of the master
+photref built from the batch, if one is, and are flagged in their DR
+files either way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The step about to process the batch.</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Its configuration for the batch.</p></li>
+<li><p><strong>batch</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – The DR files it is about to process.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The excluded DR files, sorted. None if nothing is decided:
+for any step but <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code>, and without a rule.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>] or None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -452,6 +546,31 @@ and omitted from the result.</p>
 <dd><p>Return {expr_values: [MasterFile]} for all enabled single_photrefs.</p>
 <p>Evaluates the condition expressions against each photref’s filename
 (same logic as _get_master) to group them by their expression values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_separation_bindings">
+<span class="sig-name descname"><span class="pre">_get_separation_bindings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unbound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_separation_bindings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_separation_bindings" title="Link to this definition"></a></dt>
+<dd><p>Return the bindings to the nearest suitable photrefs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unbound</strong> – The <code class="docutils literal notranslate"><span class="pre">(Image,</span> <span class="pre">channel,</span> <span class="pre">status)</span></code> pending entries to
+bind.</p></li>
+<li><p><strong>photref_type</strong> (<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" title="autowisp.database.data_model.MasterType"><em>MasterType</em></a>) – The <code class="docutils literal notranslate"><span class="pre">single_photref</span></code> master type.</p></li>
+<li><p><strong>max_sep</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The <code class="docutils literal notranslate"><span class="pre">max_photref_separation</span></code> configured for
+<code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code>.</p></li>
+<li><p><strong>db_session</strong> – The database session to look up photrefs in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <code class="docutils literal notranslate"><span class="pre">(image</span> <span class="pre">ID,</span> <span class="pre">channel,</span> <span class="pre">MasterFile</span> <span class="pre">ID)</span></code> bindings, for the
+entries a suitable photref is found for.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[(<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>)]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -556,11 +675,28 @@ match a <code class="xref py py-class docutils literal notranslate"><span class=
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._select_photref_for_image">
-<span class="sig-name descname"><span class="pre">_select_photref_for_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photrefs_by_expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_diagnostics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binding_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._select_photref_for_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._select_photref_for_image" title="Link to this definition"></a></dt>
-<dd><p>Pick and record the best photref binding for one image/channel.</p>
-<p>Returns True if bound (either pre-existing or newly written), False if
-no suitable photref is found.
-The distance threshold is max_sep * diagonal_fov of the photref.</p>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_select_photref_for_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_diagnostics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binding_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sep</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._select_photref_for_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._select_photref_for_image" title="Link to this definition"></a></dt>
+<dd><p>Pick the best photref for one unbound image/channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_coord</strong> (<em>SkyCoord</em>) – The center of the image/channel.</p></li>
+<li><p><strong>candidates</strong> (<em>[</em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" title="autowisp.database.data_model.MasterFile"><em>MasterFile</em></a><em>]</em>) – The photrefs whose condition
+expression values match those of the image/channel.</p></li>
+<li><p><strong>photref_diagnostics</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – See <a class="reference internal" href="#autowisp.database.image_processing.ImageProcessingManager._get_photref_diagnostics" title="autowisp.database.image_processing.ImageProcessingManager._get_photref_diagnostics"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_get_photref_diagnostics()</span></code></a>.</p></li>
+<li><p><strong>binding_counts</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – See <a class="reference internal" href="#autowisp.database.image_processing.ImageProcessingManager._get_photref_binding_counts" title="autowisp.database.image_processing.ImageProcessingManager._get_photref_binding_counts"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_get_photref_binding_counts()</span></code></a>.</p></li>
+<li><p><strong>max_sep</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The <code class="docutils literal notranslate"><span class="pre">max_photref_separation</span></code> configured for
+<code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The candidate within <code class="docutils literal notranslate"><span class="pre">max_sep</span> <span class="pre">*</span> <span class="pre">diagonal_fov</span></code> of the image
+with the most images bound to it, if any.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" title="autowisp.database.data_model.MasterFile">MasterFile</a> or None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -713,6 +849,30 @@ created by it.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.record_photref_bindings">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">record_photref_bindings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bindings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_type_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#record_photref_bindings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.record_photref_bindings" title="Link to this definition"></a></dt>
+<dd><p>Record which single photometric reference each image/channel uses.</p>
+<p>The one place <code class="docutils literal notranslate"><span class="pre">ImageMasterSelection</span></code> gets its photref rows, whether the
+reference was picked by separation, selected by the condition expressions
+alone, or chosen in the BUI. Every image <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> sees has one,
+so anything grouping images by reference needs no other source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bindings</strong> – Iterable of <code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel,</span> <span class="pre">master_file_id)</span></code>, the
+last being the <code class="docutils literal notranslate"><span class="pre">MasterFile</span></code> ID of the <code class="docutils literal notranslate"><span class="pre">single_photref</span></code> to use.</p></li>
+<li><p><strong>photref_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the <code class="docutils literal notranslate"><span class="pre">single_photref</span></code> master
+type.</p></li>
+<li><p><strong>db_session</strong> – The database session to write the bindings in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. An image/channel already bound is re-bound to the given photref.</p>
 </dd>
 </dl>
 </dd></dl>

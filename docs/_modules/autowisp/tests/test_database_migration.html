@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -171,12 +174,8 @@
 <span class="sd">subclass ``unittest.TestCase`` directly.</span>
 <span class="sd">"""</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
@@ -188,7 +187,6 @@
     <span class="n">Table</span><span class="p">,</span>
     <span class="n">create_engine</span><span class="p">,</span>
     <span class="n">inspect</span><span class="p">,</span>
-    <span class="n">select</span><span class="p">,</span>
     <span class="n">text</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.exc</span><span class="w"> </span><span class="kn">import</span> <span class="n">OperationalError</span>
@@ -675,6 +673,36 @@
             <span class="k">if</span> <span class="n">revision</span><span class="o">.</span><span class="n">down_revision</span> <span class="ow">is</span> <span class="kc">None</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">roots</span><span class="p">,</span> <span class="p">[</span><span class="n">BASELINE_REVISION</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestRevisionChain.test_the_build_installs_every_revision">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_the_build_installs_every_revision">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_build_installs_every_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The ``meson.build`` beside the revisions lists each one of them.</span>
+
+<span class="sd">        The build installs only the files it lists. A revision left out</span>
+<span class="sd">        works from a checkout, where the file is, and is absent from an</span>
+<span class="sd">        installed package, which then stops one revision short and stamps</span>
+<span class="sd">        projects at the wrong head. Nothing can tell that from the</span>
+<span class="sd">        installed package: a chain that ends early is still a chain. So</span>
+<span class="sd">        this compares the list with the directory, where a checkout has</span>
+<span class="sd">        both.</span>
+<span class="sd">        """</span>
+
+        <span class="n">build_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">versions</span><span class="p">,</span> <span class="s2">"meson.build"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">build_fname</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span><span class="s2">"an installed package has no meson.build to check"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">build_fname</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">build_file</span><span class="p">:</span>
+            <span class="n">listed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">"'([^']+\.py)'"</span><span class="p">,</span> <span class="n">build_file</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">listed</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="n">fname</span>
+                <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">versions</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".py"</span><span class="p">)</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -1116,244 +1144,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">drift</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">drift</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"remove_index"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">drift</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"not_in_the_models"</span><span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="_repo_root">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration._repo_root">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_repo_root</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">"""Return the repository's top level, or None outside a checkout."""</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="s2">"git"</span><span class="p">,</span>
-                <span class="s2">"-C"</span><span class="p">,</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
-                <span class="s2">"rev-parse"</span><span class="p">,</span>
-                <span class="s2">"--show-toplevel"</span><span class="p">,</span>
-            <span class="p">],</span>
-            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
-
-
-
-<div class="viewcode-block" id="_git">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration._git">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_git</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Run git at the repository root; return output, or None if it fails.</span>
-
-<span class="sd">    The root, not this file's directory: ``git archive`` refuses a pathspec</span>
-<span class="sd">    reaching outside the current directory, so it has to be invoked from</span>
-<span class="sd">    the top level.</span>
-<span class="sd">    """</span>
-
-    <span class="n">root</span> <span class="o">=</span> <span class="n">_repo_root</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="p">[</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"-C"</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">],</span>
-            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">text</span><span class="o">=</span><span class="ow">not</span> <span class="n">binary</span><span class="p">,</span>
-            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span> <span class="k">if</span> <span class="n">binary</span> <span class="k">else</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
-
-
-
-<div class="viewcode-block" id="TestUpgradeFromRelease">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TestUpgradeFromRelease</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""A database built by a *released* AutoWISP reaches today's schema.</span>
-
-<span class="sd">    This is the test that catches a model changed without a revision to</span>
-<span class="sd">    match. Every other check here builds its "before" state from today's</span>
-<span class="sd">    metadata, so a missing revision moves both sides together and goes</span>
-<span class="sd">    unnoticed. Here the starting schema is built by the released code</span>
-<span class="sd">    itself, checked out from its tag, so the revision chain is the only</span>
-<span class="sd">    thing that can close the gap.</span>
-
-<span class="sd">    That released package is loaded in a **subprocess**: it defines the</span>
-<span class="sd">    same module names as the code under test, so importing both into one</span>
-<span class="sd">    interpreter would have whichever came first shadow the other.</span>
-<span class="sd">    """</span>
-
-    <span class="n">release_baselines</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"1.8.1"</span><span class="p">,</span> <span class="s2">"2.0.0"</span><span class="p">)</span>
-<span class="w">    </span><span class="sd">"""Released versions a project database may be upgraded from.</span>
-
-<span class="sd">    Add each new release tag as it ships; every entry gets its own</span>
-<span class="sd">    upgrade-to-current check.</span>
-<span class="sd">    """</span>
-
-<div class="viewcode-block" id="TestUpgradeFromRelease.setUp">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.setUp">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">_git</span><span class="p">(</span><span class="s2">"rev-parse"</span><span class="p">,</span> <span class="s2">"--git-dir"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span><span class="s2">"not a git checkout, so releases cannot be exported"</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="TestUpgradeFromRelease._export_release">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease._export_release">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_export_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Extract the ``autowisp`` package as of *ref* into a temp dir."""</span>
-
-        <span class="k">if</span> <span class="n">_git</span><span class="p">(</span><span class="s2">"rev-parse"</span><span class="p">,</span> <span class="s2">"--verify"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">^</span><span class="se">{{</span><span class="s2">commit</span><span class="se">}}</span><span class="s2">"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"tag </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> unavailable -- CI needs fetch-depth: 0 for tags"</span>
-            <span class="p">)</span>
-        <span class="n">archive</span> <span class="o">=</span> <span class="n">_git</span><span class="p">(</span><span class="s2">"archive"</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="s2">"autowisp"</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"could not export </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-        <span class="n">target</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="c1"># tarfile rather than the tar binary: no external command, and no</span>
-        <span class="c1"># assumption about which tar the platform ships.</span>
-        <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">archive</span><span class="p">))</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
-            <span class="n">tar</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s2">"data"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">target</span></div>
-
-
-<div class="viewcode-block" id="TestUpgradeFromRelease._build_release_schema">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease._build_release_schema">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Create the release's schema, running that release's own code."""</span>
-
-        <span class="c1"># hide_password=False: str(URL) masks the password, which would</span>
-        <span class="c1"># make the subprocess fail to connect to a server.</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">render_as_string</span><span class="p">(</span><span class="n">hide_password</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
-                <span class="s2">"-c"</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">"import sys; sys.path.insert(0, </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="s2">"from sqlalchemy import create_engine</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="s2">"from autowisp.database.data_model.base import DataModelBase</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="s2">"import autowisp.database.data_model</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="sa">f</span><span class="s2">"DataModelBase.metadata.create_all(create_engine(</span><span class="si">{</span><span class="n">url</span><span class="si">!r}</span><span class="s2">))</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
-            <span class="p">],</span>
-            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="p">:</span>
-            <span class="c1"># The release cannot create its own schema here, so there is no</span>
-            <span class="c1"># upgrade to check -- not a failure of the revisions. Reachable:</span>
-            <span class="c1"># 1.8.1 cannot be created on MySQL 8.4 under utf8mb4 at all,</span>
-            <span class="c1"># because its VARCHAR(1000) unique keys exceed InnoDB's index</span>
-            <span class="c1"># limit. That is precisely what these revisions fix, and why</span>
-            <span class="c1"># real deployments run a narrower charset.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span>
-                <span class="s2">"the release cannot build its schema on this backend, so "</span>
-                <span class="sa">f</span><span class="s2">"there is no upgrade path to check:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">[</span><span class="o">-</span><span class="mi">300</span><span class="p">:]</span><span class="si">}</span><span class="s2">"</span>
-            <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_release_upgrades_to_the_current_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Each released schema, once migrated, agrees with today's models."""</span>
-
-        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">:</span>
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="n">ref</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">reset_backend</span><span class="p">()</span>
-                <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"from_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db"</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
-
-                <span class="c1"># Predates Alembic, so this covers the whole path: reach the</span>
-                <span class="c1"># baseline, stamp it, then apply every revision.</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-                    <span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">get_head_revision</span><span class="p">()</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-                    <span class="n">get_schema_drift</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span>
-                    <span class="p">[],</span>
-                    <span class="sa">f</span><span class="s2">"a database from </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> does not reach the current "</span>
-                    <span class="s2">"schema; the differences above each need a revision"</span><span class="p">,</span>
-                <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_release_keeps_its_timestamp_triggers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Upgrading does not cost the database its triggers.</span>
-
-<span class="sd">        SQLite cannot alter a column in place, so ``batch_alter_table``</span>
-<span class="sd">        rebuilds the table and the drop takes its triggers with it. The</span>
-<span class="sd">        rebuilt table is created by the revision rather than from the</span>
-<span class="sd">        models, so nothing puts them back -- a 1.8.1 database used to lose</span>
-<span class="sd">        seven this way, and the check above could not see it.</span>
-<span class="sd">        """</span>
-
-        <span class="n">expected</span> <span class="o">=</span> <span class="n">expected_timestamp_triggers</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">:</span>
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="n">ref</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">reset_backend</span><span class="p">()</span>
-                <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"triggers_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db"</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_triggers</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_value_too_long_to_keep_stops_the_migration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Narrowing a column refuses rather than truncating.</span>
-
-<span class="sd">        Refusing is the point: on a server not running in strict mode the</span>
-<span class="sd">        ALTER would truncate the value silently.</span>
-
-<span class="sd">        Uses ``condition_expression.expression`` (1000 -&gt; 768 in ``0005``)</span>
-<span class="sd">        rather than ``image.raw_fname``, which narrows identically in</span>
-<span class="sd">        ``0004``. The guard lives in the shared ``resize_varchar_column``,</span>
-<span class="sd">        so either exercises it -- but condition_expression has no foreign</span>
-<span class="sd">        keys, whereas an image row needs an image_type and an observing</span>
-<span class="sd">        session, and that in turn needs an observer, camera, telescope,</span>
-<span class="sd">        mount, observatory and target. A server enforces every one of</span>
-<span class="sd">        those, so the alternative was either a dozen rows of fixture or</span>
-<span class="sd">        switching the checks off, and neither has anything to do with</span>
-<span class="sd">        column widths.</span>
-<span class="sd">        """</span>
-
-        <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"toolong_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db"</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
-
-        <span class="n">long_expression</span> <span class="o">=</span> <span class="s2">"x"</span> <span class="o">*</span> <span class="mi">800</span>
-        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
-            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
-                <span class="s2">"condition_expression"</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span>
-            <span class="p">)</span>
-            <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="n">table</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">expression</span><span class="o">=</span><span class="n">long_expression</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">DatabaseError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
-
-        <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"expression"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">long_expression</span><span class="p">)),</span> <span class="n">message</span><span class="p">)</span>
-
-        <span class="c1"># The value is still intact, and the schema was left alone.</span>
-        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
-            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
-                <span class="s2">"condition_expression"</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span>
-            <span class="p">)</span>
-            <span class="n">kept</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">expression</span><span class="p">))</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span> <span class="n">long_expression</span><span class="p">)</span></div>
 </div>
 
 

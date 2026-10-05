@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -177,15 +180,15 @@
 <li><a href="autowisp/browser_interface/core/templatetags/custom_filters.html">autowisp.browser_interface.core.templatetags.custom_filters</a></li>
 <li><a href="autowisp/browser_interface/core/timestamp_triggers.html">autowisp.browser_interface.core.timestamp_triggers</a></li>
 <li><a href="autowisp/browser_interface/core/walk_fs_view.html">autowisp.browser_interface.core.walk_fs_view</a></li>
-<li><a href="autowisp/browser_interface/diagnostics/admin.html">autowisp.browser_interface.diagnostics.admin</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/apps.html">autowisp.browser_interface.diagnostics.apps</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/detrending_diagnostics_views.html">autowisp.browser_interface.diagnostics.detrending_diagnostics_views</a></li>
+<li><a href="autowisp/browser_interface/diagnostics/exclusion_mask.html">autowisp.browser_interface.diagnostics.exclusion_mask</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/expression_data.html">autowisp.browser_interface.diagnostics.expression_data</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/expression_views.html">autowisp.browser_interface.diagnostics.expression_views</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/forms.html">autowisp.browser_interface.diagnostics.forms</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/image_diagnostics_views.html">autowisp.browser_interface.diagnostics.image_diagnostics_views</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/migrations/0001_initial.html">autowisp.browser_interface.diagnostics.migrations.0001_initial</a></li>
-<li><a href="autowisp/browser_interface/diagnostics/models.html">autowisp.browser_interface.diagnostics.models</a></li>
+<li><a href="autowisp/browser_interface/diagnostics/migrations/0002_delete_diagnosticexpression.html">autowisp.browser_interface.diagnostics.migrations.0002_delete_diagnosticexpression</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/preview_calibrated.html">autowisp.browser_interface.diagnostics.preview_calibrated</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/quantities.html">autowisp.browser_interface.diagnostics.quantities</a></li>
 <li><a href="autowisp/browser_interface/diagnostics/series_table.html">autowisp.browser_interface.diagnostics.series_table</a></li>
@@ -222,6 +225,7 @@
 <li><a href="autowisp/database/data_model/condition.html">autowisp.database.data_model.condition</a></li>
 <li><a href="autowisp/database/data_model/condition_expression.html">autowisp.database.data_model.condition_expression</a></li>
 <li><a href="autowisp/database/data_model/configuration.html">autowisp.database.data_model.configuration</a></li>
+<li><a href="autowisp/database/data_model/diagnostic_expression.html">autowisp.database.data_model.diagnostic_expression</a></li>
 <li><a href="autowisp/database/data_model/error.html">autowisp.database.data_model.error</a></li>
 <li><a href="autowisp/database/data_model/hdf5_attributes.html">autowisp.database.data_model.hdf5_attributes</a></li>
 <li><a href="autowisp/database/data_model/hdf5_datasets.html">autowisp.database.data_model.hdf5_datasets</a></li>
@@ -258,9 +262,12 @@
 <li><a href="autowisp/database/user_interface.html">autowisp.database.user_interface</a></li>
 <li><a href="autowisp/diagnostics/detrending.html">autowisp.diagnostics.detrending</a></li>
 <li><a href="autowisp/diagnostics/diagnostic_types.html">autowisp.diagnostics.diagnostic_types</a></li>
+<li><a href="autowisp/diagnostics/exclusion_rules.html">autowisp.diagnostics.exclusion_rules</a></li>
+<li><a href="autowisp/diagnostics/expression_library.html">autowisp.diagnostics.expression_library</a></li>
 <li><a href="autowisp/diagnostics/expression_series.html">autowisp.diagnostics.expression_series</a></li>
 <li><a href="autowisp/diagnostics/expressions.html">autowisp.diagnostics.expressions</a></li>
 <li><a href="autowisp/diagnostics/get_from_lc.html">autowisp.diagnostics.get_from_lc</a></li>
+<li><a href="autowisp/diagnostics/image_counts.html">autowisp.diagnostics.image_counts</a></li>
 <li><a href="autowisp/error_cli.html">autowisp.error_cli</a></li>
 <li><a href="autowisp/error_context.html">autowisp.error_context</a></li>
 <li><a href="autowisp/error_persistence.html">autowisp.error_persistence</a></li>
@@ -310,7 +317,6 @@
 <li><a href="autowisp/multiprocessing_util.html">autowisp.multiprocessing_util</a></li>
 <li><a href="autowisp/piecewise_bicubic_psf_map.html">autowisp.piecewise_bicubic_psf_map</a></li>
 <li><a href="autowisp/processing_steps/add_images_to_db.html">autowisp.processing_steps.add_images_to_db</a></li>
-<li><a href="autowisp/processing_steps/calculate_photref_merit.html">autowisp.processing_steps.calculate_photref_merit</a></li>
 <li><a href="autowisp/processing_steps/calibrate.html">autowisp.processing_steps.calibrate</a></li>
 <li><a href="autowisp/processing_steps/create_lightcurves.html">autowisp.processing_steps.create_lightcurves</a></li>
 <li><a href="autowisp/processing_steps/epd.html">autowisp.processing_steps.epd</a></li>
@@ -338,6 +344,7 @@
 <li><a href="autowisp/tests/fits_test_case.html">autowisp.tests.fits_test_case</a></li>
 <li><a href="autowisp/tests/get_test_data.html">autowisp.tests.get_test_data</a></li>
 <li><a href="autowisp/tests/h5_test_case.html">autowisp.tests.h5_test_case</a></li>
+<li><a href="autowisp/tests/synthetic_light_curve_test_case.html">autowisp.tests.synthetic_light_curve_test_case</a></li>
 <li><a href="autowisp/tests/test_bui_db_config.html">autowisp.tests.test_bui_db_config</a></li>
 <li><a href="autowisp/tests/test_bui_models.html">autowisp.tests.test_bui_models</a></li>
 <li><a href="autowisp/tests/test_calibrate.html">autowisp.tests.test_calibrate</a></li>
@@ -345,12 +352,15 @@
 <li><a href="autowisp/tests/test_channel_binding.html">autowisp.tests.test_channel_binding</a></li>
 <li><a href="autowisp/tests/test_crash_report.html">autowisp.tests.test_crash_report</a></li>
 <li><a href="autowisp/tests/test_create_lightcurves.html">autowisp.tests.test_create_lightcurves</a></li>
+<li><a href="autowisp/tests/test_custom_group_values.html">autowisp.tests.test_custom_group_values</a></li>
 <li><a href="autowisp/tests/test_database_migration.html">autowisp.tests.test_database_migration</a></li>
+<li><a href="autowisp/tests/test_detrending_exclusions.html">autowisp.tests.test_detrending_exclusions</a></li>
 <li><a href="autowisp/tests/test_detrending_stat.html">autowisp.tests.test_detrending_stat</a></li>
 <li><a href="autowisp/tests/test_diagnostic_expressions.html">autowisp.tests.test_diagnostic_expressions</a></li>
 <li><a href="autowisp/tests/test_diagnostic_types.html">autowisp.tests.test_diagnostic_types</a></li>
 <li><a href="autowisp/tests/test_diagnostics_rules.html">autowisp.tests.test_diagnostics_rules</a></li>
 <li><a href="autowisp/tests/test_diagnostics_views.html">autowisp.tests.test_diagnostics_views</a></li>
+<li><a href="autowisp/tests/test_engine_exclusions.html">autowisp.tests.test_engine_exclusions</a></li>
 <li><a href="autowisp/tests/test_epd.html">autowisp.tests.test_epd</a></li>
 <li><a href="autowisp/tests/test_error_capture_middleware.html">autowisp.tests.test_error_capture_middleware</a></li>
 <li><a href="autowisp/tests/test_error_cli.html">autowisp.tests.test_error_cli</a></li>
@@ -359,6 +369,7 @@
 <li><a href="autowisp/tests/test_error_render.html">autowisp.tests.test_error_render</a></li>
 <li><a href="autowisp/tests/test_evaluator.html">autowisp.tests.test_evaluator</a></li>
 <li><a href="autowisp/tests/test_exception_hierarchy.html">autowisp.tests.test_exception_hierarchy</a></li>
+<li><a href="autowisp/tests/test_exclusion_rules.html">autowisp.tests.test_exclusion_rules</a></li>
 <li><a href="autowisp/tests/test_expression_series.html">autowisp.tests.test_expression_series</a></li>
 <li><a href="autowisp/tests/test_expressions.html">autowisp.tests.test_expressions</a></li>
 <li><a href="autowisp/tests/test_find_stars.html">autowisp.tests.test_find_stars</a></li>
@@ -367,19 +378,28 @@
 <li><a href="autowisp/tests/test_fit_star_shape.html">autowisp.tests.test_fit_star_shape</a></li>
 <li><a href="autowisp/tests/test_full_pipeline.html">autowisp.tests.test_full_pipeline</a></li>
 <li><a href="autowisp/tests/test_lc_filter.html">autowisp.tests.test_lc_filter</a></li>
+<li><a href="autowisp/tests/test_master_photref_lookup.html">autowisp.tests.test_master_photref_lookup</a></li>
 <li><a href="autowisp/tests/test_measure_aperture_photometry.html">autowisp.tests.test_measure_aperture_photometry</a></li>
 <li><a href="autowisp/tests/test_parameter_description_length.html">autowisp.tests.test_parameter_description_length</a></li>
 <li><a href="autowisp/tests/test_parse_config_overwrites.html">autowisp.tests.test_parse_config_overwrites</a></li>
+<li><a href="autowisp/tests/test_photometry_slots.html">autowisp.tests.test_photometry_slots</a></li>
+<li><a href="autowisp/tests/test_photref_binding.html">autowisp.tests.test_photref_binding</a></li>
+<li><a href="autowisp/tests/test_photref_candidates.html">autowisp.tests.test_photref_candidates</a></li>
 <li><a href="autowisp/tests/test_project_creation_guard.html">autowisp.tests.test_project_creation_guard</a></li>
 <li><a href="autowisp/tests/test_provenance_resolver.html">autowisp.tests.test_provenance_resolver</a></li>
+<li><a href="autowisp/tests/test_reference_columns.html">autowisp.tests.test_reference_columns</a></li>
 <li><a href="autowisp/tests/test_related_files.html">autowisp.tests.test_related_files</a></li>
+<li><a href="autowisp/tests/test_series_references.html">autowisp.tests.test_series_references</a></li>
 <li><a href="autowisp/tests/test_solve_astrometry.html">autowisp.tests.test_solve_astrometry</a></li>
 <li><a href="autowisp/tests/test_source_finder.html">autowisp.tests.test_source_finder</a></li>
 <li><a href="autowisp/tests/test_stack_to_master.html">autowisp.tests.test_stack_to_master</a></li>
+<li><a href="autowisp/tests/test_suite_registration.html">autowisp.tests.test_suite_registration</a></li>
 <li><a href="autowisp/tests/test_templates.html">autowisp.tests.test_templates</a></li>
 <li><a href="autowisp/tests/test_tfa.html">autowisp.tests.test_tfa</a></li>
+<li><a href="autowisp/tests/test_tfa_multi_channel.html">autowisp.tests.test_tfa_multi_channel</a></li>
 <li><a href="autowisp/tests/test_tfa_num_templates.html">autowisp.tests.test_tfa_num_templates</a></li>
 <li><a href="autowisp/tests/test_timestamp_triggers.html">autowisp.tests.test_timestamp_triggers</a></li>
+<li><a href="autowisp/tests/test_upgrade_from_release.html">autowisp.tests.test_upgrade_from_release</a></li>
 </ul></ul>
 
            </div>

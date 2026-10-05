@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="autowisp.diagnostics.expressions module" href="autowisp.diagnostics.expressions.html" />
-    <link rel="prev" title="autowisp.diagnostics.diagnostic_types module" href="autowisp.diagnostics.diagnostic_types.html" /> 
+    <link rel="prev" title="autowisp.diagnostics.expression_library module" href="autowisp.diagnostics.expression_library.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -172,22 +175,27 @@
 <span id="autowisp-diagnostics-expression-series-module"></span><h1>autowisp.diagnostics.expression_series module<a class="headerlink" href="#module-autowisp.diagnostics.expression_series" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-5acb08c92f20a7e07cac0fb6bd6f9ef28471aef7.png" alt="Inheritance diagram of DiagnosticType, Image, ImageDiagnostics, ImageType, ObservingSession, SeriesKey" usemap="#inheritance3b55094699" class="inheritance graphviz" /></div>
-<map id="inheritance3b55094699" name="inheritance3b55094699">
+<div class="graphviz"><img src="../_images/inheritance-9f39f10f5691ab4c85b66968c2110dce49318778.png" alt="Inheritance diagram of DiagnosticType, Image, ImageDiagnostics, ImageMasterSelection, ImageType, MasterType, PhotometryDiagnostics, PipelineError, SeriesKey" usemap="#inheritancec21977c77a" class="inheritance graphviz" /></div>
+<map id="inheritancec21977c77a" name="inheritancec21977c77a">
 <area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
 <area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="345,372,800,397"/>
-<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
-<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1755,372,2225,397"/>
-<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="837,445,1311,471"/>
-<area shape="rect" id="node11" href="#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="1373,5,1721,31"/>
-<area shape="rect" id="node14" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1231,5,1349,31"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="1755,372,2145,397"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="1283,299,1823,324"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="580,445,1053,471"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="1077,445,1585,471"/>
+<area shape="rect" id="node13" href="#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="1612,5,1960,31"/>
+<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1984,5,2239,31"/>
+<area shape="rect" id="node15" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1990,79,2233,104"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1470,5,1587,31"/>
 </map><p>Values for one series of images, read from the project database.</p>
 <p>Tier 2 of the expression layer: it knows the project database and nothing
 else. Above it, the browser interface adds Django and a way of editing the
 library; below it, <a class="reference internal" href="autowisp.diagnostics.expressions.html#module-autowisp.diagnostics.expressions" title="autowisp.diagnostics.expressions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.expressions</span></code></a> knows what an
 expression <em>means</em> and has no database at all. This module is the join
-between them – it turns a session, an image type and the channels a series
-binds into the <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{channels:</span> <span class="pre">array}}</span></code> that tier 1 evaluates against.</p>
+between them – it turns a session, an image type and the channels and
+photometries a series binds into the <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{(channels,</span> <span class="pre">photometries):</span>
+<span class="pre">array}}</span></code> that tier 1 evaluates against.</p>
 <p>Everything here is built on <strong>one canonical image list per session and image
 type</strong>, ordered by Julian date, with <code class="docutils literal notranslate"><span class="pre">NaN</span></code> wherever a value is not
 recorded. Alignment is then structural: index <em>i</em> is the same image in every
@@ -198,10 +206,19 @@ frame types.</p>
 reading one diagnostic in several of them cheap: the columns arrive side by
 side against the same images, so a quantity comparing channels is ordinary
 arithmetic rather than a join.</p>
+<p>It does depend on the photometric references a series names. A diagnostic
+<code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> produces depends on the reference an image was fit
+against, so a series reading one is restricted to the images bound to one
+reference in each channel it reads it in, and <a class="reference internal" href="#autowisp.diagnostics.expression_series.split_series" title="autowisp.diagnostics.expression_series.split_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">split_series()</span></code></a> finds
+which such populations a session holds.</p>
+<p>A photref group is the one population not identified by a session: it is
+given as its members, <code class="docutils literal notranslate"><span class="pre">(image,</span> <span class="pre">channel)</span></code> pairs, and
+<a class="reference internal" href="#autowisp.diagnostics.expression_series.get_custom_group_values" title="autowisp.diagnostics.expression_series.get_custom_group_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_custom_group_values()</span></code></a> reads and evaluates over those, one point per
+member, with the same query and evaluation.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.SeriesKey">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">SeriesKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#SeriesKey"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.SeriesKey" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">SeriesKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photrefs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#SeriesKey"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.SeriesKey" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.diagnostics.expression_series._SeriesKeyFields" title="autowisp.diagnostics.expression_series._SeriesKeyFields"><code class="xref py py-class docutils literal notranslate"><span class="pre">_SeriesKeyFields</span></code></a></p>
 <div class="graphviz"><img src="../_images/inheritance-379a91487f706f7ce42a245b53606def1bb9a0d8.png" alt="Inheritance diagram of autowisp.diagnostics.expression_series.SeriesKey" usemap="#inheritance6ddcf4ff90" class="inheritance graphviz" /></div>
 <map id="inheritance6ddcf4ff90" name="inheritance6ddcf4ff90">
@@ -216,23 +233,57 @@ together.</p>
 <p><code class="docutils literal notranslate"><span class="pre">channels</span></code> holds one channel per parameter of what the series draws,
 in the order those parameters are numbered: one for an ordinary
 diagnostic, several where an expression compares channels, and none for
-a quantity over the time alone.</p>
+a quantity over the time alone. After them come the quoted channels a
+diagnostic of <code class="xref py py-func docutils literal notranslate"><span class="pre">magfit_diagnostic_names()</span></code> is read in, if any, in
+the order the text first quotes them: they bind nothing, but need a
+reference like any other channel magfit is read in, and so a slot to
+hold it. Whatever turns <code class="docutils literal notranslate"><span class="pre">channels</span></code> into bindings slices it from the
+front, by arity, and never reaches them.</p>
+<p><code class="docutils literal notranslate"><span class="pre">photometries</span></code> holds one photometry id per photometry parameter of
+what the series draws, in the same order – the axes’ parameters laid
+end to end – and is empty where nothing it draws is read per
+photometry. It is independent of <code class="docutils literal notranslate"><span class="pre">channels</span></code>: a photometry belongs to
+no channel slot, every image having every photometry in every channel.</p>
+<p><code class="docutils literal notranslate"><span class="pre">photrefs</span></code> holds, per slot, the <code class="docutils literal notranslate"><span class="pre">single_photref</span></code> master file the
+series’ images are bound to in that slot’s channel, restricting the
+population to the images fit against it there; <code class="docutils literal notranslate"><span class="pre">None</span></code> where the
+population is not restricted in that channel. A reference is a
+property of a channel, not of a slot – an image has one binding per
+channel – so slots on one channel carry the same one. A channel
+something reads a magfit diagnostic in must have one (see
+<a class="reference internal" href="#autowisp.diagnostics.expression_series.get_diagnostic_values" title="autowisp.diagnostics.expression_series.get_diagnostic_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_diagnostic_values()</span></code></a>), since its values then depend on the
+reference as well as on the image.</p>
 <p>Every function here takes one of these rather than the fields
 separately, so a caller cannot pair a channel with the wrong session by
 getting an argument order wrong.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.SeriesKey.__new__">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#SeriesKey.__new__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.SeriesKey.__new__" title="Link to this definition"></a></dt>
-<dd><p>Build the key, refusing a bare string where a tuple belongs.</p>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photrefs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#SeriesKey.__new__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.SeriesKey.__new__" title="Link to this definition"></a></dt>
+<dd><p>Build the key, coercing what arrives in the wrong shape.</p>
 <p><code class="docutils literal notranslate"><span class="pre">__new__</span></code> rather than a check further on because it has to
 <em>coerce</em> as well: bindings reach this from a JSON post as a list,
 and a list in that field makes the key unhashable, which is how it
 is used everywhere.</p>
-<p>The string case is worth refusing loudly because it fails silently
-and selectively: <code class="docutils literal notranslate"><span class="pre">channels=&quot;R&quot;</span></code> leaves <code class="docutils literal notranslate"><span class="pre">channels[0]</span></code> reading
-<code class="docutils literal notranslate"><span class="pre">&quot;R&quot;</span></code> and joins to the same id, so a one-character channel
-behaves correctly, while <code class="docutils literal notranslate"><span class="pre">&quot;G1&quot;</span></code> becomes the two channels <code class="docutils literal notranslate"><span class="pre">G</span></code>
-and <code class="docutils literal notranslate"><span class="pre">1</span></code> somewhere much later.</p>
+<p>A bare string for the channels is refused loudly because it fails
+silently and selectively: <code class="docutils literal notranslate"><span class="pre">channels=&quot;R&quot;</span></code> leaves <code class="docutils literal notranslate"><span class="pre">channels[0]</span></code>
+reading <code class="docutils literal notranslate"><span class="pre">&quot;R&quot;</span></code> and joins to the same id, so a one-character
+channel behaves correctly, while <code class="docutils literal notranslate"><span class="pre">&quot;G1&quot;</span></code> becomes the two channels
+<code class="docutils literal notranslate"><span class="pre">G</span></code> and <code class="docutils literal notranslate"><span class="pre">1</span></code> somewhere much later.</p>
+<p><em>photometries</em> and <em>photrefs</em> are keyword-only: both are tuples of
+ids, so one passed in the other’s place would be accepted and read
+wrongly rather than refused.</p>
+<p>Omitted, <em>photrefs</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code> in every slot, so a key built
+without it equals one spelling that out. Given, it must be as long
+as <em>channels</em>, and a slot left <code class="docutils literal notranslate"><span class="pre">None</span></code> on a channel another slot
+has a reference for takes it: a producer filling only the slots
+that read magfit then builds the same key as one filling every
+slot on the channel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.SeriesKey._replace">
+<span class="sig-name descname"><span class="pre">_replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">changes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#SeriesKey._replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.SeriesKey._replace" title="Link to this definition"></a></dt>
+<dd><p>Build through <a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey.__new__" title="autowisp.diagnostics.expression_series.SeriesKey.__new__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__new__()</span></code></a>, which the inherited one skips.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -247,11 +298,20 @@ for want of a better answer. A series binding no channel at all has
 none to give.</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.SeriesKey.reference_pairs">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">reference_pairs</span></span><a class="headerlink" href="#autowisp.diagnostics.expression_series.SeriesKey.reference_pairs" title="Link to this definition"></a></dt>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code> pairs restricting the population.</p>
+<p>One per distinct pair with a reference, sorted so that the joins
+built from them come out the same every time. A channel given two
+references contributes both, which between them select nothing.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._SeriesKeyFields">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_SeriesKeyFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_SeriesKeyFields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._SeriesKeyFields" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_SeriesKeyFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">photrefs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_SeriesKeyFields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._SeriesKeyFields" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
 <p>The fields of a <a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeriesKey</span></code></a>, kept apart only to be checked.</p>
 <p><code class="docutils literal notranslate"><span class="pre">typing.NamedTuple</span></code> prohibits <code class="docutils literal notranslate"><span class="pre">__new__</span></code> and <code class="docutils literal notranslate"><span class="pre">__init__</span></code> in a class
@@ -270,6 +330,18 @@ gives <a class="reference internal" href="#autowisp.diagnostics.expression_serie
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._SeriesKeyFields.photometries">
+<span class="sig-name descname"><span class="pre">photometries</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span><a class="headerlink" href="#autowisp.diagnostics.expression_series._SeriesKeyFields.photometries" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._SeriesKeyFields.photrefs">
+<span class="sig-name descname"><span class="pre">photrefs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span><a class="headerlink" href="#autowisp.diagnostics.expression_series._SeriesKeyFields.photrefs" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._SeriesKeyFields.session_id">
 <span class="sig-name descname"><span class="pre">session_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#autowisp.diagnostics.expression_series._SeriesKeyFields.session_id" title="Link to this definition"></a></dt>
 <dd><p>Alias for field number 0</p>
@@ -284,46 +356,41 @@ gives <a class="reference internal" href="#autowisp.diagnostics.expression_serie
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._count_images">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_count_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matching</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_count_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._count_images" title="Link to this definition"></a></dt>
-<dd><p>Count images whose diagnostic rows satisfy <em>matching</em>, per series.</p>
-<p>The shared half of the two counting questions below, which differ only
-in what they match, how many matches an image owes, and whether a
-channel is part of the answer or fixed by the caller.</p>
-<p>Counting rows rather than distinct diagnostics is sound for both,
-because the unique index on <code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel,</span> <span class="pre">diagnostic_id)</span></code>
-admits no duplicate: an image satisfying <em>n</em> of what was asked for
-contributes exactly <em>n</em> rows to its group.</p>
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._check_references">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_check_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_check_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._check_references" title="Link to this definition"></a></dt>
+<dd><p>Refuse to read magfit diagnostics over images fit against unknown refs.</p>
+<p>A magfit diagnostic depends on the reference an image was fit against
+as well as on the image, so read in a channel the key names no
+reference for, the population could mix images fit against several,
+and an aggregate over it – or a jump in a plot of it – would mean
+nothing. A reference on a channel nothing magfit reads is fine: it
+merely restricts the population.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>matching</strong> – The <code class="docutils literal notranslate"><span class="pre">WHERE</span></code> selecting the rows that count.</p></li>
-<li><p><strong>required</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – How many matched rows an image must have.</p></li>
-<li><p><strong>per_channel</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether an image has to satisfy the
-requirement <strong>within one channel</strong> – which also makes the
-channel something the result varies over – or may satisfy it
-across several.</p></li>
-<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>One tuple per series, holding the session label, the</dt><dd><p>session id, the image type, the channel where <em>per_channel</em>,
-and the count.</p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If a channel <em>needed</em> reads a magfit diagnostic in
+    has no reference in <em>series_key</em>.</p>
 </dd>
 </dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._custom_group_bindings">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_custom_group_bindings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_custom_group_bindings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._custom_group_bindings" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">wanted</span></code> for <a class="reference internal" href="#autowisp.diagnostics.expression_series.get_custom_group_values" title="autowisp.diagnostics.expression_series.get_custom_group_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_custom_group_values()</span></code></a>.</p>
+<p>Every slot is bound to <a class="reference internal" href="#autowisp.diagnostics.expression_series._own_channel" title="autowisp.diagnostics.expression_series._own_channel"><code class="xref py py-data docutils literal notranslate"><span class="pre">_own_channel</span></code></a>, the stand-in for each
+member’s own channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If a quantity takes more than one channel, or any
+    photometry.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._diagnostic_values_query">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_diagnostic_values_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_diagnostic_values_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._diagnostic_values_query" title="Link to this definition"></a></dt>
-<dd><p>Return the statement reading <em>names</em> in <em>channels</em> for one series.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_diagnostic_values_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bindings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_diagnostic_values_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._diagnostic_values_query" title="Link to this definition"></a></dt>
+<dd><p>Return the statement reading <em>names</em> in each of <em>bindings</em>.</p>
 <p>Separate from running it so that what it asks the database for can be
 inspected without a database: the predicates below are what keep this
 affordable on an archive too large to scan, and they are this module’s
@@ -331,10 +398,15 @@ to get right, unlike which index a particular server then chooses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>series_key</strong> (<a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><em>SeriesKey</em></a>) – The series, for its session and type.</p></li>
+<li><p><strong>population</strong> – Function restricting a query over <code class="docutils literal notranslate"><span class="pre">Image</span></code> to the
+images to read, as <a class="reference internal" href="#autowisp.diagnostics.expression_series._in_series" title="autowisp.diagnostics.expression_series._in_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">_in_series()</span></code></a> does to a series’.</p></li>
 <li><p><strong>names</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The <code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> names to read.</p></li>
-<li><p><strong>channels</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The channels to read them in, one outer join
-each.</p></li>
+<li><p><strong>bindings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The diagnostic bindings to read them in, one
+outer join each: <code class="docutils literal notranslate"><span class="pre">((channel,),</span> <span class="pre">())</span></code> on <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">((channel,),</span> <span class="pre">(photometry,))</span></code> on
+<code class="docutils literal notranslate"><span class="pre">photometry_diagnostics</span></code>. A diagnostic takes one channel and
+at most one photometry, so there is nothing else a binding here
+can be.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -344,76 +416,137 @@ each.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._of_one_type">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_of_one_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_of_one_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._of_one_type" title="Link to this definition"></a></dt>
-<dd><p>Return the WHERE terms selecting one session’s frames of one type.</p>
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._in_series">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_in_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_in_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._in_series" title="Link to this definition"></a></dt>
+<dd><p>Return <em>query</em>, over <code class="docutils literal notranslate"><span class="pre">Image</span></code>, keeping only the images of one series.</p>
+<p>One session’s frames of one type, bound to the key’s references. The
+query must already select from <code class="docutils literal notranslate"><span class="pre">Image</span></code>, which is what gets joined to
+its type.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.count_images_with_all">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">count_images_with_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#count_images_with_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.count_images_with_all" title="Link to this definition"></a></dt>
-<dd><p>Count images holding all of <em>needed</em>, per (session, type, channel).</p>
-<p>What a slot <strong>may</strong> be bound to: the channels a quantity could be read
-in, and how many images each would draw. Deliberately spans every
-observing session, that being what the series table lists – so there
-is no one session to anchor it to, and its cost is proportional to the
-images carrying the diagnostic. That is a standing limit rather than
-something an index could remove: enumerating the sessions <em>is</em> the
-question being asked.</p>
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._list_images">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_list_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_list_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._list_images" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(image_ids,</span> <span class="pre">jd_values)</span></code> for a population, in canonical order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>needed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)"><em>set</em></a>) – <code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> names that must all be recorded
-for an image to count, <strong>in the same channel</strong>. An empty set
-means no quantity constrains the result, which only happens
-when every quantity is <code class="xref py py-data docutils literal notranslate"><span class="pre">time_quantity</span></code>; nothing is
-plottable then.</p></li>
+<li><p><strong>population</strong> – Function restricting a query over <code class="docutils literal notranslate"><span class="pre">Image</span></code> to the
+images wanted, as <a class="reference internal" href="#autowisp.diagnostics.expression_series._in_series" title="autowisp.diagnostics.expression_series._in_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">_in_series()</span></code></a> does to a series’.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">(session_label,</span> <span class="pre">session_id,</span> <span class="pre">image_type,</span> <span class="pre">channel,</span> <span class="pre">count)</span></code></dt><dd><p>tuples.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.count_images_with_channels">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">count_images_with_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">requirements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#count_images_with_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.count_images_with_channels" title="Link to this definition"></a></dt>
-<dd><p>Count images holding every <code class="docutils literal notranslate"><span class="pre">(diagnostic,</span> <span class="pre">channel)</span></code> pair, per series.</p>
-<p>What a <em>binding</em> actually draws, once the channels are chosen – the
-exact question, where <a class="reference internal" href="#autowisp.diagnostics.expression_series.count_images_with_all" title="autowisp.diagnostics.expression_series.count_images_with_all"><code class="xref py py-func docutils literal notranslate"><span class="pre">count_images_with_all()</span></code></a> answers the looser
-one that fills the dropdowns. The difference is a line of SQL and the
-whole of the meaning: an image counts when its rows cover every pair
-<em>between them</em>, so one requirement may be met in R and another in B,
-which is what a quantity comparing channels needs.</p>
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._normalize_photrefs">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_normalize_photrefs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photrefs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_normalize_photrefs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._normalize_photrefs" title="Link to this definition"></a></dt>
+<dd><p>Return <em>photrefs</em> with every slot on a channel given its reference.</p>
+<p>A slot left <code class="docutils literal notranslate"><span class="pre">None</span></code> takes the reference another slot on its channel
+has, where there is exactly one; a channel given two different ones is
+left alone, selecting nothing, as it would anyway.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._own_channel">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_own_channel</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;own</span> <span class="pre">channel&gt;'</span></span><a class="headerlink" href="#autowisp.diagnostics.expression_series._own_channel" title="Link to this definition"></a></dt>
+<dd><p>The channel a member’s slot is bound to while its quantities are resolved:
+not a channel, but a stand-in for each member’s own, which the values are
+then read in. The angle brackets keep it from ever naming a real one.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._read_custom_group">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_read_custom_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_read_custom_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._read_custom_group" title="Link to this definition"></a></dt>
+<dd><p>Return the values <em>needed</em> asks for, one entry per member.</p>
+<p>The members’ images are read as any population is, in every binding
+<em>needed</em> asks for, one on <a class="reference internal" href="#autowisp.diagnostics.expression_series._own_channel" title="autowisp.diagnostics.expression_series._own_channel"><code class="xref py py-data docutils literal notranslate"><span class="pre">_own_channel</span></code></a> in every channel a member
+has; each member then takes the column of its own channel wherever
+<em>needed</em> asks for <a class="reference internal" href="#autowisp.diagnostics.expression_series._own_channel" title="autowisp.diagnostics.expression_series._own_channel"><code class="xref py py-data docutils literal notranslate"><span class="pre">_own_channel</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>dict:    <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{(channels,</span> <span class="pre">photometries):</span> <span class="pre">array}}</span></code>, as</dt><dd><p><a class="reference internal" href="#autowisp.diagnostics.expression_series.get_diagnostic_values" title="autowisp.diagnostics.expression_series.get_diagnostic_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_diagnostic_values()</span></code></a> returns for a series.</p>
+</dd>
+</dl>
+<p>list:    The members the arrays run over, in canonical order.</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._read_diagnostics">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_read_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bindings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_read_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._read_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Return <em>names</em> in each of <em>bindings</em> for a population, NaN-padded.</p>
+<p>The reading <a class="reference internal" href="#autowisp.diagnostics.expression_series.get_diagnostic_values" title="autowisp.diagnostics.expression_series.get_diagnostic_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_diagnostic_values()</span></code></a> describes, for any
+population: one query, read back as a rectangle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>requirements</strong> – <code class="docutils literal notranslate"><span class="pre">(diagnostic_name,</span> <span class="pre">channel)</span></code> pairs that must all
-be recorded for an image to count. Deduplicated here, since the
-two axes of one plot may read the same diagnostic in the same
-channel. Empty means nothing constrains the result.</p></li>
+<li><p><strong>population</strong> – Function restricting a query over <code class="docutils literal notranslate"><span class="pre">Image</span></code> to the
+images to read, as <a class="reference internal" href="#autowisp.diagnostics.expression_series._in_series" title="autowisp.diagnostics.expression_series._in_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">_in_series()</span></code></a> does to a series’.</p></li>
+<li><p><strong>names</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The <code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> names to read. May be
+empty, leaving only the images to list.</p></li>
+<li><p><strong>bindings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The diagnostic bindings to read every one of
+them in, as <a class="reference internal" href="#autowisp.diagnostics.expression_series._diagnostic_values_query" title="autowisp.diagnostics.expression_series._diagnostic_values_query"><code class="xref py py-func docutils literal notranslate"><span class="pre">_diagnostic_values_query()</span></code></a> takes them.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">(session_label,</span> <span class="pre">session_id,</span> <span class="pre">image_type,</span> <span class="pre">count)</span></code> tuples.</dt><dd><p>No channel among them: the binding names the channels, so they
-are not what the rows vary over.</p>
+<dt>dict:    <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{binding:</span> <span class="pre">array}}</span></code> for every name and</dt><dd><p>binding asked for, over the images in canonical order.</p>
+</dd>
+</dl>
+<p>numpy.ndarray:    The image ids, in canonical order.</p>
+<p>numpy.ndarray:    Their Julian dates.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series._unreferenced_magfit_channels">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">_unreferenced_magfit_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#_unreferenced_magfit_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series._unreferenced_magfit_channels" title="Link to this definition"></a></dt>
+<dd><p>Return the channels <em>needed</em> reads magfit in with no reference.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.count_unbound_images">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">count_unbound_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#count_unbound_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.count_unbound_images" title="Link to this definition"></a></dt>
+<dd><p>Count the images <a class="reference internal" href="#autowisp.diagnostics.expression_series.split_series" title="autowisp.diagnostics.expression_series.split_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">split_series()</span></code></a> leaves out for want of a binding.</p>
+<p>Those with a magfit diagnostic recorded in a channel <em>wanted</em> reads one
+in and <em>series_key</em> names no reference for, but no photref bound there:
+magfit-ed, so their values depend on a reference, with nothing saying
+which. Only processing from before every magfit-ed image was bound
+leaves any. Counted rather than listed, for the engine to log and the
+browser interface to show.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series_key</strong> (<a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><em>SeriesKey</em></a>) – The series, as given to
+<a class="reference internal" href="#autowisp.diagnostics.expression_series.split_series" title="autowisp.diagnostics.expression_series.split_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">split_series()</span></code></a>.</p></li>
+<li><p><strong>wanted</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">(channels,</span> <span class="pre">photometries)}</span></code>.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The number of images, each counted once however many</dt><dd><p>channels it lacks a binding in.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -424,10 +557,12 @@ are not what the rows vary over.</p>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">(image_ids,</span> <span class="pre">jd_values)</span></code> for one session and image type, by JD.</p>
 <p>Every array built for this series is padded onto this list, so index <em>i</em>
 is the same image in each of them and alignment needs no join.</p>
-<p>The channel of <em>series_key</em> is deliberately not used – the list is the
-same for every channel – but the image type is: frames of different
+<p>The channels of <em>series_key</em> are deliberately not used – the list is
+the same for every channel – but the image type is: frames of different
 types are different populations, and mixing them would put a flat frame
-and an object frame in one array for an aggregate to average over.</p>
+and an object frame in one array for an aggregate to average over. Its
+references are used too, for the same reason: images fit against
+different references are different populations of magfit values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -445,6 +580,51 @@ and an object frame in one array for an aggregate to average over.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.get_custom_group_values">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">get_custom_group_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#get_custom_group_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.get_custom_group_values" title="Link to this definition"></a></dt>
+<dd><p>Return quantities over an explicit list of members, one point each.</p>
+<p>The photref-group scope. A photref group – images sharing configuration
+conditions and <code class="docutils literal notranslate"><span class="pre">single_photref</span></code> <code class="docutils literal notranslate"><span class="pre">must_match</span></code> values, possibly across
+sessions – is found only by the engine’s condition grouping, so it
+arrives as its members rather than as a key. A member is an image in one
+channel: under a <code class="docutils literal notranslate"><span class="pre">must_match</span></code> such as <code class="docutils literal notranslate"><span class="pre">CLRCHNL[0].upper()</span></code>, one
+image is a member in <code class="docutils literal notranslate"><span class="pre">G0</span></code> and again in <code class="docutils literal notranslate"><span class="pre">G1</span></code>.</p>
+<p>Each quantity takes at most one channel, bound per member to that
+member’s own, so <code class="docutils literal notranslate"><span class="pre">nanrank(s_center[0])</span></code> ranks every member’s
+<code class="docutils literal notranslate"><span class="pre">s_center</span></code> in its own channel against all the others’. A quoted
+channel is read in that channel for every member. No reference is
+required, as it is of a series: the group is being chosen one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>members</strong> – <code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel)</span></code> pairs, in any order.</p></li>
+<li><p><strong>quantities</strong> – The names of the diagnostics and expressions to
+evaluate, each taking at most one channel.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>dict:    <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">array}</span></code>, one entry per member.</p>
+<dl class="simple">
+<dt>list:    The members the arrays run over, as</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel)</span></code> tuples ordered by Julian date, then
+image id, then channel. A member whose image has no Julian
+date is left out, as it is from every series.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If a quantity takes more than one channel, or as
+    <a class="reference internal" href="#autowisp.diagnostics.expression_series.get_quantity_values" title="autowisp.diagnostics.expression_series.get_quantity_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_quantity_values()</span></code></a> does.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.get_diagnostic_values">
 <span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">get_diagnostic_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#get_diagnostic_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.get_diagnostic_values" title="Link to this definition"></a></dt>
 <dd><p>Return the wanted diagnostics for one series, NaN-padded and aligned.</p>
@@ -452,21 +632,24 @@ and an object frame in one array for an aggregate to average over.</p>
 wanted diagnostic with every image of the series, and an outer join
 attaches the values, leaving <code class="docutils literal notranslate"><span class="pre">NULL</span></code> where nothing was recorded – so
 the padding is what the database returns rather than something assembled
-from it. The unique index on <code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel,</span> <span class="pre">diagnostic_id)</span></code> is
-what makes that sound: no image contributes two rows for one diagnostic
-in one channel, so the result is exactly one row per image per name.</p>
-<p><strong>Several channels at once, still one query.</strong> An expression comparing
-channels needs the same diagnostic read more than once, so there is one
-outer join per distinct channel, each with the channel pinned. That
-keeps the result a rectangle – the joins only widen it, adding a value
-column per channel rather than rows – and keeps every probe on the
-unique index, whose second column is exactly what is being pinned.</p>
+from it. The unique indices make that sound: on <code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel,</span>
+<span class="pre">diagnostic_id)</span></code> for a diagnostic recorded per image, and on
+<code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel,</span> <span class="pre">photometry_id,</span> <span class="pre">diagnostic_id)</span></code> for one recorded
+per photometry. No image contributes two rows for one diagnostic in one
+binding, so the result is exactly one row per image per name.</p>
+<p><strong>Several bindings at once, still one query.</strong> An expression comparing
+channels or photometries needs the same diagnostic read more than once,
+so there is one outer join per distinct binding, each with its channel,
+and its photometry where it has one, pinned. That keeps the result a
+rectangle – the joins only widen it, adding a value column per binding
+rather than rows – and keeps every probe on a unique index, whose
+columns are exactly what is being pinned.</p>
 <p>Being a rectangle is what lets the values become arrays in one step: a
 column is read out whole and reshaped into one row per name, rather
-than accumulated name by name. Each block’s name is taken from its
-first row rather than from a sorted list of the names asked for, so
-nothing depends on the database’s collation ordering strings the way
-Python does.</p>
+than accumulated name by name. The blocks’ names are taken from the
+rows, in the order they arrive, rather than from a sorted list of the
+names asked for, so nothing depends on the database’s collation
+ordering strings the way Python does.</p>
 <p>The image ids come back alongside, because the same query already
 carries them and a caller that needs them should not have to ask again
 – nor risk a second query disagreeing about the order of images sharing
@@ -479,18 +662,18 @@ is asked for by name like anything else, and arrives in the dictionary.</p>
 channels are not consulted; what to read in is <em>needed</em>, since
 a quantity may be bound to channels other than the series’
 own.</p></li>
-<li><p><strong>needed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">channel</span> <span class="pre">tuples}</span></code>, from
+<li><p><strong>needed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">(channels,</span> <span class="pre">photometries)}</span></code>, from
 <a class="reference internal" href="autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_needed_values" title="autowisp.diagnostics.expressions.get_needed_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_needed_values()</span></code></a>.
-May include <code class="xref py py-data docutils literal notranslate"><span class="pre">time_quantity</span></code> at the empty tuple, which is
-taken from the image row rather than from <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code>.</p></li>
+May include <code class="xref py py-data docutils literal notranslate"><span class="pre">time_quantity</span></code> at <code class="docutils literal notranslate"><span class="pre">((),</span> <span class="pre">())</span></code>, which is
+taken from the image row rather than from a diagnostics table.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>dict:    <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{channels:</span> <span class="pre">array}}</span></code>, keyed exactly as</dt><dd><p><em>needed</em> asked, every array the length of the canonical
-image list and <code class="docutils literal notranslate"><span class="pre">NaN</span></code> where nothing is recorded. A name no
-<code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> has is all <code class="docutils literal notranslate"><span class="pre">NaN</span></code>.</p>
+<dt>dict:    <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{(channels,</span> <span class="pre">photometries):</span> <span class="pre">array}}</span></code>, keyed</dt><dd><p>exactly as <em>needed</em> asked, every array the length of the
+canonical image list and <code class="docutils literal notranslate"><span class="pre">NaN</span></code> where nothing is recorded.
+A name no <code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> has is all <code class="docutils literal notranslate"><span class="pre">NaN</span></code>.</p>
 </dd>
 </dl>
 <p>numpy.ndarray:    The image ids, in canonical order.</p>
@@ -498,6 +681,26 @@ image list and <code class="docutils literal notranslate"><span class="pre">NaN<
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If <em>needed</em> reads a magfit diagnostic in a
+    channel <em>series_key</em> names no reference for.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.get_magfit_channels">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">get_magfit_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">needed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#get_magfit_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.get_magfit_channels" title="Link to this definition"></a></dt>
+<dd><p>Return the channels <em>needed</em> reads a magfit diagnostic in, sorted.</p>
+<p>Each needs a slot in the <a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeriesKey</span></code></a> to hold its reference, so
+whatever builds a key asks here which those are.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>needed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">(channels,</span> <span class="pre">photometries)}</span></code>, from
+<a class="reference internal" href="autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_needed_values" title="autowisp.diagnostics.expressions.get_needed_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_needed_values()</span></code></a>,
+which has already resolved slots, quoted channels and library
+expressions alike, so a channel is here whichever way it is read.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -516,17 +719,19 @@ have to agree about the order of images sharing a Julian date.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>series_key</strong> (<a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><em>SeriesKey</em></a>) – The series to read the values of.</p></li>
-<li><p><strong>wanted</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">channel</span> <span class="pre">tuples}</span></code>, each tuple
-holding one channel per parameter of that quantity. A set of
-them because the two axes may be one quantity read in two
-channels, which is how a diagnostic is compared between them.</p></li>
+<li><p><strong>wanted</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">(channels,</span> <span class="pre">photometries)}</span></code>,
+each holding one channel per channel parameter of that quantity
+and one photometry id per photometry parameter. A set of them
+because the two axes may be one quantity read in two channels,
+which is how a diagnostic is compared between them.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>dict:    <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">{channels:</span> <span class="pre">array}}</span></code>, all of the same</dt><dd><p>length, and unmasked – dropping the non-finite entries is
+<dt>dict:    <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">{(channels,</span> <span class="pre">photometries):</span> <span class="pre">array}}</span></code>, all</dt><dd><p>of the same
+length, and unmasked – dropping the non-finite entries is
 the caller’s business, since the mask has to be taken
 across both axes at once and the image ids masked with it.</p>
 </dd>
@@ -539,8 +744,104 @@ across both axes at once and the image ids masked with it.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If a quantity names nothing, if the expressions
-    reference each other in a cycle, or if a binding is the wrong
-    length for what it binds.</p>
+    reference each other in a cycle, if a binding is the wrong
+    length for what it binds, or if a magfit diagnostic is read in
+    a channel <em>series_key</em> names no reference for.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.photref_binding">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">photref_binding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#photref_binding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.photref_binding" title="Link to this definition"></a></dt>
+<dd><p>Return the ON terms matching <em>binding</em> to an image’s photref row.</p>
+<p>Everything but the master file, which is what the callers vary: pinned
+to one, or read out to see which it is. All three columns of the
+primary key are pinned, so each probe is one index lookup. Public
+because the image counts of
+<a class="reference internal" href="autowisp.diagnostics.image_counts.html#module-autowisp.diagnostics.image_counts" title="autowisp.diagnostics.image_counts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.image_counts</span></code></a> join the same way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>binding</strong> – An alias of <code class="docutils literal notranslate"><span class="pre">ImageMasterSelection</span></code>.</p></li>
+<li><p><strong>channel</strong> – The channel to match it in: a name, or a column holding
+one, such as the channel of the diagnostic row being read.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.restrict_to_references">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">restrict_to_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_pairs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#restrict_to_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.restrict_to_references" title="Link to this definition"></a></dt>
+<dd><p>Return <em>query</em>, over <code class="docutils literal notranslate"><span class="pre">Image</span></code>, keeping images bound to the references.</p>
+<p>One inner join per pair, so an image stays only if it was fit against
+every one of them in its channel; no pairs, and the query comes back
+unchanged. Public because the image counts of
+<a class="reference internal" href="autowisp.diagnostics.image_counts.html#module-autowisp.diagnostics.image_counts" title="autowisp.diagnostics.image_counts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.image_counts</span></code></a> restrict the same way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> – A select over <code class="docutils literal notranslate"><span class="pre">Image</span></code>.</p></li>
+<li><p><strong>reference_pairs</strong> – <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code> pairs, the photref a
+<code class="docutils literal notranslate"><span class="pre">MasterFile</span></code> id, as <a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey.reference_pairs" title="autowisp.diagnostics.expression_series.SeriesKey.reference_pairs"><code class="xref py py-attr docutils literal notranslate"><span class="pre">SeriesKey.reference_pairs</span></code></a> gives
+them for a series.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expression_series.split_series">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expression_series.</span></span><span class="sig-name descname"><span class="pre">split_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expression_series.html#split_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expression_series.split_series" title="Link to this definition"></a></dt>
+<dd><p>Return the fit populations of a series: one key per reference combination.</p>
+<p>A session may have been fit against several photometric references –
+split by the separation limit, say – and a quantity reading a magfit
+diagnostic means something only within one of them. This finds which
+references the series’ images were actually bound to, in every channel
+<em>wanted</em> reads a magfit diagnostic in, and returns one key per
+combination that occurs, each restricted to the images having it.</p>
+<p>If the first 200 images of a session were fit against A and the rest
+against B, <code class="docutils literal notranslate"><span class="pre">photometry_mag_offset[0]</span></code> bound to <code class="docutils literal notranslate"><span class="pre">R</span></code> splits into keys
+with <code class="docutils literal notranslate"><span class="pre">photrefs=(A_R,)</span></code> and <code class="docutils literal notranslate"><span class="pre">(B_R,)</span></code>. Read in <code class="docutils literal notranslate"><span class="pre">R</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code> it
+normally splits into <code class="docutils literal notranslate"><span class="pre">(A_R,</span> <span class="pre">A_B)</span></code> and <code class="docutils literal notranslate"><span class="pre">(B_R,</span> <span class="pre">B_B)</span></code>: only
+combinations some image has, never every pairing of the references
+found per channel.</p>
+<p>References the key already names are kept, so the split happens within
+the images bound to them. Each slot on a split channel gets that
+channel’s reference.</p>
+<p>An image bound in none of those channels – only possible from
+processing before every magfit-ed image was bound – is in none of the
+keys; <a class="reference internal" href="#autowisp.diagnostics.expression_series.count_unbound_images" title="autowisp.diagnostics.expression_series.count_unbound_images"><code class="xref py py-func docutils literal notranslate"><span class="pre">count_unbound_images()</span></code></a> says how many there are.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series_key</strong> (<a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><em>SeriesKey</em></a>) – The series to split. It needs a slot for
+every channel a magfit diagnostic is read in, those read only
+in quoted channels included, since that is where the reference
+goes.</p></li>
+<li><p><strong>wanted</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">(channels,</span> <span class="pre">photometries)}</span></code>, as for
+<a class="reference internal" href="#autowisp.diagnostics.expression_series.get_quantity_values" title="autowisp.diagnostics.expression_series.get_quantity_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_quantity_values()</span></code></a>.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><a class="reference internal" href="#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeriesKey</span></code></a> per combination present, ordered by the</dt><dd><p>references. <em>series_key</em> alone where there is nothing to split
+by.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If a channel <em>wanted</em> reads a magfit diagnostic in
+    has no slot in <em>series_key</em>, or as
+    <a class="reference internal" href="autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_needed_values" title="autowisp.diagnostics.expressions.get_needed_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_needed_values()</span></code></a>
+    does.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -551,7 +852,7 @@ across both axes at once and the image ids masked with it.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="autowisp.diagnostics.diagnostic_types.html" class="btn btn-neutral float-left" title="autowisp.diagnostics.diagnostic_types module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.diagnostics.expression_library.html" class="btn btn-neutral float-left" title="autowisp.diagnostics.expression_library module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="autowisp.diagnostics.expressions.html" class="btn btn-neutral float-right" title="autowisp.diagnostics.expressions module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

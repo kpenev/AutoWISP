@@ -1,0 +1,7 @@
+autowisp.tests.test\_master\_photref\_lookup module
+===================================================
+
+.. automodule:: autowisp.tests.test_master_photref_lookup
+   :members:
+   :show-inheritance:
+   :undoc-members:

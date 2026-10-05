@@ -1,0 +1,17 @@
+<map id="inheritanceee120fe948" name="inheritanceee120fe948">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="890,299,1258,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="345,372,800,397"/>
+<area shape="rect" id="node7" title="Base class for all per&#45;image diagnostics." alt="" coords="825,372,1323,397"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1755,372,2225,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="864,225,1284,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1333,225,1725,251"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="1283,299,1823,324"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="1381,152,1676,177"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="580,445,1053,471"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="1077,445,1585,471"/>
+<area shape="rect" id="node13" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="891,152,1257,177"/>
+<area shape="rect" id="node14" title="define a class as inspectable." alt="" coords="1406,79,1651,104"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1470,5,1587,31"/>
+</map>

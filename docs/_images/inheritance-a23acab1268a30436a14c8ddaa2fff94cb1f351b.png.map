@@ -1,0 +1,5 @@
+<map id="inheritance682aed03c1" name="inheritance682aed03c1">
+<area shape="rect" id="node1" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads" target="_top" title="Expressions naming a channel by quoting it, rather than by slot." alt="" coords="5,152,421,177"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="20,79,407,104"/>
+<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="129,5,297,31"/>
+</map>

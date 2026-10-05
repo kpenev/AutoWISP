@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="autowisp.tests.test_expressions module" href="autowisp.tests.test_expressions.html" />
-    <link rel="prev" title="autowisp.tests.test_exception_hierarchy module" href="autowisp.tests.test_exception_hierarchy.html" /> 
+    <link rel="prev" title="autowisp.tests.test_exclusion_rules module" href="autowisp.tests.test_exclusion_rules.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -212,8 +215,14 @@ one, and the view tests and these want exactly the same rows.</p>
 <area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="19,152,434,177"/>
 </map><p>The two-night fixture, with the keys these tests ask about.</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_expression_series.SeriesValuesTestCase.bound">
+<span class="sig-name descname"><span class="pre">bound</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('R',),</span> <span class="pre">())</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.bound" title="Link to this definition"></a></dt>
+<dd><p>The binding a diagnostic is read in, in the keys’ channel.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.SeriesValuesTestCase.flats">
-<span class="sig-name descname"><span class="pre">flats</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">'flat',</span> <span class="pre">('R',))</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.flats" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">flats</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">'flat',</span> <span class="pre">('R',),</span> <span class="pre">(),</span> <span class="pre">(None,))</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.flats" title="Link to this definition"></a></dt>
 <dd><p>two, recording <code class="docutils literal notranslate"><span class="pre">bg_center</span></code> and no quantile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -224,7 +233,7 @@ one, and the view tests and these want exactly the same rows.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.SeriesValuesTestCase.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">'object',</span> <span class="pre">('R',))</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.objects" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">'object',</span> <span class="pre">('R',),</span> <span class="pre">(),</span> <span class="pre">(None,))</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.objects" title="Link to this definition"></a></dt>
 <dd><p>three, all recording everything.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -396,8 +405,9 @@ whole slot resolves to nothing.</p>
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues.test_a_channel_never_recorded_is_undefined">
 <span class="sig-name descname"><span class="pre">test_a_channel_never_recorded_is_undefined</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues.test_a_channel_never_recorded_is_undefined"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.test_a_channel_never_recorded_is_undefined" title="Link to this definition"></a></dt>
 <dd><p>Not an error: the expression is simply NaN throughout.</p>
-<p>One library is shared by every project, so an expression naming a
-channel this camera does not have is an ordinary thing to meet.</p>
+<p>Expressions move between projects, and their slots are bound to
+channels in the table, so reading a channel this camera does not
+have is an ordinary thing to meet.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -481,8 +491,8 @@ walk that decides it produces – because a diagnostic may be wanted in
 more than one channel at once.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestDiagnosticValues.recorded">
-<span class="sig-name descname"><span class="pre">recorded</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('R',)</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.TestDiagnosticValues.recorded" title="Link to this definition"></a></dt>
-<dd><p>The fixture records everything in this one channel.</p>
+<span class="sig-name descname"><span class="pre">recorded</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('R',),</span> <span class="pre">())</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.TestDiagnosticValues.recorded" title="Link to this definition"></a></dt>
+<dd><p>The fixture records everything in this one channel, per image.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -510,16 +520,18 @@ length with holes, not a shorter one that silently misaligns.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestDiagnosticValues.test_each_channel_is_asked_for_by_its_whole_key">
-<span class="sig-name descname"><span class="pre">test_each_channel_is_asked_for_by_its_whole_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestDiagnosticValues.test_each_channel_is_asked_for_by_its_whole_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestDiagnosticValues.test_each_channel_is_asked_for_by_its_whole_key" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestDiagnosticValues.test_each_binding_is_asked_for_by_its_whole_key">
+<span class="sig-name descname"><span class="pre">test_each_binding_is_asked_for_by_its_whole_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestDiagnosticValues.test_each_binding_is_asked_for_by_its_whole_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestDiagnosticValues.test_each_binding_is_asked_for_by_its_whole_key" title="Link to this definition"></a></dt>
 <dd><p>The shape that keeps this affordable however big the archive.</p>
 <p>A session holds a manageable number of images; the <code class="docutils literal notranslate"><span class="pre">image</span></code> table
 will not, so the feature rests on anchoring to one observing
-session and reaching <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code> by its unique index on
-<code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel,</span> <span class="pre">diagnostic_id)</span></code>. Reading several channels
-adds a join each, and every one has to pin all three columns –
-drop the channel and the join matches every channel’s row, which
-is both wrong and a scan.</p>
+session and reaching each diagnostic by its table’s unique index:
+<code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">channel,</span> <span class="pre">diagnostic_id)</span></code> on <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code>,
+and the photometry too on <code class="docutils literal notranslate"><span class="pre">photometry_diagnostics</span></code>. Reading
+several bindings adds a join each, and every one has to pin all of
+its index’s columns – drop the channel or the photometry and the
+join matches every channel’s or photometry’s row, which is both
+wrong and a scan.</p>
 <p>Asserted on the statement rather than on a query plan, because the
 predicates are what this module decides; which index to use is the
 database’s business, and SQLite’s answer would say nothing about
@@ -651,7 +663,7 @@ the same instant with values that say which is which.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="autowisp.tests.test_exception_hierarchy.html" class="btn btn-neutral float-left" title="autowisp.tests.test_exception_hierarchy module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.test_exclusion_rules.html" class="btn btn-neutral float-left" title="autowisp.tests.test_exclusion_rules module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="autowisp.tests.test_expressions.html" class="btn btn-neutral float-right" title="autowisp.tests.test_expressions module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

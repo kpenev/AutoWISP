@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -180,16 +183,20 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">QuantityLookUp</span><span class="p">,</span>
     <span class="n">check_expression</span><span class="p">,</span>
+    <span class="n">check_rule</span><span class="p">,</span>
     <span class="n">evaluate_quantities</span><span class="p">,</span>
     <span class="n">get_bare_aggregates</span><span class="p">,</span>
+    <span class="n">get_channel_arity</span><span class="p">,</span>
+    <span class="n">get_channel_parameters</span><span class="p">,</span>
     <span class="n">get_expression_dependents</span><span class="p">,</span>
     <span class="n">get_expression_names</span><span class="p">,</span>
-    <span class="n">get_expression_parameters</span><span class="p">,</span>
     <span class="n">get_indexed_names</span><span class="p">,</span>
+    <span class="n">get_logical_keywords</span><span class="p">,</span>
     <span class="n">get_needed_values</span><span class="p">,</span>
-    <span class="n">get_quantity_arity</span><span class="p">,</span>
+    <span class="n">get_quoted_channel_order</span><span class="p">,</span>
     <span class="n">order_expressions</span><span class="p">,</span>
     <span class="n">rename_references</span><span class="p">,</span>
+    <span class="n">rule_quantity</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineError</span>
 
@@ -316,6 +323,42 @@
 <span class="w">        </span><span class="sd">"""A diagnostic called ``sum`` is not an aggregate call."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_bare_aggregates</span><span class="p">(</span><span class="s2">"mean + 1"</span><span class="p">),</span> <span class="nb">set</span><span class="p">())</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestLogicalKeywords">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestLogicalKeywords">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestLogicalKeywords</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Spotting ``or`` where ``|`` was meant."""</span>
+
+<div class="viewcode-block" id="TestLogicalKeywords.test_flags_each_keyword">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestLogicalKeywords.test_flags_each_keyword">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_flags_each_keyword</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``and`` and ``or`` are one node type, ``not`` another."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_logical_keywords</span><span class="p">(</span><span class="s2">"(a &gt; 1) and (b &lt; 2 or not c)"</span><span class="p">),</span>
+            <span class="p">{</span><span class="s2">"and"</span><span class="p">,</span> <span class="s2">"or"</span><span class="p">,</span> <span class="s2">"not"</span><span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestLogicalKeywords.test_ignores_the_element_wise_operators">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestLogicalKeywords.test_ignores_the_element_wise_operators">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_ignores_the_element_wise_operators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The spelling the warning recommends must not trigger it."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_logical_keywords</span><span class="p">(</span><span class="s2">"(a &gt; 1) &amp; ((b &lt; 2) | ~c)"</span><span class="p">),</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestLogicalKeywords.test_ignores_the_words_in_a_string">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestLogicalKeywords.test_ignores_the_words_in_a_string">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_ignores_the_words_in_a_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Only syntax counts, not text that looks like it."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_logical_keywords</span><span class="p">(</span><span class="s2">"where(x == 'or', 1, 0)"</span><span class="p">),</span> <span class="nb">set</span><span class="p">())</span></div>
 </div>
 
 
@@ -745,7 +788,9 @@
 <span class="sd">    expression used at two different bindings, and one used twice at the</span>
 <span class="sd">    same; a nested expression binding the slots the other way round; a</span>
 <span class="sd">    quantity over the time alone, one built on that, and one mixing a</span>
-<span class="sd">    subscripted diagnostic with a bare reference.</span>
+<span class="sd">    subscripted diagnostic with a bare reference. Then the quoted channels:</span>
+<span class="sd">    an expression binding all its slots by quoting, one read bare from a</span>
+<span class="sd">    slotted one, and one mixing a slot with a quoted channel.</span>
 <span class="sd">    """</span>
 
     <span class="n">library</span> <span class="o">=</span> <span class="p">{</span>
@@ -757,6 +802,9 @@
         <span class="s2">"night"</span><span class="p">:</span> <span class="s2">"jd - nanmin(jd)"</span><span class="p">,</span>
         <span class="s2">"scaled_night"</span><span class="p">:</span> <span class="s2">"night * 2"</span><span class="p">,</span>
         <span class="s2">"mixed"</span><span class="p">:</span> <span class="s2">"bg_center[1] * night"</span><span class="p">,</span>
+        <span class="s2">"fixed"</span><span class="p">:</span> <span class="s2">"sky_color['B', 'R']"</span><span class="p">,</span>
+        <span class="s2">"over_fixed"</span><span class="p">:</span> <span class="s2">"bg_center[1] * fixed"</span><span class="p">,</span>
+        <span class="s2">"relative"</span><span class="p">:</span> <span class="s2">"bg_center[1] - bg_center['G0']"</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="c1">#: Two images' worth, distinct per channel so that reading the wrong</span>
@@ -789,12 +837,12 @@
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">name</span><span class="p">:</span> <span class="p">{</span>
-                <span class="n">channels</span><span class="p">:</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span><span class="p">):</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">time_quantity</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
                 <span class="p">)</span>
-                <span class="k">for</span> <span class="n">channels</span> <span class="ow">in</span> <span class="n">channel_set</span>
+                <span class="k">for</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span> <span class="ow">in</span> <span class="n">bindings</span>
             <span class="p">}</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">channel_set</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">bindings</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span></div>
 
 
@@ -808,7 +856,7 @@
 
 <div class="viewcode-block" id="SlotTestCase.evaluate_one">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.evaluate_one">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">photometries</span><span class="o">=</span><span class="p">()):</span>
 <span class="w">        </span><span class="sd">"""Return the values of a single instantiation.</span>
 
 <span class="sd">        Sugar for the common case: everything takes and returns one</span>
@@ -816,9 +864,8 @@
 <span class="sd">        quantity in two channels, and most cases here want neither.</span>
 <span class="sd">        """</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">({</span><span class="n">quantity</span><span class="p">:</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">)}})[</span><span class="n">quantity</span><span class="p">][</span>
-            <span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
-        <span class="p">]</span></div>
+        <span class="n">binding</span> <span class="o">=</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">photometries</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">({</span><span class="n">quantity</span><span class="p">:</span> <span class="p">{</span><span class="n">binding</span><span class="p">}})[</span><span class="n">quantity</span><span class="p">][</span><span class="n">binding</span><span class="p">]</span></div>
 </div>
 
 
@@ -835,7 +882,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">get_indexed_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"silly"</span><span class="p">]),</span>
-            <span class="p">[(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="p">(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))],</span>
+            <span class="p">[(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">()),</span> <span class="p">(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">())],</span>
         <span class="p">)</span></div>
 
 
@@ -845,7 +892,7 @@
 <span class="w">        </span><span class="sd">"""So no caller has to care how many were written."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_indexed_names</span><span class="p">(</span><span class="s2">"bg_center[1]"</span><span class="p">),</span> <span class="p">[(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))]</span>
+            <span class="n">get_indexed_names</span><span class="p">(</span><span class="s2">"bg_center[1]"</span><span class="p">),</span> <span class="p">[(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">())]</span>
         <span class="p">)</span></div>
 
 
@@ -855,9 +902,9 @@
 <span class="w">        </span><span class="sd">"""Nothing is declared, so nothing can drift out of step."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_expression_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"silly"</span><span class="p">]),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">get_channel_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"silly"</span><span class="p">]),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_expression_parameters</span><span class="p">(</span><span class="s2">"jd * 2"</span><span class="p">),</span> <span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_channel_parameters</span><span class="p">(</span><span class="s2">"jd * 2"</span><span class="p">),</span> <span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="TestSlotSyntax.test_parameters_are_sorted_whatever_order_the_body_uses">
@@ -866,7 +913,7 @@
 <span class="w">        </span><span class="sd">"""The order is what a reference's arguments are matched onto."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_expression_parameters</span><span class="p">(</span><span class="s2">"bg_center[3] - bg_center[1]"</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">get_channel_parameters</span><span class="p">(</span><span class="s2">"bg_center[3] - bg_center[1]"</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
         <span class="p">)</span></div>
 
 
@@ -880,7 +927,8 @@
             <span class="s2">"bg_center[i]"</span><span class="p">,</span>
             <span class="s2">"bg_center[1.5]"</span><span class="p">,</span>
             <span class="s2">"bg_center[1:2]"</span><span class="p">,</span>
-            <span class="s2">"bg_center[1][2]"</span><span class="p">,</span>
+            <span class="s2">"bg_center[1][2][3]"</span><span class="p">,</span>
+            <span class="s2">"bg_center[()]"</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">):</span>
                 <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
@@ -892,11 +940,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">test_arity_is_a_rule_not_a_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Two of the three answers are constants."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">time_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">"silly"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_channel_arity</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_channel_arity</span><span class="p">(</span><span class="n">time_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_channel_arity</span><span class="p">(</span><span class="s2">"silly"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
-            <span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">"no_such"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">)</span></div>
+            <span class="n">get_channel_arity</span><span class="p">(</span><span class="s2">"no_such"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">)</span></div>
 </div>
 
 
@@ -920,8 +968,8 @@
 <span class="w">        </span><span class="sd">"""The channels come from resolving each reference's arguments."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"silly"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)}}),</span>
-            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"G0"</span><span class="p">,)}},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"silly"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">),</span> <span class="p">())}}),</span>
+            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"G0"</span><span class="p">,),</span> <span class="p">())}},</span>
         <span class="p">)</span></div>
 
 
@@ -936,8 +984,8 @@
 <span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)}}),</span>
-            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"G0"</span><span class="p">,)}},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">),</span> <span class="p">())}}),</span>
+            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"G0"</span><span class="p">,),</span> <span class="p">())}},</span>
         <span class="p">)</span></div>
 
 
@@ -947,8 +995,8 @@
 <span class="w">        </span><span class="sd">"""``inner[2,1]`` reads the outer binding reversed."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"outer"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)}}),</span>
-            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,)}},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"outer"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="p">())}}),</span>
+            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">())}},</span>
         <span class="p">)</span></div>
 
 
@@ -962,8 +1010,8 @@
 <span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"mixed"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,)}}),</span>
-            <span class="p">{</span><span class="n">time_quantity</span><span class="p">:</span> <span class="p">{()},</span> <span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,)}},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"mixed"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">())}}),</span>
+            <span class="p">{</span><span class="n">time_quantity</span><span class="p">:</span> <span class="p">{((),</span> <span class="p">())},</span> <span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">())}},</span>
         <span class="p">)</span></div>
 
 
@@ -979,7 +1027,7 @@
         <span class="k">for</span> <span class="n">channels</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">):</span>
                 <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{</span><span class="n">channels</span><span class="p">}})</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{(</span><span class="n">channels</span><span class="p">,</span> <span class="p">())}})</span></div>
 </div>
 
 
@@ -1033,12 +1081,17 @@
 
         <span class="n">lookups</span> <span class="o">=</span> <span class="n">QuantityLookUp</span><span class="o">.</span><span class="n">library</span><span class="p">(</span>
             <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">]},</span>
-            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">],</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]}},</span>
+            <span class="p">{</span>
+                <span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="p">((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">()):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">],</span>
+                    <span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">()):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span>
-            <span class="n">lookups</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)),</span>
-            <span class="n">lookups</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)),</span>
+            <span class="n">lookups</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">()),</span>
+            <span class="n">lookups</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">()),</span>
         <span class="p">)</span></div>
 
 
@@ -1047,11 +1100,10 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">test_both_axes_at_once_share_their_instantiations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Which is why the two are resolved in one call, not one each."""</span>
 
-        <span class="n">drawn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)},</span> <span class="s2">"twice"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)}}</span>
-        <span class="p">)</span>
+        <span class="n">binding</span> <span class="o">=</span> <span class="p">((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">())</span>
+        <span class="n">drawn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">({</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{</span><span class="n">binding</span><span class="p">},</span> <span class="s2">"twice"</span><span class="p">:</span> <span class="p">{</span><span class="n">binding</span><span class="p">}})</span>
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="n">drawn</span><span class="p">[</span><span class="s2">"twice"</span><span class="p">][(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">drawn</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">][(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)]</span>
+            <span class="n">drawn</span><span class="p">[</span><span class="s2">"twice"</span><span class="p">][</span><span class="n">binding</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">drawn</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">][</span><span class="n">binding</span><span class="p">]</span>
         <span class="p">)</span></div>
 
 
@@ -1065,10 +1117,12 @@
 <span class="sd">        on both axes, which looks like a perfectly good plot.</span>
 <span class="sd">        """</span>
 
-        <span class="n">drawn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">({</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,)}})</span>
+        <span class="n">drawn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">({</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">())}})</span>
 
-        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">drawn</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="s2">"B"</span><span class="p">,)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">])</span>
-        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">drawn</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">])</span></div>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">):</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                <span class="n">drawn</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="n">channel</span><span class="p">,),</span> <span class="p">()],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_a_quantity_over_the_time_alone">
@@ -1129,7 +1183,7 @@
 <span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span>
-            <span class="n">time_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">({</span><span class="s2">"silly"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)}})</span>
+            <span class="n">time_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">({</span><span class="s2">"silly"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">),</span> <span class="p">())}})</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"silly"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">))</span></div>
 
@@ -1142,10 +1196,269 @@
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
             <span class="n">evaluate_quantities</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)}},</span>
+                <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">())}},</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]}},</span>
+                <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">()):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]}},</span>
             <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestQuotedChannels">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestQuotedChannels</span><span class="p">(</span><span class="n">SlotTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Channels named in the text rather than bound through a slot.</span>
+
+<span class="sd">    Needed by exclusion rules, and allowed in the library as a convenience</span>
+<span class="sd">    for projects whose cameras name their channels alike.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="TestQuotedChannels.test_a_quoted_channel_is_a_slot">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_a_quoted_channel_is_a_slot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quoted_channel_is_a_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Read out as written, in its place among the numbered ones."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_indexed_names</span><span class="p">(</span><span class="s2">"sky_color['B', 1]"</span><span class="p">),</span>
+            <span class="p">[(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">())],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_a_quoted_channel_is_not_a_parameter">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_a_quoted_channel_is_not_a_parameter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quoted_channel_is_not_a_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""It is already bound, so there is nothing for a caller to bind."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_channel_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"relative"</span><span class="p">]),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_channel_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"fixed"</span><span class="p">]),</span> <span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_channel_arity</span><span class="p">(</span><span class="s2">"fixed"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_other_literals_are_still_refused">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_other_literals_are_still_refused">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_other_literals_are_still_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Only a string names a channel."""</span>
+
+        <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_center[b'G0']"</span><span class="p">,</span> <span class="s2">"bg_center[None]"</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+                    <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_the_library_accepts_them">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_the_library_accepts_them">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_library_accepts_them</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Including one read bare, having no parameters left."""</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"fixed"</span><span class="p">,</span> <span class="s2">"over_fixed"</span><span class="p">,</span> <span class="s2">"relative"</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">check_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span>
+                    <span class="p">[],</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_fully_quoted_is_read_bare">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_fully_quoted_is_read_bare">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_fully_quoted_is_read_bare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Subscripting it is refused like subscripting the time is."""</span>
+
+        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="s2">"bad"</span><span class="p">,</span> <span class="s2">"fixed[1] * 2"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">"fixed"</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_quoted_channels_come_as_first_written">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_quoted_channels_come_as_first_written">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_quoted_channels_come_as_first_written</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Its own and its references', each once, where first quoted.</span>
+
+<span class="sd">        ``R`` first, quoted before ``fixed`` is reached; ``fixed`` then adds</span>
+<span class="sd">        ``B`` but not its ``R`` again; ``G0`` last, the final ``B`` being a</span>
+<span class="sd">        repeat. ``ast.walk`` alone, going shallowest first, would give</span>
+<span class="sd">        ``B``, ``G0``, ``R``.</span>
+<span class="sd">        """</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">,</span>
+            <span class="n">mix</span><span class="o">=</span><span class="s2">"2 * bg_center['R'] * fixed + bg_center['G0'] + bg_center['B']"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_quoted_channel_order</span><span class="p">(</span><span class="s2">"mix"</span><span class="p">,</span> <span class="n">library</span><span class="p">),</span> <span class="p">[</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_quoted_channels_are_found_through_references">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_quoted_channels_are_found_through_references">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_quoted_channels_are_found_through_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``over_fixed`` quotes nothing itself; ``fixed`` quotes both."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_quoted_channel_order</span><span class="p">(</span><span class="s2">"over_fixed"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="p">[</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_nothing_quoted_is_an_empty_order">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_nothing_quoted_is_an_empty_order">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_nothing_quoted_is_an_empty_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Nor does anything but an expression quote."""</span>
+
+        <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">,</span> <span class="n">time_quantity</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">quantity</span><span class="o">=</span><span class="n">quantity</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">get_quoted_channel_order</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="p">[]</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_references_are_listed_as_written">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_references_are_listed_as_written">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_references_are_listed_as_written</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Which is the order the docstring promises, not ``ast.walk``'s."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_indexed_names</span><span class="p">(</span><span class="s2">"2 * bg_center[1] + sky_color[2, 3]"</span><span class="p">),</span>
+            <span class="p">[(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">())],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_needed_through_a_bare_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_needed_through_a_bare_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_needed_through_a_bare_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``over_fixed`` reaches ``fixed``'s channels only by name.</span>
+
+<span class="sd">        A walk following subscripts alone would never fetch them, and</span>
+<span class="sd">        evaluation would then fail for want of values.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"over_fixed"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"G0"</span><span class="p">,),</span> <span class="p">())}}),</span>
+            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"G0"</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">()),</span> <span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">())}},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_evaluated_through_a_bare_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_evaluated_through_a_bare_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_evaluated_through_a_bare_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The slotted expression it quotes into is bound, not evaluated</span>
+<span class="sd">        bare."""</span>
+
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"over_fixed"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"G0"</span><span class="p">,)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"G0"</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuotedChannels.test_a_slot_and_a_quoted_channel">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuotedChannels.test_a_slot_and_a_quoted_channel">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_slot_and_a_quoted_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``relative`` is its channel against ``G0`` whatever it is."""</span>
+
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">):</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"relative"</span><span class="p">,</span> <span class="p">(</span><span class="n">channel</span><span class="p">,)),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"G0"</span><span class="p">],</span>
+                <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestRules">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestRules</span><span class="p">(</span><span class="n">SlotTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Exclusion rules: expressions with at most one channel slot."""</span>
+
+<div class="viewcode-block" id="TestRules.rule_library">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules.rule_library">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rule_library</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the library with *rule* added, as it is evaluated."""</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">rule_quantity</span><span class="p">:</span> <span class="n">rule</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="TestRules.evaluate_rule">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules.evaluate_rule">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return what *rule* decides when bound to *channels*."""</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rule_library</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+        <span class="n">binding</span> <span class="o">=</span> <span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="p">())</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="n">rule_quantity</span><span class="p">:</span> <span class="p">{</span><span class="n">binding</span><span class="p">}}</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="n">bound</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="n">bound</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">bound</span> <span class="ow">in</span> <span class="n">bindings</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">bindings</span> <span class="ow">in</span> <span class="n">get_needed_values</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">evaluate_quantities</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">values</span><span class="p">)[</span><span class="n">rule_quantity</span><span class="p">][</span>
+            <span class="n">binding</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TestRules.test_any_one_slot_number_will_do">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules.test_any_one_slot_number_will_do">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_any_one_slot_number_will_do</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The slot is formal, so which number it is does not matter."""</span>
+
+        <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">"bg_center[0] &gt; 3"</span><span class="p">,</span>
+            <span class="s2">"bg_center[117] - bg_center['G0'] &gt; 1"</span><span class="p">,</span>
+            <span class="s2">"fixed &gt; 1.2"</span><span class="p">,</span>
+            <span class="s2">"sky_color['B', 'R'] &gt; 1.2"</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">rule</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">check_rule</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="p">[])</span></div>
+
+
+<div class="viewcode-block" id="TestRules.test_two_slots_are_refused">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules.test_two_slots_are_refused">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_two_slots_are_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Nothing binds the second one."""</span>
+
+        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_rule</span><span class="p">(</span><span class="s2">"sky_color[0, 1] &gt; 1"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">problems</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"quoting"</span><span class="p">,</span> <span class="n">problems</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestRules.test_judged_as_an_expression">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules.test_judged_as_an_expression">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_judged_as_an_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Unknown names and bad slots are reported as for the library."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_rule</span><span class="p">(</span><span class="s2">"no_such[0] &gt; 1"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_rule</span><span class="p">(</span><span class="s2">"bg_center[i] &gt; 1"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_rule</span><span class="p">(</span><span class="s2">"x = 1"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestRules.test_no_expression_can_take_the_rules_name">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules.test_no_expression_can_take_the_rules_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_expression_can_take_the_rules_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Otherwise adding a rule could replace a library entry."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="n">rule_quantity</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="p">{}))</span></div>
+
+
+<div class="viewcode-block" id="TestRules.test_a_rule_with_a_slot_decides_per_channel">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules.test_a_rule_with_a_slot_decides_per_channel">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_rule_with_a_slot_decides_per_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Bound to each channel in turn, each reads its own values."""</span>
+
+        <span class="n">rule</span> <span class="o">=</span> <span class="s2">"bg_center[0] - bg_center['G0'] &gt; 1"</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">):</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_rule</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="p">(</span><span class="n">channel</span><span class="p">,)),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"G0"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRules.test_a_rule_without_one_decides_per_image">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRules.test_a_rule_without_one_decides_per_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_rule_without_one_decides_per_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Bound to nothing, through a quoted-only library expression."""</span>
+
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_rule</span><span class="p">(</span><span class="s2">"fixed &gt; 1.2"</span><span class="p">,</span> <span class="p">()),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">1.2</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 

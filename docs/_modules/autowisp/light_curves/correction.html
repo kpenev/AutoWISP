@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -169,6 +172,12 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">parse_photometry_literal</span><span class="p">,</span>
+    <span class="n">shapefit_photometry</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span>
 
 
 <span class="c1"># Intended to serve as base class only</span>
@@ -226,9 +235,205 @@
         <span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="Correction._read_exclusions">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._read_exclusions">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_exclusions</span><span class="p">(</span><span class="n">exclusion_fname</span><span class="p">,</span> <span class="n">num_id_values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return the observations an exclusion list names.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            exclusion_fname(str or None):    See ``qc_exclude_file`` argument</span>
+<span class="sd">                to __init__().</span>
+
+<span class="sd">            num_id_values(int):    How many values identify an observation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                ``{photometry: [(str, ...), ...]}``: the values identifying</span>
+<span class="sd">                each listed observation, as written, under the photometry id</span>
+<span class="sd">                its line names, or under None for a line naming none, which</span>
+<span class="sd">                applies to every photometry.</span>
+<span class="sd">        """</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">exclusion_fname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">exclusion_fname</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">exclusion_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">exclusion_list</span><span class="p">:</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_id_values</span><span class="p">:</span>
+                    <span class="n">photometry</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_id_values</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">photometry</span> <span class="o">=</span> <span class="n">parse_photometry_literal</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">photometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"The exclusion list </span><span class="si">{</span><span class="n">exclusion_fname</span><span class="si">!r}</span><span class="s2"> gives "</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> as the photometry of an "</span>
+                            <span class="s2">"observation, where it takes 'shapefit' or 'ap' "</span>
+                            <span class="s2">"followed by an aperture index."</span>
+                        <span class="p">)</span>
+                    <span class="k">del</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"The exclusion list </span><span class="si">{</span><span class="n">exclusion_fname</span><span class="si">!r}</span><span class="s2"> gives "</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> as an observation, but "</span>
+                        <span class="sa">f</span><span class="s2">"observations are identified by </span><span class="si">{</span><span class="n">num_id_values</span><span class="si">}</span><span class="s2"> "</span>
+                        <span class="s2">"values, optionally followed by a photometry."</span>
+                    <span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">photometry</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Correction._get_observation_ids">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_observation_ids">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_observation_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">light_curve</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the observation IDs from the given light curve."""</span>
+
+        <span class="k">return</span> <span class="n">light_curve</span><span class="o">.</span><span class="n">read_data_array</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="p">(</span><span class="n">dset_key</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_observation_id</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Correction._find_qc_excluded">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._find_qc_excluded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_qc_excluded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">light_curve</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">,</span> <span class="n">num_points</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Flag the points of a lightcurve to leave out of the fit.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            light_curve(LightCurveFile):    The lightcurve being corrected.</span>
+
+<span class="sd">            fit_target(tuple):    The entry of :attr:`fit_datasets` being</span>
+<span class="sd">                fit: the pipeline key of the input dataset, the substitutions</span>
+<span class="sd">                resolving it, and the pipeline key of the output dataset. The</span>
+<span class="sd">                first two give the photometry, and the substitutions also</span>
+<span class="sd">                resolve the observation ID datasets.</span>
+
+<span class="sd">            num_points(int):    The number of points in the lightcurve.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.array(dtype=bool):</span>
+<span class="sd">                For each point, whether its observation is in the exclusion</span>
+<span class="sd">                list for the photometry being fit.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qc_exclusions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_qc_excluded</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_observation_ids</span><span class="p">(</span><span class="n">light_curve</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="o">*</span><span class="n">fit_target</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Correction._get_photometry">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_photometry">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_photometry</span><span class="p">(</span><span class="n">dset_key</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return the photometry id of a fit dataset, as exclusion lists name it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dset_key(str):    The pipeline key of the dataset.</span>
+
+<span class="sd">            substitutions(dict):    The substitutions resolving it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int:    :data:`shapefit_photometry` for the shape fit, and the</span>
+<span class="sd">                aperture index for aperture photometry.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="n">dset_key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"shapefit."</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">shapefit_photometry</span>
+        <span class="k">if</span> <span class="n">dset_key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"apphot."</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">substitutions</span><span class="p">[</span><span class="s2">"aperture_index"</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Cannot tell which photometry </span><span class="si">{</span><span class="n">dset_key</span><span class="si">!r}</span><span class="s2"> is, so the exclusions "</span>
+            <span class="s2">"listed per photometry cannot be applied to it."</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Correction._match_exclusions">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._match_exclusions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_match_exclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_ids</span><span class="p">,</span> <span class="n">photometry</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Flag the observations listed under one photometry of the list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            observation_ids(structured array):    The observations to check,</span>
+<span class="sd">                as returned by _get_observation_ids().</span>
+
+<span class="sd">            photometry(int or None):    The photometry the list names them</span>
+<span class="sd">                under, None for the lines naming none.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.array(dtype=bool):</span>
+<span class="sd">                For each observation, whether it is listed there.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="n">photometry</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sorted_exclusions</span><span class="p">:</span>
+            <span class="n">listed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qc_exclusions</span><span class="p">[</span><span class="n">photometry</span><span class="p">]</span>
+            <span class="n">exclusions</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">listed</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">observation_ids</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">observation_ids</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">listed</span><span class="p">)):</span>
+                <span class="c1"># Lightcurves give strings as bytes in object columns.</span>
+                <span class="k">if</span> <span class="n">observation_ids</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="nb">object</span><span class="p">:</span>
+                    <span class="n">exclusions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span>
+                    <span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">exclusions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                        <span class="n">observation_ids</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                    <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sorted_exclusions</span><span class="p">[</span><span class="n">photometry</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">exclusions</span><span class="p">)</span>
+
+        <span class="n">sorted_exclusions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sorted_exclusions</span><span class="p">[</span><span class="n">photometry</span><span class="p">]</span>
+        <span class="n">matched_indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">sorted_exclusions</span><span class="p">,</span> <span class="n">observation_ids</span><span class="p">)</span>
+        <span class="n">matched_indices</span><span class="p">[</span><span class="n">matched_indices</span> <span class="o">==</span> <span class="n">sorted_exclusions</span><span class="o">.</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">sorted_exclusions</span><span class="p">[</span><span class="n">matched_indices</span><span class="p">]</span> <span class="o">==</span> <span class="n">observation_ids</span></div>
+
+
+<div class="viewcode-block" id="Correction._is_qc_excluded">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._is_qc_excluded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_qc_excluded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_ids</span><span class="p">,</span> <span class="n">dset_key</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Flag the observations the exclusion list leaves out of one dataset.</span>
+
+<span class="sd">        Those listed with no photometry, and those listed under the</span>
+<span class="sd">        photometry of the dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            observation_ids(structured array):    The observations to check,</span>
+<span class="sd">                as returned by _get_observation_ids().</span>
+
+<span class="sd">            dset_key(str):    The pipeline key of the input dataset being fit.</span>
+
+<span class="sd">            substitutions(dict):    The substitutions resolving it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.array(dtype=bool):</span>
+<span class="sd">                For each observation, whether it is in the exclusion list for</span>
+<span class="sd">                the photometry of the dataset.</span>
+<span class="sd">        """</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">observation_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qc_exclusions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">photometry</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">photometry</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_photometry</span><span class="p">(</span>
+                <span class="n">dset_key</span><span class="p">,</span> <span class="n">substitutions</span>
+            <span class="p">):</span>
+                <span class="n">result</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_exclusions</span><span class="p">(</span><span class="n">observation_ids</span><span class="p">,</span> <span class="n">photometry</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+    <span class="c1"># Keyword-only, each named at every call, and bundling them would only</span>
+    <span class="c1"># move the list somewhere less visible.</span>
 <div class="viewcode-block" id="Correction._save_result">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._save_result">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_save_result</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_result</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">fit_index</span><span class="p">,</span>
@@ -236,6 +441,7 @@
         <span class="n">fit_residual</span><span class="p">,</span>
         <span class="n">non_rejected_points</span><span class="p">,</span>
         <span class="n">fit_points</span><span class="p">,</span>
+        <span class="n">qc_excluded</span><span class="p">,</span>
         <span class="n">configuration</span><span class="p">,</span>
         <span class="n">light_curve</span><span class="p">,</span>
     <span class="p">):</span>
@@ -257,6 +463,10 @@
 <span class="sd">            fit_points(bool array):    Flags indicating for each entry in the</span>
 <span class="sd">                input (uncorrected) dataset, whether it is represented in</span>
 <span class="sd">                `corrected_values`.</span>
+
+<span class="sd">            qc_excluded(bool array):    Flags indicating for each entry in the</span>
+<span class="sd">                input (uncorrected) dataset, whether it was left out of the</span>
+<span class="sd">                fit. See _find_qc_excluded().</span>
 
 <span class="sd">            configuration([]):    The configuration used for the fit, properly</span>
 <span class="sd">                formatted to be converted to an entry in the configurations</span>
@@ -284,12 +494,27 @@
             <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">config_key_prefix</span> <span class="o">=</span> <span class="n">destination_key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">light_curve</span><span class="o">.</span><span class="n">add_corrected_dataset</span><span class="p">(</span>
+            <span class="n">original_key</span><span class="o">=</span><span class="n">original_key</span><span class="p">,</span>
+            <span class="n">corrected_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">".qc_included"</span><span class="p">,</span>
+            <span class="n">corrected_values</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">qc_excluded</span><span class="p">[</span><span class="n">fit_points</span><span class="p">]),</span>
+            <span class="n">corrected_selection</span><span class="o">=</span><span class="n">fit_points</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">configuration</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
             <span class="n">configuration</span>
             <span class="o">+</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">".fit_residual"</span><span class="p">,</span> <span class="n">fit_residual</span><span class="p">),</span>
                 <span class="p">(</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">".num_fit_points"</span><span class="p">,</span> <span class="n">non_rejected_points</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">".cfg.exclusion_rule"</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_exclusion_rule</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">),</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">".num_qc_excluded_points"</span><span class="p">,</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">(</span><span class="n">qc_excluded</span><span class="p">[</span><span class="n">fit_points</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                <span class="p">),</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="n">light_curve</span><span class="o">.</span><span class="n">add_configurations</span><span class="p">(</span>
@@ -302,10 +527,11 @@
         <span class="p">)</span></div>
 
 
+    <span class="c1"># Keyword-only, each named at every call.</span>
 <div class="viewcode-block" id="Correction._process_fit">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._process_fit">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_process_fit</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_fit</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">fit_results</span><span class="p">,</span>
         <span class="n">raw_values</span><span class="p">,</span>
@@ -449,7 +675,28 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_fit_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">light_curve</span><span class="p">,</span> <span class="n">get_fit_dataset</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">,</span> <span class="n">fit_points</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Return the lightcurve points to detrend."""</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return the lightcurve points to detrend.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            light_curve(LightCurveFile):    The lightcurve being corrected.</span>
+
+<span class="sd">            get_fit_dataset(callable):    See EPDCorrection.__call__().</span>
+
+<span class="sd">            fit_target((str, dict)):    The dataset key and substitutions</span>
+<span class="sd">                identifying a unique dataset in the lightcurve to fit.</span>
+
+<span class="sd">            fit_points(bool array):    Flags selecting the points to return.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.array:</span>
+<span class="sd">                The selected points of the dataset to apply the correction to.</span>
+
+<span class="sd">            numpy.array:</span>
+<span class="sd">                The selected points of the dataset to derive the correction</span>
+<span class="sd">                from: a separate array, even when ``get_fit_dataset`` returns</span>
+<span class="sd">                a single dataset to use for both.</span>
+<span class="sd">        """</span>
 
         <span class="n">substitutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_substitutions</span><span class="p">(</span>
             <span class="n">light_curve</span><span class="o">=</span><span class="n">light_curve</span><span class="p">,</span>
@@ -463,12 +710,28 @@
             <span class="nb">repr</span><span class="p">(</span><span class="n">substitutions</span><span class="p">),</span>
             <span class="n">light_curve</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">get_fit_dataset</span><span class="p">(</span><span class="n">light_curve</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span></div>
+        <span class="n">raw_values</span> <span class="o">=</span> <span class="n">get_fit_dataset</span><span class="p">(</span>
+            <span class="n">light_curve</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">substitutions</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_values</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">raw_values</span><span class="p">,</span> <span class="n">fit_data</span> <span class="o">=</span> <span class="n">raw_values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fit_data</span> <span class="o">=</span> <span class="n">raw_values</span>
+        <span class="k">return</span> <span class="n">raw_values</span><span class="p">[</span><span class="n">fit_points</span><span class="p">],</span> <span class="n">fit_data</span><span class="p">[</span><span class="n">fit_points</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Correction.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_datasets</span><span class="p">,</span> <span class="n">mark_progress</span><span class="p">,</span> <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fit_datasets</span><span class="p">,</span>
+        <span class="n">mark_progress</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">observation_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">qc_exclude_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">exclusion_rule</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Configure the fitting.</span>
 
@@ -486,6 +749,21 @@
 <span class="sd">            like `'shapefit.epd.cfg.fit_terms'`, and</span>
 <span class="sd">            `'shapefit.epd.residual'`.</span>
 
+<span class="sd">            observation_id([str]):    The pipeline keys of the datasets whose</span>
+<span class="sd">                values identify an observation. Only needed to match</span>
+<span class="sd">                observations across lightcurves or with ``qc_exclude_file``.</span>
+
+<span class="sd">            qc_exclude_file(str or None):    The observations to leave out of</span>
+<span class="sd">                the fit while still correcting them: one per line, each given</span>
+<span class="sd">                by the values of the ``observation_id`` datasets separated by</span>
+<span class="sd">                white space, blank lines ignored. A line may end with the</span>
+<span class="sd">                photometry it applies to, ``shapefit`` or ``ap`` followed by</span>
+<span class="sd">                an aperture index; without one it applies to every</span>
+<span class="sd">                photometry. None excludes nothing.</span>
+
+<span class="sd">            exclusion_rule(str or None):    The rule that produced</span>
+<span class="sd">                ``qc_exclude_file``, recorded with the fit. None if the list</span>
+<span class="sd">                was not produced by a rule.</span>
 
 <span class="sd">            iterative_fit_config:    Any other arguments to pass directly to</span>
 <span class="sd">                iterative_fit().</span>
@@ -497,7 +775,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_datasets</span> <span class="o">=</span> <span class="n">fit_datasets</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iterative_fit_config</span> <span class="o">=</span> <span class="n">iterative_fit_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mark_progress</span> <span class="o">=</span> <span class="n">mark_progress</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_substitutions</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_substitutions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_observation_id</span> <span class="o">=</span> <span class="n">observation_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exclusion_rule</span> <span class="o">=</span> <span class="n">exclusion_rule</span> <span class="ow">or</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qc_exclusions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_exclusions</span><span class="p">(</span>
+            <span class="n">qc_exclude_file</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation_id</span> <span class="ow">or</span> <span class="p">())</span>
+        <span class="p">)</span>
+        <span class="c1"># Sorted for matching, per photometry, when first needed: the dtype</span>
+        <span class="c1"># comes from the lightcurves' observation ids.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sorted_exclusions</span> <span class="o">=</span> <span class="p">{}</span></div>
 </div>
 
 

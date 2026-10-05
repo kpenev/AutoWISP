@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -173,13 +176,14 @@
 <span id="autowisp-browser-interface-diagnostics-quantities-module"></span><h1>autowisp.browser_interface.diagnostics.quantities module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.quantities" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-64999b7c53ec32be890b9e89243bb469a115103c.png" alt="Inheritance diagram of DiagnosticType, ImageDiagnostics, PipelineError" usemap="#inheritanceaefb084696" class="inheritance graphviz" /></div>
-<map id="inheritanceaefb084696" name="inheritanceaefb084696">
+<div class="graphviz"><img src="../_images/inheritance-d9d2f2881e588294933ea6d32eb91cf036a63559.png" alt="Inheritance diagram of DiagnosticType, ImageDiagnostics, PhotometryDiagnostics, PipelineError" usemap="#inheritance2ca05f59aa" class="inheritance graphviz" /></div>
+<map id="inheritance2ca05f59aa" name="inheritance2ca05f59aa">
 <area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="5,372,460,397"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="497,445,971,471"/>
-<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="840,5,1095,31"/>
-<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="846,79,1089,104"/>
-<area shape="rect" id="node12" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="641,5,758,31"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="240,445,713,471"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="737,445,1245,471"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="840,5,1095,31"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="846,79,1089,104"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="641,5,758,31"/>
 </map><p>Which quantities this project can draw, and what each one is.</p>
 <p>An axis, a row and a section all name a <em>quantity</em>: a recorded
 <code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code>, an expression built on top of one, or <code class="docutils literal notranslate"><span class="pre">jd</span></code>. What
@@ -323,8 +327,13 @@ for all of it costs less than asking repeatedly.</p>
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.quantities.</span></span><span class="sig-name descname"><span class="pre">get_recorded_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/quantities.html#get_recorded_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.quantities.get_recorded_diagnostics" title="Link to this definition"></a></dt>
 <dd><p>Return the <code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> names anything has recorded in this project.</p>
 <p>A per-type <code class="docutils literal notranslate"><span class="pre">EXISTS</span></code> probe rather than a <code class="docutils literal notranslate"><span class="pre">GROUP</span> <span class="pre">BY</span></code> over the whole of
-<code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code>: the question is only which names are in use, and
-the grouped form has to walk every row to answer it.</p>
+the diagnostics tables: the question is only which names are in use,
+and the grouped form has to walk every row to answer it.</p>
+<p>Each name is probed in the table it is recorded in:
+<code class="docutils literal notranslate"><span class="pre">photometry_diagnostics</span></code> for those of
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names" title="autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">photometry_diagnostic_names()</span></code></a>,
+<code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code> for the rest. That is where a series reads it
+from, so a name found anywhere else could be offered and draw nothing.</p>
 <p>The names come back raw, individual <code class="docutils literal notranslate"><span class="pre">pixel_q*</span></code> entries included –
 before <a class="reference internal" href="#autowisp.browser_interface.diagnostics.quantities.get_available_diagnostics" title="autowisp.browser_interface.diagnostics.quantities.get_available_diagnostics"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_diagnostics()</span></code></a> collapses them into the family
 name.  That is what an expression has to be judged against, since one
@@ -335,6 +344,23 @@ may reference a concrete quantile.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The names in use, in <code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> order.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.quantities.get_recorded_photometries">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.quantities.</span></span><span class="sig-name descname"><span class="pre">get_recorded_photometries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/quantities.html#get_recorded_photometries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.quantities.get_recorded_photometries" title="Link to this definition"></a></dt>
+<dd><p>Return the photometry ids anything has recorded diagnostics in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>db_session</strong> – An active SQLAlchemy database session.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ids, in increasing order.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>

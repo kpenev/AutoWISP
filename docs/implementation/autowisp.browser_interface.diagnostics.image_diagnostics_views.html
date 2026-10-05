@@ -22,7 +22,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.browser_interface.diagnostics.models module" href="autowisp.browser_interface.diagnostics.models.html" />
+    <link rel="next" title="autowisp.browser_interface.diagnostics.preview_calibrated module" href="autowisp.browser_interface.diagnostics.preview_calibrated.html" />
     <link rel="prev" title="autowisp.browser_interface.diagnostics.forms module" href="autowisp.browser_interface.diagnostics.forms.html" /> 
 </head>
 
@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -185,6 +188,34 @@ them, and the Django views that serve it. What the <em>table</em> above the plot
 offers, and what a row binds, is <code class="xref py py-mod docutils literal notranslate"><span class="pre">series_table</span></code> – which never
 evaluates anything, where everything here does.</p>
 </section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views._bind_axes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">_bind_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#_bind_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views._bind_axes" title="Link to this definition"></a></dt>
+<dd><p>Return what each of <em>quantities</em> is bound to by one row.</p>
+<p>The row’s channels are the two axes’ channel bindings laid end to end,
+in the order the columns are, and its photometries likewise, so each
+axis takes as many of each as the quantity it draws has parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series_key</strong> (<a class="reference internal" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" title="autowisp.diagnostics.expression_series.SeriesKey"><em>SeriesKey</em></a>) – What the row binds.</p></li>
+<li><p><strong>quantities</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The quantities on its axes, x first.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">(channels,</span> <span class="pre">photometries)</span></code> per quantity, as</dt><dd><p><code class="xref py py-func docutils literal notranslate"><span class="pre">get_quantity_values()</span></code> takes them.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.assign_y_axes">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">assign_y_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drawn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requested</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#assign_y_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.assign_y_axes" title="Link to this definition"></a></dt>
@@ -256,7 +287,7 @@ diagnostics’ and the expressions’ together.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">collect_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#collect_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">collect_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#collect_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data" title="Link to this definition"></a></dt>
 <dd><p>Read the selected series, dropping those with nothing to draw.</p>
 <p>Every row of the table is posted rather than only the drawn ones, so
 that the server can see what the whole table binds.  Four of them are
@@ -271,6 +302,11 @@ image type – the last two naming no data to read.</p>
 figure.  Each row names its own y through its id.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+<li><p><strong>mask</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> or </em><em>None</em>) – The exclusion mask to apply to every drawn
+series, as <a class="reference internal" href="autowisp.browser_interface.diagnostics.exclusion_mask.html#autowisp.browser_interface.diagnostics.exclusion_mask.decide_mask" title="autowisp.browser_interface.diagnostics.exclusion_mask.decide_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">decide_mask()</span></code></a> takes it, or
+None for none. Each drawn series is then given <code class="docutils literal notranslate"><span class="pre">excluded</span></code>, a
+flag per image, and <code class="docutils literal notranslate"><span class="pre">excluded_report</span></code>, what its Excluded cell
+says.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -300,11 +336,17 @@ shares.  What each draws against it comes from its own id.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 <li><p><strong>figure_config</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Layout of the figure, defining
-<code class="docutils literal notranslate"><span class="pre">plot_height_frac</span></code>, <code class="docutils literal notranslate"><span class="pre">num_columns</span></code> and <code class="docutils literal notranslate"><span class="pre">aspect_ratio</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">plot_height_frac</span></code>, <code class="docutils literal notranslate"><span class="pre">num_columns</span></code> and <code class="docutils literal notranslate"><span class="pre">aspect_ratio</span></code>, and
+optionally the <code class="docutils literal notranslate"><span class="pre">exclusion_mask</span></code> to apply.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The completed figure.</p>
+<dd class="field-even"><p><p>The completed figure.</p>
+<dl class="simple">
+<dt>dict:    What the page shows besides the figure: under <code class="docutils literal notranslate"><span class="pre">excluded</span></code>,</dt><dd><p>each drawn row’s Excluded cell by row id, empty without a mask.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>matplotlib.figure.Figure</p>
@@ -349,14 +391,13 @@ here shares it.</p></li>
 URL names them, which is the order they appear in and the
 order they take their markers in.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library.  It arrives as an argument
-rather than being fetched here because it comes from the
-browser-interface database, and keeping that out means
-everything in this module can be tested against a project
-database alone.  <code class="docutils literal notranslate"><span class="pre">views.py</span></code> supplies it.</p></li>
+rather than being fetched here, so that everything in this
+module can be tested with a library written by the test.
+<code class="docutils literal notranslate"><span class="pre">views.py</span></code> supplies it.</p></li>
 <li><p><strong>expression_descriptions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – What each expression is for,
-from the same database and passed in for the same reason. The
-recorded diagnostics describe themselves in the project one,
-and the two are merged here.</p></li>
+passed in for the same reason. The recorded diagnostics
+describe themselves in the project database, and the two are
+merged here.</p></li>
 </ul>
 </dd>
 </dl>
@@ -446,7 +487,7 @@ comes from the row’s own id, which names the quantity it
 draws.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>, passed in
 rather than fetched so that nothing below the view has to know
-it came from the browser-interface database.</p></li>
+where it is stored.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
 </dd>
@@ -499,7 +540,9 @@ click-through URLs.</p></li>
 naming one of
 <a class="reference internal" href="autowisp.browser_interface.core.plot_utils.html#autowisp.browser_interface.core.plot_utils.line_styles" title="autowisp.browser_interface.core.plot_utils.line_styles"><code class="xref py py-data docutils literal notranslate"><span class="pre">line_styles</span></code></a>
 draws a curve instead of points, reading the scale as the line
-width where points read it as the marker size.</p></li>
+width where points read it as the marker size. An <code class="docutils literal notranslate"><span class="pre">excluded</span></code>
+flag per image, where an exclusion mask is applied, draws the
+points it flags faintly; a curve is drawn as it is.</p></li>
 </ul>
 </dd>
 </dl>
@@ -526,7 +569,8 @@ and returns an SVG <code class="docutils literal notranslate"><span class="pre">
 <code class="docutils literal notranslate"><span class="pre">figure_config</span></code> dict.</p></li>
 <li><p><strong>figure_factory</strong> – Callable accepting <code class="docutils literal notranslate"><span class="pre">series_list</span></code>, <code class="docutils literal notranslate"><span class="pre">db_session</span></code>,
 <code class="docutils literal notranslate"><span class="pre">figure_config</span></code>, plus any URL kwargs as keyword
-arguments.</p></li>
+arguments, and returning the figure and a dict of
+fields to answer alongside it.</p></li>
 <li><p><strong>session_key</strong> – If given, the posted plot configuration is stored in
 the session under this key so a download view can
 retrieve it.</p></li>
@@ -555,7 +599,7 @@ it now has.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="autowisp.browser_interface.diagnostics.forms.html" class="btn btn-neutral float-left" title="autowisp.browser_interface.diagnostics.forms module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.browser_interface.diagnostics.models.html" class="btn btn-neutral float-right" title="autowisp.browser_interface.diagnostics.models module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.browser_interface.diagnostics.preview_calibrated.html" class="btn btn-neutral float-right" title="autowisp.browser_interface.diagnostics.preview_calibrated module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

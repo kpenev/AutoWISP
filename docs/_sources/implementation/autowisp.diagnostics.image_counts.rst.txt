@@ -1,0 +1,7 @@
+autowisp.diagnostics.image\_counts module
+=========================================
+
+.. automodule:: autowisp.diagnostics.image_counts
+   :members:
+   :show-inheritance:
+   :undoc-members:

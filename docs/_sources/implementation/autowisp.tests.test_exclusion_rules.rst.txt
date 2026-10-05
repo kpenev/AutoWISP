@@ -1,0 +1,7 @@
+autowisp.tests.test\_exclusion\_rules module
+============================================
+
+.. automodule:: autowisp.tests.test_exclusion_rules
+   :members:
+   :show-inheritance:
+   :undoc-members:

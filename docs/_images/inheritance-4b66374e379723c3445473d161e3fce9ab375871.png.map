@@ -1,0 +1,5 @@
+<map id="inheritancef1911dac0e" name="inheritancef1911dac0e">
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="5,5,260,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="11,79,254,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.DatabaseError" target="_top" title="Failure interacting with the pipeline database." alt="" coords="6,152,259,177"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="inheritance924e44996d" name="inheritance924e44996d">
+<area shape="rect" id="node1" href="#autowisp.tests.test_expressions.SlotTestCase" target="_top" title="What the channel&#45;slot tests share." alt="" coords="30,79,349,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_expressions.TestQuotedChannels" target="_top" title="Channels named in the text rather than bound through a slot." alt="" coords="5,152,373,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="105,5,273,31"/>
+</map>

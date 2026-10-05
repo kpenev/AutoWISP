@@ -1,0 +1,7 @@
+autowisp.tests.test\_custom\_group\_values module
+=================================================
+
+.. automodule:: autowisp.tests.test_custom_group_values
+   :members:
+   :show-inheritance:
+   :undoc-members:

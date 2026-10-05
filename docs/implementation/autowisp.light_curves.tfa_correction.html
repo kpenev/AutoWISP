@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -324,15 +327,19 @@ iterative_fit_qr().</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._get_io_configurations">
-<span class="sig-name descname"><span class="pre">_get_io_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._get_io_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._get_io_configurations" title="Link to this definition"></a></dt>
-<dd><p>Return properly formatted configuration to pass to <code class="xref py py-func docutils literal notranslate"><span class="pre">_save_result()</span></code>.</p>
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._add_intercept">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_add_intercept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._add_intercept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._add_intercept" title="Link to this definition"></a></dt>
+<dd><p>Return the templates with a constant template appended as last column.</p>
+<p>Template and target are each centred by their median, which, unlike
+the mean, does not carry through a linear combination: even a target
+that is exactly a combination of templates is off by a constant
+once centred, which only an intercept can fit.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._get_observation_ids">
-<span class="sig-name descname"><span class="pre">_get_observation_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._get_observation_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._get_observation_ids" title="Link to this definition"></a></dt>
-<dd><p>Return the observation IDs from the given light curve.</p>
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._get_io_configurations">
+<span class="sig-name descname"><span class="pre">_get_io_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._get_io_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._get_io_configurations" title="Link to this definition"></a></dt>
+<dd><p>Return properly formatted configuration to pass to <code class="xref py py-func docutils literal notranslate"><span class="pre">_save_result()</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">

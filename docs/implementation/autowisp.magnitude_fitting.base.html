@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -367,7 +370,7 @@ information.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._build_magfit_diagnostics">
-<span class="sig-name descname"><span class="pre">_build_magfit_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._build_magfit_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._build_magfit_diagnostics" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_build_magfit_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_shape_fit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._build_magfit_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._build_magfit_diagnostics" title="Link to this definition"></a></dt>
 <dd><p>Build per-photometry diagnostic tuples from magnitude fitting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -380,11 +383,15 @@ information.</p></li>
 through to <code class="docutils literal notranslate"><span class="pre">_compute_mag_offset()</span></code>.</p></li>
 <li><p><strong>header</strong> – The FITS header of the frame, passed through to
 <code class="docutils literal notranslate"><span class="pre">_compute_mag_offset()</span></code>.</p></li>
+<li><p><strong>has_shape_fit</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether the photometries being fit start
+with a shape fit, which decides the id each is recorded
+under.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value,</span> <span class="pre">photometry_id)</span></code> tuples, or None
-if no diagnostics could be computed.</p>
+<dd class="field-even"><p>A list of <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value,</span> <span class="pre">photometry_id)</span></code> tuples, the id as
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.get_photometry_id" title="autowisp.diagnostics.diagnostic_types.get_photometry_id"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_photometry_id()</span></code></a>
+gives it, or None if no diagnostics could be computed.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a> or None</p>

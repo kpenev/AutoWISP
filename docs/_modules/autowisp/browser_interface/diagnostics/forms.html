@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -166,86 +169,72 @@
   <h1>Source code for autowisp.browser_interface.diagnostics.forms</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""The form behind the diagnostic expression management page.</span>
 
-<span class="sd">A ``ModelForm`` rather than hand-written POST handling, which is a new</span>
-<span class="sd">pattern in this interface and a deliberate one.  The name charset, the</span>
-<span class="sd">uniqueness of the name, the create-versus-update branch and the per-field</span>
-<span class="sd">error plumbing are all things Django already does correctly, and each one</span>
-<span class="sd">written out by hand would be another thing to keep right.</span>
+<span class="sd">The library lives in the project database rather than in a Django model,</span>
+<span class="sd">so this is a plain ``Form``: Django still does the per-field checks and</span>
+<span class="sd">error plumbing, while the one check a model used to supply -- that the name</span>
+<span class="sd">is not already taken -- is made here against the library.</span>
 
 <span class="sd">What Django cannot know is whether the expression *means* anything.  That</span>
 <span class="sd">is :func:`~autowisp.diagnostics.expressions.check_expression`, which</span>
 <span class="sd">returns its complaints as plain strings rather than raising so that it</span>
-<span class="sd">stays usable with no Django at all -- import, and one day the command</span>
-<span class="sd">line, reach it by the same path.  Turning those strings into a</span>
-<span class="sd">``ValidationError`` is this module's whole reason to exist, and the only</span>
+<span class="sd">stays usable with no Django at all.  Turning those strings into</span>
+<span class="sd">``ValidationError``\\ s is this module's whole reason to exist, and the only</span>
 <span class="sd">place that adaptation happens.</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django</span><span class="w"> </span><span class="kn">import</span> <span class="n">forms</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">check_expression</span><span class="p">,</span>
-    <span class="n">get_bare_aggregates</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_expression</span>
 
 
 <div class="viewcode-block" id="DiagnosticExpressionForm">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DiagnosticExpressionForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiagnosticExpressionForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Validate one proposed expression against the library it would join.</span>
 
-<span class="sd">    No project is involved.  An expression is valid or not in every project</span>
-<span class="sd">    alike -- see :mod:`autowisp.diagnostics.diagnostic_types` -- and</span>
-<span class="sd">    whether the open project has *recorded* what it needs is a separate</span>
-<span class="sd">    question, answered by counting rows elsewhere.  So this form works with</span>
-<span class="sd">    no project open, which is part of what makes one global library</span>
-<span class="sd">    coherent.</span>
+<span class="sd">    Validity does not depend on what the project has recorded -- see</span>
+<span class="sd">    :mod:`autowisp.diagnostics.diagnostic_types` -- so only the library is</span>
+<span class="sd">    consulted; whether the diagnostics an expression needs exist is a</span>
+<span class="sd">    separate question, answered by counting rows elsewhere.</span>
 <span class="sd">    """</span>
 
-    <span class="c1"># A ModelForm is configuration plus one hook; the base class supplies</span>
-    <span class="c1"># the rest of the interface.</span>
-    <span class="c1"># pylint: disable=too-few-public-methods</span>
-<div class="viewcode-block" id="DiagnosticExpressionForm.Meta">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta">[docs]</a>
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""The three user-editable columns of the model."""</span>
-
-        <span class="n">model</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"expression"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">]</span>
-        <span class="c1"># Both are ``TextField`` because neither has a useful length limit,</span>
-        <span class="c1"># but both are written on one line, so a textarea would be a</span>
-        <span class="c1"># misleading amount of room.</span>
-        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"expression"</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(),</span>
-            <span class="s2">"description"</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(),</span>
-        <span class="p">}</span></div>
-
-
-    <span class="c1"># pylint: enable=too-few-public-methods</span>
+    <span class="c1"># Selected through ``image/&lt;slug:x&gt;/vs/&lt;slug:y&gt;``, so a name outside the</span>
+    <span class="c1"># slug charset could be stored but never plotted.</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">SlugField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Name shown in the diagnostics selectors"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Neither has a useful length limit, but both are written on one line,</span>
+    <span class="c1"># so a textarea would be a misleading amount of room.</span>
+    <span class="n">expression</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Python expression over per-image diagnostic names"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">"What the expression is for"</span><span class="p">,</span>
+    <span class="p">)</span>
 
 <div class="viewcode-block" id="DiagnosticExpressionForm.__init__">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replacing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Args:</span>
 <span class="sd">            expressions(dict):    The library, ``{name: expression}``, this</span>
 <span class="sd">                one would join.  The view has it and the form does not, so</span>
-<span class="sd">                it arrives as a keyword argument.  An entry of the same</span>
+<span class="sd">                it arrives as a keyword argument.</span>
+
+<span class="sd">            replacing(str or None):    The name of the stored expression</span>
+<span class="sd">                being edited, or ``None`` when adding.  An entry of that</span>
 <span class="sd">                name is treated as the one being replaced rather than as a</span>
 <span class="sd">                conflict, so an edit can pass the library unchanged.</span>
 <span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">expressions</span> <span class="ow">or</span> <span class="p">{})</span>
-
-        <span class="c1">#: The NaN-propagating aggregates the accepted expression calls,</span>
-        <span class="c1">#: for the view to warn about.  Not an error: a deliberate</span>
-        <span class="c1">#: ``median`` is a legitimate thing to write, it is merely almost</span>
-        <span class="c1">#: never what was meant.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bare_aggregates</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replacing</span> <span class="o">=</span> <span class="n">replacing</span> <span class="ow">or</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="DiagnosticExpressionForm.clean">
@@ -261,6 +250,10 @@
             <span class="c1"># pair as well would only repeat that.</span>
             <span class="k">return</span> <span class="n">cleaned_data</span>
 
+        <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replacing</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"An expression named </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> exists."</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cleaned_data</span>
+
         <span class="c1"># check_expression reports on the pair, but its complaints have to</span>
         <span class="c1"># land on the field that caused them.  The problems a name has on</span>
         <span class="c1"># its own are exactly those it still has beside an expression that</span>
@@ -271,9 +264,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span>
                 <span class="s2">"name"</span> <span class="k">if</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">name_problems</span> <span class="k">else</span> <span class="s2">"expression"</span><span class="p">,</span> <span class="n">problem</span>
             <span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bare_aggregates</span> <span class="o">=</span> <span class="n">get_bare_aggregates</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cleaned_data</span></div>
 </div>

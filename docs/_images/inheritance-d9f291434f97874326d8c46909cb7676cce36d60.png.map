@@ -1,0 +1,5 @@
+<map id="inheritance4043ecf246" name="inheritance4043ecf246">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="31,79,414,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_series_references.TestReferenceRestriction" target="_top" title="A key naming references reads only the images fit against them." alt="" coords="5,152,440,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="139,5,307,31"/>
+</map>

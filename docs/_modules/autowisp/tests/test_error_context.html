@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -178,6 +181,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Queue</span>
@@ -1414,8 +1418,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ecmod</span><span class="o">.</span><span class="n">decode_exit_signals</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="p">[])</span></div>
 
 
+    <span class="c1"># Pretending to be POSIX does not conjure up POSIX's signals: the</span>
+    <span class="c1"># names come from the running platform's own table, and Windows has</span>
+    <span class="c1"># no SIGKILL (it does have SIGSEGV, which is why only 9 is missing).</span>
+    <span class="c1"># Skipped there rather than asserted around, the subject of the test</span>
+    <span class="c1"># being the names themselves.</span>
 <div class="viewcode-block" id="TestExitSignalDecode.test_posix_signals_and_plain_codes">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestExitSignalDecode.test_posix_signals_and_plain_codes">[docs]</a>
+    <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipUnless</span><span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="s2">"SIGKILL"</span><span class="p">),</span>
+        <span class="s2">"decoding -9 needs a platform whose signal table has SIGKILL"</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_posix_signals_and_plain_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""POSIX: negative codes decode to their signal; positive don't."""</span>
 

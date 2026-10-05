@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -165,6 +168,9 @@
              
   <h1>Source code for autowisp.magnitude_fitting.util</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Functions for formatting magnitude fitting inputs as needed."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">count</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">recfunctions</span>
@@ -326,8 +332,12 @@
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">photref_fname</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">)</span> <span class="k">as</span> <span class="n">photref_fits</span><span class="p">:</span>
-        <span class="n">num_photometries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">photref_fits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">phot_ind</span><span class="p">,</span> <span class="n">phot_reference</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">photref_fits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="c1"># Masters written before the tables were named have them unnamed.</span>
+        <span class="n">phot_references</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">hdu</span> <span class="k">for</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="n">photref_fits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">hdu</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"MPHOTREF"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">num_photometries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phot_references</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">phot_ind</span><span class="p">,</span> <span class="n">phot_reference</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">phot_references</span><span class="p">):</span>
             <span class="k">if</span> <span class="s2">"source_id"</span> <span class="ow">in</span> <span class="n">phot_reference</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
                 <span class="n">source_ids</span> <span class="o">=</span> <span class="n">phot_reference</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">"source_id"</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -375,6 +385,70 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">source_id_parser</span><span class="p">(</span><span class="n">source_id</span><span class="p">):</span> <span class="n">source_data</span>
             <span class="k">for</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">source_data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cat_ids</span><span class="p">,</span> <span class="n">cat_sources</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="get_path_substitutions">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.util.html#autowisp.magnitude_fitting.util.get_path_substitutions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_path_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="n">sphotref_header</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the path substitutions to find magfit datasets."""</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">what</span> <span class="o">+</span> <span class="s2">"_version"</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="n">what</span> <span class="o">+</span> <span class="s2">"_version"</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">what</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"shapefit"</span><span class="p">,</span> <span class="s2">"srcproj"</span><span class="p">,</span> <span class="s2">"apphot"</span><span class="p">,</span> <span class="s2">"background"</span><span class="p">,</span> <span class="s2">"magfit"</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"master_photref_fname"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># dict() first: a header may repeat a keyword, which ** would pass</span>
+        <span class="c1"># to format() once per copy.</span>
+        <span class="n">fname_substitutions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sphotref_header</span><span class="p">)</span>
+        <span class="n">fname_substitutions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="n">count</span><span class="p">():</span>
+            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">=</span> <span class="n">iteration</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">"master_photref_fname_format"</span><span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
+                    <span class="n">fname_substitutions</span>
+                <span class="p">)</span>
+                <span class="o">==</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"master_photref_fname"</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="c1"># Master iterNNN is built after pass NNN and fit against in</span>
+                <span class="c1"># pass NNN + 1, so a fit against it belongs at that index.</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">=</span> <span class="n">iteration</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">iteration</span> <span class="o">&gt;=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"max_magfit_iterations"</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"Master photometric reference "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">configuration</span><span class="p">[</span><span class="s1">'master_photref_fname'</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> does not appear"</span>
+                    <span class="s2">" to follow the specified filename format: "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">configuration</span><span class="p">[</span><span class="s1">'master_photref_fname_format'</span><span class="p">]</span><span class="si">!r}</span><span class="s2">!"</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="read_exclusions">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.util.html#autowisp.magnitude_fitting.util.read_exclusions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_exclusions</span><span class="p">(</span><span class="n">exclusion_fname</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the DR files an exclusion list names, as resolved paths.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exclusion_fname(str or None):    The exclusion list: one DR file per</span>
+<span class="sd">            line, blank lines ignored. None excludes nothing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        set:</span>
+<span class="sd">            The ``os.path.realpath`` of each listed DR file, so that a file</span>
+<span class="sd">            matches however its path is spelled.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">exclusion_fname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">exclusion_fname</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">exclusion_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">exclusion_list</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="p">}</span></div>
 
 </pre></div>

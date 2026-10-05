@@ -1,0 +1,7 @@
+autowisp.tests.test\_detrending\_exclusions module
+==================================================
+
+.. automodule:: autowisp.tests.test_detrending_exclusions
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,748 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_photref_binding &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_photref_binding</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.test_photref_binding</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Tests for binding images pending magnitude fitting to a photometric ref.</span>
+
+<span class="sd">The engine records, in ``ImageMasterSelection``, which single photometric</span>
+<span class="sd">reference every image/channel ``fit_magnitudes`` sees is fit against. With a</span>
+<span class="sd">finite ``max_photref_separation`` it picks the reference by separation; with an</span>
+<span class="sd">unlimited one the condition expressions select it, as for any other master, and</span>
+<span class="sd">that choice is recorded too. Either way the row must agree with the reference</span>
+<span class="sd">magfit is actually given, since everything grouping images by reference reads</span>
+<span class="sd">it rather than re-deciding.</span>
+
+<span class="sd">These drive the manager the way ``_prepare_processing`` does -- evaluating each</span>
+<span class="sd">image's expressions from its raw header, then binding -- on a throwaway project</span>
+<span class="sd">holding one two-channel camera and a single reference registered in channel</span>
+<span class="sd">``R`` only.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">argparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">Namespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">makedirs</span><span class="p">,</span> <span class="n">path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete</span><span class="p">,</span> <span class="n">select</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.image_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageProcessingManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_database</span><span class="w"> </span><span class="kn">import</span> <span class="n">initialize_database</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_project_home</span><span class="p">,</span> <span class="n">start_db_session</span>
+
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DiagnosticType</span><span class="p">,</span>
+    <span class="n">Image</span><span class="p">,</span>
+    <span class="n">ImageDiagnostics</span><span class="p">,</span>
+    <span class="n">ImageMasterSelection</span><span class="p">,</span>
+    <span class="n">ImageType</span><span class="p">,</span>
+    <span class="n">MasterFile</span><span class="p">,</span>
+    <span class="n">MasterType</span><span class="p">,</span>
+    <span class="n">ObservingSession</span><span class="p">,</span>
+    <span class="n">Step</span><span class="p">,</span>
+    <span class="n">Target</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Camera</span><span class="p">,</span>
+    <span class="n">CameraChannel</span><span class="p">,</span>
+    <span class="n">CameraType</span><span class="p">,</span>
+    <span class="n">Observer</span><span class="p">,</span>
+    <span class="n">Telescope</span><span class="p">,</span>
+    <span class="n">TelescopeType</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhotrefBindingProject</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A project with one registered single photref, holding no tests itself.</span>
+
+<span class="sd">    Each test gets a fresh manager, as ``_evaluated_expressions`` caches the</span>
+<span class="sd">    master chosen for each image when it is first evaluated, and starts with</span>
+<span class="sd">    no bindings.</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: ``max-photref-separation`` to configure, or None for the default.</span>
+    <span class="n">_max_photref_separation</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Center and diagonal field of view of the reference, in degrees. Under</span>
+    <span class="c1">#: the default ``max_photref_separation`` of 0.2, images within 1 degree</span>
+    <span class="c1">#: of the center are close enough to bind to it.</span>
+    <span class="n">_photref_center</span> <span class="o">=</span> <span class="p">(</span><span class="mf">150.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>
+    <span class="n">_photref_fov</span> <span class="o">=</span> <span class="mf">5.0</span>
+
+<div class="viewcode-block" id="PhotrefBindingProject.setUpClass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject.setUpClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># Closed in tearDownClass rather than by a context manager, which a</span>
+        <span class="c1"># fixture spanning every test of the class cannot use.</span>
+        <span class="c1"># pylint: disable=consider-using-with</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="c1"># pylint: enable=consider-using-with</span>
+        <span class="n">set_project_home</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">initialize_database</span><span class="p">(</span>
+            <span class="n">Namespace</span><span class="p">(</span><span class="n">drop_hdf5_structure_tables</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_all_tables</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">overwrite_default_config</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_config_overwrites</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">get_file_structure</span><span class="p">()</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_fill_database</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject._config_overwrites">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject._config_overwrites">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_config_overwrites</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the configuration defaults the project is created with."""</span>
+
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_max_photref_separation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"max-photref-separation"</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_max_photref_separation</span><span class="p">))]</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject.tearDownClass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject.tearDownClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># A manager without a pipeline run switches logging off entirely.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logging_disabled</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">disable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_processing</span> <span class="o">=</span> <span class="n">ImageProcessingManager</span><span class="p">(</span><span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject.tearDown">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject.tearDown">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logging_disabled</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">delete</span><span class="p">(</span><span class="n">ImageMasterSelection</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject._raw_fname">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject._raw_fname">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_raw_fname</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the raw frame filename of the image with the given name."""</span>
+
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"RAW"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.fits"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject._add_raw_image">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject._add_raw_image">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_raw_image</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">exposure</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Write a raw frame, add its image to the database, return the id."""</span>
+
+        <span class="n">header</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">"DATE-OBS"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"2023-03-01"</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">"TIME-OBS"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"21:00:00"</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">"EXPTIME"</span><span class="p">]</span> <span class="o">=</span> <span class="n">exposure</span>
+        <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_raw_fname</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="c1"># False positive: the declarative models are callable.</span>
+        <span class="c1"># pylint: disable=not-callable</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
+            <span class="n">raw_fname</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_raw_fname</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+            <span class="n">image_type_id</span><span class="o">=</span><span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"object"</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">observing_session_id</span><span class="o">=</span><span class="n">session_id</span><span class="p">,</span>
+            <span class="n">jd</span><span class="o">=</span><span class="mf">2460005.375</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># pylint: enable=not-callable</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject._add_diagnostics">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject._add_diagnostics">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Record the given ``{name: value}`` astrometry diagnostics."""</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="c1"># pylint: disable=not-callable</span>
+                <span class="n">ImageDiagnostics</span><span class="p">(</span>
+                    <span class="n">image_id</span><span class="o">=</span><span class="n">image_id</span><span class="p">,</span>
+                    <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+                    <span class="n">diagnostic_id</span><span class="o">=</span><span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                        <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># pylint: enable=not-callable</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject._add_session">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject._add_session">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_session</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Add the equipment and the observing session, return its id."""</span>
+
+        <span class="c1"># pylint: disable=not-callable</span>
+        <span class="n">camera_type</span> <span class="o">=</span> <span class="n">CameraType</span><span class="p">(</span>
+            <span class="n">make</span><span class="o">=</span><span class="s2">"Test"</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="s2">"2-channel"</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="s2">"1"</span><span class="p">,</span>
+            <span class="n">x_resolution</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">y_resolution</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">pixel_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">telescope_type</span> <span class="o">=</span> <span class="n">TelescopeType</span><span class="p">(</span>
+            <span class="n">make</span><span class="o">=</span><span class="s2">"Test"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">"lens"</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">"1"</span><span class="p">,</span> <span class="n">f_ratio</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">focal_length</span><span class="o">=</span><span class="mi">50</span>
+        <span class="p">)</span>
+        <span class="n">observer</span> <span class="o">=</span> <span class="n">Observer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"observer"</span><span class="p">)</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"field"</span><span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add_all</span><span class="p">([</span><span class="n">camera_type</span><span class="p">,</span> <span class="n">telescope_type</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">target</span><span class="p">])</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">offset</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">)):</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="n">CameraChannel</span><span class="p">(</span>
+                    <span class="n">camera_type_id</span><span class="o">=</span><span class="n">camera_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">x_offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
+                    <span class="n">y_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">x_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">y_step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span>
+            <span class="n">camera_type_id</span><span class="o">=</span><span class="n">camera_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">serial_number</span><span class="o">=</span><span class="s2">"camera"</span><span class="p">,</span> <span class="n">notes</span><span class="o">=</span><span class="s2">""</span>
+        <span class="p">)</span>
+        <span class="n">telescope</span> <span class="o">=</span> <span class="n">Telescope</span><span class="p">(</span>
+            <span class="n">telescope_type_id</span><span class="o">=</span><span class="n">telescope_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">serial_number</span><span class="o">=</span><span class="s2">"telescope"</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add_all</span><span class="p">([</span><span class="n">camera</span><span class="p">,</span> <span class="n">telescope</span><span class="p">])</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="c1"># Mount and observatory are never read, and SQLite does not enforce</span>
+        <span class="c1"># the foreign keys left dangling.</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">ObservingSession</span><span class="p">(</span>
+            <span class="n">observer_id</span><span class="o">=</span><span class="n">observer</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">camera_id</span><span class="o">=</span><span class="n">camera</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">telescope_id</span><span class="o">=</span><span class="n">telescope</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">mount_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">observatory_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">target_id</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">"night"</span><span class="p">,</span>
+            <span class="n">start_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">end_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># pylint: enable=not-callable</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">id</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject._add_photref">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject._add_photref">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_photref</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">session_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Register the single photref: a DR file of image ``ref``, in R."""</span>
+
+        <span class="n">image_id</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_add_raw_image</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="s2">"ref"</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_add_diagnostics</span><span class="p">(</span>
+            <span class="n">db_session</span><span class="p">,</span>
+            <span class="n">image_id</span><span class="p">,</span>
+            <span class="s2">"R"</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">"ra_center"</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_photref_center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">"dec_center"</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_photref_center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">"diagonal_fov"</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_photref_fov</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_photref_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">,</span> <span class="s2">"ref_R.h5"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_photref_fname</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
+                <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">"RAWFNAME"</span><span class="p">:</span> <span class="s2">"ref"</span><span class="p">,</span>
+                        <span class="s2">"CLRCHNL"</span><span class="p">:</span> <span class="s2">"R"</span><span class="p">,</span>
+                        <span class="s2">"TARGETID"</span><span class="p">:</span> <span class="s2">"field"</span><span class="p">,</span>
+                        <span class="s2">"EXPTIME"</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
+                        <span class="c1"># Named by the default master file name formats.</span>
+                        <span class="s2">"FNUM"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                        <span class="s2">"PROJHOME"</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># pylint: disable=not-callable</span>
+        <span class="n">photref</span> <span class="o">=</span> <span class="n">MasterFile</span><span class="p">(</span>
+            <span class="n">type_id</span><span class="o">=</span><span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">MasterType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"single_photref"</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">filename</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_photref_fname</span><span class="p">,</span>
+            <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># pylint: enable=not-callable</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">photref</span><span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_photref_id</span> <span class="o">=</span> <span class="n">photref</span><span class="o">.</span><span class="n">id</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject._fill_database">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject._fill_database">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fill_database</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Add the session, the reference and the pending images."""</span>
+
+        <span class="c1"># ``{name: (ra_center, dec_center, EXPTIME)}`` of the images pending</span>
+        <span class="c1"># magnitude fitting. The single_photref must match ``TARGETID``,</span>
+        <span class="c1"># ``CLRCHNL`` and ``EXPTIME``, so the reference, exposed for 30 s,</span>
+        <span class="c1"># serves only 30 s images, in ``R``.</span>
+        <span class="n">pending</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"near"</span><span class="p">:</span> <span class="p">(</span><span class="mf">150.3</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">),</span>
+            <span class="s2">"far"</span><span class="p">:</span> <span class="p">(</span><span class="mf">155.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">),</span>
+            <span class="s2">"longer"</span><span class="p">:</span> <span class="p">(</span><span class="mf">150.3</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"RAW"</span><span class="p">))</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">session_id</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_add_session</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_add_photref</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="n">session_id</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_image_ids</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">ra_center</span><span class="p">,</span> <span class="n">dec_center</span><span class="p">,</span> <span class="n">exposure</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pending</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_image_ids</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_add_raw_image</span><span class="p">(</span>
+                    <span class="n">db_session</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">exposure</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">):</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">_add_diagnostics</span><span class="p">(</span>
+                        <span class="n">db_session</span><span class="p">,</span>
+                        <span class="bp">cls</span><span class="o">.</span><span class="n">_image_ids</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                        <span class="n">channel</span><span class="p">,</span>
+                        <span class="p">{</span><span class="s2">"ra_center"</span><span class="p">:</span> <span class="n">ra_center</span><span class="p">,</span> <span class="s2">"dec_center"</span><span class="p">:</span> <span class="n">dec_center</span><span class="p">},</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject.bind_pending">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject.bind_pending">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind_pending</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Bind every pending image in both channels, as magfit preparation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [(str, str)]:</span>
+<span class="sd">                The ``(image name, channel)`` entries handed on to</span>
+<span class="sd">                ``fit_magnitudes``, sorted.</span>
+<span class="sd">        """</span>
+
+        <span class="n">name_of</span> <span class="o">=</span> <span class="p">{</span><span class="n">image_id</span><span class="p">:</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_ids</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">pending</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_ids</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="n">image_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_processing</span><span class="o">.</span><span class="n">evaluate_expressions_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+            <span class="n">pending</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">))</span>
+
+        <span class="c1"># pylint: disable=protected-access</span>
+        <span class="n">returned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing</span><span class="o">.</span><span class="n">_bind_photref_for_pending</span><span class="p">(</span>
+            <span class="n">pending</span><span class="p">,</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"fit_magnitudes"</span><span class="p">)),</span>
+            <span class="n">db_session</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># pylint: enable=protected-access</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">name_of</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">],</span> <span class="n">channel</span><span class="p">)</span> <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">returned</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject.bindings">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject.bindings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bindings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return ``{(image name, channel): MasterFile ID}`` of every binding.</span>
+
+<span class="sd">        The reference's own image is never pending, so is never bound.</span>
+<span class="sd">        """</span>
+
+        <span class="n">name_of</span> <span class="o">=</span> <span class="p">{</span><span class="n">image_id</span><span class="p">:</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_ids</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">name_of</span><span class="p">[</span><span class="n">image_id</span><span class="p">],</span> <span class="n">channel</span><span class="p">):</span> <span class="n">master_file_id</span>
+            <span class="k">for</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">master_file_id</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span>
+                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span>
+                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">master_file_id</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject.all_pending">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject.all_pending">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_pending</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return every ``(image name, channel)`` pending, sorted."""</span>
+
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_ids</span>
+            <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PhotrefBindingProject.bind_in_advance">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject.bind_in_advance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind_in_advance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Bind the named image/channel to the reference before magfit."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="c1"># pylint: disable=not-callable</span>
+                <span class="n">ImageMasterSelection</span><span class="p">(</span>
+                    <span class="n">image_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_ids</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                    <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+                    <span class="n">master_type_id</span><span class="o">=</span><span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                        <span class="n">select</span><span class="p">(</span><span class="n">MasterType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"single_photref"</span><span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="n">master_file_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_photref_id</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># pylint: enable=not-callable</span>
+            <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestSeparationBinding">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.TestSeparationBinding">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSeparationBinding</span><span class="p">(</span><span class="n">PhotrefBindingProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A finite ``max_photref_separation``: bound by distance to the photref."""</span>
+
+<div class="viewcode-block" id="TestSeparationBinding.test_only_images_near_the_photref_are_bound">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.TestSeparationBinding.test_only_images_near_the_photref_are_bound">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_only_images_near_the_photref_are_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Only the near image is fit against the photref.</span>
+
+<span class="sd">        The far one is out of range, the 60 s one does not match the</span>
+<span class="sd">        photref's conditions, and channel ``G`` has no photref at all.</span>
+<span class="sd">        """</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">returned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind_pending</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+            <span class="n">bindings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">returned</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"near"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">bindings</span><span class="p">,</span> <span class="p">{(</span><span class="s2">"near"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_id</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="TestSeparationBinding.test_an_image_bound_in_advance_is_kept">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.TestSeparationBinding.test_an_image_bound_in_advance_is_kept">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_an_image_bound_in_advance_is_kept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A binding made in the BUI stands, however far the image is."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bind_in_advance</span><span class="p">(</span><span class="s2">"far"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">returned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind_pending</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+            <span class="n">bindings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">returned</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"far"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"near"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">bindings</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="p">(</span><span class="s2">"far"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_id</span><span class="p">,</span>
+                <span class="p">(</span><span class="s2">"near"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_id</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestConditionBinding">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.TestConditionBinding">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestConditionBinding</span><span class="p">(</span><span class="n">PhotrefBindingProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An unlimited ``max_photref_separation``: the conditions choose."""</span>
+
+    <span class="n">_max_photref_separation</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TestConditionBinding.test_the_selected_photref_is_recorded">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.TestConditionBinding.test_the_selected_photref_is_recorded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_selected_photref_is_recorded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Every image is handed on, those the conditions select are bound.</span>
+
+<span class="sd">        Distance no longer matters, so the far image is bound too. Channel</span>
+<span class="sd">        ``G`` and the 60 s image have no photref, so are not bound, but are</span>
+<span class="sd">        handed on all the same: dropping them is left to the batch</span>
+<span class="sd">        configuration, as for any missing master.</span>
+<span class="sd">        """</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">returned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind_pending</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+            <span class="n">bindings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">returned</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_pending</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">bindings</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="p">(</span><span class="s2">"far"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_id</span><span class="p">,</span>
+                <span class="p">(</span><span class="s2">"near"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_id</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestConditionBinding.test_the_binding_is_what_magfit_is_given">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.TestConditionBinding.test_the_binding_is_what_magfit_is_given">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_binding_is_what_magfit_is_given</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Each row names the master its batch is configured with."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">returned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind_pending</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+            <span class="n">magfit_given</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing</span><span class="o">.</span><span class="n">get_master_fname</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_image_ids</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">"single_photref"</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">returned</span>
+            <span class="p">}</span>
+            <span class="n">bindings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span><span class="n">magfit_given</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="p">{</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_fname</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">bindings</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="n">entry</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_id</span>
+                <span class="k">for</span> <span class="n">entry</span><span class="p">,</span> <span class="n">photref_fname</span> <span class="ow">in</span> <span class="n">magfit_given</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">photref_fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestConditionBinding.test_an_image_bound_in_advance_is_kept">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.TestConditionBinding.test_an_image_bound_in_advance_is_kept">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_an_image_bound_in_advance_is_kept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A binding the conditions would not make stands, and is used."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bind_in_advance</span><span class="p">(</span><span class="s2">"longer"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">returned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind_pending</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+            <span class="n">bindings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+            <span class="n">magfit_given</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing</span><span class="o">.</span><span class="n">get_master_fname</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_image_ids</span><span class="p">[</span><span class="s2">"longer"</span><span class="p">],</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"single_photref"</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">returned</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_pending</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">bindings</span><span class="p">[(</span><span class="s2">"longer"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">magfit_given</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_fname</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

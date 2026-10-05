@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
@@ -641,7 +644,7 @@ rather than image by image, which is what makes aggregates work:</p>
 Every diagnostic is recorded once per channel, so its bare name does not
 name a number; <code class="docutils literal notranslate"><span class="pre">bg_center[0]</span></code> does. What the subscript holds is not a
 channel but a <em>slot</em>, filled in from the table when you plot – and it
-has to be, because one library is shared by every project and one
+has to be, because expressions move between projects and one
 camera’s channels are called <code class="docutils literal notranslate"><span class="pre">B,G1,G2,R</span></code> where another’s are
 <code class="docutils literal notranslate"><span class="pre">B0,G0,G1,R0</span></code>. An expression naming <code class="docutils literal notranslate"><span class="pre">R</span></code> would mean a different thing
 in each, or nothing at all.</p>
@@ -739,9 +742,11 @@ until plate solving has run, and neither will anything built on <em>it</em>.
 That is availability rather than breakage: the expression is perfectly
 valid, and the management page distinguishes the two – an unrecorded
 input is reported separately from a name that means nothing at all.</p>
-<p>Expressions belong to the interface rather than to any one project, so
-they follow you between projects, and <strong>Export</strong> and <strong>Import</strong> move them
-between installations as a JSON file. Exporting a selection brings along
+<p>Expressions belong to the project, stored in its database alongside the
+diagnostics they are built from, since the pipeline uses them too:
+editing one in a project never changes what another project sees.
+<strong>Export</strong> and <strong>Import</strong> move them between projects, or installations,
+as a JSON file. Exporting a selection brings along
 whatever it is built from, so the file always stands on its own. A file
 naming an expression you already have is the one thing importing cannot
 decide for you: everything else in it is imported, and it then shows you

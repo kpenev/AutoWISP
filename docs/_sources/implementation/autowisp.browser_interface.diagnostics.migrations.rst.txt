@@ -13,3 +13,4 @@ Submodules
    :maxdepth: 4
 
    autowisp.browser_interface.diagnostics.migrations.0001_initial
+   autowisp.browser_interface.diagnostics.migrations.0002_delete_diagnosticexpression

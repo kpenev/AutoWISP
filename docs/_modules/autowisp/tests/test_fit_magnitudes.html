@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -167,6 +170,18 @@
   <h1>Source code for autowisp.tests.test_fit_magnitudes</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Define test case for the fit_source_extracted_psf_map step."""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">filecmp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">makedirs</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">remove</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">move</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">subprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">PIPE</span><span class="p">,</span> <span class="n">STDOUT</span><span class="p">,</span> <span class="n">run</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.magnitude_fitting</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_master_photref</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests.h5_test_case</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRTestCase</span>
 
 
@@ -175,20 +190,562 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">TestFitMagnitudes</span><span class="p">(</span><span class="n">DRTestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Tests of the fit_source_extracted_psf_map step."""</span>
 
+    <span class="n">_fitted_magnitudes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"AperturePhotometry/Version000/Aperture</span><span class="si">{</span><span class="n">ap_ind</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">/FittedMagnitudes"</span>
+        <span class="k">for</span> <span class="n">ap_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># The master photometric reference's header record of its population.</span>
+    <span class="n">_qc_keywords</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"QCRULE"</span><span class="p">,</span> <span class="s2">"QCNIMG"</span><span class="p">,</span> <span class="s2">"QCNEXCL"</span><span class="p">}</span>
+
 <div class="viewcode-block" id="TestFitMagnitudes.test_fit_magnitudes">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_fit_magnitudes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_fit_magnitudes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Run the fit_magnitudes step and check the outputs."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">run_step_test</span><span class="p">(</span>
-            <span class="s2">"fit_magnitudes"</span><span class="p">,</span>
-            <span class="s2">"DR"</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_step_test</span><span class="p">(</span><span class="s2">"fit_magnitudes"</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_masters_as_expected</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._read_fits">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._read_fits">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return ``{path: (magnitudes, fit residual)}`` of every fit in DR."""</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dr_file</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">version</span><span class="p">,</span> <span class="n">iterations</span> <span class="ow">in</span> <span class="n">dr_file</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">fitted</span> <span class="ow">in</span> <span class="n">iterations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">fitted</span><span class="p">[()],</span>
+                            <span class="n">fitted</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"FitResidual"</span><span class="p">],</span>
+                        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._assert_qc_included">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_qc_included">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_qc_included</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">included</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Assert every photometry of the DR file records ``included``."""</span>
+
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="n">fitted</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"QCIncluded"</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span>
+                <span class="k">if</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">dr_file</span>
+                <span class="k">for</span> <span class="n">version</span><span class="p">,</span> <span class="n">fitted</span> <span class="ow">in</span> <span class="n">dr_file</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">flags</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span><span class="p">),</span> <span class="n">dr_fname</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">flag_path</span><span class="p">,</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">flags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="n">included</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dr_fname</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">flag_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes.test_later_image_fit_like_master_builders">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_later_image_fit_like_master_builders">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_later_image_fit_like_master_builders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""An image fit against the final master matches its last pass.</span>
+
+<span class="sd">        Images added after the master photometric reference exists are fit</span>
+<span class="sd">        against it alone, and must get exactly the fit that the images which</span>
+<span class="sd">        built it got in their last pass, at the same iteration index. One of</span>
+<span class="sd">        two such images is on the exclusion list, which changes nothing about</span>
+<span class="sd">        its fit, only the quality flag it records.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">([</span><span class="s2">"DR"</span><span class="p">,</span> <span class="s2">"MASTERS/mphotref_*.fits"</span><span class="p">])</span>
+        <span class="n">final_master</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
+            <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">glob</span><span class="p">(</span>
+                    <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"MASTERS"</span><span class="p">,</span> <span class="s2">"mphotref_*.fits"</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">last_pass</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"iter(\d+)\.fits$"</span><span class="p">,</span> <span class="n">final_master</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="c1"># Neither is the single photometric reference; both are fit in every</span>
+        <span class="c1"># pass. The second is the one on the exclusion list.</span>
+        <span class="n">later_drs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"10-465240_2_center.h5"</span><span class="p">,</span> <span class="s2">"10-465244_2_center.h5"</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">last_fits</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">later_drs</span><span class="p">:</span>
+            <span class="n">last_fits</span><span class="p">[</span><span class="n">dr_fname</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">fit_path</span><span class="p">:</span> <span class="n">fit</span>
+                <span class="k">for</span> <span class="n">fit_path</span><span class="p">,</span> <span class="n">fit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fits</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">fit_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/Iteration</span><span class="si">{</span><span class="n">last_pass</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+                <span class="n">last_fits</span><span class="p">[</span><span class="n">dr_fname</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s2">"No pass at iteration </span><span class="si">{</span><span class="n">last_pass</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">dr_fname</span><span class="si">}</span><span class="s2">: the last "</span>
+                <span class="sa">f</span><span class="s2">"pass was not fit against the final master </span><span class="si">{</span><span class="n">final_master</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">dr_file</span><span class="p">[</span><span class="n">group</span><span class="p">]</span>
+
+        <span class="n">exclusion_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"exclude.txt"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">exclusion_fname</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">exclusion_list</span><span class="p">:</span>
+            <span class="n">exclusion_list</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">later_drs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_step</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">"AperturePhotometry/Version000/Aperture</span><span class="si">{</span><span class="n">ap_ind</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">/"</span>
-                <span class="s2">"FittedMagnitudes"</span>
-                <span class="k">for</span> <span class="n">ap_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-            <span class="p">],</span>
+                <span class="s2">"wisp-fit-magnitudes"</span><span class="p">,</span>
+                <span class="s2">"-c"</span><span class="p">,</span>
+                <span class="s2">"test.cfg"</span><span class="p">,</span>
+                <span class="c1"># Spelled as test.cfg's format expands it, which magfit</span>
+                <span class="c1"># checks: PROJHOME is "." in the test data headers.</span>
+                <span class="s2">"--master-photref-fname"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"./MASTERS/</span><span class="si">{</span><span class="n">final_master</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"--qc-exclude-file"</span><span class="p">,</span>
+                <span class="n">exclusion_fname</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="n">later_drs</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">included</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">later_drs</span><span class="p">,</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)):</span>
+            <span class="n">refits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fits</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
+            <span class="c1"># The DR file links the fit to every earlier iteration as well, so</span>
+            <span class="c1"># that its iterations stay contiguous: only the last one is the</span>
+            <span class="c1"># fit.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_path</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span> <span class="k">for</span> <span class="n">fit_path</span> <span class="ow">in</span> <span class="n">refits</span><span class="p">),</span>
+                <span class="n">last_pass</span><span class="p">,</span>
+                <span class="n">dr_fname</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">fit_path</span><span class="p">,</span> <span class="p">(</span><span class="n">magnitudes</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span> <span class="ow">in</span> <span class="n">last_fits</span><span class="p">[</span><span class="n">dr_fname</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                    <span class="n">refits</span><span class="p">[</span><span class="n">fit_path</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">magnitudes</span><span class="p">,</span>
+                    <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+                    <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+                    <span class="n">err_msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dr_fname</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">fit_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                    <span class="n">refits</span><span class="p">[</span><span class="n">fit_path</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">residual</span><span class="p">,</span>
+                    <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+                    <span class="n">err_msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dr_fname</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">fit_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_qc_included</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">included</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._assert_master_reads">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_master_reads">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_master_reads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Assert the master reads as exactly its photometry tables."""</span>
+
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">get_master_photref</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">master</span><span class="p">:</span>
+            <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">hdu</span><span class="o">.</span><span class="n">data</span>
+                <span class="k">for</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="n">master</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="k">if</span> <span class="s2">"magnitude"</span> <span class="ow">in</span> <span class="n">hdu</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tables</span><span class="p">)),</span>
+                <span class="n">master_fname</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">phot_ind</span><span class="p">,</span> <span class="n">table</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">magnitude</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">table</span><span class="p">[</span><span class="s2">"source_id"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"magnitude"</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                        <span class="n">reference</span><span class="p">[</span><span class="n">source_id</span><span class="p">][</span><span class="s2">"mag"</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">],</span> <span class="n">magnitude</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._assert_masters_match">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_match">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_masters_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_fname</span><span class="p">,</span> <span class="n">master_fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Assert two masters match, apart from their population record."""</span>
+
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">expected_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">expected</span><span class="p">,</span>
+            <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">master</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="n">key</span><span class="p">:</span> <span class="n">value</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qc_keywords</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="n">key</span><span class="p">:</span> <span class="n">value</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">master</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qc_keywords</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">hdu</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">],</span> <span class="p">[</span><span class="n">hdu</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="n">master</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">expected_hdu</span><span class="p">,</span> <span class="n">master_hdu</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">expected</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">master</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="k">if</span> <span class="n">expected_hdu</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"MPHOTREF"</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c1"># Rows follow the order in which images finished fitting.</span>
+                <span class="n">expected_data</span><span class="p">,</span> <span class="n">master_data</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">hdu</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">"source_id"</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="p">(</span><span class="n">expected_hdu</span><span class="p">,</span> <span class="n">master_hdu</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">expected_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                        <span class="n">master_data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span>
+                        <span class="n">expected_data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span>
+                        <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+                        <span class="n">atol</span><span class="o">=</span><span class="mi">0</span> <span class="k">if</span> <span class="n">column</span> <span class="o">==</span> <span class="s2">"source_id"</span> <span class="k">else</span> <span class="mf">1e-8</span><span class="p">,</span>
+                        <span class="n">err_msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">master_fname</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._fit_without_and_with_exclusions">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._fit_without_and_with_exclusions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_without_and_with_exclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excluded</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Fit the images not in ``excluded`` alone, then all excluding those.</span>
+
+<span class="sd">        The list given to the second run names the first excluded file by a</span>
+<span class="sd">        relative path, the second by an absolute one, and adds a file that is</span>
+<span class="sd">        not among the inputs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            excluded([str]):    Two DR files, under the ``DR`` directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [str]:</span>
+<span class="sd">                The DR files the second run fit, those the bundle has fits for.</span>
+
+<span class="sd">            str:</span>
+<span class="sd">                The directory holding the DR files of the first run.</span>
+
+<span class="sd">            str:</span>
+<span class="sd">                The directory the masters of the first run were moved to.</span>
+<span class="sd">        """</span>
+
+        <span class="n">dr_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">)</span>
+        <span class="n">subset_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"DR_subset"</span><span class="p">)</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">subset_dir</span><span class="p">)</span>
+        <span class="n">fit_dr_fnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dr_dir</span><span class="p">,</span> <span class="s2">"*.h5"</span><span class="p">)):</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">dr_file</span><span class="p">:</span>
+                    <span class="n">fit_dr_fnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">dr_file</span><span class="p">:</span>
+                        <span class="k">del</span> <span class="n">dr_file</span><span class="p">[</span><span class="n">group</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">dr_fname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excluded</span><span class="p">:</span>
+                <span class="n">copy</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">subset_dir</span><span class="p">)</span>
+
+        <span class="n">masters_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"MASTERS"</span><span class="p">)</span>
+        <span class="n">subset_masters_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masters_dir</span><span class="p">,</span> <span class="s2">"subset"</span><span class="p">)</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">subset_masters_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_step</span><span class="p">([</span><span class="s2">"wisp-fit-magnitudes"</span><span class="p">,</span> <span class="s2">"-c"</span><span class="p">,</span> <span class="s2">"test.cfg"</span><span class="p">,</span> <span class="n">subset_dir</span><span class="p">])</span>
+        <span class="c1"># Only the masters move: MASTERS/Gaia caches the catalog.</span>
+        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mphotref_*.fits"</span><span class="p">,</span> <span class="s2">"mfit_stat_*.txt"</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">master_fname</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masters_dir</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)):</span>
+                <span class="n">move</span><span class="p">(</span><span class="n">master_fname</span><span class="p">,</span> <span class="n">subset_masters_dir</span><span class="p">)</span>
+
+        <span class="n">exclusion_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"exclude.txt"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">exclusion_fname</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">exclusion_list</span><span class="p">:</span>
+            <span class="n">exclusion_list</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">excluded</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">),</span>
+                        <span class="n">excluded</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dr_dir</span><span class="p">,</span> <span class="s2">"not_an_input.h5"</span><span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_step</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">"wisp-fit-magnitudes"</span><span class="p">,</span>
+                <span class="s2">"-c"</span><span class="p">,</span>
+                <span class="s2">"test.cfg"</span><span class="p">,</span>
+                <span class="s2">"--qc-exclude-file"</span><span class="p">,</span>
+                <span class="n">exclusion_fname</span><span class="p">,</span>
+                <span class="n">dr_dir</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">fit_dr_fnames</span><span class="p">,</span> <span class="n">subset_dir</span><span class="p">,</span> <span class="n">subset_masters_dir</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._assert_population">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_population">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_population</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_fname</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Assert the master's INMASTER table holds ``{dr_fname: included}``."""</span>
+
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">master</span><span class="p">:</span>
+            <span class="n">population</span> <span class="o">=</span> <span class="n">master</span><span class="p">[</span><span class="s2">"INMASTER"</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="nb">zip</span><span class="p">(</span>
+                        <span class="n">population</span><span class="p">[</span><span class="s2">"dr_fname"</span><span class="p">],</span>
+                        <span class="n">population</span><span class="p">[</span><span class="s2">"included"</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">expected</span><span class="p">,</span>
+                <span class="n">master_fname</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">population</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">),</span> <span class="n">master_fname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._assert_magfit_stat_match">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_magfit_stat_match">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_magfit_stat_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_fname</span><span class="p">,</span> <span class="n">stat_fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Assert two magfit statistics files match, in any order of rows."""</span>
+
+        <span class="n">sorted_stats</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="p">(</span><span class="n">expected_fname</span><span class="p">,</span> <span class="n">stat_fname</span><span class="p">):</span>
+            <span class="n">source_ids</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">source_ids</span><span class="p">)</span>
+            <span class="n">sorted_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">source_ids</span><span class="p">[</span><span class="n">order</span><span class="p">],</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">)[</span><span class="n">order</span><span class="p">,</span> <span class="mi">1</span><span class="p">:],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span>
+            <span class="n">sorted_stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">sorted_stats</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">err_msg</span><span class="o">=</span><span class="n">stat_fname</span>
+        <span class="p">)</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+            <span class="n">sorted_stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">sorted_stats</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+            <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+            <span class="n">err_msg</span><span class="o">=</span><span class="n">stat_fname</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._assert_masters_as_expected">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_as_expected">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_masters_as_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Assert the masters and statistics written match the test data's."""</span>
+
+        <span class="n">masters_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"MASTERS"</span><span class="p">)</span>
+        <span class="n">expected_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="s2">"MASTERS"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mphotref_*.fits"</span><span class="p">,</span> <span class="s2">"mfit_stat_*.txt"</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="nb">sorted</span><span class="p">(</span>
+                    <span class="nb">map</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masters_dir</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)))</span>
+                <span class="p">),</span>
+                <span class="nb">sorted</span><span class="p">(</span>
+                    <span class="nb">map</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expected_dir</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)))</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">stat_fname</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masters_dir</span><span class="p">,</span> <span class="s2">"mfit_stat_*.txt"</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_magfit_stat_match</span><span class="p">(</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expected_dir</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">stat_fname</span><span class="p">)),</span> <span class="n">stat_fname</span>
+            <span class="p">)</span>
+
+        <span class="c1"># The population lists DR files by the paths magfit was given, so it</span>
+        <span class="c1"># is compared by name, the test data being fit in another directory.</span>
+        <span class="n">dr_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">master_fname</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masters_dir</span><span class="p">,</span> <span class="s2">"mphotref_*.fits"</span><span class="p">)):</span>
+            <span class="n">expected_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">expected_dir</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_masters_match</span><span class="p">(</span><span class="n">expected_fname</span><span class="p">,</span> <span class="n">master_fname</span><span class="p">)</span>
+            <span class="k">with</span> <span class="p">(</span>
+                <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">expected_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">expected</span><span class="p">,</span>
+                <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">master</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qc_keywords</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                        <span class="n">master</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">keyword</span><span class="p">],</span>
+                        <span class="n">expected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">keyword</span><span class="p">],</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">master_fname</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">keyword</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">expected_population</span> <span class="o">=</span> <span class="n">expected</span><span class="p">[</span><span class="s2">"INMASTER"</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_assert_population</span><span class="p">(</span>
+                    <span class="n">master_fname</span><span class="p">,</span>
+                    <span class="p">{</span>
+                        <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dr_dir</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)):</span> <span class="n">included</span>
+                        <span class="k">for</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">included</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                            <span class="n">expected_population</span><span class="p">[</span><span class="s2">"dr_fname"</span><span class="p">],</span>
+                            <span class="n">expected_population</span><span class="p">[</span><span class="s2">"included"</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                        <span class="p">)</span>
+                    <span class="p">},</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes._assert_masters_built_without">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_built_without">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_masters_built_without</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">excluded</span><span class="p">,</span> <span class="n">fit_dr_fnames</span><span class="p">,</span> <span class="n">subset_dir</span><span class="p">,</span> <span class="n">subset_masters_dir</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Assert the masters match the subset run's and record the populations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            excluded([str]):    The DR files excluded from the masters.</span>
+
+<span class="sd">            fit_dr_fnames([str]):    The DR files fit, excluded included.</span>
+
+<span class="sd">            subset_dir(str):    Where the DR files of the subset run are.</span>
+
+<span class="sd">            subset_masters_dir(str):    Where the masters built from the kept</span>
+<span class="sd">                images alone are.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [str]:</span>
+<span class="sd">                The masters, in order of iteration.</span>
+<span class="sd">        """</span>
+
+        <span class="n">masters_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"MASTERS"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mphotref_*.fits"</span><span class="p">,</span> <span class="s2">"mfit_stat_*.txt"</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="nb">sorted</span><span class="p">(</span>
+                    <span class="nb">map</span><span class="p">(</span>
+                        <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span>
+                        <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subset_masters_dir</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)),</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="nb">sorted</span><span class="p">(</span>
+                    <span class="nb">map</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masters_dir</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)))</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="n">masters</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masters_dir</span><span class="p">,</span> <span class="s2">"mphotref_*.fits"</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">master_fname</span> <span class="ow">in</span> <span class="n">masters</span><span class="p">:</span>
+            <span class="n">subset_master_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">subset_masters_dir</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_masters_match</span><span class="p">(</span><span class="n">subset_master_fname</span><span class="p">,</span> <span class="n">master_fname</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">master</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">master</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"QCRULE"</span><span class="p">],</span> <span class="s2">""</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">master</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"QCNIMG"</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit_dr_fnames</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">master</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"QCNEXCL"</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">excluded</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_population</span><span class="p">(</span>
+                <span class="n">master_fname</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="n">dr_fname</span><span class="p">:</span> <span class="n">dr_fname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excluded</span>
+                    <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">fit_dr_fnames</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="c1"># The subset run is given only the kept files, and no exclusion</span>
+            <span class="c1"># list, so it fits just those and builds from every one of them.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_population</span><span class="p">(</span>
+                <span class="n">subset_master_fname</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subset_dir</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)):</span> <span class="kc">True</span>
+                    <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">fit_dr_fnames</span>
+                    <span class="k">if</span> <span class="n">dr_fname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excluded</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">masters</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes.test_exclusions_kept_out_of_master">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_exclusions_kept_out_of_master">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_exclusions_kept_out_of_master</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Excluding images gives the master the kept images give alone.</span>
+
+<span class="sd">        Fits the kept images by themselves, then all images with the others</span>
+<span class="sd">        excluded, and compares: the masters and the kept images' fits must</span>
+<span class="sd">        be the same, the excluded images fit at the last pass, each master</span>
+<span class="sd">        must list every image fit, flagging the ones it was built from, and</span>
+<span class="sd">        each image must record whether it passes the quality cut. The list</span>
+<span class="sd">        names one input by a relative path, one by an absolute</span>
+<span class="sd">        path, and a file that is not among the inputs, which must not be</span>
+<span class="sd">        recorded. Both the new master and one written before exclusions were</span>
+<span class="sd">        recorded must read as their photometry tables alone.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">([</span><span class="s2">"DR"</span><span class="p">])</span>
+        <span class="n">dr_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">)</span>
+        <span class="n">excluded</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dr_dir</span><span class="p">,</span> <span class="s2">"10-465241_2_center.h5"</span><span class="p">),</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dr_dir</span><span class="p">,</span> <span class="s2">"10-465243_2_center.h5"</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">fit_dr_fnames</span><span class="p">,</span> <span class="n">subset_dir</span><span class="p">,</span> <span class="n">subset_masters_dir</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fit_without_and_with_exclusions</span><span class="p">(</span><span class="n">excluded</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">masters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assert_masters_built_without</span><span class="p">(</span>
+            <span class="n">excluded</span><span class="p">,</span> <span class="n">fit_dr_fnames</span><span class="p">,</span> <span class="n">subset_dir</span><span class="p">,</span> <span class="n">subset_masters_dir</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">subset_fname</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subset_dir</span><span class="p">,</span> <span class="s2">"*.h5"</span><span class="p">)):</span>
+            <span class="n">dr_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dr_dir</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">subset_fname</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assert_groups_match</span><span class="p">(</span><span class="n">subset_fname</span><span class="p">,</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assert_groups_match</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">subset_fname</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">last_pass</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"iter(\d+)\.fits$"</span><span class="p">,</span> <span class="n">masters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">excluded</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="nb">max</span><span class="p">(</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">fit_path</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span> <span class="k">for</span> <span class="n">fit_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fits</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">last_pass</span><span class="p">,</span>
+                <span class="n">dr_fname</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">fit_dr_fnames</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_qc_included</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">dr_fname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excluded</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_master_reads</span><span class="p">(</span><span class="n">masters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">legacy_master</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="s2">"legacy_masters"</span><span class="p">,</span> <span class="s2">"*.fits"</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_master_reads</span><span class="p">(</span><span class="n">legacy_master</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFitMagnitudes.test_existing_files_are_not_overwritten">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_existing_files_are_not_overwritten">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_existing_files_are_not_overwritten</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A file the first pass would write stops the fit before it starts.</span>
+
+<span class="sd">        The master and the statistics of the first pass are each put in</span>
+<span class="sd">        place alone, as a master built from another single photometric</span>
+<span class="sd">        reference named alike would have left them. The step must fail</span>
+<span class="sd">        without fitting any image and leave the file as it was.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">([</span><span class="s2">"DR"</span><span class="p">])</span>
+        <span class="n">dr_fnames</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">,</span> <span class="s2">"*.h5"</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_fnames</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_magnitudes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">dr_file</span><span class="p">:</span>
+                        <span class="k">del</span> <span class="n">dr_file</span><span class="p">[</span><span class="n">group</span><span class="p">]</span>
+
+        <span class="n">masters_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"MASTERS"</span><span class="p">)</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">masters_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mphotref_*_iter000.fits"</span><span class="p">,</span> <span class="s2">"mfit_stat_*_iter000.txt"</span><span class="p">]:</span>
+            <span class="p">(</span><span class="n">existing</span><span class="p">,)</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="s2">"MASTERS"</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">existing</span><span class="o">=</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">existing</span><span class="p">)):</span>
+                <span class="n">in_place</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">masters_dir</span><span class="p">)</span>
+                <span class="n">fit</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">"wisp-fit-magnitudes"</span><span class="p">,</span>
+                        <span class="s2">"-c"</span><span class="p">,</span>
+                        <span class="s2">"test.cfg"</span><span class="p">,</span>
+                        <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">),</span>
+                    <span class="p">],</span>
+                    <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span>
+                    <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span>
+                    <span class="n">stderr</span><span class="o">=</span><span class="n">STDOUT</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span>
+                    <span class="n">fit</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">filecmp</span><span class="o">.</span><span class="n">cmp</span><span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">in_place</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">dr_fname</span>
+                        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_fnames</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fits</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
+                    <span class="p">],</span>
+                    <span class="p">[],</span>
+                <span class="p">)</span>
+                <span class="n">remove</span><span class="p">(</span><span class="n">in_place</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

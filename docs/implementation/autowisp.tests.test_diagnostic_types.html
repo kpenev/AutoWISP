@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -172,14 +175,15 @@
 <span id="autowisp-tests-test-diagnostic-types-module"></span><h1>autowisp.tests.test_diagnostic_types module<a class="headerlink" href="#module-autowisp.tests.test_diagnostic_types" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-d9f560e8d754fb39301a900f2b4871fecb23fbc3.png" alt="Inheritance diagram of DiagnosticType, TestCatalogue, TestRuntimePatterns, TestSeeding, TestVocabulary" usemap="#inheritanceceecf0f50b" class="inheritance graphviz" /></div>
-<map id="inheritanceceecf0f50b" name="inheritanceceecf0f50b">
+<div class="graphviz"><img src="../_images/inheritance-811f552ac89cd9e146588f10cd8ff203d044fff1.png" alt="Inheritance diagram of DiagnosticType, TestCatalogue, TestPhotometryId, TestRuntimePatterns, TestSeeding, TestVocabulary" usemap="#inheritance1849e668bf" class="inheritance graphviz" /></div>
+<map id="inheritance1849e668bf" name="inheritance1849e668bf">
 <area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="203,372,657,397"/>
 <area shape="rect" id="node6" href="#autowisp.tests.test_diagnostic_types.TestCatalogue" target="_top" title="The shape and content of the static catalogue." alt="" coords="793,79,1152,104"/>
-<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" target="_top" title="The names that are described rather than listed." alt="" coords="1176,79,1577,104"/>
-<area shape="rect" id="node9" href="#autowisp.tests.test_diagnostic_types.TestSeeding" target="_top" title="The catalogue and the rows it seeds must stay identical." alt="" coords="1601,79,1947,104"/>
-<area shape="rect" id="node10" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" target="_top" title="What an expression may reference, without opening any project." alt="" coords="1971,79,2337,104"/>
-<area shape="rect" id="node13" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostic_types.TestPhotometryId" target="_top" title="The id each photometry of magfit&#39;s arrays is recorded under." alt="" coords="1177,79,1558,104"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" target="_top" title="The names that are described rather than listed." alt="" coords="1583,79,1984,104"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_diagnostic_types.TestSeeding" target="_top" title="The catalogue and the rows it seeds must stay identical." alt="" coords="2008,79,2353,104"/>
+<area shape="rect" id="node11" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" target="_top" title="What an expression may reference, without opening any project." alt="" coords="2378,79,2743,104"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
 </map><p>Tests for the diagnostic vocabulary.</p>
 <p>The catalogue was moved out of <code class="docutils literal notranslate"><span class="pre">_init_diagnostic_types()</span></code> so that an
 expression can be validated without opening a project.  The risk that
@@ -222,6 +226,22 @@ rendered text catches it coming back.</p>
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestCatalogue.test_names_are_exactly_the_mapping_keys">
 <span class="sig-name descname"><span class="pre">test_names_are_exactly_the_mapping_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestCatalogue.test_names_are_exactly_the_mapping_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestCatalogue.test_names_are_exactly_the_mapping_keys" title="Link to this definition"></a></dt>
 <dd><p>The two accessors cannot disagree about what exists.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestPhotometryId">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestPhotometryId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestPhotometryId"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestPhotometryId" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-5f35ff7278f3065cd4de6cb215794c52e09f1d68.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestPhotometryId" usemap="#inheritanceef2dcb9bd6" class="inheritance graphviz" /></div>
+<map id="inheritanceef2dcb9bd6" name="inheritanceef2dcb9bd6">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestPhotometryId" target="_top" title="The id each photometry of magfit&#39;s arrays is recorded under." alt="" coords="5,79,387,104"/>
+</map><p>The id each photometry of magfit’s arrays is recorded under.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestPhotometryId.test_same_photometry_same_id">
+<span class="sig-name descname"><span class="pre">test_same_photometry_same_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestPhotometryId.test_same_photometry_same_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestPhotometryId.test_same_photometry_same_id" title="Link to this definition"></a></dt>
+<dd><p>With and without a shape fit, an aperture keeps its index.</p>
 </dd></dl>
 
 </dd></dl>

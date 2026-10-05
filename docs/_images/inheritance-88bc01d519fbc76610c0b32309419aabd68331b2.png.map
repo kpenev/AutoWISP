@@ -1,0 +1,20 @@
+<map id="inheritanced41cebc504" name="inheritanced41cebc504">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="1102,299,1470,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
+<area shape="rect" id="node6" title="Base class for all per&#45;image diagnostics." alt="" coords="346,372,845,397"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="869,372,1252,397"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1276,372,1747,397"/>
+<area shape="rect" id="node10" title="The table describing the camera specified" alt="" coords="1771,372,2185,397"/>
+<area shape="rect" id="node11" title="The table describing each of the channels of a type of camera." alt="" coords="2210,372,2735,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="861,225,1281,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1306,225,1698,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="1355,152,1649,177"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="341,445,849,471"/>
+<area shape="rect" id="node12" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="1585,5,1933,31"/>
+<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1957,5,2212,31"/>
+<area shape="rect" id="node15" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1963,79,2206,104"/>
+<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="1945,152,2224,177"/>
+<area shape="rect" id="node16" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="888,152,1255,177"/>
+<area shape="rect" id="node17" title="define a class as inspectable." alt="" coords="1379,79,1625,104"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1443,5,1561,31"/>
+</map>

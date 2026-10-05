@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -184,6 +187,10 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">processing_steps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">standard_diagnostic_types</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_library</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">default_expressions</span><span class="p">,</span>
+    <span class="n">write_expressions</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># false positive due to unusual importing</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
@@ -205,6 +212,18 @@
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: The step options the engine sets for each batch: the masters it selects</span>
+<span class="c1">#: and the exclusion list it writes. Never configured, so a project does not</span>
+<span class="c1">#: store them, but a step run by hand takes them like any other option.</span>
+<span class="n">engine_set_options</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"qc-exclude-file"</span><span class="p">,</span>
+    <span class="s2">"master-bias"</span><span class="p">,</span>
+    <span class="s2">"master-dark"</span><span class="p">,</span>
+    <span class="s2">"master-flat"</span><span class="p">,</span>
+    <span class="s2">"single-photref-dr-fname"</span><span class="p">,</span>
+    <span class="s2">"master-photref-fname"</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_command_line_parser">
@@ -315,6 +334,7 @@
                     <span class="s2">"extra-config-file"</span><span class="p">,</span>
                     <span class="s2">"split-channels"</span><span class="p">,</span>
                     <span class="s2">"project-home"</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">engine_set_options</span><span class="p">,</span>
                 <span class="p">]</span>
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"-only-if"</span><span class="p">)</span>
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"-version"</span><span class="p">)</span>
@@ -482,7 +502,7 @@
         <span class="p">):</span>
             <span class="k">if</span> <span class="n">step_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">db_steps</span><span class="p">:</span>
                 <span class="n">db_steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">add_processing_step</span><span class="p">(</span><span class="n">step_name</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">step_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"add_images_to_db"</span><span class="p">,</span> <span class="s2">"calculate_photref_merit"</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">step_name</span> <span class="o">!=</span> <span class="s2">"add_images_to_db"</span><span class="p">:</span>
                 <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                     <span class="n">ProcessingSequence</span><span class="p">(</span>
                         <span class="nb">id</span><span class="o">=</span><span class="n">processing_id</span><span class="p">,</span>
@@ -527,12 +547,15 @@
         <span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">get_db_engine</span><span class="p">())</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span><span class="n">get_db_engine</span><span class="p">())</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># A list, not an iterator: drop_all reads it more than once, which a</span>
+        <span class="c1"># one-shot iterator survives only under SQLAlchemy 2.0.</span>
         <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span>
             <span class="n">get_db_engine</span><span class="p">(),</span>
-            <span class="nb">filter</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">table</span><span class="p">:</span> <span class="n">pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-                <span class="nb">reversed</span><span class="p">(</span><span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">sorted_tables</span><span class="p">),</span>
-            <span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">table</span>
+                <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">sorted_tables</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">],</span>
         <span class="p">)</span></div>
 
 
@@ -653,6 +676,16 @@
 
 
 
+<div class="viewcode-block" id="_init_diagnostic_expressions">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database._init_diagnostic_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_init_diagnostic_expressions</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Start the project's expression library with the default expressions."""</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">write_expressions</span><span class="p">(</span><span class="n">default_expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="initialize_database">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.initialize_database">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">initialize_database</span><span class="p">(</span>
@@ -688,7 +721,8 @@
             <span class="p">]</span>
         <span class="p">}</span>
     <span class="n">_overwrite_default_config</span><span class="p">(</span><span class="n">overwrite_default_config</span><span class="p">)</span>
-    <span class="n">_init_diagnostic_types</span><span class="p">()</span></div>
+    <span class="n">_init_diagnostic_types</span><span class="p">()</span>
+    <span class="n">_init_diagnostic_expressions</span><span class="p">()</span></div>
 
 
 

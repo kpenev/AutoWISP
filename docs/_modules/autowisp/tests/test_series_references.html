@@ -1,0 +1,1287 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_series_references &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_series_references</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.test_series_references</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Tests for splitting a series by the photometric reference its images used.</span>
+
+<span class="sd">A diagnostic ``fit_magnitudes`` produces depends on the reference an image</span>
+<span class="sd">was fit against as well as on the image, so a series reading one is</span>
+<span class="sd">restricted to the images bound to one reference in each channel it reads it</span>
+<span class="sd">in. These cover the key carrying those references, the restriction and the</span>
+<span class="sd">guard refusing to read magfit diagnostics without one, and finding which</span>
+<span class="sd">reference populations a session holds.</span>
+
+<span class="sd">The fixture is one night fit against two references, ``ref1`` and ``ref2``,</span>
+<span class="sd">in both of its channels, ``R`` and ``B``: the first three frames against</span>
+<span class="sd">``ref1``, the next two against ``ref2``, one frame against ``ref2`` in ``R``</span>
+<span class="sd">but ``ref1`` in ``B`` -- rare, and exactly what a split has to keep apart --</span>
+<span class="sd">and a last frame magfit-ed but bound to nothing, as processing before every</span>
+<span class="sd">magfit-ed image was bound could leave one. The magfit diagnostic is recorded</span>
+<span class="sd">per photometry, as ``fit_magnitudes`` records it, in two apertures, with one</span>
+<span class="sd">value missing in one of them only.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_project_home</span><span class="p">,</span> <span class="n">start_db_session</span>
+
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DiagnosticType</span><span class="p">,</span>
+    <span class="n">Image</span><span class="p">,</span>
+    <span class="n">ImageDiagnostics</span><span class="p">,</span>
+    <span class="n">ImageMasterSelection</span><span class="p">,</span>
+    <span class="n">ImageType</span><span class="p">,</span>
+    <span class="n">MasterFile</span><span class="p">,</span>
+    <span class="n">MasterType</span><span class="p">,</span>
+    <span class="n">ObservingSession</span><span class="p">,</span>
+    <span class="n">PhotometryDiagnostics</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_series</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SeriesKey</span><span class="p">,</span>
+    <span class="n">count_unbound_images</span><span class="p">,</span>
+    <span class="n">get_canonical_images</span><span class="p">,</span>
+    <span class="n">get_quantity_values</span><span class="p">,</span>
+    <span class="n">split_series</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.image_counts</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">count_images_per_photometry</span><span class="p">,</span>
+    <span class="n">count_images_with_all</span><span class="p">,</span>
+    <span class="n">count_images_with_channels</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.quantities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_recorded_diagnostics</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestSeriesKeyReferences">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSeriesKeyReferences">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSeriesKeyReferences</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""What a key accepts for its references, and what it makes of them."""</span>
+
+<div class="viewcode-block" id="TestSeriesKeyReferences.test_omitted_is_none_in_every_slot">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_omitted_is_none_in_every_slot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_omitted_is_none_in_every_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A key built as before equals the one spelling the Nones out."""</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">photrefs</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="n">photrefs</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">reference_pairs</span><span class="p">,</span> <span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestSeriesKeyReferences.test_one_reference_per_slot">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_one_reference_per_slot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_one_reference_per_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A length differing from the channels' is refused."""</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="n">photrefs</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,))</span></div>
+
+
+<div class="viewcode-block" id="TestSeriesKeyReferences.test_coerced_to_a_hashable_key">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_coerced_to_a_hashable_key">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_coerced_to_a_hashable_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""References and photometries posted as lists of strings still make</span>
+<span class="sd">        a usable key."""</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"R"</span><span class="p">],</span> <span class="n">photometries</span><span class="o">=</span><span class="p">[</span><span class="s2">"2"</span><span class="p">],</span> <span class="n">photrefs</span><span class="o">=</span><span class="p">[</span><span class="s2">"12"</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">photrefs</span><span class="p">,</span> <span class="p">(</span><span class="mi">12</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">photometries</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="mi">1</span><span class="p">}[</span>
+                <span class="n">SeriesKey</span><span class="p">(</span>
+                    <span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="n">photometries</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="n">photrefs</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,)</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+            <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSeriesKeyReferences.test_references_and_photometries_by_keyword_only">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_references_and_photometries_by_keyword_only">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_references_and_photometries_by_keyword_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Both are tuples of ids, so one in the other's place is refused</span>
+<span class="sd">        rather than read wrongly."""</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+            <span class="c1"># pylint: disable-next=too-many-function-args</span>
+            <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">12</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">SeriesKey</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,))</span><span class="o">.</span><span class="n">photometries</span><span class="p">,</span> <span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestSeriesKeyReferences.test_a_channel_carries_one_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_a_channel_carries_one_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_channel_carries_one_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A slot left None takes the reference another slot on its channel has.</span>
+
+<span class="sd">        What makes a producer filling only the slots that read magfit build</span>
+<span class="sd">        the same key as one filling every slot on the channel.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">SeriesKey</span><span class="p">(</span>
+                <span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="n">photrefs</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">photrefs</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSeriesKeyReferences.test_two_references_on_a_channel_are_left_alone">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_two_references_on_a_channel_are_left_alone">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_two_references_on_a_channel_are_left_alone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Nothing could be meant by filling from one of them."""</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="n">photrefs</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">photrefs</span><span class="p">,</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">reference_pairs</span><span class="p">,</span> <span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="mi">15</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="TestSeriesKeyReferences.test_replace_goes_through_the_checks">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSeriesKeyReferences.test_replace_goes_through_the_checks">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_replace_goes_through_the_checks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Replacing the channels alone leaves the references too short."""</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">photrefs</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">])</span><span class="o">.</span><span class="n">photrefs</span><span class="p">,</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="p">(</span><span class="mi">12</span><span class="p">,),</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">key</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">))</span>  <span class="c1"># pylint: disable=no-member</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ReferenceProject">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.ReferenceProject">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReferenceProject</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The fixture the classes below share, holding no tests of its own.</span>
+
+<span class="sd">    Its own project rather than the shared one: references, bindings and</span>
+<span class="sd">    magfit diagnostics there would change what every other series test</span>
+<span class="sd">    sees.</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: The reference each frame is bound to, per channel; ``None`` for the</span>
+    <span class="c1">#: frame magfit-ed but bound to nothing. The sixth is bound differently</span>
+    <span class="c1">#: in the two channels.</span>
+    <span class="n">bound_to</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"R"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="s2">"B"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="c1">#: ``photometry_mag_offset`` per channel and frame, distinct everywhere</span>
+    <span class="c1">#: so that a value landing on the wrong image cannot pass by luck.</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"R"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">],</span>
+        <span class="s2">"B"</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">98.0</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="c1">#: The photometries the offsets are recorded in, each shifted by its own</span>
+    <span class="c1">#: amount so that a read in the wrong one cannot pass by luck: aperture</span>
+    <span class="c1">#: 0 as above, aperture 2 a thousand higher.</span>
+    <span class="n">shifts</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">}</span>
+
+    <span class="c1">#: ``(channel, frame, photometry)`` of the one offset not recorded, as</span>
+    <span class="c1">#: ``fit_magnitudes`` skips a non-finite one: in one photometry only.</span>
+    <span class="n">unrecorded</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1">#: ``bg_center`` in ``R``, which does not depend on the reference.</span>
+    <span class="n">backgrounds</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">101.0</span><span class="p">,</span> <span class="mf">102.0</span><span class="p">,</span> <span class="mf">103.0</span><span class="p">,</span> <span class="mf">104.0</span><span class="p">,</span> <span class="mf">105.0</span><span class="p">,</span> <span class="mf">106.0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ReferenceProject.setUpClass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.ReferenceProject.setUpClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># Closed in tearDownClass rather than by a context manager, which a</span>
+        <span class="c1"># fixture spanning every test of the class cannot use.</span>
+        <span class="c1"># pylint: disable=consider-using-with</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="c1"># pylint: enable=consider-using-with</span>
+        <span class="n">set_project_home</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_fill_database</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ReferenceProject.tearDownClass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.ReferenceProject.tearDownClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ReferenceProject._fill_database">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.ReferenceProject._fill_database">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fill_database</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One night of seven object frames in two channels, two references.</span>
+
+<span class="sd">        Provenance foreign keys, and the master type's condition, are left</span>
+<span class="sd">        dangling, as SQLite does not enforce them and nothing here reads</span>
+<span class="sd">        them.</span>
+<span class="sd">        """</span>
+
+        <span class="c1"># False positive: the declarative models are callable.</span>
+        <span class="c1"># pylint: disable=not-callable</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">photref_type</span> <span class="o">=</span> <span class="n">MasterType</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"single_photref"</span><span class="p">,</span> <span class="n">condition_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"photref"</span>
+            <span class="p">)</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add_all</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">DiagnosticType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"photometry_mag_offset"</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span>
+                    <span class="n">ImageType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"object"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"objects"</span><span class="p">),</span>
+                    <span class="n">photref_type</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+            <span class="c1">#: ``{(reference, channel): MasterFile id}``.</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">photref</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">reference</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">):</span>
+                    <span class="n">master</span> <span class="o">=</span> <span class="n">MasterFile</span><span class="p">(</span>
+                        <span class="n">type_id</span><span class="o">=</span><span class="n">photref_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">"/photref/</span><span class="si">{</span><span class="n">reference</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">.h5"</span><span class="p">,</span>
+                        <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">master</span><span class="p">)</span>
+                    <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">photref</span><span class="p">[</span><span class="n">reference</span><span class="p">,</span> <span class="n">channel</span><span class="p">]</span> <span class="o">=</span> <span class="n">master</span><span class="o">.</span><span class="n">id</span>
+
+            <span class="bp">cls</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">image_ids</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_add_night</span><span class="p">(</span>
+                <span class="n">db_session</span><span class="p">,</span>
+                <span class="s2">"split_night"</span><span class="p">,</span>
+                <span class="n">day</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">backgrounds</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">backgrounds</span><span class="p">,</span>
+                <span class="n">offsets</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">offsets</span><span class="p">,</span>
+                <span class="n">bound_to</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">bound_to</span><span class="p">,</span>
+                <span class="n">unrecorded</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">unrecorded</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+        <span class="c1"># pylint: enable=not-callable</span>
+
+    <span class="c1"># Each argument is one thing a night holds, named at the call, and the</span>
+    <span class="c1"># locals are the rows it is built from.</span>
+<div class="viewcode-block" id="ReferenceProject._add_night">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.ReferenceProject._add_night">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="c1"># pylint: disable-next=too-many-arguments,too-many-locals</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_night</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">db_session</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">day</span><span class="p">,</span>
+        <span class="n">backgrounds</span><span class="p">,</span>
+        <span class="n">offsets</span><span class="p">,</span>
+        <span class="n">bound_to</span><span class="p">,</span>
+        <span class="n">unrecorded</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Add a night of object frames, with their diagnostics and bindings.</span>
+
+<span class="sd">        The diagnostic, image and master types and the references must be in</span>
+<span class="sd">        the database already. Provenance foreign keys are left dangling.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">            label(str):    Names the session, and its frames' files.</span>
+
+<span class="sd">            day(int):    How many days after the first night it is.</span>
+
+<span class="sd">            backgrounds(list):    ``bg_center`` in ``R`` per frame, which</span>
+<span class="sd">                also says how many frames there are.</span>
+
+<span class="sd">            offsets(dict):    ``{channel: [photometry_mag_offset, ...]}``</span>
+<span class="sd">                per frame in aperture 0, recorded in every photometry of</span>
+<span class="sd">                :attr:`shifts`, each shifted by its own amount.</span>
+
+<span class="sd">            bound_to(dict):    ``{channel: [reference, ...]}``: the name of</span>
+<span class="sd">                the reference each frame is bound to, or ``None``.</span>
+
+<span class="sd">            unrecorded(tuple):    ``(channel, frame, photometry)`` of an</span>
+<span class="sd">                offset to leave out, if any.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple:</span>
+<span class="sd">                int:    The id of the session.</span>
+
+<span class="sd">                list:    The ids of its images, in frame order.</span>
+<span class="sd">        """</span>
+
+        <span class="c1"># False positive: the declarative models are callable.</span>
+        <span class="c1"># pylint: disable=not-callable</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">ObservingSession</span><span class="p">(</span>
+            <span class="n">observer_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">camera_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">telescope_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">mount_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">observatory_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">target_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">start_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">day</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">end_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">day</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="n">diagnostic_ids</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">image_type_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"object"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">photref_type_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">MasterType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">MasterType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"single_photref"</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">image_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">background</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">backgrounds</span><span class="p">):</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
+                <span class="n">raw_fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">"/data/raw/</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">.fits"</span><span class="p">,</span>
+                <span class="n">image_type_id</span><span class="o">=</span><span class="n">image_type_id</span><span class="p">,</span>
+                <span class="n">observing_session_id</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">jd</span><span class="o">=</span><span class="mf">2460005.5</span> <span class="o">+</span> <span class="n">day</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">index</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">image_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="n">ImageDiagnostics</span><span class="p">(</span>
+                    <span class="n">image_id</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="n">channel</span><span class="o">=</span><span class="s2">"R"</span><span class="p">,</span>
+                    <span class="n">diagnostic_id</span><span class="o">=</span><span class="n">diagnostic_ids</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">],</span>
+                    <span class="n">value</span><span class="o">=</span><span class="n">background</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">channel_offsets</span> <span class="ow">in</span> <span class="n">offsets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">db_session</span><span class="o">.</span><span class="n">add_all</span><span class="p">(</span>
+                    <span class="n">PhotometryDiagnostics</span><span class="p">(</span>
+                        <span class="n">image_id</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                        <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+                        <span class="n">photometry_id</span><span class="o">=</span><span class="n">photometry</span><span class="p">,</span>
+                        <span class="n">diagnostic_id</span><span class="o">=</span><span class="n">diagnostic_ids</span><span class="p">[</span><span class="s2">"photometry_mag_offset"</span><span class="p">],</span>
+                        <span class="n">value</span><span class="o">=</span><span class="n">channel_offsets</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">photometry</span><span class="p">,</span> <span class="n">shift</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">shifts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">photometry</span><span class="p">)</span> <span class="o">!=</span> <span class="n">unrecorded</span>
+                <span class="p">)</span>
+                <span class="n">reference</span> <span class="o">=</span> <span class="n">bound_to</span><span class="p">[</span><span class="n">channel</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                        <span class="n">ImageMasterSelection</span><span class="p">(</span>
+                            <span class="n">image_id</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                            <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+                            <span class="n">master_type_id</span><span class="o">=</span><span class="n">photref_type_id</span><span class="p">,</span>
+                            <span class="n">master_file_id</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">photref</span><span class="p">[</span><span class="n">reference</span><span class="p">,</span> <span class="n">channel</span><span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="c1"># pylint: enable=not-callable</span>
+
+        <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">image_ids</span></div>
+
+
+<div class="viewcode-block" id="ReferenceProject.key">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.ReferenceProject.key">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="o">*</span><span class="n">references</span><span class="p">,</span> <span class="n">photometries</span><span class="o">=</span><span class="p">()):</span>
+<span class="w">        </span><span class="sd">"""Return the night's series binding *channels* to *references*.</span>
+
+<span class="sd">        Each reference is ``"ref1"``, ``"ref2"`` or ``None``, per slot, and</span>
+<span class="sd">        is looked up in that slot's channel. What is read, and in which</span>
+<span class="sd">        photometry, is up to ``wanted``; the key's *photometries* only name</span>
+<span class="sd">        the series.</span>
+<span class="sd">        """</span>
+
+        <span class="k">return</span> <span class="n">SeriesKey</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span>
+            <span class="s2">"object"</span><span class="p">,</span>
+            <span class="n">channels</span><span class="p">,</span>
+            <span class="n">photometries</span><span class="o">=</span><span class="n">photometries</span><span class="p">,</span>
+            <span class="n">photrefs</span><span class="o">=</span><span class="p">(</span>
+                <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="kc">None</span>
+                        <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="kc">None</span>
+                        <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">photref</span><span class="p">[</span><span class="n">reference</span><span class="p">,</span> <span class="n">channel</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">reference</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="n">references</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">references</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ReferenceProject.selected">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.ReferenceProject.selected">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">references</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the *values* of the frames bound as *references* say.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            values(list):    One entry per frame, in order.</span>
+
+<span class="sd">            references:    ``channel=reference`` for every channel the</span>
+<span class="sd">                frames have to be bound in, ``reference`` possibly ``None``.</span>
+<span class="sd">        """</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">value</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bound_to</span><span class="p">[</span><span class="n">channel</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">reference</span>
+                <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">reference</span> <span class="ow">in</span> <span class="n">references</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestReferenceRestriction">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestReferenceRestriction</span><span class="p">(</span><span class="n">ReferenceProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A key naming references reads only the images fit against them."""</span>
+
+<div class="viewcode-block" id="TestReferenceRestriction.test_the_image_list_is_the_reference_population">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction.test_the_image_list_is_the_reference_population">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_image_list_is_the_reference_population</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The canonical list itself shrinks, so every array does too."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">image_ids</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="s2">"ref2"</span><span class="p">),</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="s2">"ref2"</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceRestriction.test_an_aggregate_sees_one_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction.test_an_aggregate_sees_one_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_an_aggregate_sees_one_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A median taken over both references would be neither's."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"rel_offset"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{</span>
+                    <span class="s2">"rel_offset"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset[0][0]"</span>
+                    <span class="s2">" - nanmedian(photometry_mag_offset[0][0])"</span>
+                <span class="p">},</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="s2">"ref1"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"rel_offset"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)]),</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceRestriction.test_a_magfit_read_needs_a_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_magfit_read_needs_a_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_magfit_read_needs_a_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Without one, the series would mix the night's two references."""</span>
+
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">get_quantity_values</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,)),</span>
+                <span class="p">{</span><span class="s2">"photometry_mag_offset"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{},</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceRestriction.test_a_reference_is_needed_in_every_channel_read">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_reference_is_needed_in_every_channel_read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_reference_is_needed_in_every_channel_read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One in R does not cover the magfit read in B."""</span>
+
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">get_quantity_values</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"colour"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{</span>
+                    <span class="s2">"colour"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset[0][0]"</span>
+                    <span class="s2">" - photometry_mag_offset[1][0]"</span>
+                <span class="p">},</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceRestriction.test_a_reference_restricts_what_does_not_need_one">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_reference_restricts_what_does_not_need_one">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_reference_restricts_what_does_not_need_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The background of the frames fit against ref2, say."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="s2">"ref2"</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">())}},</span>
+                <span class="p">{},</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="s2">"ref2"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">()]),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backgrounds</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="s2">"ref2"</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceRestriction.test_a_quoted_read_takes_its_reference_from_a_tail_slot">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_quoted_read_takes_its_reference_from_a_tail_slot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quoted_read_takes_its_reference_from_a_tail_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The quoted channel binds nothing, but still needs its reference.</span>
+
+<span class="sd">        The quantity takes no parameter, so its only slot is the tail one</span>
+<span class="sd">        for the channel it quotes.</span>
+<span class="sd">        """</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"offset_b"</span><span class="p">:</span> <span class="p">{((),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{</span><span class="s2">"offset_b"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset['B'][0]"</span><span class="p">},</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="s2">"ref1"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"offset_b"</span><span class="p">][(),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)]),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offsets</span><span class="p">[</span><span class="s2">"B"</span><span class="p">],</span> <span class="n">B</span><span class="o">=</span><span class="s2">"ref1"</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceRestriction.test_a_quoted_read_without_its_slot_is_refused">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction.test_a_quoted_read_without_its_slot_is_refused">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quoted_read_without_its_slot_is_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""No tail slot means no reference for the quoted channel."""</span>
+
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">get_quantity_values</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">(()),</span>
+                <span class="p">{</span><span class="s2">"offset_b"</span><span class="p">:</span> <span class="p">{((),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{</span><span class="s2">"offset_b"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset['B'][0]"</span><span class="p">},</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceRestriction.test_two_references_on_one_channel_draw_nothing">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceRestriction.test_two_references_on_one_channel_draw_nothing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_two_references_on_one_channel_draw_nothing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""No image is bound to both, since each has one per channel."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">image_ids</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">),</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestPhotometryReads">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestPhotometryReads">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPhotometryReads</span><span class="p">(</span><span class="n">ReferenceProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A per-photometry diagnostic, read in the photometry each read binds."""</span>
+
+<div class="viewcode-block" id="TestPhotometryReads.recorded">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestPhotometryReads.recorded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">recorded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photometry</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the offsets *photometry* holds per frame, NaN if missing."""</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">photometry</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">unrecorded</span>
+                <span class="k">else</span> <span class="n">offset</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">shifts</span><span class="p">[</span><span class="n">photometry</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offsets</span><span class="p">[</span><span class="n">channel</span><span class="p">])</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TestPhotometryReads.test_each_read_is_in_its_own_photometry">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestPhotometryReads.test_each_read_is_in_its_own_photometry">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_each_read_is_in_its_own_photometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Both apertures, and their difference, in one evaluation.</span>
+
+<span class="sd">        The difference is the shift throughout, except on the frame whose</span>
+<span class="sd">        offset aperture 2 did not record: undefined there, rather than</span>
+<span class="sd">        taken from the other aperture.</span>
+<span class="sd">        """</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="p">{</span>
+                    <span class="s2">"photometry_mag_offset"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)),</span> <span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,))},</span>
+                    <span class="s2">"apertures"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))},</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">"apertures"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset[0][0]"</span>
+                    <span class="s2">" - photometry_mag_offset[0][1]"</span>
+                <span class="p">},</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">photometry</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="n">photometry</span><span class="p">),</span> <span class="n">R</span><span class="o">=</span><span class="s2">"ref1"</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shifts</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">photometry</span><span class="p">,</span> <span class="n">offsets</span> <span class="ow">in</span> <span class="n">expected</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">photometry</span><span class="o">=</span><span class="n">photometry</span><span class="p">):</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                    <span class="n">values</span><span class="p">[</span><span class="s2">"photometry_mag_offset"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="n">photometry</span><span class="p">,)],</span>
+                    <span class="n">offsets</span><span class="p">,</span>
+                    <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+            <span class="n">values</span><span class="p">[</span><span class="s2">"apertures"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+            <span class="n">expected</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">expected</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestSplitSeries">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSplitSeries</span><span class="p">(</span><span class="n">ReferenceProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Finding the reference populations a session holds."""</span>
+
+    <span class="c1">#: Read in both channels, so split by the references of both.</span>
+    <span class="n">colour</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"colour"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset[0][0] - photometry_mag_offset[1][0]"</span>
+    <span class="p">}</span>
+
+    <span class="c1">#: How :attr:`colour` is bound: R and B, in aperture 0.</span>
+    <span class="n">colour_bound</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"colour"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}}</span>
+
+<div class="viewcode-block" id="TestSplitSeries.split">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.split">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return :func:`split_series` for *key*, in a session of its own."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">split_series</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">db_session</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSplitSeries.test_one_key_per_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.test_one_key_per_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_one_key_per_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The night splits into the frames fit against ref1 and ref2.</span>
+
+<span class="sd">        Each key keeps the photometry the series is drawn in.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="n">photometries</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)),</span>
+                <span class="p">{</span><span class="s2">"photometry_mag_offset"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+            <span class="p">),</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="n">photometries</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="n">photometries</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)),</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSplitSeries.test_a_frame_fit_differently_per_channel_is_its_own_population">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.test_a_frame_fit_differently_per_channel_is_its_own_population">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_frame_fit_differently_per_channel_is_its_own_population</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Split by R and B, the frame fit against ref2 and ref1 stands alone.</span>
+
+<span class="sd">        Neither with the frames fit against ref1 in both channels, nor with</span>
+<span class="sd">        those fit against ref2 in both: an aggregate over either would mix</span>
+<span class="sd">        references in one of its channels. And only combinations some frame</span>
+<span class="sd">        has come back -- never ref1 in R with ref2 in B.</span>
+<span class="sd">        """</span>
+
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">colour_bound</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colour</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">keys</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">image_ids</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">db_session</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="s2">"ref2"</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="s2">"ref1"</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSplitSeries.test_each_key_draws_its_own_population">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.test_each_key_draws_its_own_population">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_each_key_draws_its_own_population</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""What the engine does with the keys: one evaluation each."""</span>
+
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"photometry_mag_offset"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}}</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">reference</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">split_series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,)),</span> <span class="n">wanted</span><span class="p">,</span> <span class="p">{},</span> <span class="n">db_session</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">),</span>
+            <span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">reference</span><span class="o">=</span><span class="n">reference</span><span class="p">):</span>
+                    <span class="n">values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="p">{},</span> <span class="n">db_session</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                        <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"photometry_mag_offset"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)]),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offsets</span><span class="p">[</span><span class="s2">"R"</span><span class="p">],</span> <span class="n">R</span><span class="o">=</span><span class="n">reference</span><span class="p">),</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSplitSeries.test_a_reference_the_key_names_is_kept">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.test_a_reference_the_key_names_is_kept">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_reference_the_key_names_is_kept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Pinned to ref1 in B, the split of R meets both of R's references.</span>
+
+<span class="sd">        The frames fit against ref1 in B include the one fit against ref2 in</span>
+<span class="sd">        R, so the split within them is not the same as pinning R too.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">colour_bound</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSplitSeries.test_every_slot_on_a_split_channel_gets_its_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.test_every_slot_on_a_split_channel_gets_its_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_slot_on_a_split_channel_gets_its_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The background slot shares the offset slot's channel, R."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)),</span>
+                <span class="p">{</span><span class="s2">"mixed"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{</span><span class="s2">"mixed"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset[0][0] - bg_center[1]"</span><span class="p">},</span>
+            <span class="p">),</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="s2">"ref2"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSplitSeries.test_nothing_to_split_without_a_magfit_read">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.test_nothing_to_split_without_a_magfit_read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_nothing_to_split_without_a_magfit_read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The background does not depend on the reference."""</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">())}}),</span> <span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestSplitSeries.test_a_quoted_channel_needs_its_tail_slot">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.test_a_quoted_channel_needs_its_tail_slot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quoted_channel_needs_its_tail_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Its reference would have nowhere to go."""</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">(()),</span>
+                <span class="p">{</span><span class="s2">"offset_b"</span><span class="p">:</span> <span class="p">{((),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{</span><span class="s2">"offset_b"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset['B'][0]"</span><span class="p">},</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSplitSeries.test_a_quoted_channel_is_split_in_its_tail_slot">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestSplitSeries.test_a_quoted_channel_is_split_in_its_tail_slot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quoted_channel_is_split_in_its_tail_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""With the slot there, it splits like any other."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,)),</span>
+                <span class="p">{</span><span class="s2">"offset_b"</span><span class="p">:</span> <span class="p">{((),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{</span><span class="s2">"offset_b"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset['B'][0]"</span><span class="p">},</span>
+            <span class="p">),</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="s2">"ref1"</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="s2">"ref2"</span><span class="p">)],</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestCountUnboundImages">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestCountUnboundImages">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCountUnboundImages</span><span class="p">(</span><span class="n">ReferenceProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The frames a split leaves out, for want of a binding."""</span>
+
+<div class="viewcode-block" id="TestCountUnboundImages.count">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestCountUnboundImages.count">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return :func:`count_unbound_images`, in a session of its own."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">count_unbound_images</span><span class="p">(</span>
+                <span class="n">key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">db_session</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCountUnboundImages.test_the_unbound_frame_is_counted">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestCountUnboundImages.test_the_unbound_frame_is_counted">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_unbound_frame_is_counted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Magfit-ed in both channels, bound in neither: counted once."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)),</span>
+                <span class="p">{</span><span class="s2">"colour"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="p">{</span>
+                    <span class="s2">"colour"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset[0][0]"</span>
+                    <span class="s2">" - photometry_mag_offset[1][0]"</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+            <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCountUnboundImages.test_it_is_in_none_of_the_split_keys">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestCountUnboundImages.test_it_is_in_none_of_the_split_keys">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_it_is_in_none_of_the_split_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Which is what makes it worth reporting."""</span>
+
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"photometry_mag_offset"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}}</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">drawn</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">image_id</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">split_series</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,)),</span> <span class="n">wanted</span><span class="p">,</span> <span class="p">{},</span> <span class="n">db_session</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">get_canonical_images</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">drawn</span><span class="p">,</span>
+            <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">)),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCountUnboundImages.test_nothing_is_counted_without_a_magfit_read">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestCountUnboundImages.test_nothing_is_counted_without_a_magfit_read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_nothing_is_counted_without_a_magfit_read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Nothing is split, so nothing is left out."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,)),</span> <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">())}}),</span> <span class="mi">0</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCountUnboundImages.test_nothing_is_counted_where_the_key_names_the_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestCountUnboundImages.test_nothing_is_counted_where_the_key_names_the_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_nothing_is_counted_where_the_key_names_the_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""There is no split to be left out of."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="s2">"ref1"</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"photometry_mag_offset"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+            <span class="p">),</span>
+            <span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestReferenceCounts">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceCounts">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestReferenceCounts</span><span class="p">(</span><span class="n">ReferenceProject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""What the series table offers and counts: per reference, per</span>
+<span class="sd">    photometry, and per bound row."""</span>
+
+    <span class="c1">#: What a row comparing the two channels' offsets in aperture 0 reads.</span>
+    <span class="n">colour_reads</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="s2">"photometry_mag_offset"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"photometry_mag_offset"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="TestReferenceCounts.test_both_tables_are_recorded">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceCounts.test_both_tables_are_recorded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_both_tables_are_recorded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The offset, recorded per photometry, is offered like the rest."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="n">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">),</span>
+                <span class="p">[</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"photometry_mag_offset"</span><span class="p">],</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceCounts.test_options_are_counted_per_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceCounts.test_options_are_counted_per_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_options_are_counted_per_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One count per (channel, photref) the frames are bound to.</span>
+
+<span class="sd">        The frame bound differently in its two channels counts under ref2</span>
+<span class="sd">        in R and under ref1 in B; the frame bound to nothing, under neither.</span>
+<span class="sd">        """</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">count_images_with_all</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">"photometry_mag_offset"</span><span class="p">},</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">by_reference</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">],</span>
+            <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">channel</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">photref</span><span class="p">[</span><span class="n">reference</span><span class="p">,</span> <span class="n">channel</span><span class="p">],</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">channel</span><span class="p">:</span> <span class="n">reference</span><span class="p">})),</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">reference</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ref1"</span><span class="p">,</span> <span class="s2">"ref2"</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceCounts.test_options_are_counted_per_photometry">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceCounts.test_options_are_counted_per_photometry">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_options_are_counted_per_photometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Every frame in both apertures, and once each.</span>
+
+<span class="sd">        A frame recorded in two channels is still one image per aperture.</span>
+<span class="sd">        The frame aperture 2 did not record in R records it in B, and so is</span>
+<span class="sd">        counted there: which channel it is read in is for the channel</span>
+<span class="sd">        columns to decide.</span>
+<span class="sd">        """</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">count_images_per_photometry</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">"photometry_mag_offset"</span><span class="p">},</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">],</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="n">photometry</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shifts</span><span class="p">)</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceCounts.test_a_bound_row_counts_its_photometries">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceCounts.test_a_bound_row_counts_its_photometries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_bound_row_counts_its_photometries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""R's offset in either aperture, with B's in 0 and R's background.</span>
+
+<span class="sd">        Aperture 2 draws one frame fewer: the one whose offset it did not</span>
+<span class="sd">        record in R. The background, recorded per image, is required</span>
+<span class="sd">        beside the offsets, recorded per photometry.</span>
+<span class="sd">        """</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">photometry</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">expected</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">photometry</span><span class="o">=</span><span class="n">photometry</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">count_images_with_channels</span><span class="p">(</span>
+                                <span class="p">{</span>
+                                    <span class="p">(</span><span class="s2">"photometry_mag_offset"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="n">photometry</span><span class="p">),</span>
+                                    <span class="p">(</span><span class="s2">"photometry_mag_offset"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                                    <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                <span class="p">},</span>
+                                <span class="n">db_session</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span><span class="n">count</span><span class="p">],</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestReferenceCounts.test_a_bound_row_counts_what_it_draws">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.TestReferenceCounts.test_a_bound_row_counts_what_it_draws">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_bound_row_counts_what_it_draws</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""For each reference population, the images its series reads.</span>
+
+<span class="sd">        Unrestricted, the count is the whole night, the frame bound to</span>
+<span class="sd">        nothing included, which no population holds.</span>
+<span class="sd">        """</span>
+
+        <span class="n">colour</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"colour"</span><span class="p">:</span> <span class="s2">"photometry_mag_offset[0][0]"</span>
+            <span class="s2">" - photometry_mag_offset[1][0]"</span>
+        <span class="p">}</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">count_images_with_channels</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">colour_reads</span><span class="p">,</span> <span class="n">db_session</span>
+                    <span class="p">)</span>
+                <span class="p">],</span>
+                <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_ids</span><span class="p">)],</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">split_series</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)),</span>
+                <span class="p">{</span><span class="s2">"colour"</span><span class="p">:</span> <span class="p">{((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))}},</span>
+                <span class="n">colour</span><span class="p">,</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">photrefs</span><span class="o">=</span><span class="n">key</span><span class="o">.</span><span class="n">photrefs</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">count_images_with_channels</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">colour_reads</span><span class="p">,</span>
+                                <span class="n">db_session</span><span class="p">,</span>
+                                <span class="n">key</span><span class="o">.</span><span class="n">reference_pairs</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span><span class="n">get_canonical_images</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">],</span>
+                    <span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
