@@ -32,6 +32,7 @@ from autowisp.diagnostics.expressions import (
     get_quoted_channel_order,
     order_expressions,
 )
+from autowisp.exceptions import PipelineError
 
 from .expression_data import get_expressions
 from .forms import DiagnosticExpressionForm
@@ -144,12 +145,66 @@ def describe_expression(name, expressions, recorded):
     }
 
 
+def get_expression_warnings(names, library, db_session):
+    """
+    Return what the given expressions were probably not meant to say.
+
+    None of it is refused: each is legitimate somewhere, merely unlikely
+    to be what was meant. Also for exclusion rules, which are expressions
+    too, added to the library under their parameter's name. What does not
+    parse is skipped rather than raised: saying what is wrong with it is
+    :func:`check_expression`'s or ``check_rule``'s to do.
+
+    Args:
+        names(iterable):    The expressions to look at.
+
+        library(dict):    The library they belong to, themselves included,
+            ``{name: expression}``.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        list:    The warnings, by expression.
+    """
+
+    element_wise = {"and": "&", "or": "|", "not": "~"}
+    warnings = []
+    for name in sorted(names):
+        expression = library[name]
+        try:
+            aggregates = sorted(get_bare_aggregates(expression))
+            keywords = sorted(get_logical_keywords(expression))
+            # Read through the expressions it references too: one quoting a
+            # channel fails without it, and so does anything reading it.
+            lacking = sorted(
+                count_cameras_lacking(
+                    get_quoted_channel_order(name, library), db_session
+                ).items()
+            )
+        except (SyntaxError, PipelineError):
+            continue
+        warnings.extend(
+            f"{name} calls {aggregate}(), which goes NaN as soon as one image "
+            "of a series lacks a diagnostic. Did you mean "
+            f"nan{aggregate}()?"
+            for aggregate in aggregates
+        )
+        warnings.extend(
+            f"{name} uses {keyword}, which fails on arrays. Did you mean "
+            f"{element_wise[keyword]}?"
+            for keyword in keywords
+        )
+        warnings.extend(
+            f"{name} quotes channel {channel}, which {num_lacking} of "
+            f"{total} cameras do not have."
+            for channel, (num_lacking, total) in lacking
+        )
+    return warnings
+
+
 def _warn_about(request, names, library):
     """
     Warn about what the given expressions were probably not meant to say.
-
-    None of it is refused: each is legitimate somewhere, merely unlikely
-    to be what was meant.
 
     Args:
         request:    The Django request to attach the warnings to.
@@ -160,35 +215,9 @@ def _warn_about(request, names, library):
             included, ``{name: expression}``.
     """
 
-    element_wise = {"and": "&", "or": "|", "not": "~"}
     with start_db_session() as db_session:
-        for name in sorted(names):
-            expression = library[name]
-            for aggregate in sorted(get_bare_aggregates(expression)):
-                messages.warning(
-                    request,
-                    f"{name} calls {aggregate}(), which goes NaN as soon as "
-                    "one image of a series lacks a diagnostic. Did you mean "
-                    f"nan{aggregate}()?",
-                )
-            for keyword in sorted(get_logical_keywords(expression)):
-                messages.warning(
-                    request,
-                    f"{name} uses {keyword}, which fails on arrays. Did you "
-                    f"mean {element_wise[keyword]}?",
-                )
-            # Read through the expressions it references too: one quoting a
-            # channel fails without it, and so does anything reading it.
-            for channel, (lacking, total) in sorted(
-                count_cameras_lacking(
-                    get_quoted_channel_order(name, library), db_session
-                ).items()
-            ):
-                messages.warning(
-                    request,
-                    f"{name} quotes channel {channel}, which {lacking} of "
-                    f"{total} cameras do not have.",
-                )
+        for warning in get_expression_warnings(names, library, db_session):
+            messages.warning(request, warning)
 
 
 def _render_list(request, form, edit_name=""):
