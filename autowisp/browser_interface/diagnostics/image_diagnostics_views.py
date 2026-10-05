@@ -465,7 +465,7 @@ def assign_y_axes(drawn, requested):
     for quantity in dict.fromkeys(drawn):
         try:
             number = int(requested.get(quantity, 1))
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             number = 1
         wanted.setdefault(number, []).append(quantity)
 

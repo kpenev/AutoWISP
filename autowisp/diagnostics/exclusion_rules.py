@@ -495,7 +495,7 @@ def get_rule_reads(library):
         try:
             num_channels = get_channel_arity(name, library)
             num_photometries = get_photometry_arity(name, library)
-        except SyntaxError, PipelineError:
+        except (SyntaxError, PipelineError):
             # Broken, which the library page says; not a rule either way.
             continue
         if num_channels > 1 or num_photometries > 1:

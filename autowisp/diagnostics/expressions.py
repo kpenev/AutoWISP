@@ -1532,7 +1532,7 @@ def check_rule(rule, library):
     try:
         channels = get_channel_parameters(rule)
         photometries = get_photometry_parameters(rule)
-    except SyntaxError, PipelineError:
+    except (SyntaxError, PipelineError):
         # Reported above already.
         return problems
 
