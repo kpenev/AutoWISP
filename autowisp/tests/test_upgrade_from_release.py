@@ -312,6 +312,28 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
             if on_server()
             else ""
         )
+        # Releases up to 2.0.0 hand drop_all a one-shot iterator, which
+        # SQLAlchemy 2.1 fails on, so no release could create its project and
+        # every upgrade check was skipped. They get the fixed function
+        # (af166787), which changes nothing about what they write. The code
+        # under test runs its own.
+        fixed_drop = (
+            "import autowisp.database.initialize_database as creation\n"
+            "creation.drop_tables_matching = lambda pattern: (\n"
+            "    creation.DataModelBase.metadata.drop_all(\n"
+            "        creation.get_db_engine(),\n"
+            "        [\n"
+            "            table\n"
+            "            for table in reversed(\n"
+            "                creation.DataModelBase.metadata.sorted_tables\n"
+            "            )\n"
+            "            if pattern.fullmatch(table.name)\n"
+            "        ],\n"
+            "    )\n"
+            ")\n"
+            if released
+            else ""
+        )
         result = subprocess.run(
             [
                 sys.executable,
@@ -322,7 +344,8 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                 "from autowisp.database.initialize_database import (\n"
                 "    initialize_database\n"
                 ")\n"
-                f"set_project_home({project_home!r}{url})\n"
+                + fixed_drop
+                + f"set_project_home({project_home!r}{url})\n"
                 # As the browser interface creates a project.
                 "initialize_database(\n"
                 "    Namespace(\n"
