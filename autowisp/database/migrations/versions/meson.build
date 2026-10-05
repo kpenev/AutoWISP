@@ -19,6 +19,7 @@ py_src = [
   '0013_exclusion_rule_parameters.py',
   '0014_drop_photref_merit_step.py',
   '0015_engine_set_masters.py',
+  '0016_diagnostic_definitions.py',
 ]
 
 py.install_sources(

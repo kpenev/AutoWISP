@@ -5,7 +5,8 @@ This module hosts the non-Django half of what the BUI's
 
 - :func:`compute_photref_candidates` walks ``processing.pending`` for
   ``fit_magnitudes`` and groups the per-condition batches that still
-  need a single photometric reference.
+  need a single photometric reference, leaving out entries
+  :func:`get_unbound_entries` finds already bound.
 - :func:`bind_images_to_photref` writes the ``ImageMasterSelection``
   rows for every batch image within ``max_photref_separation`` of the
   chosen photref.
@@ -16,6 +17,8 @@ This module hosts the non-Django half of what the BUI's
 - :func:`get_group_exclusions` reports what the magfit exclusion rule
   leaves out of a group still needing a photref, and
   :func:`get_offered_candidates` which of its images to offer as one.
+- :func:`rank_photref_candidates` orders the offered images by a merit
+  expression from the library, one of :func:`get_merit_expressions`.
 - :func:`get_photref_exclusions` reports what each step's exclusion rule
   leaves out of the images bound to each photref.
 
@@ -26,6 +29,7 @@ form submissions; the integration test calls them directly to mimic
 
 from astropy.coordinates import SkyCoord
 from astropy import units as astropy_units
+import numpy
 from sqlalchemy import select
 
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -41,6 +45,12 @@ from autowisp.diagnostics.diagnostic_types import photometry_literal
 from autowisp.diagnostics.exclusion_rules import (
     get_excluded,
     summarize_excluded,
+)
+from autowisp.diagnostics.expression_library import get_expressions
+from autowisp.diagnostics.expression_series import get_custom_group_values
+from autowisp.diagnostics.expressions import (
+    get_channel_arity,
+    get_photometry_arity,
 )
 from autowisp.evaluator import Evaluator
 from autowisp.exceptions import ConfigurationError
@@ -60,6 +70,42 @@ from autowisp.database.data_model import (
 )
 
 # pylint: enable=no-name-in-module
+
+
+def get_unbound_entries(entries, master_type_id, db_session):
+    """
+    Return the entries not yet bound to a single photometric reference.
+
+    Bindings are per (image, channel), and so is the check: a photref group
+    need not be one channel. Under a ``must_match`` such as
+    ``CLRCHNL[0].upper()``, ``G0`` and ``G1`` of one image are in one group,
+    and an image bound in one of them still needs its other entry bound.
+
+    Args:
+        entries:    ``(image, channel, status)`` tuples of one photref group,
+            as ``group_pending_by_conditions`` gives them.
+
+        master_type_id(int):    The id of the ``single_photref`` master type.
+
+        db_session:    Open SQLAlchemy session.
+
+    Returns:
+        list:    The entries with no binding, in the order given.
+    """
+
+    bound = set(
+        db_session.execute(
+            select(
+                ImageMasterSelection.image_id, ImageMasterSelection.channel
+            ).where(
+                ImageMasterSelection.master_type_id == master_type_id,
+                ImageMasterSelection.image_id.in_(
+                    {image.id for image, _, _ in entries}
+                ),
+            )
+        ).all()
+    )
+    return [entry for entry in entries if (entry[0].id, entry[1]) not in bound]
 
 
 def compute_photref_candidates(processing, db_session):
@@ -156,27 +202,13 @@ def compute_photref_candidates(processing, db_session):
             masters_only=True,
         )
         for by_master_values, master_values in by_photref:
-            if demo:
-                unbound_images = by_master_values
-            else:
-                group_channel = by_master_values[0][1]
-                bound_image_ids = set(
-                    db_session.scalars(
-                        select(ImageMasterSelection.image_id).where(
-                            ImageMasterSelection.master_type_id
-                            == master_type_id,
-                            ImageMasterSelection.channel == group_channel,
-                            ImageMasterSelection.image_id.in_(
-                                [img.id for img, _, _ in by_master_values]
-                            ),
-                        )
-                    ).all()
+            unbound_images = (
+                by_master_values
+                if demo
+                else get_unbound_entries(
+                    by_master_values, master_type_id, db_session
                 )
-                unbound_images = [
-                    (img, ch, st)
-                    for img, ch, st in by_master_values
-                    if img.id not in bound_image_ids
-                ]
+            )
             if not unbound_images:
                 continue
             groups.append(
@@ -563,6 +595,110 @@ def get_offered_candidates(batch, exclusions):
     if not any(offered):
         return [True] * len(batch)
     return offered
+
+
+def get_merit_expressions(library):
+    """
+    Return the library expressions candidates can be ranked by, by name.
+
+    Those giving one value per entry of a photref group: taking at most one
+    channel, which is bound to each entry's own, and no photometry, since
+    the group has not been magnitude-fit.
+
+    Args:
+        library(dict):    The project's library, ``{name: expression}``.
+
+    Returns:
+        list:    The names, alphabetically.
+    """
+
+    return sorted(
+        name
+        for name in library
+        if get_channel_arity(name, library) <= 1
+        and not get_photometry_arity(name, library)
+    )
+
+
+def rank_photref_candidates(batch, merit, offered, db_session):
+    """
+    Return the offered entries of a photref group, best first.
+
+    The merit and every diagnostic recorded for them are evaluated over the
+    offered entries alone, so an aggregate such as ``nanrank`` ranks each
+    candidate among the other candidates, and the images the magnitude
+    fitting exclusion rule leaves out do not shift it.
+
+    Args:
+        batch:    The group's entries, as for :func:`get_group_exclusions`.
+
+        merit(str or None):    The name of the library expression to rank
+            by, one of :func:`get_merit_expressions`; None to keep the order
+            of Julian date.
+
+        offered:    Per entry of *batch*, whether to offer it, as
+            :func:`get_offered_candidates` gives it.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        tuple:
+            list:    The positions in *batch* of the offered entries: highest
+                merit first and no merit (NaN) last, ties in order of Julian
+                date. An entry whose image has no Julian date is left out.
+
+            dict:    ``{quantity: array}``, the merit under its name and every
+                diagnostic recorded for the offered entries, one value per
+                position returned, in the same order.
+    """
+
+    position = {
+        (image_id, channel): index
+        for index, (_, _, image_id, channel) in enumerate(batch)
+        if offered[index]
+    }
+    quantities = list(
+        db_session.scalars(
+            select(DiagnosticType.name)
+            .join(
+                ImageDiagnostics,
+                ImageDiagnostics.diagnostic_id == DiagnosticType.id,
+            )
+            .where(
+                ImageDiagnostics.image_id.in_(
+                    {image_id for image_id, _ in position}
+                ),
+                ImageDiagnostics.channel.in_(
+                    {channel for _, channel in position}
+                ),
+            )
+            .distinct()
+            .order_by(DiagnosticType.name)
+        ).all()
+    )
+    if merit is not None:
+        quantities.append(merit)
+    values, members = get_custom_group_values(
+        list(position), quantities, get_expressions(db_session), db_session
+    )
+
+    order = list(range(len(members)))
+    if merit is not None:
+        # Stable, so that ties stay in order of Julian date.
+        order.sort(
+            key=lambda index: (
+                (1, 0.0)
+                if numpy.isnan(values[merit][index])
+                else (0, -values[merit][index])
+            )
+        )
+    return (
+        [position[members[index]] for index in order],
+        {
+            quantity: quantity_values[order]
+            for quantity, quantity_values in values.items()
+        },
+    )
 
 
 def get_photref_exclusions(db_session):

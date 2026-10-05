@@ -37,16 +37,32 @@ Select Photometric Reference
     <tbody>
         <tr>
             <td>
-                <label for="merit-function" class="project-param-label">
-                    Merit Function:
+                <label for="merit" class="project-param-label">
+                    Rank candidates by:
                 </label>
             </td>
             <td>
-                <input type="text"
-                       id="merit-function"
-                       name="merit-function"
-                       value="{{ merit_function }}"
-                       class="project-text-input lcars-u-3-1"/>
+                {% comment %} The library expressions giving one value per
+                   candidate; written and edited on the expressions page.
+                   Choosing one submits the form. autocomplete="off" stops
+                   the browser restoring an earlier choice on reload, which
+                   would show one expression while another ranks.
+                   {% endcomment %}
+                <select id="merit"
+                        name="merit"
+                        autocomplete="off"
+                        class="lcars-text-box lcars-gray-bg lcars-husk-color lcars-u-3-1"
+                        {% if not merit_choices %}disabled{% endif %}>
+                    {% if not merit %}
+                    <option value="" selected>time (no merit expression)</option>
+                    {% endif %}
+                    {% for choice in merit_choices %}
+                    <option value="{{ choice }}"
+                            {% if choice == merit %}selected{% endif %}>
+                        {{ choice }}
+                    </option>
+                    {% endfor %}
+                </select>
             </td>
         </tr>
     </tbody>
@@ -101,3 +117,7 @@ Select Photometric Reference
 </table>
 {% endif %}
 {% endblock main %}
+
+{% block scripts %}
+<script src="{% static 'processing/js/select.photref.target.js' %}"></script>
+{% endblock scripts %}

@@ -117,6 +117,11 @@ from autowisp.tests.test_photref_binding import (
     TestSeparationBinding,
     TestConditionBinding,
 )
+from autowisp.tests.test_photref_candidates import (
+    TestUnboundEntries,
+    TestPhotrefRanking,
+    TestMeritExpressions,
+)
 from autowisp.tests.test_engine_exclusions import TestEngineExclusions
 from autowisp.tests.test_master_photref_lookup import (
     TestBuiltMaster,

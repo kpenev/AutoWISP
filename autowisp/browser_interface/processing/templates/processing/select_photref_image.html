@@ -11,24 +11,15 @@ Select Photometric Reference
 {% endblock %}{% endblock %}
 
 {% block left_menu %}
-<a href="{% url 'processing:record_photref_selection' target_index=target_index image_index=image_index %}">
-    <div class="lcars-element 
-                button 
+<a href="{% url 'processing:record_photref_selection' %}?photref={{ dr_fname|urlencode:'' }}">
+    <div class="lcars-element
+                button
                 lcars-melrose-bg
                 lcars-u-1-2"
          id="tutorial-set-photref-image">
         Set This Image As Reference
     </div>
 </a>
-{% url 'processing:select_photref_image_recalc' target_index=target_index image_index=image_index values_range=range values_transform=transform as updateURL %}
-<div onclick="updateView('{{updateURL}}')">
-    <div class="lcars-element 
-                button 
-                lcars-husk-bg
-                lcars-u-1-1">
-        Recalc. merit
-    </div>
-</div>
 {% endblock left_menu %}
 
 {% block footer_fill_bar %}

@@ -52,6 +52,7 @@ py_src = [
   'test_parse_config_overwrites.py',
   'test_photometry_slots.py',
   'test_photref_binding.py',
+  'test_photref_candidates.py',
   'test_project_creation_guard.py',
   'test_provenance_resolver.py',
   'test_reference_columns.py',

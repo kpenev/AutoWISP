@@ -23,6 +23,27 @@ from autowisp.diagnostics.expressions import (
     rename_references,
 )
 
+#: The expression the photometric reference selection page ranks candidates
+#: by, unless another is chosen there.
+photref_merit = "photref_merit"
+
+#: What project creation puts in the library, in the form
+#: :func:`write_expressions` takes.
+default_expressions = {
+    photref_merit: {
+        "expression": (
+            "1.0 / ((1.0 - nanrank(s_center[0]))**2 "
+            "+ nanrank(bg_center[0])**2)"
+        ),
+        "description": (
+            "How good a single photometric reference an image makes: higher "
+            "for a larger source extraction S (sharper stars) and a lower "
+            "background, each ranked among the images a reference is being "
+            "chosen for."
+        ),
+    },
+}
+
 
 def get_expressions(db_session):
     """

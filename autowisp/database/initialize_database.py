@@ -18,6 +18,10 @@ from autowisp.database import defaults
 
 from autowisp import processing_steps
 from autowisp.diagnostics.diagnostic_types import standard_diagnostic_types
+from autowisp.diagnostics.expression_library import (
+    default_expressions,
+    write_expressions,
+)
 
 # false positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -467,6 +471,13 @@ def _init_diagnostic_types():
             db_session.add(DiagnosticType(name=name, description=description))
 
 
+def _init_diagnostic_expressions():
+    """Start the project's expression library with the default expressions."""
+
+    with start_db_session() as db_session:
+        write_expressions(default_expressions, db_session)
+
+
 def initialize_database(
     cmdline_args,
     step_dependencies=None,
@@ -501,6 +512,7 @@ def initialize_database(
         }
     _overwrite_default_config(overwrite_default_config)
     _init_diagnostic_types()
+    _init_diagnostic_expressions()
 
 
 if __name__ == "__main__":
