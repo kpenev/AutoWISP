@@ -17,6 +17,7 @@ question asked here is answered by a SQL aggregate instead.
 # of the other.
 # pylint: disable=too-many-lines
 
+import os
 import re
 from typing import NamedTuple
 
@@ -937,8 +938,11 @@ def get_reference_paths(options, db_session):
 
 #: Where a reference's path is split to tell it from the others: at
 #: directory, word and extension boundaries, each kept as a part of its own
-#: so that what is left between them reads as written.
-_path_separators = re.compile(r"([/_.-])")
+#: so that what is left between them reads as written. Directories end at
+#: the system's separators, a backslash as well as a slash on Windows.
+_path_separators = re.compile(
+    "([" + re.escape(os.sep + (os.altsep or "")) + "_.-])"
+)
 
 
 def _common_length(sequences):
