@@ -44,6 +44,18 @@ from autowisp.database.data_model import (
 
 _logger = logging.getLogger(__name__)
 
+#: The step options the engine sets for each batch: the masters it selects
+#: and the exclusion list it writes. Never configured, so a project does not
+#: store them, but a step run by hand takes them like any other option.
+engine_set_options = (
+    "qc-exclude-file",
+    "master-bias",
+    "master-dark",
+    "master-flat",
+    "single-photref-dr-fname",
+    "master-photref-fname",
+)
+
 
 def get_command_line_parser():
     """Create a parser with all required command line arguments."""
@@ -143,13 +155,7 @@ class StepCreator:
                     "extra-config-file",
                     "split-channels",
                     "project-home",
-                    # Set by the engine for each batch, never configured.
-                    "qc-exclude-file",
-                    "master-bias",
-                    "master-dark",
-                    "master-flat",
-                    "single-photref-dr-fname",
-                    "master-photref-fname",
+                    *engine_set_options,
                 ]
                 and not param.endswith("-only-if")
                 and not param.endswith("-version")
