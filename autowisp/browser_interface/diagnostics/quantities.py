@@ -80,6 +80,24 @@ def get_recorded_diagnostics(db_session):
     return names
 
 
+def get_recorded_photometries(db_session):
+    """
+    Return the photometry ids anything has recorded diagnostics in.
+
+    Args:
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        list:    The ids, in increasing order.
+    """
+
+    return db_session.scalars(
+        select(PhotometryDiagnostics.photometry_id)
+        .distinct()
+        .order_by(PhotometryDiagnostics.photometry_id)
+    ).all()
+
+
 def get_available_diagnostics(recorded, expressions):
     """
     Return every quantity an axis may be set to.

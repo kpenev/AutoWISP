@@ -356,7 +356,9 @@ def _report_fractions(rule, excluded, num_members):
         )
 
 
-def get_excluded(rule, members, db_session, *, before_magfit=False):
+def get_excluded(
+    rule, members, db_session, *, before_magfit=False, report=True
+):
     """
     Return the observations fit together that *rule* leaves out of the fit.
 
@@ -370,6 +372,9 @@ def get_excluded(rule, members, db_session, *, before_magfit=False):
 
         before_magfit(bool):    Whether the fit is the magnitude fit itself,
             which nothing it produces can be read ahead of.
+
+        report(bool):    Whether to log the fraction excluded, as the engine
+            does for every fit. A preview shows it instead.
 
     Returns:
         dict:    ``{photometry: set of (image_id, channel)}``: the excluded
@@ -432,7 +437,8 @@ def get_excluded(rule, members, db_session, *, before_magfit=False):
             library, population, member_channels, db_session, excluded=excluded
         )
 
-    _report_fractions(rule, excluded, len(members))
+    if report:
+        _report_fractions(rule, excluded, len(members))
     return excluded
 
 
@@ -472,3 +478,61 @@ def get_rule_reads(library):
         if not check_rule(read, library):
             reads[name] = read
     return reads
+
+
+def preview_excluded(rule, image_ids, db_session, *, channel, photometry):
+    """
+    Return the images *rule* excludes, as the engine would decide for them.
+
+    Each image is decided for in the given channel and photometry, which
+    the rule's slots are bound to, and within the population the engine
+    evaluates it over, so that what a preview shows is what a fit would
+    leave out. Nothing is refused for reading what magnitude fitting
+    produces: that only matters for the rule of the magnitude fit itself,
+    which the engine checks when it runs it.
+
+    Args:
+        rule(str):    The exclusion rule.
+
+        image_ids(iterable):    The images to decide for.
+
+        db_session:    An active SQLAlchemy database session.
+
+        channel(str or None):    The channel the rule's channel slot is
+            bound to, None for a rule without one.
+
+        photometry(int or None):    The photometry id the rule's photometry
+            slot is bound to, None for a rule without one.
+
+    Returns:
+        set:    The ids of the images excluded.
+
+    Raises:
+        ConfigurationError:    As :func:`get_excluded` does, or if the rule
+            takes a slot nothing is bound to.
+    """
+
+    per_photometry = bool(get_photometry_parameters(rule))
+    for kind, slots, bound in [
+        ("channel", get_channel_parameters(rule), channel),
+        ("photometry", per_photometry, photometry),
+    ]:
+        if slots and bound is None:
+            raise ConfigurationError(
+                f"The exclusion rule {rule!r} decides per {kind}: choose the "
+                f"{kind} to decide for.",
+                details={"rule": rule},
+            )
+
+    excluded = get_excluded(
+        rule,
+        [(image_id, channel) for image_id in image_ids],
+        db_session,
+        report=False,
+    )
+    return {
+        image_id
+        for image_id, _ in excluded.get(
+            photometry if per_photometry else None, ()
+        )
+    }

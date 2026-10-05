@@ -2,6 +2,7 @@ py_src = [
   '__init__.py',
   'apps.py',
   'detrending_diagnostics_views.py',
+  'exclusion_mask.py',
   'expression_data.py',
   'expression_views.py',
   'forms.py',

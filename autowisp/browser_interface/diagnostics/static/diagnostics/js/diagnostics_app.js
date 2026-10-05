@@ -139,6 +139,8 @@ function getSelectedDatasets()
             // Layout rather than data, so it travels with the rest of
             // the layout and the download view replays it.
             "y_axes": getYAxes(),
+            // Likewise how the points are drawn, not which.
+            "exclusion_mask": getExclusionMask(),
         },
     };
 }
@@ -209,6 +211,7 @@ function applyTableResponse(data)
 function showDiagnosticsPlot(data)
 {
     applyTableResponse(data);
+    showExcluded(data);
     let downloadBtn = document.getElementById("download-button");
     if (downloadBtn)
         downloadBtn.style.display = "inline";
@@ -625,6 +628,57 @@ function wireDiagnosticRow(row)
     wireSlotCells(row);
 }
 
+function getExclusionMask()
+{
+    // The rule the footer applies, with what its slots are bound to, or
+    // null for none -- also on a page without the footer's dropdowns,
+    // which is one whose library holds no rule.
+    const select = document.getElementById("exclusion-mask");
+    if ( !select || !select.value )
+        return null;
+    const chosen = select.selectedOptions[0];
+    return {
+        "rule": select.value,
+        "channel": (chosen.dataset.channelSlot
+                    ? document.getElementById("exclusion-mask-channel").value
+                    : null),
+        "photometry": (
+            chosen.dataset.photometrySlot
+            ? document.getElementById("exclusion-mask-photometry").value
+            : null
+        ),
+    };
+}
+
+function onExclusionMaskChange()
+{
+    // A slot's dropdown is shown only while the chosen rule takes the slot,
+    // so that nothing on the bar is a choice that changes nothing.
+    const select = document.getElementById("exclusion-mask");
+    const chosen = select.selectedOptions[0];
+    document.getElementById("exclusion-mask-channel").hidden =
+        !chosen.dataset.channelSlot;
+    document.getElementById("exclusion-mask-photometry").hidden =
+        !chosen.dataset.photometrySlot;
+    updateFigure();
+}
+
+function showExcluded(data)
+{
+    // Every row, so that one no longer drawn, or every row once the mask
+    // is gone, is blanked rather than left saying what it used to.
+    const excluded = data.excluded || {};
+    for ( const row of document.querySelectorAll(".diagnostic-row") ) {
+        const cell = row.querySelector(".series-excluded");
+        if ( !cell )
+            continue;
+        // Short in the cell, the whole of a refusal on hovering over it.
+        const report = excluded[row.id] || {"text": "", "title": ""};
+        cell.textContent = report.text;
+        cell.title = report.title;
+    }
+}
+
 function initImageDiagnostics(plotURL)
 {
     initDiagnosticsPlotting();
@@ -639,6 +693,15 @@ function initImageDiagnostics(plotURL)
     document.querySelectorAll(".diagnostics-section").forEach(wireSection);
     document.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
     refreshControls();
+
+    const mask = document.getElementById("exclusion-mask");
+    if ( mask ) {
+        mask.addEventListener("change", onExclusionMaskChange);
+        for ( const id of ["exclusion-mask-channel",
+                           "exclusion-mask-photometry"] )
+            document.getElementById(id).addEventListener("change",
+                                                         updateFigure);
+    }
 
     // A row arrives drawn, so the figure is asked for at once rather than
     // waiting for a first click that no longer has to happen.

@@ -33,6 +33,7 @@ from autowisp.database.user_interface import count_cameras_lacking
 from autowisp.diagnostics.exclusion_rules import (
     get_excluded,
     get_rule_reads,
+    preview_excluded,
 )
 from autowisp.exceptions import ConfigurationError
 from autowisp.tests.test_series_references import ReferenceProject
@@ -363,6 +364,60 @@ class TestExclusionRules(ReferenceProject):
                 "numbers": "numbers[0]",
             },
         )
+
+    def test_a_preview_decides_in_the_channel_and_photometry_chosen(self):
+        """Each choice gives its own verdict, as the engine's would be."""
+
+        first_night = self.image_ids
+        with start_db_session() as db_session:
+            for rule, channel, photometry, frames in (
+                (
+                    "bg_center[0] > nanmedian(bg_center[0])",
+                    "R",
+                    None,
+                    [4, 5, 6],
+                ),
+                (
+                    "bg_center[0] > nanmedian(bg_center[0])",
+                    "B",
+                    None,
+                    [0, 1, 2],
+                ),
+                ("photometry_mag_offset[0][0] > 1002.5", "R", 2, [2, 3, 4, 5]),
+                ("photometry_mag_offset[0][0] > 1002.5", "R", 0, []),
+                ("bg_center['R'] > 103", None, None, [4, 5, 6]),
+            ):
+                with self.subTest(
+                    rule=rule, channel=channel, photometry=photometry
+                ):
+                    self.assertEqual(
+                        preview_excluded(
+                            rule,
+                            first_night,
+                            db_session,
+                            channel=channel,
+                            photometry=photometry,
+                        ),
+                        {self.image_ids[frame] for frame in frames},
+                    )
+
+    def test_a_preview_needs_each_slot_bound(self):
+        """A rule deciding per channel or photometry is told which."""
+
+        with start_db_session() as db_session:
+            for rule, channel in (
+                ("bg_center[0] > 103", None),
+                ("photometry_mag_offset[0][0] > 1", "R"),
+            ):
+                with self.subTest(rule=rule):
+                    with self.assertRaises(ConfigurationError):
+                        preview_excluded(
+                            rule,
+                            self.image_ids,
+                            db_session,
+                            channel=channel,
+                            photometry=None,
+                        )
 
 
 if __name__ == "__main__":

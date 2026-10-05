@@ -86,4 +86,8 @@ Takes one context variable, `diagnostic`, as `make_series` builds it.
     <td class="session-end">{{ diagnostic.end }}</td>
     {% include "diagnostics/_slot_cells.html" %}
     <td class="series-count">{{ diagnostic.count }}</td>
+    {% comment %} What the footer's exclusion mask excludes of the drawn
+       points, or why it could not decide for them; filled by a redraw.
+    {% endcomment %}
+    <td class="series-excluded"></td>
 </tr>

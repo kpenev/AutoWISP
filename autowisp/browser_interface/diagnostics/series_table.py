@@ -1457,7 +1457,8 @@ def get_available_series(
                 if column.quoted is not None
             ]
             + photometry_headings
-            + ["Count"]
+            # Filled by the exclusion mask the footer applies, if any.
+            + ["Count", "Excluded"]
         ),
         "pair_options": row_options["pair_options"],
         "diagnostics_list": rows,

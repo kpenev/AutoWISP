@@ -40,6 +40,7 @@ from autowisp.diagnostics.expressions import (
     get_photometry_arity,
 )
 
+from .exclusion_mask import decide_mask, get_mask_options
 from .quantities import (
     describe_quantity,
     get_available_diagnostics,
@@ -174,7 +175,9 @@ def plot_image_diagnostic_series(axes, x_values, y_values, image_ids, config):
             naming one of
             :data:`~autowisp.browser_interface.core.plot_utils.line_styles`
             draws a curve instead of points, reading the scale as the line
-            width where points read it as the marker size.
+            width where points read it as the marker size. An ``excluded``
+            flag per image, where an exclusion mask is applied, draws the
+            points it flags faintly; a curve is drawn as it is.
     """
 
     # The arrays arrive NaN-padded to the canonical image list. Dropping the
@@ -186,6 +189,9 @@ def plot_image_diagnostic_series(axes, x_values, y_values, image_ids, config):
     keep = numpy.isfinite(x_values) & numpy.isfinite(y_values)
     x_values, y_values = x_values[keep], y_values[keep]
     image_ids = numpy.asarray(image_ids)[keep]
+    excluded = numpy.asarray(
+        config.get("excluded", numpy.zeros(keep.shape, dtype=bool))
+    )[keep]
 
     if config["marker"] in line_styles:
         # A curve has to be walked in x order. Against jd the canonical
@@ -205,12 +211,16 @@ def plot_image_diagnostic_series(axes, x_values, y_values, image_ids, config):
         )
         return
 
+    # One collection, faint where excluded, so that every point still
+    # clicks through to its frame. PDF keeps the opacity, so a download
+    # shows the mask too.
     collection = axes.scatter(
         x_values,
         y_values,
         marker=config["marker"],
         s=float(config.get("scale", 1.0)) * 20,
         c=config["color"],
+        alpha=numpy.where(excluded, 0.25, 1.0),
         label=config["label"],
     )
     if not config["channel"]:
@@ -317,7 +327,9 @@ def create_figure(num_plots, plot_height_frac, aspect_ratio, num_columns):
     return fig, all_axes
 
 
-def collect_series_data(series_list, x_quantity, expressions, db_session):
+def collect_series_data(
+    series_list, x_quantity, expressions, db_session, mask=None
+):
     """
     Read the selected series, dropping those with nothing to draw.
 
@@ -336,6 +348,12 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
         expressions(dict):    The library, ``{name: expression}``.
 
         db_session:    An active SQLAlchemy database session.
+
+        mask(dict or None):    The exclusion mask to apply to every drawn
+            series, as :func:`~.exclusion_mask.decide_mask` takes it, or
+            None for none. Each drawn series is then given ``excluded``, a
+            flag per image, and ``excluded_report``, what its Excluded cell
+            says.
 
     Returns:
         list:    ``(series, x_values, y_values, image_ids)`` tuples for the
@@ -378,9 +396,10 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
         )
         x_values = numpy.atleast_1d(x_values)
         y_values = numpy.atleast_1d(y_values)
+        finite = numpy.isfinite(x_values) & numpy.isfinite(y_values)
         # A padded array is full length even when every value is NaN, so
         # its size no longer tells us whether anything will be drawn.
-        if numpy.any(numpy.isfinite(x_values) & numpy.isfinite(y_values)):
+        if numpy.any(finite):
             # Two things the figure reads off the binding rather than off
             # the client: the channel a click on a point opens the frame
             # in -- the first of them, for want of a better answer once a
@@ -397,6 +416,14 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
                 ),
                 "quantity": quantity,
             }
+            if mask:
+                drawn["excluded"], drawn["excluded_report"] = decide_mask(
+                    mask,
+                    numpy.asarray(image_ids),
+                    finite,
+                    expressions=expressions,
+                    db_session=db_session,
+                )
             series_data.append((drawn, x_values, y_values, image_ids))
 
     return series_data
@@ -468,18 +495,33 @@ def create_diagnostics_figure(
         db_session:    An active SQLAlchemy database session.
 
         figure_config(dict):    Layout of the figure, defining
-            ``plot_height_frac``, ``num_columns`` and ``aspect_ratio``.
+            ``plot_height_frac``, ``num_columns`` and ``aspect_ratio``, and
+            optionally the ``exclusion_mask`` to apply.
 
     Returns:
         matplotlib.figure.Figure:    The completed figure.
+
+        dict:    What the page shows besides the figure: under ``excluded``,
+            each drawn row's Excluded cell by row id, empty without a mask.
     """
 
     figure_config = figure_config or {}
     against_time = x_quantity == time_quantity
 
     series_data = collect_series_data(
-        series_list, x_quantity, expressions, db_session
+        series_list,
+        x_quantity,
+        expressions,
+        db_session,
+        mask=figure_config.get("exclusion_mask"),
     )
+    alongside = {
+        "excluded": {
+            series["id"]: series["excluded_report"]
+            for series, *_ in series_data
+            if "excluded_report" in series
+        }
+    }
 
     # Julian dates are large numbers spanning a tiny range, so the axis is
     # offset to stay readable. One offset for the whole figure, not one per
@@ -498,7 +540,7 @@ def create_diagnostics_figure(
         num_columns=figure_config.get("num_columns", 1),
     )
     if all_axes is None:
-        return fig
+        return fig, alongside
 
     # Decided from everything drawn rather than per subplot, so that a
     # quantity keeps the same axis, the same side and the same label in
@@ -527,7 +569,7 @@ def create_diagnostics_figure(
         host.grid(True, linewidth=0.2)
 
     fig.tight_layout()
-    return fig
+    return fig, alongside
 
 
 def draw_group_on_axes(host, group, per_axis, x_offset, show_legend):
@@ -620,7 +662,8 @@ def update_plot_view(
                         ``figure_config`` dict.
         figure_factory: Callable accepting ``series_list``, ``db_session``,
                         ``figure_config``, plus any URL kwargs as keyword
-                        arguments.
+                        arguments, and returning the figure and a dict of
+                        fields to answer alongside it.
         session_key:    If given, the posted plot configuration is stored in
                         the session under this key so a download view can
                         retrieve it.
@@ -670,14 +713,14 @@ def update_plot_view(
             }
             request.session.modified = True
 
-        fig = figure_factory(
+        fig, figure_fields = figure_factory(
             series_list,
             db_session=db_session,
             figure_config=figure_config,
             **url_kwargs,
         )
 
-    return figure_to_svg_response(fig, **alongside)
+    return figure_to_svg_response(fig, **alongside, **figure_fields)
 
 
 def download_plot_view(request, figure_factory, session_key, **url_kwargs):
@@ -703,7 +746,7 @@ def download_plot_view(request, figure_factory, session_key, **url_kwargs):
     pyplot.style.use("default")
 
     with start_db_session() as db_session:
-        fig = figure_factory(
+        fig, _ = figure_factory(
             series_list,
             db_session=db_session,
             figure_config=figure_config,
@@ -820,10 +863,12 @@ def display_diagnostics(
             for section_y, marker in zip(y_quantities, section_markers)
         ]
         available = get_available_diagnostics(recorded, expressions)
+        mask_options = get_mask_options(expressions, db_session)
 
     context = {
         "sections": sections,
         "available_diagnostics": available,
+        **mask_options,
     }
     context["x_quantity"] = x_quantity
     context["y_quantities"] = y_quantities

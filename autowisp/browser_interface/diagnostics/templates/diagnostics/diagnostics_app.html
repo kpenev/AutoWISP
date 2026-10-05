@@ -92,11 +92,44 @@
 {% endblock main %}
 
 {% block footer_bar_extra %}
-<div class="lcars-bar horizontal bottom">
+<div class="lcars-bar horizontal bottom" id="diag-footer-bar">
     <button id="legend-toggle"
             class="lcars-bar bottom button lcars-rust-bg"
             onclick="this.classList.toggle('inactive'); this.textContent = this.classList.contains('inactive') ? 'Show Legend' : 'Hide Legend'; updateFigure();">
         Hide Legend
     </button>
+    {% comment %} Dims the points an exclusion rule would leave out, in every
+       row. Any library expression usable as a rule is offered, as the read
+       it is configured with; the channel and photometry its slots are bound
+       to are chosen here, shown only for a rule taking them.
+    {% endcomment %}
+    {% if exclusion_masks %}
+    <select id="exclusion-mask"
+            class="lcars-bar bottom button lcars-rust-bg"
+            title="Dim the points this rule would exclude">
+        <option value="">No exclusion mask</option>
+        {% for mask in exclusion_masks %}
+        <option value="{{ mask.read }}"
+                data-channel-slot="{{ mask.channel_slot|yesno:'1,' }}"
+                data-photometry-slot="{{ mask.photometry_slot|yesno:'1,' }}">{{ mask.read }}</option>
+        {% endfor %}
+    </select>
+    <select id="exclusion-mask-channel"
+            class="lcars-bar bottom button lcars-rust-bg mask-slot"
+            title="The channel the rule decides for"
+            hidden>
+        {% for channel in mask_channels %}
+        <option value="{{ channel }}">{{ channel }}</option>
+        {% endfor %}
+    </select>
+    <select id="exclusion-mask-photometry"
+            class="lcars-bar bottom button lcars-rust-bg mask-slot"
+            title="The photometry the rule decides for"
+            hidden>
+        {% for photometry in mask_photometries %}
+        <option value="{{ photometry.id }}">{{ photometry.label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
 </div>
 {% endblock footer_bar_extra %}
