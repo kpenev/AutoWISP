@@ -259,6 +259,10 @@ def bind_images_to_photref(dr_fname, batch):
             condition group. Only ``image_id`` and ``channel`` are
             consumed here; the first two slots exist for parity with
             ``compute_photref_candidates``'s return shape.
+
+    Returns:
+        list:    The ``(image_id, channel)`` entries bound, empty if the
+            photref is not registered or its center is unknown.
     """
 
     with DataReductionFile(dr_fname, "r") as pf_dr:
@@ -273,7 +277,7 @@ def bind_images_to_photref(dr_fname, batch):
             select(MasterFile).where(MasterFile.filename == dr_fname)
         )
         if master_file is None:
-            return
+            return []
 
         pf_image_id = db_session.scalar(
             select(Image.id).where(  # pylint: disable=no-member
@@ -283,7 +287,7 @@ def bind_images_to_photref(dr_fname, batch):
             )
         )
         if pf_image_id is None:
-            return
+            return []
         pf_diags = dict(
             db_session.execute(
                 select(DiagnosticType.name, ImageDiagnostics.value)
@@ -303,7 +307,7 @@ def bind_images_to_photref(dr_fname, batch):
         if not all(
             k in pf_diags for k in ("ra_center", "dec_center", "diagonal_fov")
         ):
-            return
+            return []
 
         pf_center = SkyCoord(
             ra=pf_diags["ra_center"] * astropy_units.deg,
@@ -355,6 +359,7 @@ def bind_images_to_photref(dr_fname, batch):
             ):
                 new_bindings.append((image_id, channel, master_file.id))
         record_photref_bindings(new_bindings, master_file.type_id, db_session)
+    return [(image_id, channel) for image_id, channel, _ in new_bindings]
 
 
 def _get_magfit_fnames(processing, photref_fname, db_session):
@@ -763,7 +768,7 @@ def record_single_photref(dr_fname, batch):
         batch:    The candidate images, as for :func:`bind_images_to_photref`.
 
     Returns:
-        None
+        list:    The ``(image_id, channel)`` entries of *batch* bound to it.
     """
 
     processing = ImageProcessingManager(pipeline_run_id=None)
@@ -776,4 +781,4 @@ def record_single_photref(dr_fname, batch):
             "disable": False,
         }
     )
-    bind_images_to_photref(dr_fname, batch)
+    return bind_images_to_photref(dr_fname, batch)

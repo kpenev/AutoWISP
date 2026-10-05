@@ -2,8 +2,9 @@
 
 The photometric reference selection page offers the images of a photref
 group that still need a reference, best first by a merit expression from the
-project's library. These check which entries count as still needing one, and
-how the offered ones are ranked, on the throwaway project the binding tests
+project's library. These check which entries count as still needing one, which
+a newly chosen one reports binding, and how the offered ones are ranked, on
+the throwaway project the binding tests
 use: one camera with channels ``R`` and ``G``, and images ``near``, ``far``
 and ``longer``.
 """
@@ -15,6 +16,7 @@ from sqlalchemy import select
 
 from autowisp.database.interface import start_db_session
 from autowisp.database.photref_selection import (
+    bind_images_to_photref,
     get_merit_expressions,
     get_unbound_entries,
     rank_photref_candidates,
@@ -76,6 +78,30 @@ class TestUnboundEntries(PhotrefBindingProject):
         self.assertEqual(
             unbound, [("near", "G"), ("far", "R"), ("longer", "R")]
         )
+
+
+class TestRecordedBindings(PhotrefBindingProject):
+    """What binding a group to a newly chosen photref reports binding."""
+
+    def test_the_entries_bound_are_returned(self):
+        """Exactly those written: the far image stays unbound.
+
+        The page drops what this returns from the group, so an entry
+        returned but not bound would never be offered a reference again.
+        """
+
+        returned = bind_images_to_photref(
+            self._photref_fname,
+            [
+                (f"{name}.fits", f"{name}_R.h5", self._image_ids[name], "R")
+                for name in ("near", "far")
+            ],
+        )
+        with start_db_session() as db_session:
+            bindings = self.bindings(db_session)
+
+        self.assertEqual(returned, [(self._image_ids["near"], "R")])
+        self.assertEqual(bindings, {("near", "R"): self._photref_id})
 
 
 class TestPhotrefRanking(PhotrefBindingProject):

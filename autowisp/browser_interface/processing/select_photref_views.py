@@ -414,13 +414,17 @@ def record_photref_selection(request):
     """
     Record the single photometric reference whose DR file is ``?photref=``.
 
-    The frame is named by its DR file rather than by its position among the
-    ranked candidates, since the ranking is evaluated again on every request.
+    The frame is named by its DR file rather than by a position, among the
+    ranked candidates or in its group, since both change as references are
+    recorded. Only the entries just bound stop needing a reference, so the
+    groups are updated rather than derived again, which would re-read every
+    raw header.
     """
 
     # The selection is recorded by following a plain link, so the browser can
-    # re-issue this GET (refresh, back button, double click). The groups are
-    # dropped below, so by then no group holds it and nothing happens.
+    # re-issue this GET (refresh, back button, double click). The reference
+    # leaves its group below, so by then no group holds it and nothing
+    # happens.
     dr_fname = request.GET.get("photref")
     groups = request.session.get("need_photref", {}).get("master_values", [])
     containing = [
@@ -435,10 +439,15 @@ def record_photref_selection(request):
         return redirect("processing:select_photref_target")
     batch = groups[containing[0]][1]
 
-    record_single_photref(dr_fname, batch)
+    bound = set(record_single_photref(dr_fname, batch))
 
-    # Force full re-derivation of the photref selection list on next page load
-    request.session.pop("need_photref", None)
+    groups[containing[0]][1] = [
+        entry
+        for entry in batch
+        if (entry[2], entry[3]) not in bound and entry[1] != dr_fname
+    ]
+    if not groups[containing[0]][1]:
+        del groups[containing[0]]
     request.session.modified = True
 
     return redirect("/processing/select_photref_target")

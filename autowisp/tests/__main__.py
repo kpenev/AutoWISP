@@ -119,6 +119,7 @@ from autowisp.tests.test_photref_binding import (
 )
 from autowisp.tests.test_photref_candidates import (
     TestUnboundEntries,
+    TestRecordedBindings,
     TestPhotrefRanking,
     TestMeritExpressions,
 )
