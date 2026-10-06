@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -172,15 +175,15 @@
 <span id="autowisp-tests-test-diagnostics-rules-module"></span><h1>autowisp.tests.test_diagnostics_rules module<a class="headerlink" href="#module-autowisp.tests.test_diagnostics_rules" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-a2b6342dae5d8809f4f3cb8e1ee77fca4629f631.png" alt="Inheritance diagram of SeriesKey, TestQuantityDescription, TestRowId, TestSectionMarkers, TestSeriesGrouping, TestSlotCells, TestYAxisAssignment" usemap="#inheritance34083bf0ca" class="inheritance graphviz" /></div>
-<map id="inheritance34083bf0ca" name="inheritance34083bf0ca">
+<div class="graphviz"><img src="../_images/inheritance-d66cd340b9cc6b4e76ffe9be2c36b7bbea7394a2.png" alt="Inheritance diagram of SeriesKey, TestChannelCells, TestQuantityDescription, TestRowId, TestSectionMarkers, TestSeriesGrouping, TestYAxisAssignment" usemap="#inheritancecd96522e7b" class="inheritance graphviz" /></div>
+<map id="inheritancecd96522e7b" name="inheritancecd96522e7b">
 <area shape="rect" id="node1" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="767,5,1115,31"/>
-<area shape="rect" id="node2" href="#autowisp.tests.test_diagnostics_rules.TestQuantityDescription" target="_top" title="What a section header says about the quantity it draws." alt="" coords="5,79,432,104"/>
-<area shape="rect" id="node4" href="#autowisp.tests.test_diagnostics_rules.TestRowId" target="_top" title="The row id, a round trip through the client and back." alt="" coords="456,79,792,104"/>
-<area shape="rect" id="node5" href="#autowisp.tests.test_diagnostics_rules.TestSectionMarkers" target="_top" title="Which marker a section&#39;s rows start with." alt="" coords="817,79,1213,104"/>
-<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostics_rules.TestSeriesGrouping" target="_top" title="``group_series_by_x_overlap`` splits only non&#45;overlapping ranges." alt="" coords="1237,79,1632,104"/>
-<area shape="rect" id="node7" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells" target="_top" title="What each channel column of a row offers, and what a move keeps." alt="" coords="1657,79,2010,104"/>
-<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostics_rules.TestYAxisAssignment" target="_top" title="Which quantities share a y axis, and in what order the axes come." alt="" coords="2035,79,2443,104"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells" target="_top" title="What each channel column of a row offers, and what a move keeps." alt="" coords="5,79,387,104"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_diagnostics_rules.TestQuantityDescription" target="_top" title="What a section header says about the quantity it draws." alt="" coords="411,79,837,104"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_diagnostics_rules.TestRowId" target="_top" title="The row id, a round trip through the client and back." alt="" coords="861,79,1197,104"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostics_rules.TestSectionMarkers" target="_top" title="Which marker a section&#39;s rows start with." alt="" coords="1222,79,1618,104"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_diagnostics_rules.TestSeriesGrouping" target="_top" title="``group_series_by_x_overlap`` splits only non&#45;overlapping ranges." alt="" coords="1643,79,2037,104"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostics_rules.TestYAxisAssignment" target="_top" title="Which quantities share a y axis, and in what order the axes come." alt="" coords="2061,79,2469,104"/>
 </map><p>Tests for the diagnostics table’s rules, which need no project.</p>
 <p>The decisions a series table makes that are questions about names and
 arithmetic rather than about an observing project: what a row id means,
@@ -192,6 +195,82 @@ without the throwaway project database <code class="docutils literal notranslate
 rather than a database, and splitting it from the rules it sits beside
 would buy nothing.</p>
 </section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostics_rules.</span></span><span class="sig-name descname"><span class="pre">TestChannelCells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-5d591a6b24c6cbb2dbf8442f725c1a4f1da2cfe9.png" alt="Inheritance diagram of autowisp.tests.test_diagnostics_rules.TestChannelCells" usemap="#inheritance2786b2a414" class="inheritance graphviz" /></div>
+<map id="inheritance2786b2a414" name="inheritance2786b2a414">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells" target="_top" title="What each channel column of a row offers, and what a move keeps." alt="" coords="5,79,387,104"/>
+</map><p>What each channel column of a row offers, and what a move keeps.</p>
+<p>Pure, so the rules can be checked without a database or a browser.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells._cells">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">bindings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells._cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells._cells" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="xref py py-func docutils literal notranslate"><span class="pre">make_channel_cells()</span></code>, knowing no reference’s path.</p>
+<p>What a reference is called is checked by looking at the page; what
+is bound does not depend on it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells._plain">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_plain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">counts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells._plain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells._plain" title="Link to this definition"></a></dt>
+<dd><p>Return a column binding channels alone, offering <em>counts</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_channel_the_pair_does_not_offer_is_cleared">
+<span class="sig-name descname"><span class="pre">test_a_channel_the_pair_does_not_offer_is_cleared</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells.test_a_channel_the_pair_does_not_offer_is_cleared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_channel_the_pair_does_not_offer_is_cleared" title="Link to this definition"></a></dt>
+<dd><p>Rather than quietly bound to something the user never chose.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_channel_the_pair_still_offers_is_kept">
+<span class="sig-name descname"><span class="pre">test_a_channel_the_pair_still_offers_is_kept</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells.test_a_channel_the_pair_still_offers_is_kept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_channel_the_pair_still_offers_is_kept" title="Link to this definition"></a></dt>
+<dd><p>The user chose it, and it remains an answer here.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_column_with_a_choice_starts_unset">
+<span class="sig-name descname"><span class="pre">test_a_column_with_a_choice_starts_unset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells.test_a_column_with_a_choice_starts_unset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_column_with_a_choice_starts_unset" title="Link to this definition"></a></dt>
+<dd><p>Nothing picks one of several channels on the user’s behalf.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_column_with_one_channel_is_settled">
+<span class="sig-name descname"><span class="pre">test_a_column_with_one_channel_is_settled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells.test_a_column_with_one_channel_is_settled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_column_with_one_channel_is_settled" title="Link to this definition"></a></dt>
+<dd><p>Asking for a click with one possible outcome is ceremony.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_plain_column_keeps_its_channel_beside_a_reference">
+<span class="sig-name descname"><span class="pre">test_a_plain_column_keeps_its_channel_beside_a_reference</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells.test_a_plain_column_keeps_its_channel_beside_a_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_plain_column_keeps_its_channel_beside_a_reference" title="Link to this definition"></a></dt>
+<dd><p>Matched by channel: the key gave it the reference of its channel.</p>
+<p>A key binding R with a reference in one column and without in
+another gives both the reference, which no option of the plain
+column names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_reference_the_pair_does_not_offer_is_cleared">
+<span class="sig-name descname"><span class="pre">test_a_reference_the_pair_does_not_offer_is_cleared</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells.test_a_reference_the_pair_does_not_offer_is_cleared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_a_reference_the_pair_does_not_offer_is_cleared" title="Link to this definition"></a></dt>
+<dd><p>Not taken to mean its channel, which offers two others here.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells.test_an_option_carries_the_text_it_shows">
+<span class="sig-name descname"><span class="pre">test_an_option_carries_the_text_it_shows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells.test_an_option_carries_the_text_it_shows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_an_option_carries_the_text_it_shows" title="Link to this definition"></a></dt>
+<dd><p>One place decides it, since the cell sorts by that same text.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestChannelCells.test_each_column_is_decided_on_its_own">
+<span class="sig-name descname"><span class="pre">test_each_column_is_decided_on_its_own</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestChannelCells.test_each_column_is_decided_on_its_own"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestChannelCells.test_each_column_is_decided_on_its_own" title="Link to this definition"></a></dt>
+<dd><p>One axis may have a channel to choose where the other has none.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestQuantityDescription">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostics_rules.</span></span><span class="sig-name descname"><span class="pre">TestQuantityDescription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestQuantityDescription"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestQuantityDescription" title="Link to this definition"></a></dt>
@@ -298,6 +377,14 @@ another’s.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestRowId.test_posted_references_are_split_from_their_channels">
+<span class="sig-name descname"><span class="pre">test_posted_references_are_split_from_their_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestRowId.test_posted_references_are_split_from_their_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestRowId.test_posted_references_are_split_from_their_channels" title="Link to this definition"></a></dt>
+<dd><p>A plain slot on a referenced channel takes that reference.</p>
+<p>A column reading magfit posts its channel with its reference; the
+others, the channel alone.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestRowId.test_siblings_differ_by_their_ordinal">
 <span class="sig-name descname"><span class="pre">test_siblings_differ_by_their_ordinal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestRowId.test_siblings_differ_by_their_ordinal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestRowId.test_siblings_differ_by_their_ordinal" title="Link to this definition"></a></dt>
 <dd><p>One quantity may be drawn by any number of rows.</p>
@@ -391,53 +478,6 @@ which is what picking the first would do.</p>
 <dd><p>Overlapping ranges share one subplot.</p>
 <p>This is the case a non-time x axis reduces to once the grouping is
 generalized from JD to arbitrary x, so it must keep holding.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestSlotCells">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostics_rules.</span></span><span class="sig-name descname"><span class="pre">TestSlotCells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestSlotCells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-564dded5103f9fd7d2957b8fc9b0466940a27052.png" alt="Inheritance diagram of autowisp.tests.test_diagnostics_rules.TestSlotCells" usemap="#inheritance67950689eb" class="inheritance graphviz" /></div>
-<map id="inheritance67950689eb" name="inheritance67950689eb">
-<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells" target="_top" title="What each channel column of a row offers, and what a move keeps." alt="" coords="5,79,359,104"/>
-</map><p>What each channel column of a row offers, and what a move keeps.</p>
-<p>Pure, so the rules can be checked without a database or a browser.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_channel_the_pair_does_not_offer_is_cleared">
-<span class="sig-name descname"><span class="pre">test_a_channel_the_pair_does_not_offer_is_cleared</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestSlotCells.test_a_channel_the_pair_does_not_offer_is_cleared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_channel_the_pair_does_not_offer_is_cleared" title="Link to this definition"></a></dt>
-<dd><p>Rather than quietly bound to something the user never chose.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_channel_the_pair_still_offers_is_kept">
-<span class="sig-name descname"><span class="pre">test_a_channel_the_pair_still_offers_is_kept</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestSlotCells.test_a_channel_the_pair_still_offers_is_kept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_channel_the_pair_still_offers_is_kept" title="Link to this definition"></a></dt>
-<dd><p>The user chose it, and it remains an answer here.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_column_with_a_choice_starts_unset">
-<span class="sig-name descname"><span class="pre">test_a_column_with_a_choice_starts_unset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestSlotCells.test_a_column_with_a_choice_starts_unset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_column_with_a_choice_starts_unset" title="Link to this definition"></a></dt>
-<dd><p>Nothing picks one of several channels on the user’s behalf.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_column_with_one_channel_is_settled">
-<span class="sig-name descname"><span class="pre">test_a_column_with_one_channel_is_settled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestSlotCells.test_a_column_with_one_channel_is_settled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_a_column_with_one_channel_is_settled" title="Link to this definition"></a></dt>
-<dd><p>Asking for a click with one possible outcome is ceremony.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestSlotCells.test_an_option_carries_the_text_it_shows">
-<span class="sig-name descname"><span class="pre">test_an_option_carries_the_text_it_shows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestSlotCells.test_an_option_carries_the_text_it_shows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_an_option_carries_the_text_it_shows" title="Link to this definition"></a></dt>
-<dd><p>One place decides it, since the cell sorts by that same text.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.tests.test_diagnostics_rules.TestSlotCells.test_each_column_is_decided_on_its_own">
-<span class="sig-name descname"><span class="pre">test_each_column_is_decided_on_its_own</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostics_rules.html#TestSlotCells.test_each_column_is_decided_on_its_own"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells.test_each_column_is_decided_on_its_own" title="Link to this definition"></a></dt>
-<dd><p>One axis may have a channel to choose where the other has none.</p>
 </dd></dl>
 
 </dd></dl>

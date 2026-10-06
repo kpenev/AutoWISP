@@ -403,15 +403,6 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "Default: %(default)s.",
         )
         parser.add_argument(
-            "--tfa-observation-id",
-            type=str,
-            nargs="+",
-            default=("fitsheader.fnum",),
-            help="The datasets to use for matching observations across light "
-            "curves. For example, the following works for HAT: "
-            "fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.",
-        )
-        parser.add_argument(
             "--tfa-selected-plots",
             type=str,
             default="tfa_template_selection_%(plot_id)s_phot%(phot_index)s.eps",
@@ -444,6 +435,52 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "magnitude is done.",
         )
 
+    def _add_exclusion_arguments(self, pipeline):
+        """Add parameters selecting the observations to leave out of fits."""
+
+        mode = self._mode.upper()
+        self.add_argument(
+            "--tfa-observation-id",
+            type=str,
+            nargs="+",
+            default=("fitsheader.fnum", "fitsheader.cfg.clrchnl"),
+            help="The datasets whose values identify an observation, used to "
+            "match observations across light curves and to list them in "
+            "--qc-exclude-file. Shared by EPD and TFA. The default suits a "
+            "single camera; for example, the following works for HAT: "
+            "fitsheader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.",
+        )
+        self.add_argument(
+            "--qc-exclude-file",
+            default=None,
+            help=f"A file listing the observations to leave out of the {mode} "
+            "fit, one per line, each given by the values of the "
+            "--tfa-observation-id datasets separated by white space, "
+            "optionally followed by the photometry it applies to: shapefit, "
+            "or ap followed by an aperture index, e.g. ap3. A line naming no "
+            "photometry applies to every one. Excluded "
+            "observations are still corrected. The pipeline writes this file "
+            "from the step's exclusion rule; a stand-alone run may supply one "
+            "written by hand. If unspecified, nothing is excluded.",
+        )
+        if pipeline:
+            self.add_argument(
+                f"--{self._mode}-exclusion-rule",
+                default=None,
+                help="A boolean expression over the image diagnostics and the "
+                "project's diagnostic expressions, true for the observations "
+                f"to leave out of the {mode} fit, e.g. ``(cloud[0] > 0.3) | "
+                "(srcextract_mag_zeropt['G0'] < 19.5)``. A slot subscript "
+                "stands for the channel being decided for, a quoted channel "
+                "name for that channel. Best written as a read of a "
+                "diagnostic expression, e.g. ``cloudy[0]``, which the "
+                "diagnostics page can preview; the expressions page shows the "
+                "read for each expression usable as a rule. The pipeline "
+                "evaluates it to produce the exclusion list. Excluded "
+                "observations are still corrected. If unset, nothing is "
+                "excluded.",
+            )
+
     def __init__(  # pylint: disable=too-many-arguments
         self,
         mode,
@@ -451,13 +488,19 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         *,
         add_reconstructive=True,
         convert_to_dict=True,
-        input_type="lc",
+        pipeline=False,
     ):
         """
         Initialize the parser with options common to all LC detrending steps.
 
         Args:
-            See ManualStepArgumentParser.__init__().
+            pipeline(bool):    Is the step being configured by the pipeline
+                rather than run stand-alone? The pipeline supplies the
+                lightcurves itself and evaluates exclusion rules, so only a
+                stand-alone run takes lightcurve files and only the pipeline
+                has exclusion rules.
+
+            See ManualStepArgumentParser.__init__() for the rest.
 
         Returns:
             None
@@ -465,7 +508,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
 
         self._mode = mode.lower()
         super().__init__(
-            input_type=input_type,
+            input_type=("" if pipeline else "lc"),
             description=description,
             allow_parallel_processing=self._mode in ["epd", "tfa"],
             convert_to_dict=convert_to_dict,
@@ -572,9 +615,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             type=float,
             default=1e-5,
             help="Floor on the residual scale (in the units of the fitted "
-            "quantity) used for outlier rejection. Without it, a (near-)perfect "
-            "fit has a residual ~0, collapsing the rejection threshold to ~0 so "
-            "that points get rejected on floating-point noise -- which can, "
+            "quantity) used for outlier rejection. Without it, a "
+            "(near-)perfect fit has a residual ~0, collapsing the rejection "
+            "threshold to ~0 so that points get rejected on floating-point "
+            "noise -- which can, "
             "platform-dependently, reject enough points to fail the fit. "
             "Default: %(default)s",
         )
@@ -621,4 +665,5 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
 
         if self._mode in ["epd", "tfa"]:
+            self._add_exclusion_arguments(pipeline)
             getattr(self, f"_add_{self._mode}_arguments")(self)

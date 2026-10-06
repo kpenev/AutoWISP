@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -323,13 +326,19 @@ on disk; see <a class="reference internal" href="#autowisp.light_curves.apply_co
 <dt class="sig sig-object py" id="autowisp.light_curves.apply_correction.recalculate_correction_statistics">
 <span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">recalculate_correction_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_fnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc_points_filter_expression</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">calculate_scatter_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#recalculate_correction_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.recalculate_correction_statistics" title="Link to this definition"></a></dt>
 <dd><p>Extract the performance metrics for a de-trending step directly from LCs.</p>
+<p>Only the points selected by <code class="docutils literal notranslate"><span class="pre">lc_points_filter_expression</span></code> that the fit
+did not leave out as excluded contribute.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lc_fnames</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – The filenames of the light curves that were
 corrected.</p></li>
 <li><p><strong>fit_datasets</strong> – See Correction.__init__().</p></li>
-<li><p><strong>extra_predictors</strong> – See EPDCorrection.__init__().</p></li>
+<li><p><strong>variables</strong> – The variables <code class="docutils literal notranslate"><span class="pre">lc_points_filter_expression</span></code> uses.
+See <code class="docutils literal notranslate"><span class="pre">used_variables</span></code> argument to EPDCorrection.__init__().</p></li>
+<li><p><strong>lc_points_filter_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – See
+<code class="docutils literal notranslate"><span class="pre">fit_points_filter_expression</span></code> argument to
+EPDCorrection.__init__(). None selects every point.</p></li>
 <li><p><strong>calculate__scatter_config</strong> – Arguments passed directly to
 calculate_iterative_rejection_scatter().</p></li>
 </ul>

@@ -39,6 +39,8 @@ from autowisp.tests.test_fit_magnitudes import TestFitMagnitudes
 from autowisp.tests.test_create_lightcurves import TestCreateLightcurves
 from autowisp.tests.test_epd import TestEPD
 from autowisp.tests.test_tfa import TestTFA
+from autowisp.tests.test_tfa_multi_channel import TestTFAMultiChannel
+from autowisp.tests.test_detrending_exclusions import TestDetrendingExclusions
 from autowisp.tests.test_tfa_num_templates import (
     TestTemplateSourceIdsVlen,
     TestTemplateSelectionDiagnostics,
@@ -67,8 +69,8 @@ from autowisp.tests.test_database_migration import (
     TestConcurrentMigration,
     TestSchemaDrift,
     TestTimestampTriggers,
-    TestUpgradeFromRelease,
 )
+from autowisp.tests.test_upgrade_from_release import TestUpgradeFromRelease
 from autowisp.tests.test_project_creation_guard import TestNewProjectGuard
 from autowisp.tests.test_error_persistence import (
     TestPersistError,
@@ -111,6 +113,22 @@ from autowisp.tests.test_crash_report import (
     TestCollectEnvironment,
 )
 from autowisp.tests.test_full_pipeline import TestFullPipeline
+from autowisp.tests.test_photref_binding import (
+    TestSeparationBinding,
+    TestConditionBinding,
+)
+from autowisp.tests.test_photref_candidates import (
+    TestUnboundEntries,
+    TestRecordedBindings,
+    TestFindRawImage,
+    TestPhotrefRanking,
+    TestMeritExpressions,
+)
+from autowisp.tests.test_engine_exclusions import TestEngineExclusions
+from autowisp.tests.test_master_photref_lookup import (
+    TestBuiltMaster,
+    TestPhotrefNameClash,
+)
 from autowisp.tests.test_exception_hierarchy import (
     TestExceptionHierarchy,
     TestMigratedExceptions,
@@ -146,7 +164,7 @@ from autowisp.tests.test_diagnostics_rules import (
     TestRowId,
     TestQuantityDescription,
     TestSectionMarkers,
-    TestSlotCells,
+    TestChannelCells,
     TestYAxisAssignment,
     TestSeriesGrouping,
 )
@@ -154,8 +172,10 @@ from autowisp.tests.test_channel_binding import (
     TestChannelColumns,
     TestRebinding,
     TestAddedRow,
+    TestFixedChannelReads,
     TestTwoChannelSeriesValues,
 )
+from autowisp.tests.test_reference_columns import TestReferenceColumns
 from autowisp.tests.test_expression_series import (
     TestCanonicalImages,
     TestDiagnosticValues,
@@ -164,8 +184,19 @@ from autowisp.tests.test_expression_series import (
     TestCrossChannelCounts,
     TestTiedJulianDates,
 )
+from autowisp.tests.test_series_references import (
+    TestSeriesKeyReferences,
+    TestReferenceRestriction,
+    TestPhotometryReads,
+    TestSplitSeries,
+    TestCountUnboundImages,
+    TestReferenceCounts,
+)
+from autowisp.tests.test_exclusion_rules import TestExclusionRules
+from autowisp.tests.test_custom_group_values import TestCustomGroupValues
 from autowisp.tests.test_evaluator import (
     TestNanAggregates,
+    TestNanRank,
     TestRemovedNames,
     TestIterativeRejection,
     TestErrorHandling,
@@ -173,6 +204,7 @@ from autowisp.tests.test_evaluator import (
 from autowisp.tests.test_expressions import (
     TestReferencedNames,
     TestBareAggregates,
+    TestLogicalKeywords,
     TestDependents,
     TestRenamingReferences,
     TestOrdering,
@@ -183,17 +215,24 @@ from autowisp.tests.test_expressions import (
     TestSlotSyntax,
     TestNeededValues,
     TestSlotEvaluation,
+    TestQuotedChannels,
+    TestRules,
 )
+from autowisp.tests.test_photometry_slots import TestPhotometrySlots
 from autowisp.tests.test_diagnostic_types import (
     TestCatalogue,
     TestRuntimePatterns,
     TestVocabulary,
+    TestPhotometryId,
     TestSeeding,
 )
 from autowisp.tests.test_diagnostic_expressions import (
     TestNameSpace,
     TestStoredFields,
     TestLibraryAccess,
+    TestStoreExpression,
+    TestDeleteAndWrite,
+    TestExpressionForm,
 )
 from autowisp.tests.test_bui_db_config import (
     TestDiscovery,

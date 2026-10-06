@@ -664,6 +664,14 @@ def _get_magfit_attributes(photometry_mode):
             description="The RMS residual from the single refence magnitude "
             "fit.",
         ),
+        HDF5Attribute(
+            pipeline_key=pipeline_key_start + "qc_included",
+            parent=dset_path,
+            name="QCIncluded",
+            dtype="numpy.bool_",
+            description="Does the image pass the magnitude fitting quality "
+            "cut?",
+        ),
     ]
     pipeline_key_start = pipeline_key_start[:-1] + ".cfg."
     return result + [

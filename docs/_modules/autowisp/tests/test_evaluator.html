@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -251,6 +254,57 @@
 <span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">({</span><span class="s2">"nanmedian"</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"nanmedian"</span><span class="p">],</span> <span class="mi">42</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestNanAggregates.test_the_merit_has_its_spread">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_the_merit_has_its_spread">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_merit_has_its_spread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The photometric reference merit's ``std_&lt;name&gt;`` becomes this."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"nanstd"</span><span class="p">,</span> <span class="n">EvaluatorBase</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestNanRank">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanRank">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestNanRank</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Each value's rank as a fraction of the population."""</span>
+
+<div class="viewcode-block" id="TestNanRank.test_present_in_both_evaluators">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanRank.test_present_in_both_evaluators">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_present_in_both_evaluators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Like the aggregates, it belongs to the shared base."""</span>
+
+        <span class="k">for</span> <span class="n">evaluator</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Evaluator</span><span class="p">(),</span> <span class="n">_lightcurve_evaluator</span><span class="p">()):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">evaluator</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"nanrank"</span><span class="p">,</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">symtable</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestNanRank.test_nan_is_left_out_and_ties_share">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanRank.test_nan_is_left_out_and_ties_share">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_nan_is_left_out_and_ties_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Four finite values, two of them tied, and a missing one."""</span>
+
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+            <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])})(</span>
+                <span class="s2">"nanrank(x)"</span>
+            <span class="p">),</span>
+            <span class="p">[</span><span class="mf">0.875</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.875</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestNanRank.test_shape_is_kept">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanRank.test_shape_is_kept">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_shape_is_kept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One rank per entry, where the entries were."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">6.0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)})(</span>
+                <span class="s2">"nanrank(x)"</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="p">)</span></div>
 </div>
 
 

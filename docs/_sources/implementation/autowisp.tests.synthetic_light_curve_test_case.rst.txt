@@ -1,0 +1,7 @@
+autowisp.tests.synthetic\_light\_curve\_test\_case module
+=========================================================
+
+.. automodule:: autowisp.tests.synthetic_light_curve_test_case
+   :members:
+   :show-inheritance:
+   :undoc-members:

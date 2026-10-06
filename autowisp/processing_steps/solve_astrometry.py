@@ -73,6 +73,7 @@ fail_reasons = {
     "solve-field failed": -5,
     "web solve failed": -6,
     "other": -7,
+    "failed to save": -8,
 }
 
 
@@ -698,7 +699,6 @@ def solve_image(  # pylint: disable=too-many-locals
         result = {
             "dr_fname": dr_fname,
             "trans_key": dr_eval(configuration["reuse_transformation_key"]),
-            "saved": False,
         }
 
         fov_estimate = max(*configuration["frame_fov_estimate"]).to_value("deg")
@@ -804,7 +804,6 @@ def solve_image(  # pylint: disable=too-many-locals
                         header,
                     ),
                 )
-                result["saved"] = True
 
                 transformation_to_raw(
                     transformation_estimate["trans_x"],
@@ -823,6 +822,7 @@ def solve_image(  # pylint: disable=too-many-locals
                 dr_fname,
                 format_exc(),
             )
+            result["fail_reason"] = fail_reasons["failed to save"]
             return result
         # pylint: enable=bare-except
 
@@ -942,12 +942,6 @@ def manage_astrometry(
             reraise_from_worker(result["error"])
 
         if "raw_transformation" in result:
-            if not result["saved"]:
-                _logger.critical(
-                    "Failed to save astrometry solution to DR file %s.",
-                    result["dr_fname"],
-                )
-                break
             if result["trans_key"] in failed:
                 if result["trans_key"] not in pending:
                     pending[result["trans_key"]] = []

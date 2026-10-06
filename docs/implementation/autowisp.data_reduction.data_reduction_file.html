@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -280,7 +283,10 @@ corrected magnitudes of the sources.</p></li>
 It should define at least the following keys:
 <code class="docutils literal notranslate"><span class="pre">initial_src_count</span></code>, <code class="docutils literal notranslate"><span class="pre">final_src_count</span></code>, and <code class="docutils literal notranslate"><span class="pre">residual</span></code>.</p></li>
 <li><p><strong>magfit_configuration</strong> – The configuration structure with which
-magnitude fitting was performed.</p></li>
+magnitude fitting was performed. Its <code class="docutils literal notranslate"><span class="pre">qc_excluded</span></code> holds
+the resolved paths of the DR files that fail the magnitude
+fitting quality cut; whether this one passes is recorded with
+the first iteration only, like the rest of the configuration.</p></li>
 <li><p><strong>missing_indices</strong> – A list of indices within the file of sources
 for which no entries are included in fitted_magnitudes.</p></li>
 </ul>

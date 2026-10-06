@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -168,6 +171,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sql</span><span class="p">,</span> <span class="n">select</span>
@@ -224,6 +228,40 @@
             <span class="sa">f</span><span class="s2">"Processing pipeline is still running on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">!r}</span><span class="s2"> with "</span>
             <span class="sa">f</span><span class="s2">"process id </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_id</span><span class="si">!r}</span><span class="s2">, started </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="si">}</span><span class="s2">!"</span>
         <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="with_exclusion_list">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.with_exclusion_list">[docs]</a>
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">with_exclusion_list</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">excluded</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Yield the configuration of a step, handed *excluded* as its exclusion list.</span>
+
+<span class="sd">    The list is written to a temporary file, which the step reads through</span>
+<span class="sd">    its ``qc_exclude_file`` option, and which is removed once the step is</span>
+<span class="sd">    done: verdicts are not stored, and each fit records what it left out.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config(dict):    The step's configuration. Not modified.</span>
+
+<span class="sd">        excluded([str] or None):    The lines of the list, each naming what</span>
+<span class="sd">            to leave out as the step identifies it. None if no exclusion</span>
+<span class="sd">            rule decided anything, which leaves *config* as it is.</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        dict:    The configuration to run the step with.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">excluded</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">config</span>
+        <span class="k">return</span>
+
+    <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">list_dir</span><span class="p">:</span>
+        <span class="n">list_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">list_dir</span><span class="p">,</span> <span class="s2">"qc_exclude.txt"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">list_fname</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">list_file</span><span class="p">:</span>
+            <span class="n">list_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">excluded</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">qc_exclude_file</span><span class="o">=</span><span class="n">list_fname</span><span class="p">)</span></div>
 
 
 
@@ -368,7 +406,6 @@
 <span class="sd">            comparing configurations.</span>
 <span class="sd">        """</span>
 
-        <span class="c1"># TODO: exclude master options</span>
         <span class="k">if</span> <span class="n">db_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">step_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">steps</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">id</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>

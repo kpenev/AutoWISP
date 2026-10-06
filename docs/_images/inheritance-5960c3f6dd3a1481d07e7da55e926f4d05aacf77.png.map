@@ -1,0 +1,5 @@
+<map id="inheritance6ecd7d5878" name="inheritance6ecd7d5878">
+<area shape="rect" id="node1" href="autowisp.tests.synthetic_light_curve_test_case.html#autowisp.tests.synthetic_light_curve_test_case.SyntheticLightCurveTestCase" target="_top" title="Tests on two&#45;channel lightcurves created in a throwaway project." alt="" coords="5,79,528,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_tfa_multi_channel.TestTFAMultiChannel" target="_top" title="TFA with the default observation id on two&#45;channel lightcurves." alt="" coords="62,152,471,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="183,5,351,31"/>
+</map>

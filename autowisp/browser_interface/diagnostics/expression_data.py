@@ -1,58 +1,40 @@
-"""Where the expression library comes from, when it comes from the BUI.
+"""The expression library of the project the browser interface has open.
 
-Tier 3 of the expression layer, and the only place outside the views that
-knows Django. Tiers 1 and 2 take the library as an argument -- a plain
-``{name: expression}`` dictionary -- precisely so that they need not know
-whether it was stored by the browser interface, read out of an exported
-file by ``run_pipeline``, or written down in a test. This module is the
-first of those sources.
+The library lives in the project database and is read and written through
+:mod:`autowisp.diagnostics.expression_library`, which the pipeline uses too,
+so that a project's plots and its exclusion rules see the same expressions.
+This module only supplies the session: views that just want the library,
+as the ``{name: expression}`` dictionary the expression layer takes as an
+argument, get it here without opening one themselves.
 
-It is deliberately thin. Everything one might be tempted to put here --
-what an expression means, which order to evaluate a library in, what is
-wrong with a proposed one -- belongs to
-:mod:`autowisp.diagnostics.expressions`, where it can be tested without a
-database of either kind, and is reached from here only by callers that
-already have both.
+Every function here needs a project to be open, as every other view reading
+the project database does.
 """
 
-from .models import DiagnosticExpression
+from autowisp.database.interface import start_db_session
+from autowisp.diagnostics import expression_library
 
 
 def get_expressions():
     """
-    Return the stored library as ``{name: expression}``.
-
-    The whole library, not the part that is usable in the open project: an
-    expression naming a diagnostic this project never recorded is not an
-    error but a thing to leave unoffered. Every expression is *valid*
-    everywhere -- the vocabulary is the same in all projects, see
-    :mod:`autowisp.diagnostics.diagnostic_types` -- so what varies is only
-    whether rows exist, which callers that care establish by counting them.
+    Return the open project's library as ``{name: expression}``.
 
     Returns:
         dict:    Every stored expression, keyed by name.
     """
 
-    return dict(DiagnosticExpression.objects.values_list("name", "expression"))
+    with start_db_session() as db_session:
+        return expression_library.get_expressions(db_session)
 
 
 def get_expression_descriptions():
     """
-    Return ``{name: description}`` for the stored expressions.
-
-    Kept apart from :func:`get_expressions`, which everything that
-    *evaluates* an expression consumes: what a quantity is for is of no
-    interest to the evaluator, and a dictionary carrying both would have
-    to be taken apart again by every caller of it.
+    Return ``{name: description}`` for the open project's expressions.
 
     Returns:
         dict:    Every stored expression's description, the empty string
             where one was left blank.
     """
 
-    return {
-        name: description or ""
-        for name, description in DiagnosticExpression.objects.values_list(
-            "name", "description"
-        )
-    }
+    with start_db_session() as db_session:
+        return expression_library.get_expression_descriptions(db_session)

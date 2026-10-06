@@ -2,6 +2,7 @@
 
 import logging
 import os
+from contextlib import contextmanager
 from os import path
 from tempfile import TemporaryDirectory
 from sqlalchemy import sql, select
@@ -56,6 +57,37 @@ class ProcessingInProgress(PipelineError):
             f"Processing pipeline is still running on {self.host!r} with "
             f"process id {self.process_id!r}, started {self.started}!"
         )
+
+
+@contextmanager
+def with_exclusion_list(config, excluded):
+    """
+    Yield the configuration of a step, handed *excluded* as its exclusion list.
+
+    The list is written to a temporary file, which the step reads through
+    its ``qc_exclude_file`` option, and which is removed once the step is
+    done: verdicts are not stored, and each fit records what it left out.
+
+    Args:
+        config(dict):    The step's configuration. Not modified.
+
+        excluded([str] or None):    The lines of the list, each naming what
+            to leave out as the step identifies it. None if no exclusion
+            rule decided anything, which leaves *config* as it is.
+
+    Yields:
+        dict:    The configuration to run the step with.
+    """
+
+    if excluded is None:
+        yield config
+        return
+
+    with TemporaryDirectory() as list_dir:
+        list_fname = path.join(list_dir, "qc_exclude.txt")
+        with open(list_fname, "w", encoding="utf-8") as list_file:
+            list_file.writelines(f"{line}\n" for line in excluded)
+        yield dict(config, qc_exclude_file=list_fname)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -192,7 +224,6 @@ class ProcessingManager:
             comparing configurations.
         """
 
-        # TODO: exclude master options
         if db_steps is None:
             if step_names is None:
                 steps = db_session.scalars(select(Step).order_by(Step.id)).all()

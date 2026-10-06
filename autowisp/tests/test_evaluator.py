@@ -69,6 +69,42 @@ class TestNanAggregates(unittest.TestCase):
 
         self.assertEqual(Evaluator({"nanmedian": 42}).symtable["nanmedian"], 42)
 
+    def test_the_merit_has_its_spread(self):
+        """The photometric reference merit's ``std_<name>`` becomes this."""
+
+        self.assertIn("nanstd", EvaluatorBase.nan_aggregates)
+
+
+class TestNanRank(unittest.TestCase):
+    """Each value's rank as a fraction of the population."""
+
+    def test_present_in_both_evaluators(self):
+        """Like the aggregates, it belongs to the shared base."""
+
+        for evaluator in (Evaluator(), _lightcurve_evaluator()):
+            with self.subTest(evaluator=type(evaluator).__name__):
+                self.assertIn("nanrank", evaluator.symtable)
+
+    def test_nan_is_left_out_and_ties_share(self):
+        """Four finite values, two of them tied, and a missing one."""
+
+        numpy.testing.assert_allclose(
+            Evaluator({"x": numpy.array([3.0, numpy.nan, 1.0, 3.0, 2.0])})(
+                "nanrank(x)"
+            ),
+            [0.875, numpy.nan, 0.25, 0.875, 0.5],
+        )
+
+    def test_shape_is_kept(self):
+        """One rank per entry, where the entries were."""
+
+        self.assertEqual(
+            Evaluator({"x": numpy.arange(6.0).reshape(2, 3)})(
+                "nanrank(x)"
+            ).shape,
+            (2, 3),
+        )
+
 
 class TestRemovedNames(unittest.TestCase):
     """Names asteval offers that AutoWISP takes away."""

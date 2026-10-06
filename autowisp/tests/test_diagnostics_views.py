@@ -551,7 +551,7 @@ class TestSeparateYAxes(DiagnosticsViewTestCase):
                     expressions={},
                     db_session=db_session,
                     figure_config={"y_axes": y_axes},
-                )
+                )[0]
 
     def test_sharing_one_axis_draws_one(self):
         """Both quantities on the same scale, named on the same label."""

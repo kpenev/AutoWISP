@@ -22,7 +22,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.diagnostics.expression_series module" href="autowisp.diagnostics.expression_series.html" />
+    <link rel="next" title="autowisp.diagnostics.exclusion_rules module" href="autowisp.diagnostics.exclusion_rules.html" />
     <link rel="prev" title="autowisp.diagnostics.detrending module" href="autowisp.diagnostics.detrending.html" /> 
 </head>
 
@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -211,6 +214,34 @@ is not swallowed.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.get_photometry_id">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">get_photometry_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_shape_fit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#get_photometry_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.get_photometry_id" title="Link to this definition"></a></dt>
+<dd><p>Return the id recorded for the photometry at <em>position</em> in magfit’s arrays.</p>
+<p><code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> holds an image’s photometries in one array: the shape
+fit first, where the image has a usable one, and then every aperture.
+So a position is the shape fit on one image and aperture 0 on the next,
+and recording it would let a series pinned to one id mix photometries
+without saying so. The id is the same on every image instead: the
+aperture index, which is what the DR files number apertures by, or
+<a class="reference internal" href="#autowisp.diagnostics.diagnostic_types.shapefit_photometry" title="autowisp.diagnostics.diagnostic_types.shapefit_photometry"><code class="xref py py-data docutils literal notranslate"><span class="pre">shapefit_photometry</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index into magfit’s photometry arrays.</p></li>
+<li><p><strong>has_shape_fit</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether those arrays start with a shape fit,
+as <code class="docutils literal notranslate"><span class="pre">get_magfit_sources</span></code> decided when building them.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The photometry id.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.is_diagnostic">
 <span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">is_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#is_diagnostic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.is_diagnostic" title="Link to this definition"></a></dt>
 <dd><p>Whether <em>name</em> is a diagnostic AutoWISP can record, in any project.</p>
@@ -275,6 +306,88 @@ against them ask here, so the two cannot drift into disagreeing.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.magfit_diagnostic_names">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">magfit_diagnostic_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#magfit_diagnostic_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.magfit_diagnostic_names" title="Link to this definition"></a></dt>
+<dd><p>Return the diagnostics <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> produces.</p>
+<p>Their values depend on the photometric reference each image was fit
+against, not only on the image, so a population they are read over has
+to be split by reference as well. Everything deciding that asks here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>The names, a subset of</dt><dd><p><a class="reference internal" href="#autowisp.diagnostics.diagnostic_types.standard_diagnostic_names" title="autowisp.diagnostics.diagnostic_types.standard_diagnostic_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">standard_diagnostic_names()</span></code></a>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)">frozenset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.parse_photometry_literal">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">parse_photometry_literal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">literal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#parse_photometry_literal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.parse_photometry_literal" title="Link to this definition"></a></dt>
+<dd><p>Return the photometry id a quoted photometry names, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>An expression quotes a photometry as <code class="docutils literal notranslate"><span class="pre">'shapefit'</span></code> or as <code class="docutils literal notranslate"><span class="pre">'ap'</span></code>
+followed by the aperture index, <code class="docutils literal notranslate"><span class="pre">'ap4'</span></code>, just as it quotes a channel
+by name. <a class="reference internal" href="#autowisp.diagnostics.diagnostic_types.photometry_literal" title="autowisp.diagnostics.diagnostic_types.photometry_literal"><code class="xref py py-func docutils literal notranslate"><span class="pre">photometry_literal()</span></code></a> spells an id the same way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>literal</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The quoted text.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The id, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if <em>literal</em> names no</dt><dd><p>photometry.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">photometry_diagnostic_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#photometry_diagnostic_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names" title="Link to this definition"></a></dt>
+<dd><p>Return the diagnostics recorded per photometry.</p>
+<p>Stored in <code class="docutils literal notranslate"><span class="pre">photometry_diagnostics</span></code>, one value per shape fit and per
+aperture, rather than in <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code>, so an expression reads
+one in a photometry as well as a channel. Not the same question as
+<a class="reference internal" href="#autowisp.diagnostics.diagnostic_types.magfit_diagnostic_names" title="autowisp.diagnostics.diagnostic_types.magfit_diagnostic_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">magfit_diagnostic_names()</span></code></a>, although today the same names answer
+both: a diagnostic <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> recorded once per image would
+depend on the reference and still take no photometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>The names, a subset of</dt><dd><p><a class="reference internal" href="#autowisp.diagnostics.diagnostic_types.magfit_diagnostic_names" title="autowisp.diagnostics.diagnostic_types.magfit_diagnostic_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">magfit_diagnostic_names()</span></code></a>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)">frozenset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.photometry_literal">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">photometry_literal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photometry_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#photometry_literal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.photometry_literal" title="Link to this definition"></a></dt>
+<dd><p>Return how an expression quotes the photometry <em>photometry_id</em>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.shapefit_photometry">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">shapefit_photometry</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1</span></span><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.shapefit_photometry" title="Link to this definition"></a></dt>
+<dd><p>The photometry id of the shape fit. Apertures are numbered by their index,
+from 0, so the shape fit takes a value no aperture can have.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.standard_diagnostic_names">
 <span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">standard_diagnostic_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#standard_diagnostic_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.standard_diagnostic_names" title="Link to this definition"></a></dt>
 <dd><p>Return just the names, which is all validating an expression needs.</p>
@@ -327,7 +440,7 @@ that validating an expression needs nothing from the database tier.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="autowisp.diagnostics.detrending.html" class="btn btn-neutral float-left" title="autowisp.diagnostics.detrending module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.diagnostics.expression_series.html" class="btn btn-neutral float-right" title="autowisp.diagnostics.expression_series module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.diagnostics.exclusion_rules.html" class="btn btn-neutral float-right" title="autowisp.diagnostics.exclusion_rules module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

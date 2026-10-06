@@ -1,0 +1,7 @@
+autowisp.tests.test\_photometry\_slots module
+=============================================
+
+.. automodule:: autowisp.tests.test_photometry_slots
+   :members:
+   :show-inheritance:
+   :undoc-members:

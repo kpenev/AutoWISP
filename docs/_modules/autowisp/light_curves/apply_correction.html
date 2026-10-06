@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -343,13 +346,21 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract the performance metrics for a de-trending step directly from LCs.</span>
 
+<span class="sd">    Only the points selected by ``lc_points_filter_expression`` that the fit</span>
+<span class="sd">    did not leave out as excluded contribute.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        lc_fnames([str]):    The filenames of the light curves that were</span>
 <span class="sd">            corrected.</span>
 
 <span class="sd">        fit_datasets:    See Correction.__init__().</span>
 
-<span class="sd">        extra_predictors:    See EPDCorrection.__init__().</span>
+<span class="sd">        variables:    The variables ``lc_points_filter_expression`` uses.</span>
+<span class="sd">            See ``used_variables`` argument to EPDCorrection.__init__().</span>
+
+<span class="sd">        lc_points_filter_expression(str or None):    See</span>
+<span class="sd">            ``fit_points_filter_expression`` argument to</span>
+<span class="sd">            EPDCorrection.__init__(). None selects every point.</span>
 
 <span class="sd">        calculate__scatter_config:    Arguments passed directly to</span>
 <span class="sd">            calculate_iterative_rejection_scatter().</span>
@@ -370,18 +381,32 @@
                 <span class="n">fit_datasets</span>
             <span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">stat_points</span> <span class="o">=</span> <span class="n">lightcurve</span><span class="o">.</span><span class="n">evaluate_expression</span><span class="p">(</span>
-                        <span class="n">variables</span><span class="p">,</span> <span class="n">lc_points_filter_expression</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="n">lightcurve</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">to_dset</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
+                    <span class="c1"># Points the fit left out are corrected, but say nothing</span>
+                    <span class="c1"># about how well the correction works. Lightcurves</span>
+                    <span class="c1"># detrended before fits recorded them left none out.</span>
+                    <span class="n">stat_points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span>
+                        <span class="n">lightcurve</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
+                            <span class="n">to_dset</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">".qc_included"</span><span class="p">,</span>
+                            <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+                        <span class="p">),</span>
+                        <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
                     <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">lc_points_filter_expression</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">stat_points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                            <span class="n">stat_points</span><span class="p">,</span>
+                            <span class="n">lightcurve</span><span class="o">.</span><span class="n">evaluate_expression</span><span class="p">(</span>
+                                <span class="n">variables</span><span class="p">,</span> <span class="n">lc_points_filter_expression</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
                     <span class="c1"># False positive</span>
                     <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
                     <span class="p">(</span>
                         <span class="n">result</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][</span><span class="n">lc_index</span><span class="p">][</span><span class="n">fit_index</span><span class="p">],</span>
                         <span class="n">result</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">][</span><span class="n">lc_index</span><span class="p">][</span><span class="n">fit_index</span><span class="p">],</span>
                     <span class="p">)</span> <span class="o">=</span> <span class="n">calculate_iterative_rejection_scatter</span><span class="p">(</span>
-                        <span class="n">lightcurve</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">to_dset</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)[</span>
-                            <span class="n">stat_points</span>
-                        <span class="p">],</span>
+                        <span class="n">values</span><span class="p">[</span><span class="n">stat_points</span><span class="p">],</span>
                         <span class="o">**</span><span class="n">calculate_scatter_config</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="c1"># pylint: enable=unbalanced-tuple-unpacking</span>

@@ -21,7 +21,7 @@ def parse_command_line(*args):
     """Parse the commandline optinos to a dictionary."""
 
     return LCDetrendingArgumentParser(
-        mode="EPD", description=__doc__, input_type=("" if args else "lc")
+        mode="EPD", description=__doc__, pipeline=bool(args)
     ).parse_args(*args)
 
 
@@ -59,6 +59,9 @@ def epd(lc_collection, start_status, configuration, mark_progress):
             max_rej_iter=configuration["detrend_max_rej_iter"],
             reject_scale_floor=configuration["detrend_reject_scale_floor"],
             pre_reject=configuration["pre_reject_outliers"],
+            observation_id=configuration["tfa_observation_id"],
+            qc_exclude_file=configuration["qc_exclude_file"],
+            exclusion_rule=configuration.get("epd_exclusion_rule"),
             mark_progress=mark_progress,
         ),
     )

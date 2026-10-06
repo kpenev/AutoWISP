@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="autowisp.browser_interface.diagnostics.expression_views module" href="autowisp.browser_interface.diagnostics.expression_views.html" />
-    <link rel="prev" title="autowisp.browser_interface.diagnostics.detrending_diagnostics_views module" href="autowisp.browser_interface.diagnostics.detrending_diagnostics_views.html" /> 
+    <link rel="prev" title="autowisp.browser_interface.diagnostics.exclusion_mask module" href="autowisp.browser_interface.diagnostics.exclusion_mask.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -171,34 +174,19 @@
              
   <section id="module-autowisp.browser_interface.diagnostics.expression_data">
 <span id="autowisp-browser-interface-diagnostics-expression-data-module"></span><h1>autowisp.browser_interface.diagnostics.expression_data module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.expression_data" title="Link to this heading"></a></h1>
-<section id="class-inheritance-diagram">
-<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-e6d07612104c7de28dbf8756f28795e60327531c.png" alt="Inheritance diagram of DiagnosticExpression" usemap="#inheritance39c047c0ed" class="inheritance graphviz" /></div>
-<map id="inheritance39c047c0ed" name="inheritance39c047c0ed">
-<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="52,152,435,177"/>
-<area shape="rect" id="node3" href="autowisp.browser_interface.diagnostics.models.html#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="5,225,481,251"/>
-</map><p>Where the expression library comes from, when it comes from the BUI.</p>
-<p>Tier 3 of the expression layer, and the only place outside the views that
-knows Django. Tiers 1 and 2 take the library as an argument – a plain
-<code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code> dictionary – precisely so that they need not know
-whether it was stored by the browser interface, read out of an exported
-file by <code class="docutils literal notranslate"><span class="pre">run_pipeline</span></code>, or written down in a test. This module is the
-first of those sources.</p>
-<p>It is deliberately thin. Everything one might be tempted to put here –
-what an expression means, which order to evaluate a library in, what is
-wrong with a proposed one – belongs to
-<a class="reference internal" href="autowisp.diagnostics.expressions.html#module-autowisp.diagnostics.expressions" title="autowisp.diagnostics.expressions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.expressions</span></code></a>, where it can be tested without a
-database of either kind, and is reached from here only by callers that
-already have both.</p>
-</section>
+<p>The expression library of the project the browser interface has open.</p>
+<p>The library lives in the project database and is read and written through
+<a class="reference internal" href="autowisp.diagnostics.expression_library.html#module-autowisp.diagnostics.expression_library" title="autowisp.diagnostics.expression_library"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.expression_library</span></code></a>, which the pipeline uses too,
+so that a project’s plots and its exclusion rules see the same expressions.
+This module only supplies the session: views that just want the library,
+as the <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code> dictionary the expression layer takes as an
+argument, get it here without opening one themselves.</p>
+<p>Every function here needs a project to be open, as every other view reading
+the project database does.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_data.get_expression_descriptions">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_data.</span></span><span class="sig-name descname"><span class="pre">get_expression_descriptions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_data.html#get_expression_descriptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_data.get_expression_descriptions" title="Link to this definition"></a></dt>
-<dd><p>Return <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">description}</span></code> for the stored expressions.</p>
-<p>Kept apart from <a class="reference internal" href="#autowisp.browser_interface.diagnostics.expression_data.get_expressions" title="autowisp.browser_interface.diagnostics.expression_data.get_expressions"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_expressions()</span></code></a>, which everything that
-<em>evaluates</em> an expression consumes: what a quantity is for is of no
-interest to the evaluator, and a dictionary carrying both would have
-to be taken apart again by every caller of it.</p>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">description}</span></code> for the open project’s expressions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -216,13 +204,7 @@ to be taken apart again by every caller of it.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_data.get_expressions">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_data.</span></span><span class="sig-name descname"><span class="pre">get_expressions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_data.html#get_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_data.get_expressions" title="Link to this definition"></a></dt>
-<dd><p>Return the stored library as <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p>
-<p>The whole library, not the part that is usable in the open project: an
-expression naming a diagnostic this project never recorded is not an
-error but a thing to leave unoffered. Every expression is <em>valid</em>
-everywhere – the vocabulary is the same in all projects, see
-<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#module-autowisp.diagnostics.diagnostic_types" title="autowisp.diagnostics.diagnostic_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.diagnostic_types</span></code></a> – so what varies is only
-whether rows exist, which callers that care establish by counting them.</p>
+<dd><p>Return the open project’s library as <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Every stored expression, keyed by name.</p>
@@ -239,7 +221,7 @@ whether rows exist, which callers that care establish by counting them.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="autowisp.browser_interface.diagnostics.detrending_diagnostics_views.html" class="btn btn-neutral float-left" title="autowisp.browser_interface.diagnostics.detrending_diagnostics_views module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.browser_interface.diagnostics.exclusion_mask.html" class="btn btn-neutral float-left" title="autowisp.browser_interface.diagnostics.exclusion_mask module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="autowisp.browser_interface.diagnostics.expression_views.html" class="btn btn-neutral float-right" title="autowisp.browser_interface.diagnostics.expression_views module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

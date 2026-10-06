@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -181,13 +184,18 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">photometry_diagnostic_names</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_series</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_quantity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="n">order_expressions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineError</span>
 
 <span class="c1"># False positive due to unusual importing</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticType</span><span class="p">,</span> <span class="n">ImageDiagnostics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DiagnosticType</span><span class="p">,</span>
+    <span class="n">ImageDiagnostics</span><span class="p">,</span>
+    <span class="n">PhotometryDiagnostics</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
@@ -199,8 +207,14 @@
 <span class="sd">    Return the ``DiagnosticType`` names anything has recorded in this project.</span>
 
 <span class="sd">    A per-type ``EXISTS`` probe rather than a ``GROUP BY`` over the whole of</span>
-<span class="sd">    ``image_diagnostics``: the question is only which names are in use, and</span>
-<span class="sd">    the grouped form has to walk every row to answer it.</span>
+<span class="sd">    the diagnostics tables: the question is only which names are in use,</span>
+<span class="sd">    and the grouped form has to walk every row to answer it.</span>
+
+<span class="sd">    Each name is probed in the table it is recorded in:</span>
+<span class="sd">    ``photometry_diagnostics`` for those of</span>
+<span class="sd">    :func:`~autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names`,</span>
+<span class="sd">    ``image_diagnostics`` for the rest. That is where a series reads it</span>
+<span class="sd">    from, so a name found anywhere else could be offered and draw nothing.</span>
 
 <span class="sd">    The names come back raw, individual ``pixel_q*`` entries included --</span>
 <span class="sd">    before :func:`get_available_diagnostics` collapses them into the family</span>
@@ -214,23 +228,48 @@
 <span class="sd">        list:    The names in use, in ``DiagnosticType`` order.</span>
 <span class="sd">    """</span>
 
+    <span class="n">per_photometry</span> <span class="o">=</span> <span class="n">photometry_diagnostic_names</span><span class="p">()</span>
     <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">type_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
         <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span>
             <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span>
         <span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">PhotometryDiagnostics</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">per_photometry</span>
+            <span class="k">else</span> <span class="n">ImageDiagnostics</span>
+        <span class="p">)</span>
         <span class="n">in_use</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="n">select</span><span class="p">(</span>
-                <span class="n">select</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">diagnostic_id</span> <span class="o">==</span> <span class="n">type_id</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">diagnostic_id</span> <span class="o">==</span> <span class="n">type_id</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">in_use</span><span class="p">:</span>
             <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">names</span></div>
+
+
+
+<div class="viewcode-block" id="get_recorded_photometries">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_recorded_photometries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_recorded_photometries</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the photometry ids anything has recorded diagnostics in.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    The ids, in increasing order.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">photometry_id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">photometry_id</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
 
 
 

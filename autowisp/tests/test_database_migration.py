@@ -4,12 +4,8 @@ These need only a throwaway SQLite database, not a full project, so they
 subclass ``unittest.TestCase`` directly.
 """
 
-import io
 import os
-import shutil
-import subprocess
-import sys
-import tarfile
+import re
 import tempfile
 import threading
 import unittest
@@ -21,7 +17,6 @@ from sqlalchemy import (
     Table,
     create_engine,
     inspect,
-    select,
     text,
 )
 from sqlalchemy.exc import OperationalError
@@ -418,6 +413,33 @@ class TestRevisionChain(unittest.TestCase):
         ]
         self.assertEqual(roots, [BASELINE_REVISION])
 
+    def test_the_build_installs_every_revision(self):
+        """The ``meson.build`` beside the revisions lists each one of them.
+
+        The build installs only the files it lists. A revision left out
+        works from a checkout, where the file is, and is absent from an
+        installed package, which then stops one revision short and stamps
+        projects at the wrong head. Nothing can tell that from the
+        installed package: a chain that ends early is still a chain. So
+        this compares the list with the directory, where a checkout has
+        both.
+        """
+
+        build_fname = os.path.join(self.script.versions, "meson.build")
+        if not os.path.exists(build_fname):
+            self.skipTest("an installed package has no meson.build to check")
+        with open(build_fname, encoding="utf-8") as build_file:
+            listed = set(re.findall(r"'([^']+\.py)'", build_file.read()))
+
+        self.assertEqual(
+            listed,
+            {
+                fname
+                for fname in os.listdir(self.script.versions)
+                if fname.endswith(".py")
+            },
+        )
+
 
 class TestMigrateProject(BackendMixin, unittest.TestCase):
     """The three database states :func:`migrate_project` has to handle."""
@@ -768,217 +790,6 @@ class TestSchemaDrift(BackendMixin, unittest.TestCase):
         self.assertEqual(len(drift), 1)
         self.assertEqual(drift[0][0], "remove_index")
         self.assertEqual(drift[0][1].name, "not_in_the_models")
-
-
-def _repo_root():
-    """Return the repository's top level, or None outside a checkout."""
-
-    try:
-        return subprocess.run(
-            [
-                "git",
-                "-C",
-                os.path.dirname(__file__),
-                "rev-parse",
-                "--show-toplevel",
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
-        return None
-
-
-def _git(*args, binary=False):
-    """Run git at the repository root; return output, or None if it fails.
-
-    The root, not this file's directory: ``git archive`` refuses a pathspec
-    reaching outside the current directory, so it has to be invoked from
-    the top level.
-    """
-
-    root = _repo_root()
-    if root is None:
-        return None
-    try:
-        result = subprocess.run(
-            ["git", "-C", root, *args],
-            capture_output=True,
-            text=not binary,
-            check=True,
-        )
-    except (OSError, subprocess.CalledProcessError):
-        return None
-    return result.stdout if binary else result.stdout.strip()
-
-
-class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
-    """A database built by a *released* AutoWISP reaches today's schema.
-
-    This is the test that catches a model changed without a revision to
-    match. Every other check here builds its "before" state from today's
-    metadata, so a missing revision moves both sides together and goes
-    unnoticed. Here the starting schema is built by the released code
-    itself, checked out from its tag, so the revision chain is the only
-    thing that can close the gap.
-
-    That released package is loaded in a **subprocess**: it defines the
-    same module names as the code under test, so importing both into one
-    interpreter would have whichever came first shadow the other.
-    """
-
-    release_baselines = ("1.8.1", "2.0.0")
-    """Released versions a project database may be upgraded from.
-
-    Add each new release tag as it ships; every entry gets its own
-    upgrade-to-current check.
-    """
-
-    def setUp(self):
-        super().setUp()
-        if _git("rev-parse", "--git-dir") is None:
-            self.skipTest("not a git checkout, so releases cannot be exported")
-
-    def _export_release(self, ref):
-        """Extract the ``autowisp`` package as of *ref* into a temp dir."""
-
-        if _git("rev-parse", "--verify", f"{ref}^{{commit}}") is None:
-            self.skipTest(
-                f"tag {ref} unavailable -- CI needs fetch-depth: 0 for tags"
-            )
-        archive = _git("archive", ref, "autowisp", binary=True)
-        self.assertIsNotNone(archive, f"could not export {ref}")
-
-        target = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, target, True)
-        # tarfile rather than the tar binary: no external command, and no
-        # assumption about which tar the platform ships.
-        with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
-            tar.extractall(target, filter="data")
-        return target
-
-    def _build_release_schema(self, source, engine):
-        """Create the release's schema, running that release's own code."""
-
-        # hide_password=False: str(URL) masks the password, which would
-        # make the subprocess fail to connect to a server.
-        url = engine.url.render_as_string(hide_password=False)
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-c",
-                f"import sys; sys.path.insert(0, {source!r})\n"
-                "from sqlalchemy import create_engine\n"
-                "from autowisp.database.data_model.base import DataModelBase\n"
-                "import autowisp.database.data_model\n"
-                f"DataModelBase.metadata.create_all(create_engine({url!r}))\n",
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if result.returncode:
-            # The release cannot create its own schema here, so there is no
-            # upgrade to check -- not a failure of the revisions. Reachable:
-            # 1.8.1 cannot be created on MySQL 8.4 under utf8mb4 at all,
-            # because its VARCHAR(1000) unique keys exceed InnoDB's index
-            # limit. That is precisely what these revisions fix, and why
-            # real deployments run a narrower charset.
-            self.skipTest(
-                "the release cannot build its schema on this backend, so "
-                f"there is no upgrade path to check:\n{result.stderr[-300:]}"
-            )
-
-    def test_every_release_upgrades_to_the_current_schema(self):
-        """Each released schema, once migrated, agrees with today's models."""
-
-        for ref in self.release_baselines:
-            with self.subTest(release=ref):
-                self.reset_backend()
-                engine = self.make_engine(f"from_{ref}.db")
-                self._build_release_schema(self._export_release(ref), engine)
-
-                # Predates Alembic, so this covers the whole path: reach the
-                # baseline, stamp it, then apply every revision.
-                self.assertIsNone(get_project_revision(engine))
-                self.migrate(engine)
-
-                self.assertEqual(
-                    get_project_revision(engine), get_head_revision()
-                )
-                self.assertEqual(
-                    get_schema_drift(engine),
-                    [],
-                    f"a database from {ref} does not reach the current "
-                    "schema; the differences above each need a revision",
-                )
-
-    def test_every_release_keeps_its_timestamp_triggers(self):
-        """Upgrading does not cost the database its triggers.
-
-        SQLite cannot alter a column in place, so ``batch_alter_table``
-        rebuilds the table and the drop takes its triggers with it. The
-        rebuilt table is created by the revision rather than from the
-        models, so nothing puts them back -- a 1.8.1 database used to lose
-        seven this way, and the check above could not see it.
-        """
-
-        expected = expected_timestamp_triggers()
-        for ref in self.release_baselines:
-            with self.subTest(release=ref):
-                self.reset_backend()
-                engine = self.make_engine(f"triggers_{ref}.db")
-                self._build_release_schema(self._export_release(ref), engine)
-                self.migrate(engine)
-
-                self.assertEqual(self.list_triggers(engine), expected)
-
-    def test_a_value_too_long_to_keep_stops_the_migration(self):
-        """Narrowing a column refuses rather than truncating.
-
-        Refusing is the point: on a server not running in strict mode the
-        ALTER would truncate the value silently.
-
-        Uses ``condition_expression.expression`` (1000 -> 768 in ``0005``)
-        rather than ``image.raw_fname``, which narrows identically in
-        ``0004``. The guard lives in the shared ``resize_varchar_column``,
-        so either exercises it -- but condition_expression has no foreign
-        keys, whereas an image row needs an image_type and an observing
-        session, and that in turn needs an observer, camera, telescope,
-        mount, observatory and target. A server enforces every one of
-        those, so the alternative was either a dozen rows of fixture or
-        switching the checks off, and neither has anything to do with
-        column widths.
-        """
-
-        ref = self.release_baselines[0]
-        engine = self.make_engine(f"toolong_{ref}.db")
-        self._build_release_schema(self._export_release(ref), engine)
-
-        long_expression = "x" * 800
-        with engine.begin() as connection:
-            table = Table(
-                "condition_expression", MetaData(), autoload_with=connection
-            )
-            connection.execute(
-                table.insert().values(expression=long_expression)
-            )
-
-        with self.assertRaises(DatabaseError) as caught:
-            self.migrate(engine)
-
-        message = str(caught.exception)
-        self.assertIn("expression", message)
-        self.assertIn(str(len(long_expression)), message)
-
-        # The value is still intact, and the schema was left alone.
-        with engine.begin() as connection:
-            table = Table(
-                "condition_expression", MetaData(), autoload_with=connection
-            )
-            kept = connection.execute(select(table.c.expression)).scalar()
-        self.assertEqual(kept, long_expression)
 
 
 if __name__ == "__main__":

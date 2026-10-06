@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -173,22 +176,22 @@
 <span id="autowisp-browser-interface-processing-select-photref-views-module"></span><h1>autowisp.browser_interface.processing.select_photref_views module<a class="headerlink" href="#module-autowisp.browser_interface.processing.select_photref_views" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-11f8d01e4e04c145c0d66652d3c3f17273338c34.png" alt="Inheritance diagram of DiagnosticType, Evaluator, Image, ImageDiagnostics, ImageProcessingManager, SkyCoord, StringIO" usemap="#inheritance01b3b327ae" class="inheritance graphviz" /></div>
-<map id="inheritance01b3b327ae" name="inheritance01b3b327ae">
-<area shape="rect" id="node18" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="103,79,347,104"/>
-<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="592,372,908,397"/>
-<area shape="rect" id="node12" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="932,372,1387,397"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="1424,445,1897,471"/>
-<area shape="rect" id="node15" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="1523,79,1961,104"/>
-<area shape="rect" id="node16" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="1567,5,1917,31"/>
-<area shape="rect" id="node17" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="119,152,331,177"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1317,5,1434,31"/>
+<div class="graphviz"><img src="../_images/inheritance-f4e1cdde11a6913f75d80130c7ab7a912d27ff4c.png" alt="Inheritance diagram of Image, ImageProcessingManager, SkyCoord, StringIO" usemap="#inheritance696b895dc2" class="inheritance graphviz" /></div>
+<map id="inheritance696b895dc2" name="inheritance696b895dc2">
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="736,372,1052,397"/>
+<area shape="rect" id="node11" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="1257,79,1696,104"/>
+<area shape="rect" id="node12" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="1301,5,1652,31"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1051,5,1169,31"/>
 </map><p>Implement the view for selecting single photometric reference.</p>
 </section>
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.processing.select_photref_views._create_merit_histograms">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">_create_merit_histograms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">merit_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_photref_separation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#_create_merit_histograms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views._create_merit_histograms" title="Link to this definition"></a></dt>
-<dd><p>Create SVG histograms of various merit metrics showing image in each.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">_create_merit_histograms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">merit_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_photref_separation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#_create_merit_histograms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views._create_merit_histograms" title="Link to this definition"></a></dt>
+<dd><p>Create SVG histograms of the candidates’ merit and every diagnostic.</p>
+<p>After the pointing plots, which show what the image shown would leave
+unbound as the reference, the merit comes first. Each histogram marks
+the image shown, and the quantile in a diagnostic’s title is among the
+candidates.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -214,9 +217,43 @@ the zoomed plot are still coloured by the original threshold_deg.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.processing.select_photref_views._describe_held_back">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">_describe_held_back</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclusions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_held_back</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#_describe_held_back"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views._describe_held_back" title="Link to this definition"></a></dt>
+<dd><p>Return what to say about the images not offered as the reference.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.processing.select_photref_views._get_merit">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">_get_merit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#_get_merit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views._get_merit" title="Link to this definition"></a></dt>
+<dd><p>Return the library expressions to rank by, and the one to rank by now.</p>
+<p>The one chosen on the page if it can still rank candidates, otherwise
+<code class="xref py py-data docutils literal notranslate"><span class="pre">photref_merit</span></code>; None if that cannot either, e.g. deleted.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.processing.select_photref_views._get_merit_data">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">_get_merit_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#_get_merit_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views._get_merit_data" title="Link to this definition"></a></dt>
-<dd><p>Add to the session the merit information for selecting single ref.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">_get_merit_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#_get_merit_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views._get_merit_data" title="Link to this definition"></a></dt>
+<dd><p>Return the candidates for a group’s reference, best first.</p>
+<p>Evaluated on every request rather than kept, so that a change to the
+merit expression or to the exclusion rule shows on the next one. Only
+the images offered as the reference are ranked: not those the magnitude
+fitting exclusion rule leaves out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>pandas.DataFrame:    A row per candidate, best first, indexed by</dt><dd><p>its position in <em>batch</em>, which is what a choice is mapped
+back through. A column per diagnostic, and one for the merit
+under its name.</p>
+</dd>
+</dl>
+<p>str or None:    The name of the merit ranked by, None if none.</p>
+<p>str:    What to say about the images not offered.</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -232,39 +269,19 @@ the zoomed plot are still coloured by the original threshold_deg.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.processing.select_photref_views.get_photref_merit_info">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">get_photref_merit_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photref_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merit_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#get_photref_merit_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views.get_photref_merit_info" title="Link to this definition"></a></dt>
-<dd><p>Return the diagnostics, ranking, and std for each photref_group image.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>photref_group</strong> – The group of images for which an independent
-reference needs to be selected: list of
-(_, image_id, channel) tuples.</p></li>
-<li><p><strong>db_session</strong> – Active SQLAlchemy session for DB queries.</p></li>
-<li><p><strong>merit_function</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression to evaluate for ranking images.
-May reference any diagnostic column as <code class="docutils literal notranslate"><span class="pre">qnt_&lt;name&gt;</span></code> (rank) or
-<code class="docutils literal notranslate"><span class="pre">std_&lt;name&gt;</span></code> (standard deviation).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>pandas.DataFrame with one row per image/channel, columns for all
-available diagnostics by name, additionally the rank of the image
-in that diagnostic is added (qnt_&lt;name&gt;). Finally a ‘merit’ column
-contains the value of the specified merit function.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.processing.select_photref_views.record_photref_selection">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">record_photref_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#record_photref_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views.record_photref_selection" title="Link to this definition"></a></dt>
-<dd><p>Record a single photometric reference frame selected by the user.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">record_photref_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#record_photref_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views.record_photref_selection" title="Link to this definition"></a></dt>
+<dd><p>Record the single photometric reference whose DR file is <code class="docutils literal notranslate"><span class="pre">?photref=</span></code>.</p>
+<p>The frame is named by its DR file rather than by a position, among the
+ranked candidates or in its group, since both change as references are
+recorded. Only the entries just bound stop needing a reference, so the
+groups are updated rather than derived again, which would re-read every
+raw header.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.processing.select_photref_views.select_photref_image">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">select_photref_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recalculate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#select_photref_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views.select_photref_image" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.processing.select_photref_views.</span></span><span class="sig-name descname"><span class="pre">select_photref_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/processing/select_photref_views.html#select_photref_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.processing.select_photref_views.select_photref_image" title="Link to this definition"></a></dt>
 <dd><p>Display the interface for reviewing canditate reference frames.</p>
 </dd></dl>
 

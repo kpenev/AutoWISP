@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -186,9 +189,9 @@
 <span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
 
 <span class="c1"># pylint: disable=too-few-public-methods</span>
 <div class="viewcode-block" id="LCDataSliceBase">
@@ -315,6 +318,9 @@
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="c1"># pylint: enable=logging-not-lazy</span>
+
+    <span class="n">total_memory</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">total</span>
+    <span class="n">max_mem</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_mem</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_memory</span> <span class="o">*</span> <span class="mf">0.95</span><span class="p">))</span>
 
     <span class="n">num_frames</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">max_mem</span> <span class="o">/</span> <span class="n">perframe_bytes</span><span class="p">),</span> <span class="mi">1000</span><span class="p">)</span>
 

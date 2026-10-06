@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -190,8 +193,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">stack_to_master</span><span class="p">,</span> <span class="n">stack_to_master_flat</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.photref_selection</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">bind_images_to_photref</span><span class="p">,</span>
     <span class="n">compute_photref_candidates</span><span class="p">,</span>
+    <span class="n">record_single_photref</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">apply_master_config</span><span class="p">,</span>
@@ -229,6 +232,14 @@
             <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">cfg_file</span><span class="p">:</span>
             <span class="n">overwrite_default_config</span> <span class="o">=</span> <span class="n">parse_config_overwrites</span><span class="p">(</span><span class="n">cfg_file</span><span class="p">)</span>
+        <span class="c1"># The DR file the test will register as the single photometric</span>
+        <span class="c1"># reference comes from test.cfg, so adjusting the test or adding</span>
+        <span class="c1"># new fixtures only requires editing the config file. The engine</span>
+        <span class="c1"># sets the option itself, so a project does not store it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span>
+            <span class="n">overwrite_default_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"single-photref-dr-fname"</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">)</span>
         <span class="c1"># The per-step CLI uses different ``--outlier-threshold``</span>
         <span class="c1"># defaults for ``wisp-stack-to-master`` and</span>
         <span class="c1"># ``wisp-stack-to-master-flat``, but the pipeline registers a</span>
@@ -274,15 +285,7 @@
             <span class="s2">"r"</span><span class="p">,</span>
             <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">survey_json</span><span class="p">:</span>
-            <span class="n">import_json_to_survey</span><span class="p">(</span><span class="n">survey_json</span><span class="p">)</span>
-
-        <span class="c1"># The DR file the test will register as the single photometric</span>
-        <span class="c1"># reference comes from test.cfg, so adjusting the test or adding</span>
-        <span class="c1"># new fixtures only requires editing the config file.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span>
-            <span class="n">overwrite_default_config</span><span class="p">[</span><span class="s2">"single-photref-dr-fname"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
-        <span class="p">)</span></div>
+            <span class="n">import_json_to_survey</span><span class="p">(</span><span class="n">survey_json</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestFullPipeline.test_full_pipeline">
@@ -359,7 +362,7 @@
 
         <span class="n">photref_batch</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">"candidates"</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">candidate</span><span class="p">[</span><span class="s2">"groups"</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">candidate</span><span class="p">[</span><span class="s2">"groups"</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">):</span>
                     <span class="n">photref_batch</span> <span class="o">=</span> <span class="n">batch</span>
                     <span class="k">break</span>
@@ -371,15 +374,7 @@
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span><span class="si">!r}</span><span class="s2">."</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">processing</span><span class="o">.</span><span class="n">add_masters</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"single_photref"</span><span class="p">,</span>
-                <span class="s2">"filename"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span><span class="p">,</span>
-                <span class="s2">"preference_order"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">"disable"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-        <span class="n">bind_images_to_photref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span><span class="p">,</span> <span class="n">photref_batch</span><span class="p">)</span></div>
+        <span class="n">record_single_photref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span><span class="p">,</span> <span class="n">photref_batch</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestFullPipeline._assert_dir_fits_match">

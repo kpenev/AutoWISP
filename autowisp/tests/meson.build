@@ -1,15 +1,18 @@
-# Two files in this directory are deliberately not listed:
-# `generate_catalog_test_data.py` and `update_hdf5_contents.py`. Both are
-# tools for *making* and *manipulating* the test data rather than part of
-# the suite -- worth keeping in the repository and pointless to ship. An
+# Three files in this directory are deliberately not listed:
+# `generate_catalog_test_data.py`, `update_hdf5_contents.py` and
+# `compare_h5.py`. All are tools for *making*, *manipulating* and
+# *checking* the test data rather than part of the suite -- worth keeping
+# in the repository and pointless to ship. An
 # audit comparing this list against the directory will flag them; they are
 # meant to be flagged and left.
 py_src = [
   '__init__.py',
   '__main__.py',
+  'error_fixtures.py',
   'fits_test_case.py',
   'get_test_data.py',
   'h5_test_case.py',
+  'synthetic_light_curve_test_case.py',
   'test_bui_db_config.py',
   'test_bui_models.py',
   'test_calibrate.py',
@@ -17,43 +20,54 @@ py_src = [
   'test_channel_binding.py',
   'test_crash_report.py',
   'test_create_lightcurves.py',
+  'test_custom_group_values.py',
   'test_database_migration.py',
+  'test_detrending_exclusions.py',
   'test_detrending_stat.py',
   'test_diagnostic_expressions.py',
+  'test_diagnostic_types.py',
   'test_diagnostics_rules.py',
   'test_diagnostics_views.py',
+  'test_engine_exclusions.py',
   'test_epd.py',
-  'test_evaluator.py',
-  'test_diagnostic_types.py',
-  'test_expression_series.py',
-  'test_expressions.py',
-  'error_fixtures.py',
   'test_error_capture_middleware.py',
   'test_error_cli.py',
   'test_error_context.py',
   'test_error_persistence.py',
   'test_error_render.py',
+  'test_evaluator.py',
   'test_exception_hierarchy.py',
+  'test_exclusion_rules.py',
+  'test_expression_series.py',
+  'test_expressions.py',
   'test_find_stars.py',
   'test_fit_magnitudes.py',
-  'test_full_pipeline.py',
-  'test_lc_filter.py',
   'test_fit_source_extracted_psf_map.py',
   'test_fit_star_shape.py',
+  'test_full_pipeline.py',
+  'test_lc_filter.py',
+  'test_master_photref_lookup.py',
   'test_measure_aperture_photometry.py',
   'test_parameter_description_length.py',
   'test_parse_config_overwrites.py',
+  'test_photometry_slots.py',
+  'test_photref_binding.py',
+  'test_photref_candidates.py',
   'test_project_creation_guard.py',
   'test_provenance_resolver.py',
+  'test_reference_columns.py',
   'test_related_files.py',
+  'test_series_references.py',
   'test_solve_astrometry.py',
   'test_source_finder.py',
   'test_stack_to_master.py',
   'test_suite_registration.py',
   'test_templates.py',
-  'test_timestamp_triggers.py',
   'test_tfa.py',
+  'test_tfa_multi_channel.py',
   'test_tfa_num_templates.py',
+  'test_timestamp_triggers.py',
+  'test_upgrade_from_release.py',
 ]
 
 py.install_sources(

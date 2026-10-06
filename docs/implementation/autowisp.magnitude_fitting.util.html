@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -170,7 +173,11 @@
              
   <section id="module-autowisp.magnitude_fitting.util">
 <span id="autowisp-magnitude-fitting-util-module"></span><h1>autowisp.magnitude_fitting.util module<a class="headerlink" href="#module-autowisp.magnitude_fitting.util" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-b63fcac0272c0327434c7a79572ac715f96aff36.png" alt="Inheritance diagram of count" class="inheritance graphviz" /></div>
 <p>Functions for formatting magnitude fitting inputs as needed.</p>
+</section>
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.util._init_magfit_sources">
 <span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.util.</span></span><span class="sig-name descname"><span class="pre">_init_magfit_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/util.html#_init_magfit_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.util._init_magfit_sources" title="Link to this definition"></a></dt>
@@ -202,9 +209,34 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.util.get_path_substitutions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.util.</span></span><span class="sig-name descname"><span class="pre">get_path_substitutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphotref_header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/util.html#get_path_substitutions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.util.get_path_substitutions" title="Link to this definition"></a></dt>
+<dd><p>Return the path substitutions to find magfit datasets.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.util.get_single_photref">
 <span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.util.</span></span><span class="sig-name descname"><span class="pre">get_single_photref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_reduction_file</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/util.html#get_single_photref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.util.get_single_photref" title="Link to this definition"></a></dt>
 <dd><p>Create a photometric reference out of the raw photometry in a DR file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.util.read_exclusions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.util.</span></span><span class="sig-name descname"><span class="pre">read_exclusions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclusion_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/util.html#read_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.util.read_exclusions" title="Link to this definition"></a></dt>
+<dd><p>Return the DR files an exclusion list names, as resolved paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>exclusion_fname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – The exclusion list: one DR file per
+line, blank lines ignored. None excludes nothing.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <code class="docutils literal notranslate"><span class="pre">os.path.realpath</span></code> of each listed DR file, so that a file
+matches however its path is spelled.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)">set</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

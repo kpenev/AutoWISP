@@ -1,0 +1,5 @@
+<map id="inheritance5a5413748e" name="inheritance5a5413748e">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="21,79,404,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_series_references.TestPhotometryReads" target="_top" title="A per&#45;photometry diagnostic, read in the photometry each read binds." alt="" coords="5,152,420,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="129,5,297,31"/>
+</map>

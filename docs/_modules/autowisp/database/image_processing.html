@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -177,19 +180,27 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">astropy_units</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.processing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ProcessingManager</span><span class="p">,</span>
+    <span class="n">with_exclusion_list</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span><span class="p">,</span> <span class="n">get_project_home</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span><span class="p">,</span> <span class="n">MasterSelectionError</span><span class="p">,</span> <span class="n">PipelineError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Component</span><span class="p">,</span>
+    <span class="n">ConfigurationError</span><span class="p">,</span>
+    <span class="n">MasterSelectionError</span><span class="p">,</span>
+    <span class="n">PipelineError</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">capture_errors</span><span class="p">,</span> <span class="n">error_context</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">processing_steps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_processing_sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_quantile_diagnostic</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.exclusion_rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_excluded</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
 
 <span class="c1"># False positive due to unusual importing</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.astrometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">StepDependencies</span><span class="p">,</span>
     <span class="n">ImageProcessingProgress</span><span class="p">,</span>
@@ -415,6 +426,41 @@
 
 
 
+<div class="viewcode-block" id="record_photref_bindings">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.record_photref_bindings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">record_photref_bindings</span><span class="p">(</span><span class="n">bindings</span><span class="p">,</span> <span class="n">photref_type_id</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Record which single photometric reference each image/channel uses.</span>
+
+<span class="sd">    The one place ``ImageMasterSelection`` gets its photref rows, whether the</span>
+<span class="sd">    reference was picked by separation, selected by the condition expressions</span>
+<span class="sd">    alone, or chosen in the BUI. Every image ``fit_magnitudes`` sees has one,</span>
+<span class="sd">    so anything grouping images by reference needs no other source.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bindings:    Iterable of ``(image_id, channel, master_file_id)``, the</span>
+<span class="sd">            last being the ``MasterFile`` ID of the ``single_photref`` to use.</span>
+
+<span class="sd">        photref_type_id(int):    The ID of the ``single_photref`` master</span>
+<span class="sd">            type.</span>
+
+<span class="sd">        db_session:    The database session to write the bindings in.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. An image/channel already bound is re-bound to the given photref.</span>
+<span class="sd">    """</span>
+
+    <span class="k">for</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">master_file_id</span> <span class="ow">in</span> <span class="n">bindings</span><span class="p">:</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">ImageMasterSelection</span><span class="p">(</span>
+                <span class="n">image_id</span><span class="o">=</span><span class="n">image_id</span><span class="p">,</span>
+                <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+                <span class="n">master_type_id</span><span class="o">=</span><span class="n">photref_type_id</span><span class="p">,</span>
+                <span class="n">master_file_id</span><span class="o">=</span><span class="n">master_file_id</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+
 <span class="c1"># pylint: disable=too-many-instance-attributes</span>
 <div class="viewcode-block" id="ImageProcessingManager">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager">[docs]</a>
@@ -492,6 +538,68 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">best_master</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">status</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="ImageProcessingManager._get_built_master">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_built_master">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_built_master</span><span class="p">(</span><span class="n">single_photref_fname</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return the master photometric reference built from a single photref.</span>
+
+<span class="sd">        A master is built by one batch of ``fit_magnitudes``, whose images</span>
+<span class="sd">        are all bound to one single photometric reference, and is recorded</span>
+<span class="sd">        with the progress of that batch. Found that way, rather than by its</span>
+<span class="sd">        file name, it does not depend on the file name formats.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            single_photref_fname(str):    The single photometric reference.</span>
+
+<span class="sd">            db_session:    The database session to query.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str or None:</span>
+<span class="sd">                The filename of the enabled master built from the reference,</span>
+<span class="sd">                or None if there is none, in which case a new one is built.</span>
+<span class="sd">        """</span>
+
+        <span class="n">photref_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">MasterFile</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MasterType</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">MasterType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"single_photref"</span><span class="p">,</span>
+                <span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span> <span class="o">==</span> <span class="n">single_photref_fname</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">masters</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MasterType</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">ProcessedImages</span><span class="p">,</span>
+                <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">progress_id</span> <span class="o">==</span> <span class="n">MasterFile</span><span class="o">.</span><span class="n">progress_id</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">ImageMasterSelection</span><span class="p">,</span>
+                <span class="n">and_</span><span class="p">(</span>
+                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span>
+                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">MasterType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"master_photref"</span><span class="p">,</span>
+                <span class="n">MasterFile</span><span class="o">.</span><span class="n">enabled</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="kc">True</span><span class="p">),</span>
+                <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">master_file_id</span> <span class="o">==</span> <span class="n">photref_id</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">masters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="s2">"Several enabled master photometric references were built "</span>
+                <span class="sa">f</span><span class="s2">"from single photometric reference </span><span class="si">{</span><span class="n">single_photref_fname</span><span class="si">!r}</span><span class="s2">: "</span>
+                <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">masters</span><span class="p">))</span>
+                <span class="o">+</span> <span class="s2">". Disable all but the one to fit new images against."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">masters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">masters</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
     <span class="c1"># Could not find good way to simplify</span>
@@ -591,6 +699,20 @@
                             <span class="p">(</span><span class="n">input_master_type</span><span class="o">.</span><span class="n">config_name</span><span class="p">,</span> <span class="n">best_master</span><span class="p">)</span>
                         <span class="p">}</span>
                         <span class="n">result</span><span class="p">[</span><span class="n">config_key</span> <span class="o">|</span> <span class="n">key_extra</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_config</span><span class="p">,</span> <span class="n">sub_batch</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"fit_magnitudes"</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">config_key</span><span class="p">,</span> <span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">sub_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">config_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">master</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_built_master</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">[</span><span class="s2">"single_photref_dr_fname"</span><span class="p">],</span> <span class="n">db_session</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">master</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="n">config_key</span><span class="p">]</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">config_key</span> <span class="o">|</span> <span class="p">{(</span><span class="s2">"master-photref-fname"</span><span class="p">,</span> <span class="n">master</span><span class="p">)}]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">master_photref_fname</span><span class="o">=</span><span class="n">master</span><span class="p">),</span>
+                        <span class="n">sub_batch</span><span class="p">,</span>
+                    <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
 
@@ -978,6 +1100,54 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_masters</span><span class="p">(</span><span class="n">new_masters</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">image_type_name</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="ImageProcessingManager._get_magfit_exclusions">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_magfit_exclusions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_magfit_exclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return the DR files of a batch that fail the magfit quality cut.</span>
+
+<span class="sd">        Decided by the ``magfit-exclusion-rule``, for the observations of the</span>
+<span class="sd">        batch, which are fit together. They are left out of the master</span>
+<span class="sd">        photref built from the batch, if one is, and are flagged in their DR</span>
+<span class="sd">        files either way.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            step_name(str):    The step about to process the batch.</span>
+
+<span class="sd">            config(dict):    Its configuration for the batch.</span>
+
+<span class="sd">            batch([str]):    The DR files it is about to process.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [str] or None:</span>
+<span class="sd">                The excluded DR files, sorted. None if nothing is decided:</span>
+<span class="sd">                for any step but ``fit_magnitudes``, and without a rule.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="n">step_name</span> <span class="o">!=</span> <span class="s2">"fit_magnitudes"</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"magfit_exclusion_rule"</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">dr_fnames</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">]):</span> <span class="n">dr_fname</span>
+            <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">batch</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span><span class="p">[</span><span class="n">dr_fname</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">excluded</span> <span class="o">=</span> <span class="n">get_excluded</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">"magfit_exclusion_rule"</span><span class="p">],</span>
+                <span class="n">dr_fnames</span><span class="p">,</span>
+                <span class="n">db_session</span><span class="p">,</span>
+                <span class="n">before_magfit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">dr_fname</span>
+            <span class="k">for</span> <span class="n">member</span><span class="p">,</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_fnames</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">excluded</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="ImageProcessingManager._run_step">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._run_step">[docs]</a>
     <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
@@ -986,13 +1156,16 @@
 
         <span class="n">step_module</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">processing_steps</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_start_status</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">start_status</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)(</span>
-            <span class="n">batch</span><span class="p">,</span>
-            <span class="n">start_status</span><span class="p">,</span>
-            <span class="n">config</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_start_processing</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_end_processing</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">with</span> <span class="n">with_exclusion_list</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_magfit_exclusions</span><span class="p">(</span><span class="n">step_name</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">step_config</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)(</span>
+                <span class="n">batch</span><span class="p">,</span>
+                <span class="n">start_status</span><span class="p">,</span>
+                <span class="n">step_config</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_start_processing</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_end_processing</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ImageProcessingManager._start_processing">
@@ -1410,38 +1583,10 @@
         <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="ImageProcessingManager._select_photref_for_image">
-<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._select_photref_for_image">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_select_photref_for_image</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">image</span><span class="p">,</span>
-        <span class="n">channel</span><span class="p">,</span>
-        <span class="n">photref_type</span><span class="p">,</span>
-        <span class="n">expressions</span><span class="p">,</span>
-        <span class="n">photrefs_by_expr</span><span class="p">,</span>
-        <span class="n">photref_diagnostics</span><span class="p">,</span>
-        <span class="n">binding_counts</span><span class="p">,</span>
-        <span class="n">max_sep</span><span class="p">,</span>
-        <span class="n">db_session</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Pick and record the best photref binding for one image/channel.</span>
-
-<span class="sd">        Returns True if bound (either pre-existing or newly written), False if</span>
-<span class="sd">        no suitable photref is found.</span>
-<span class="sd">        The distance threshold is max_sep * diagonal_fov of the photref.</span>
-<span class="sd">        """</span>
-
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
-                <span class="n">select</span><span class="p">(</span><span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">master_file_id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">channel</span><span class="p">,</span>
-                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">master_type_id</span> <span class="o">==</span> <span class="n">photref_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">):</span>
-            <span class="k">return</span> <span class="kc">True</span>
+<div class="viewcode-block" id="ImageProcessingManager._get_image_center">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_image_center">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_image_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the sky position of an image/channel's center, or None."""</span>
 
         <span class="n">image_diags</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1464,19 +1609,41 @@
                 <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                 <span class="n">channel</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="n">image_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">SkyCoord</span><span class="p">(</span>
             <span class="n">ra</span><span class="o">=</span><span class="n">image_diags</span><span class="p">[</span><span class="s2">"ra_center"</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
             <span class="n">dec</span><span class="o">=</span><span class="n">image_diags</span><span class="p">[</span><span class="s2">"dec_center"</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
             <span class="n">frame</span><span class="o">=</span><span class="s2">"icrs"</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
-        <span class="n">image_expr_values</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span><span class="s2">"values"</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">expr_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">expressions</span>
-        <span class="p">)</span>
-        <span class="n">candidates</span> <span class="o">=</span> <span class="n">photrefs_by_expr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_expr_values</span><span class="p">,</span> <span class="p">[])</span>
+
+<div class="viewcode-block" id="ImageProcessingManager._select_photref_for_image">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._select_photref_for_image">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_select_photref_for_image</span><span class="p">(</span>
+        <span class="n">image_coord</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">photref_diagnostics</span><span class="p">,</span> <span class="n">binding_counts</span><span class="p">,</span> <span class="n">max_sep</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Pick the best photref for one unbound image/channel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_coord(SkyCoord):    The center of the image/channel.</span>
+
+<span class="sd">            candidates([MasterFile]):    The photrefs whose condition</span>
+<span class="sd">                expression values match those of the image/channel.</span>
+
+<span class="sd">            photref_diagnostics(dict):    See :meth:`_get_photref_diagnostics`.</span>
+
+<span class="sd">            binding_counts(dict):    See :meth:`_get_photref_binding_counts`.</span>
+
+<span class="sd">            max_sep(float):    The ``max_photref_separation`` configured for</span>
+<span class="sd">                ``fit_magnitudes``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MasterFile or None:</span>
+<span class="sd">                The candidate within ``max_sep * diagonal_fov`` of the image</span>
+<span class="sd">                with the most images bound to it, if any.</span>
+<span class="sd">        """</span>
 
         <span class="n">best_pf</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">best_count</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
@@ -1497,24 +1664,70 @@
                 <span class="n">best_count</span> <span class="o">=</span> <span class="n">binding_counts</span><span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
                 <span class="n">best_pf</span> <span class="o">=</span> <span class="n">pf</span>
 
-        <span class="k">if</span> <span class="n">best_pf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">"No suitable photref for image </span><span class="si">%d</span><span class="s2"> channel </span><span class="si">%s</span><span class="s2">; leaving pending."</span><span class="p">,</span>
-                <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                <span class="n">channel</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">best_pf</span></div>
 
-        <span class="n">db_session</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">ImageMasterSelection</span><span class="p">(</span>
-                <span class="n">image_id</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
-                <span class="n">master_type_id</span><span class="o">=</span><span class="n">photref_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                <span class="n">master_file_id</span><span class="o">=</span><span class="n">best_pf</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+
+<div class="viewcode-block" id="ImageProcessingManager._get_bound_entries">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_bound_entries">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_bound_entries</span><span class="p">(</span><span class="n">pending_images</span><span class="p">,</span> <span class="n">photref_type_id</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the ``(image ID, channel)`` pending entries with a photref."""</span>
+
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span>
+                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span> <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">channel</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">master_type_id</span> <span class="o">==</span> <span class="n">photref_type_id</span><span class="p">,</span>
+                    <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">image_id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span>
+                        <span class="p">{</span><span class="n">image</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pending_images</span><span class="p">}</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImageProcessingManager._get_condition_bindings">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_condition_bindings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_condition_bindings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unbound</span><span class="p">,</span> <span class="n">photref_type_id</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the bindings to the photrefs the conditions select.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            unbound:    The ``(Image, channel, status)`` pending entries to</span>
+<span class="sd">                bind.</span>
+
+<span class="sd">            photref_type_id(int):    The ID of the ``single_photref`` master</span>
+<span class="sd">                type.</span>
+
+<span class="sd">            db_session:    The database session to look up photrefs in.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [(int, str, int)]:</span>
+<span class="sd">                The ``(image ID, channel, MasterFile ID)`` bindings, for the</span>
+<span class="sd">                entries the conditions select a photref for.</span>
+<span class="sd">        """</span>
+
+        <span class="n">photref_fnames</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_fname</span><span class="p">(</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">"single_photref"</span>
             <span class="p">)</span>
+            <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">unbound</span>
+        <span class="p">}</span>
+        <span class="n">photref_ids</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">MasterFile</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="n">MasterFile</span><span class="o">.</span><span class="n">type_id</span> <span class="o">==</span> <span class="n">photref_type_id</span><span class="p">,</span>
+                    <span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span>
+                        <span class="nb">set</span><span class="p">(</span><span class="n">photref_fnames</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">-</span> <span class="p">{</span><span class="kc">None</span><span class="p">}</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="p">)</span>
-        <span class="n">binding_counts</span><span class="p">[</span><span class="n">best_pf</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photref_ids</span><span class="p">[</span><span class="n">fname</span><span class="p">])</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">),</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">photref_fnames</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ImageProcessingManager._bind_photref_for_pending">
@@ -1528,6 +1741,11 @@
 <span class="sd">        diagonal_fov + most existing bindings). Returns only the images that</span>
 <span class="sd">        have a valid binding; the rest are silently left pending until a</span>
 <span class="sd">        suitable photref is registered via the BUI.</span>
+
+<span class="sd">        If max_photref_separation is unlimited, the photref is the one the</span>
+<span class="sd">        condition expressions select, as for any other master. That is</span>
+<span class="sd">        recorded as the binding too, and every image is returned: those</span>
+<span class="sd">        without a photref are excluded when the batches are configured.</span>
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">pending_images</span><span class="p">:</span>
@@ -1541,14 +1759,68 @@
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">max_sep</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_photref_separation"</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">max_sep</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_sep</span> <span class="o">==</span> <span class="n">inf</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">pending_images</span>
+        <span class="n">unlimited</span> <span class="o">=</span> <span class="n">max_sep</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_sep</span> <span class="o">==</span> <span class="n">inf</span>
 
         <span class="n">photref_type</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
             <span class="n">select</span><span class="p">(</span><span class="n">MasterType</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"single_photref"</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">photref_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="n">pending_images</span> <span class="k">if</span> <span class="n">unlimited</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="n">bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bound_entries</span><span class="p">(</span>
+            <span class="n">pending_images</span><span class="p">,</span> <span class="n">photref_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="p">)</span>
+        <span class="n">unbound</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">entry</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">pending_images</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bound</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">unlimited</span><span class="p">:</span>
+            <span class="n">new_bindings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_condition_bindings</span><span class="p">(</span>
+                <span class="n">unbound</span><span class="p">,</span> <span class="n">photref_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_bindings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_separation_bindings</span><span class="p">(</span>
+                <span class="n">unbound</span><span class="p">,</span> <span class="n">photref_type</span><span class="p">,</span> <span class="n">max_sep</span><span class="p">,</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+        <span class="n">record_photref_bindings</span><span class="p">(</span><span class="n">new_bindings</span><span class="p">,</span> <span class="n">photref_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">unlimited</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pending_images</span>
+        <span class="n">bound</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span> <span class="k">for</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">new_bindings</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">entry</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">pending_images</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">in</span> <span class="n">bound</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ImageProcessingManager._get_separation_bindings">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_separation_bindings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_separation_bindings</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">unbound</span><span class="p">,</span> <span class="n">photref_type</span><span class="p">,</span> <span class="n">max_sep</span><span class="p">,</span> <span class="n">db_session</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the bindings to the nearest suitable photrefs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            unbound:    The ``(Image, channel, status)`` pending entries to</span>
+<span class="sd">                bind.</span>
+
+<span class="sd">            photref_type(MasterType):    The ``single_photref`` master type.</span>
+
+<span class="sd">            max_sep(float):    The ``max_photref_separation`` configured for</span>
+<span class="sd">                ``fit_magnitudes``.</span>
+
+<span class="sd">            db_session:    The database session to look up photrefs in.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [(int, str, int)]:</span>
+<span class="sd">                The ``(image ID, channel, MasterFile ID)`` bindings, for the</span>
+<span class="sd">                entries a suitable photref is found for.</span>
+<span class="sd">        """</span>
 
         <span class="n">expressions</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="n">select</span><span class="p">(</span><span class="n">ConditionExpression</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ConditionExpression</span><span class="o">.</span><span class="n">expression</span><span class="p">)</span>
@@ -1579,21 +1851,35 @@
         <span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">pending_images</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_photref_for_image</span><span class="p">(</span>
-                <span class="n">image</span><span class="p">,</span>
-                <span class="n">channel</span><span class="p">,</span>
-                <span class="n">photref_type</span><span class="p">,</span>
-                <span class="n">expressions</span><span class="p">,</span>
-                <span class="n">photrefs_by_expr</span><span class="p">,</span>
+        <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">unbound</span><span class="p">:</span>
+            <span class="n">image_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image_center</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">image_coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">best_pf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_photref_for_image</span><span class="p">(</span>
+                <span class="n">image_coord</span><span class="p">,</span>
+                <span class="n">photrefs_by_expr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="nb">tuple</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span>
+                            <span class="s2">"values"</span>
+                        <span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">expr_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">expressions</span>
+                    <span class="p">),</span>
+                    <span class="p">[],</span>
+                <span class="p">),</span>
                 <span class="n">photref_diagnostics</span><span class="p">,</span>
                 <span class="n">binding_counts</span><span class="p">,</span>
                 <span class="n">max_sep</span><span class="p">,</span>
-                <span class="n">db_session</span><span class="p">,</span>
-            <span class="p">):</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span>
-
-        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">best_pf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">"No suitable photref for image </span><span class="si">%d</span><span class="s2"> channel </span><span class="si">%s</span><span class="s2">; leaving "</span>
+                    <span class="s2">"pending."</span><span class="p">,</span>
+                    <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="n">channel</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">binding_counts</span><span class="p">[</span><span class="n">best_pf</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">best_pf</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
 

@@ -1,0 +1,7 @@
+autowisp.tests.test\_photref\_binding module
+============================================
+
+.. automodule:: autowisp.tests.test_photref_binding
+   :members:
+   :show-inheritance:
+   :undoc-members:

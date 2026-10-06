@@ -10,10 +10,16 @@ __all__ = ["ImageMasterSelection"]
 class ImageMasterSelection(DataModelSubBase):
     """Records the resolved master file selected for each image/channel/type.
 
-    Populated when a photometric reference is registered in the BUI, binding
-    each qualifying image/channel to the selected MasterFile. Downstream steps
-    (create_lightcurves, epd, tfa) query this table first to guarantee they
-    use the same master as fit_magnitudes, without re-evaluating conditions.
+    Holds the single photometric reference of every image/channel
+    fit_magnitudes sees. Rows are written when a reference is registered in
+    the BUI, binding the qualifying images, and by the pipeline before
+    magnitude fitting, for images not yet bound: to a suitable reference
+    within ``max_photref_separation`` if that is finite, otherwise to the one
+    the condition expressions select. All go through
+    :func:`autowisp.database.image_processing.record_photref_bindings`.
+    Downstream steps (create_lightcurves, epd, tfa) query this table first to
+    guarantee they use the same master as fit_magnitudes, without
+    re-evaluating conditions.
     """
 
     __tablename__ = "image_master_selection"

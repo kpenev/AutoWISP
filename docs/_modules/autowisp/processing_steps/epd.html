@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -189,7 +192,7 @@
 <span class="w">    </span><span class="sd">"""Parse the commandline optinos to a dictionary."""</span>
 
     <span class="k">return</span> <span class="n">LCDetrendingArgumentParser</span><span class="p">(</span>
-        <span class="n">mode</span><span class="o">=</span><span class="s2">"EPD"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span> <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="s2">"lc"</span><span class="p">)</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">"EPD"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
@@ -230,6 +233,9 @@
             <span class="n">max_rej_iter</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"detrend_max_rej_iter"</span><span class="p">],</span>
             <span class="n">reject_scale_floor</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"detrend_reject_scale_floor"</span><span class="p">],</span>
             <span class="n">pre_reject</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"pre_reject_outliers"</span><span class="p">],</span>
+            <span class="n">observation_id</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"tfa_observation_id"</span><span class="p">],</span>
+            <span class="n">qc_exclude_file</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"qc_exclude_file"</span><span class="p">],</span>
+            <span class="n">exclusion_rule</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"epd_exclusion_rule"</span><span class="p">),</span>
             <span class="n">mark_progress</span><span class="o">=</span><span class="n">mark_progress</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span></div>

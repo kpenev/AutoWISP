@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -216,6 +219,12 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_database._init_diagnostic_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">_init_diagnostic_expressions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#_init_diagnostic_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database._init_diagnostic_expressions" title="Link to this definition"></a></dt>
+<dd><p>Start the project’s expression library with the default expressions.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.database.initialize_database._init_diagnostic_types">
 <span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">_init_diagnostic_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#_init_diagnostic_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database._init_diagnostic_types" title="Link to this definition"></a></dt>
 <dd><p>Pre-populate the diagnostic_names table with known diagnostics.</p>
@@ -241,6 +250,19 @@ project. This function’s job is only to write the rows.</p>
 <dt class="sig sig-object py" id="autowisp.database.initialize_database.drop_tables_matching">
 <span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">drop_tables_matching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#drop_tables_matching"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.drop_tables_matching" title="Link to this definition"></a></dt>
 <dd><p>Drop tables with names matching a pre-compiled regular expression.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.database.initialize_database.engine_set_options">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">engine_set_options</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('qc-exclude-file',</span> <span class="pre">'master-bias',</span> <span class="pre">'master-dark',</span> <span class="pre">'master-flat',</span> <span class="pre">'single-photref-dr-fname',</span> <span class="pre">'master-photref-fname')</span></span><a class="headerlink" href="#autowisp.database.initialize_database.engine_set_options" title="Link to this definition"></a></dt>
+<dd><p>the masters it selects
+and the exclusion list it writes. Never configured, so a project does not
+store them, but a step run by hand takes them like any other option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The step options the engine sets for each batch</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

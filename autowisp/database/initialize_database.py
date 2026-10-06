@@ -18,6 +18,10 @@ from autowisp.database import defaults
 
 from autowisp import processing_steps
 from autowisp.diagnostics.diagnostic_types import standard_diagnostic_types
+from autowisp.diagnostics.expression_library import (
+    default_expressions,
+    write_expressions,
+)
 
 # false positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -39,6 +43,18 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 
 _logger = logging.getLogger(__name__)
+
+#: The step options the engine sets for each batch: the masters it selects
+#: and the exclusion list it writes. Never configured, so a project does not
+#: store them, but a step run by hand takes them like any other option.
+engine_set_options = (
+    "qc-exclude-file",
+    "master-bias",
+    "master-dark",
+    "master-flat",
+    "single-photref-dr-fname",
+    "master-photref-fname",
+)
 
 
 def get_command_line_parser():
@@ -139,6 +155,7 @@ class StepCreator:
                     "extra-config-file",
                     "split-channels",
                     "project-home",
+                    *engine_set_options,
                 ]
                 and not param.endswith("-only-if")
                 and not param.endswith("-version")
@@ -299,7 +316,7 @@ def init_processing(step_dependencies, master_info):
         ):
             if step_name not in db_steps:
                 db_steps[step_name] = add_processing_step(step_name, db_session)
-            if step_name not in ["add_images_to_db", "calculate_photref_merit"]:
+            if step_name != "add_images_to_db":
                 db_session.add(
                     ProcessingSequence(
                         id=processing_id,
@@ -341,12 +358,15 @@ def drop_tables_matching(pattern):
         metadata.reflect(get_db_engine())
         metadata.drop_all(get_db_engine())
     else:
+        # A list, not an iterator: drop_all reads it more than once, which a
+        # one-shot iterator survives only under SQLAlchemy 2.0.
         DataModelBase.metadata.drop_all(
             get_db_engine(),
-            filter(
-                lambda table: pattern.fullmatch(table.name),
-                reversed(DataModelBase.metadata.sorted_tables),
-            ),
+            [
+                table
+                for table in reversed(DataModelBase.metadata.sorted_tables)
+                if pattern.fullmatch(table.name)
+            ],
         )
 
 
@@ -460,6 +480,13 @@ def _init_diagnostic_types():
             db_session.add(DiagnosticType(name=name, description=description))
 
 
+def _init_diagnostic_expressions():
+    """Start the project's expression library with the default expressions."""
+
+    with start_db_session() as db_session:
+        write_expressions(default_expressions, db_session)
+
+
 def initialize_database(
     cmdline_args,
     step_dependencies=None,
@@ -494,6 +521,7 @@ def initialize_database(
         }
     _overwrite_default_config(overwrite_default_config)
     _init_diagnostic_types()
+    _init_diagnostic_expressions()
 
 
 if __name__ == "__main__":

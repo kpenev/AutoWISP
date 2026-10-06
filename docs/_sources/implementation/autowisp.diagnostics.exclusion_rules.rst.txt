@@ -1,0 +1,7 @@
+autowisp.diagnostics.exclusion\_rules module
+============================================
+
+.. automodule:: autowisp.diagnostics.exclusion_rules
+   :members:
+   :show-inheritance:
+   :undoc-members:

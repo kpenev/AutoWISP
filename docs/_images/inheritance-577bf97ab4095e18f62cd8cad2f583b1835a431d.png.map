@@ -1,0 +1,22 @@
+<map id="inheritance69a0cc9e7a" name="inheritance69a0cc9e7a">
+<area shape="rect" id="node1" href="autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.QuantityLookUp" target="_top" title="One name an expression may read, resolved when it is asked for." alt="" coords="118,5,469,31"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="493,5,747,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="499,79,741,104"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_expressions.SlotTestCase" target="_top" title="What the channel&#45;slot tests share." alt="" coords="766,79,1085,104"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_expressions.TestNeededValues" target="_top" title="What has to be read before anything is evaluated." alt="" coords="5,152,360,177"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_expressions.TestQuotedChannels" target="_top" title="Channels named in the text rather than bound through a slot." alt="" coords="384,152,752,177"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_expressions.TestRules" target="_top" title="Exclusion rules: expressions with at most one channel slot." alt="" coords="777,152,1074,177"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_expressions.TestSlotEvaluation" target="_top" title="Evaluating quantities against the values the walk asked for." alt="" coords="1099,152,1453,177"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_expressions.TestSlotSyntax" target="_top" title="Reading channel slots out of an expression." alt="" coords="1477,152,1808,177"/>
+<area shape="rect" id="node5" title="A class whose instances are single test cases." alt="" coords="2707,5,2875,31"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_expressions.TestBareAggregates" target="_top" title="Spotting the ``median``&#45;where&#45;``nanmedian``&#45;was&#45;meant mistake." alt="" coords="1109,79,1475,104"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_expressions.TestChecking" target="_top" title="What is reported as wrong with a proposed expression." alt="" coords="1499,79,1821,104"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_expressions.TestDependents" target="_top" title="The delete guard." alt="" coords="1845,79,2184,104"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_expressions.TestLogicalKeywords" target="_top" title="Spotting ``or`` where ``|`` was meant." alt="" coords="2208,79,2579,104"/>
+<area shape="rect" id="node11" href="#autowisp.tests.test_expressions.TestNoProjectNeeded" target="_top" title="Validation is the same everywhere, so it needs no database." alt="" coords="2603,79,2978,104"/>
+<area shape="rect" id="node12" href="#autowisp.tests.test_expressions.TestOrdering" target="_top" title="What has to be evaluated, and in what order." alt="" coords="3003,79,3320,104"/>
+<area shape="rect" id="node13" href="#autowisp.tests.test_expressions.TestQuantileNames" target="_top" title="The diagnostics named by a pattern rather than listed." alt="" coords="3344,79,3707,104"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_expressions.TestReachableNames" target="_top" title="What an expression is allowed to reach." alt="" coords="3731,79,4106,104"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_expressions.TestReferencedNames" target="_top" title="Reading the names out of an expression." alt="" coords="4131,79,4512,104"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_expressions.TestRenamingReferences" target="_top" title="Carrying dependents through a rename." alt="" coords="4536,79,4936,104"/>
+</map>

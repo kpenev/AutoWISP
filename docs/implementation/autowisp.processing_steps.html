@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -179,16 +182,6 @@
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.add_images_to_db"><code class="docutils literal notranslate"><span class="pre">add_images_to_db()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.create_image"><code class="docutils literal notranslate"><span class="pre">create_image()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.parse_command_line"><code class="docutils literal notranslate"><span class="pre">parse_command_line()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="autowisp.processing_steps.calculate_photref_merit.html">autowisp.processing_steps.calculate_photref_merit module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.calculate_photref_merit.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.calculate_photref_merit"><code class="docutils literal notranslate"><span class="pre">calculate_photref_merit()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_center_zenith_distance"><code class="docutils literal notranslate"><span class="pre">get_center_zenith_distance()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_frame_merit_info"><code class="docutils literal notranslate"><span class="pre">get_frame_merit_info()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_matched_sources"><code class="docutils literal notranslate"><span class="pre">get_matched_sources()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_typical_star"><code class="docutils literal notranslate"><span class="pre">get_typical_star()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.parse_command_line"><code class="docutils literal notranslate"><span class="pre">parse_command_line()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.processing_steps.calibrate.html">autowisp.processing_steps.calibrate module</a><ul>
@@ -267,7 +260,6 @@
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.delete_master"><code class="docutils literal notranslate"><span class="pre">delete_master()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.fit_magnitudes"><code class="docutils literal notranslate"><span class="pre">fit_magnitudes()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.get_dr_fnames_and_catalog"><code class="docutils literal notranslate"><span class="pre">get_dr_fnames_and_catalog()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.get_path_substitutions"><code class="docutils literal notranslate"><span class="pre">get_path_substitutions()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.has_apphot"><code class="docutils literal notranslate"><span class="pre">has_apphot()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.parse_command_line"><code class="docutils literal notranslate"><span class="pre">parse_command_line()</span></code></a></li>
@@ -357,6 +349,7 @@
 <li class="toctree-l2"><a class="reference internal" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser"><code class="docutils literal notranslate"><span class="pre">LCDetrendingArgumentParser</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.__init__"><code class="docutils literal notranslate"><span class="pre">LCDetrendingArgumentParser.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_epd_arguments"><code class="docutils literal notranslate"><span class="pre">LCDetrendingArgumentParser._add_epd_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_exclusion_arguments"><code class="docutils literal notranslate"><span class="pre">LCDetrendingArgumentParser._add_exclusion_arguments()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_tfa_arguments"><code class="docutils literal notranslate"><span class="pre">LCDetrendingArgumentParser._add_tfa_arguments()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.add_transit_parameters"><code class="docutils literal notranslate"><span class="pre">LCDetrendingArgumentParser.add_transit_parameters()</span></code></a></li>
 </ul>

@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -172,8 +175,8 @@
 <span id="autowisp-processing-steps-fit-magnitudes-module"></span><h1>autowisp.processing_steps.fit_magnitudes module<a class="headerlink" href="#module-autowisp.processing_steps.fit_magnitudes" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-343b67b064d465f4d61881296046c27f65f4c99b.png" alt="Inheritance diagram of Component, DataReductionFile, FileKind, ManualStepArgumentParser, MasterFile, RelatedFile, SimpleNamespace, SkyCoord, Transformation, count" usemap="#inheritance2374cecb4f" class="inheritance graphviz" /></div>
-<map id="inheritance2374cecb4f" name="inheritance2374cecb4f">
+<div class="graphviz"><img src="../_images/inheritance-c38fcd272cd13d2f4e6cab4ec1c3dc1848cfb0bf.png" alt="Inheritance diagram of Component, DataReductionFile, FileKind, ManualStepArgumentParser, MasterFile, RelatedFile, SkyCoord, Transformation, count" usemap="#inheritancebbc66b3c8d" class="inheritance graphviz" /></div>
+<map id="inheritancebbc66b3c8d" name="inheritancebbc66b3c8d">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,445,207,471"/>
 <area shape="rect" id="node15" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="131,519,335,544"/>
 <area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="861,5,1047,31"/>
@@ -193,7 +196,6 @@
 <area shape="rect" id="node26" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="650,5,837,31"/>
 <area shape="rect" id="node28" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="302,225,534,251"/>
 <area shape="rect" id="node37" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="2171,5,2289,31"/>
-<area shape="rect" id="node38" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="3090,5,3274,31"/>
 </map><p>Apply magnitude fitting to hdf5 files</p>
 </section>
 <dl class="py function">
@@ -283,12 +285,6 @@ derives the magfit iteration to continue from out of it (see
 <dt class="sig sig-object py" id="autowisp.processing_steps.fit_magnitudes.get_dr_fnames_and_catalog">
 <span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_magnitudes.</span></span><span class="sig-name descname"><span class="pre">get_dr_fnames_and_catalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphotref_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_magnitudes.html#get_dr_fnames_and_catalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_magnitudes.get_dr_fnames_and_catalog" title="Link to this definition"></a></dt>
 <dd><p>Return the DR files to process and the catalog.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.processing_steps.fit_magnitudes.get_path_substitutions">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_magnitudes.</span></span><span class="sig-name descname"><span class="pre">get_path_substitutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphotref_header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_magnitudes.html#get_path_substitutions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_magnitudes.get_path_substitutions" title="Link to this definition"></a></dt>
-<dd><p>Return the path substitutions to find magfit datasets.</p>
 </dd></dl>
 
 <dl class="py function">

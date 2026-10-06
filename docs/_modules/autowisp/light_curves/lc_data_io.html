@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -329,7 +332,8 @@
                             <span class="sa">r</span><span class="s2">"^shapefit\.global_chi2$"</span><span class="p">,</span>
                             <span class="p">(</span>
                                 <span class="sa">r</span><span class="s2">"magfit\."</span>
-                                <span class="sa">r</span><span class="s2">"(num_input_src|num_fit_src|fit_residual)$"</span>
+                                <span class="sa">r</span><span class="s2">"(num_input_src|num_fit_src|fit_residual"</span>
+                                <span class="sa">r</span><span class="s2">"|qc_included)$"</span>
                             <span class="p">),</span>
                             <span class="sa">r</span><span class="s2">"^fitsheader\.(?!cfg\.)"</span><span class="p">,</span>
                             <span class="sa">r</span><span class="s2">"\.cfg_index$"</span><span class="p">,</span>
@@ -562,7 +566,7 @@
 
             <span class="bp">cls</span><span class="o">.</span><span class="n">_classify_datasets</span><span class="p">(</span><span class="n">no_light_curve</span><span class="p">,</span> <span class="n">path_substitutions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-            <span class="p">(</span><span class="n">LCDataSlice</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">])</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">LCDataSlice</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">create_lc_data_slice_type</span><span class="p">(</span>
                     <span class="n">get_dtype</span><span class="o">=</span><span class="n">no_light_curve</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">,</span>
                     <span class="n">dataset_dimensions</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">,</span>
@@ -797,7 +801,7 @@
 <div class="viewcode-block" id="LCDataIO._set_field_entry">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._set_field_entry">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_set_field_entry</span><span class="p">(</span> <span class="c1"># pylint: disable=too-many-arguments</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_field_entry</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">source_index</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -1109,6 +1113,9 @@
             <span class="k">if</span> <span class="n">default_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">quantity</span> <span class="o">==</span> <span class="s2">"catalogue.cfg.epoch"</span><span class="p">:</span>
                     <span class="k">return</span> <span class="mf">2451545.0</span>
+                <span class="c1"># Nothing was excluded before images were flagged.</span>
+                <span class="k">if</span> <span class="n">quantity</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".magfit.qc_included"</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="p">(</span>
                     <span class="n">h5py</span><span class="o">.</span><span class="n">check_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">creation_args</span><span class="p">[</span><span class="s2">"dtype"</span><span class="p">]))</span>
                     <span class="ow">is</span> <span class="nb">str</span>

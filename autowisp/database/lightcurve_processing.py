@@ -10,16 +10,22 @@ import numpy
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import error_context
 from autowisp.exceptions import (
+    ConfigurationError,
     FileKind,
     MasterSelectionError,
     PipelineError,
     RelatedFile,
 )
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.diagnostics.diagnostic_types import photometry_literal
+from autowisp.diagnostics.exclusion_rules import get_excluded
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import start_db_session
-from autowisp.database.processing import ProcessingManager
+from autowisp.database.processing import (
+    ProcessingManager,
+    with_exclusion_list,
+)
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
 from autowisp import processing_steps
@@ -28,6 +34,7 @@ from autowisp import processing_steps
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     Image,
+    ImageMasterSelection,
     ImageType,
     InputMasterTypes,
     LightCurveStatus,
@@ -563,6 +570,99 @@ class LightCurveProcessingManager(ProcessingManager):
         )
         return catalog, step_config, create_lc_cofig["lc_fname"]
 
+    def _get_detrending_exclusions(
+        self, step_name, configuration, single_photref_fname
+    ):
+        """
+        Return the observations to leave out of an EPD or TFA fit.
+
+        Decided by the step's exclusion rule, for the observations the step
+        fits together: those of the images bound to the single photometric
+        reference, in every session.
+
+        Args:
+            step_name(str):    The step about to run.
+
+            configuration(dict):    Its configuration.
+
+            single_photref_fname(str):    The single photometric reference
+                whose lightcurve points the step processes.
+
+        Returns:
+            [str] or None:
+                One line per excluded observation, sorted: the values of the
+                ``--tfa-observation-id`` datasets, followed by the photometry
+                where the rule decides per photometry. None without a rule,
+                as for any step but ``epd`` and ``tfa``.
+
+        Raises:
+            ConfigurationError:    If an observation id dataset is not a
+                header keyword, which is all the engine can read for an image,
+                or as :func:`~autowisp.diagnostics.exclusion_rules.get_excluded`
+                does.
+        """
+
+        rule = configuration.get(f"{step_name}_exclusion_rule")
+        if not rule:
+            return None
+
+        keywords = []
+        for dset_key in configuration["tfa_observation_id"]:
+            if not dset_key.startswith("fitsheader."):
+                raise ConfigurationError(
+                    f"The observation id dataset {dset_key!r} is not a header "
+                    "keyword, so the observations an exclusion rule leaves "
+                    "out cannot be listed by it.",
+                    details={
+                        "observation_id": list(
+                            configuration["tfa_observation_id"]
+                        )
+                    },
+                )
+            # As lightcurves are filled: the last component, as a keyword.
+            keywords.append(dset_key.rsplit(".", 1)[1].upper())
+
+        with start_db_session() as db_session:
+            excluded = get_excluded(
+                rule,
+                db_session.execute(
+                    select(
+                        ImageMasterSelection.image_id,
+                        ImageMasterSelection.channel,
+                    )
+                    .join(
+                        MasterFile,
+                        MasterFile.id == ImageMasterSelection.master_file_id,
+                    )
+                    .where(MasterFile.filename == single_photref_fname)
+                ).all(),
+                db_session,
+            )
+
+            observation_ids = {}
+            for image_id, channel in set().union(*excluded.values()):
+                self.evaluate_expressions_image(
+                    db_session.get(Image, image_id), db_session
+                )
+                with DataReductionFile(
+                    self.get_product_fname(image_id, channel, "dr"), "r"
+                ) as dr_file:
+                    header = dr_file.get_frame_header()
+                observation_ids[image_id, channel] = " ".join(
+                    str(header[keyword]) for keyword in keywords
+                )
+
+        return sorted(
+            observation_ids[member]
+            + (
+                ""
+                if photometry is None
+                else " " + photometry_literal(photometry)
+            )
+            for photometry, members in excluded.items()
+            for member in members
+        )
+
     def __call__(self, limit_to_steps=None):
         """Perform all the processing for the given steps (all if None)."""
 
@@ -611,9 +711,15 @@ class LightCurveProcessingManager(ProcessingManager):
                     ],
                 ):
                     self.check_start_status(step_module, step_name, 0)
-                    new_masters = getattr(step_module, step_name)(
-                        lc_fnames, 0, configuration, self._mark_progress
-                    )
+                    with with_exclusion_list(
+                        configuration,
+                        self._get_detrending_exclusions(
+                            step_name, configuration, single_photref_fname
+                        ),
+                    ) as step_config:
+                        new_masters = getattr(step_module, step_name)(
+                            lc_fnames, 0, step_config, self._mark_progress
+                        )
                 with start_db_session() as db_session:
                     # False positive
                     # pylint: disable=not-callable

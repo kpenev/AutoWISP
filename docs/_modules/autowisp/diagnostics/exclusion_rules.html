@@ -1,0 +1,800 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.diagnostics.exclusion_rules &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.diagnostics.exclusion_rules</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.diagnostics.exclusion_rules</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Which observations an exclusion rule leaves out of a fit.</span>
+
+<span class="sd">An exclusion rule is a boolean expression over the diagnostics and the</span>
+<span class="sd">project's expression library, true for what a fit should be derived without</span>
+<span class="sd">(see :func:`~autowisp.diagnostics.expressions.check_rule`). The pipeline</span>
+<span class="sd">engine evaluates the step's rule here just before running ``fit_magnitudes``,</span>
+<span class="sd">``epd`` or ``tfa``, and hands the step the result as its exclusion list.</span>
+<span class="sd">Nothing is stored: the rule is evaluated again whenever a step is prepared.</span>
+
+<span class="sd">The observations decided for are those **fit together**, given as ``(image,</span>
+<span class="sd">channel)`` pairs: a magnitude fitting batch, or the lightcurve points of one</span>
+<span class="sd">single photometric reference. The rule is not evaluated over that group,</span>
+<span class="sd">though, but over the populations an expression is always evaluated over, one</span>
+<span class="sd">session's frames of one type, split by photometric reference where the rule</span>
+<span class="sd">reads something ``fit_magnitudes`` produces. An aggregate in a rule therefore</span>
+<span class="sd">means what it does in a plot of the same expression, and the group merely</span>
+<span class="sd">selects which verdicts are used.</span>
+
+<span class="sd">What a verdict applies to follows from what the rule takes:</span>
+
+<span class="sd">* a channel slot: the channel it was bound to. Without one the rule reads</span>
+<span class="sd">  only quoted channels, and its verdict applies to every channel of the image;</span>
+<span class="sd">* a photometry slot: the photometry it was bound to. Without one the verdict</span>
+<span class="sd">  applies to every photometry.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
+
+<span class="c1"># False positive due to unusual importing</span>
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Image</span><span class="p">,</span>
+    <span class="n">ImageType</span><span class="p">,</span>
+    <span class="n">ObservingSession</span><span class="p">,</span>
+    <span class="n">PhotometryDiagnostics</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Camera</span><span class="p">,</span> <span class="n">CameraChannel</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">magfit_diagnostic_names</span><span class="p">,</span>
+    <span class="n">photometry_literal</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_expressions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_series</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SeriesKey</span><span class="p">,</span>
+    <span class="n">count_unbound_images</span><span class="p">,</span>
+    <span class="n">get_magfit_channels</span><span class="p">,</span>
+    <span class="n">get_quantity_values</span><span class="p">,</span>
+    <span class="n">split_series</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_rule</span><span class="p">,</span>
+    <span class="n">get_channel_arity</span><span class="p">,</span>
+    <span class="n">get_channel_parameters</span><span class="p">,</span>
+    <span class="n">get_logical_keywords</span><span class="p">,</span>
+    <span class="n">get_needed_values</span><span class="p">,</span>
+    <span class="n">get_photometry_arity</span><span class="p">,</span>
+    <span class="n">get_photometry_parameters</span><span class="p">,</span>
+    <span class="n">rule_quantity</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">PipelineError</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="_get_populations">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules._get_populations">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_populations</span><span class="p">(</span><span class="n">members</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Split the given members by (session, image type) ready for evaluation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        members:    ``(image_id, channel)`` pairs.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    ``{(session_id, image_type): {image_id: [channel, ...]}}``.</span>
+<span class="sd">    """</span>
+
+    <span class="n">member_channels</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+        <span class="n">member_channels</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># pylint: disable=no-member</span>
+    <span class="k">for</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">observing_session_id</span><span class="p">,</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">,</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Image</span><span class="o">.</span><span class="n">image_type_id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">member_channels</span><span class="p">)))</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="c1"># pylint: enable=no-member</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">setdefault</span><span class="p">((</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">),</span> <span class="p">{})[</span><span class="n">image_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">member_channels</span><span class="p">[</span><span class="n">image_id</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="_get_camera_channels">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules._get_camera_channels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_camera_channels</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the names of the channels the camera of a session has."""</span>
+
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">CameraChannel</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Camera</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">camera_type_id</span> <span class="o">==</span> <span class="n">CameraChannel</span><span class="o">.</span><span class="n">camera_type_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ObservingSession</span><span class="p">,</span> <span class="n">ObservingSession</span><span class="o">.</span><span class="n">camera_id</span> <span class="o">==</span> <span class="n">Camera</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ObservingSession</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">session_id</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_recorded_photometries">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules._get_recorded_photometries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_recorded_photometries</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the photometry IDs with photometry diagnostics for population."""</span>
+
+    <span class="c1"># pylint: disable=no-member</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">photometry_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">image_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">,</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Image</span><span class="o">.</span><span class="n">image_type_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">Image</span><span class="o">.</span><span class="n">observing_session_id</span> <span class="o">==</span> <span class="n">session_id</span><span class="p">,</span>
+                <span class="n">ImageType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">image_type</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+    <span class="c1"># pylint: enable=no-member</span>
+
+
+<div class="viewcode-block" id="_check_readable">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules._check_readable">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_readable</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">needed</span><span class="p">,</span> <span class="n">camera_channels</span><span class="p">,</span> <span class="n">recorded_photometries</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Refuse a rule reading a channel or a photometry its population lacks.</span>
+
+<span class="sd">    Values not recorded are padded with NaN, which compares false, so a rule</span>
+<span class="sd">    reading a channel the camera does not have, or a photometry that was</span>
+<span class="sd">    never extracted, would otherwise keep every image without saying so.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rule(str):    The rule, for the message.</span>
+
+<span class="sd">        needed(dict):    ``{name: set of (channels, photometries)}``: what</span>
+<span class="sd">            the rule reads, quoted or bound, itself or through the library.</span>
+
+<span class="sd">        camera_channels(set):    The channels the population's camera has.</span>
+
+<span class="sd">        recorded_photometries(set):    The photometry ids recorded for the</span>
+<span class="sd">            population.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ConfigurationError:    Naming what is missing.</span>
+<span class="sd">    """</span>
+
+    <span class="n">read_channels</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">channel</span>
+        <span class="k">for</span> <span class="n">bindings</span> <span class="ow">in</span> <span class="n">needed</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">channel_list</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">bindings</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">channel_list</span>
+    <span class="p">}</span>
+    <span class="n">read_photometries</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">photometry</span>
+        <span class="k">for</span> <span class="n">bindings</span> <span class="ow">in</span> <span class="n">needed</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">photometry_list</span> <span class="ow">in</span> <span class="n">bindings</span>
+        <span class="k">for</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="n">photometry_list</span>
+    <span class="p">}</span>
+
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"channel </span><span class="si">{</span><span class="n">channel</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">read_channels</span> <span class="o">-</span> <span class="n">camera_channels</span><span class="p">)</span>
+    <span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"photometry </span><span class="si">{</span><span class="n">photometry_literal</span><span class="p">(</span><span class="n">photometry</span><span class="p">)</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="k">for</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">read_photometries</span> <span class="o">-</span> <span class="n">recorded_photometries</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The exclusion rule </span><span class="si">{</span><span class="n">rule</span><span class="si">!r}</span><span class="s2"> reads "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">", which the images it is applied to do not have: channels "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">camera_channels</span><span class="p">)))</span>
+            <span class="o">+</span> <span class="s2">" and photometries "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">photometry_literal</span><span class="p">(</span><span class="n">photometry</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recorded_photometries</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="s2">". Every image would be kept. Give this equipment a rule of "</span>
+            <span class="s2">"its own through a condition on the parameter."</span><span class="p">,</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"rule"</span><span class="p">:</span> <span class="n">rule</span><span class="p">,</span> <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_evaluate">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules._evaluate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_evaluate</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the verdicts of the rule in *library* over one population.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        series_key(SeriesKey):    The population to evaluate over.</span>
+
+<span class="sd">        wanted(dict):    ``{rule_quantity: set of (channels, photometries)}``.</span>
+
+<span class="sd">        library(dict):    The project's library with the rule added.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            dict:    ``{(channels, photometries): bool array}``, true where</span>
+<span class="sd">                the rule excludes.</span>
+
+<span class="sd">            numpy.ndarray:    The image ids the arrays run over.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ConfigurationError:    If the rule does not give true or false.</span>
+<span class="sd">    """</span>
+
+    <span class="n">rule</span> <span class="o">=</span> <span class="n">library</span><span class="p">[</span><span class="n">rule_quantity</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
+            <span class="n">series_key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">keywords</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_logical_keywords</span><span class="p">(</span><span class="n">rule</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">keywords</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">"The exclusion rule </span><span class="si">%r</span><span class="s2"> uses </span><span class="si">%s</span><span class="s2">, which fail on arrays: "</span>
+                <span class="s2">"element-wise logic is written |, &amp; and ~."</span><span class="p">,</span>
+                <span class="n">rule</span><span class="p">,</span>
+                <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keywords</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">raise</span>
+
+    <span class="n">verdicts</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">rule_quantity</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">verdict</span> <span class="ow">in</span> <span class="n">verdicts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">verdict</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"The exclusion rule </span><span class="si">{</span><span class="n">rule</span><span class="si">!r}</span><span class="s2"> gives </span><span class="si">{</span><span class="n">verdict</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> values "</span>
+                <span class="s2">"where it has to say true or false for each image: compare "</span>
+                <span class="s2">"what it calculates to a limit."</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"rule"</span><span class="p">:</span> <span class="n">rule</span><span class="p">},</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">verdicts</span><span class="p">,</span> <span class="n">image_ids</span></div>
+
+
+
+<span class="c1"># Everything the loop over channels and populations needs to share.</span>
+<span class="c1"># pylint: disable-next=too-many-locals</span>
+<div class="viewcode-block" id="_exclude_in_population">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules._exclude_in_population">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_exclude_in_population</span><span class="p">(</span>
+    <span class="n">library</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="n">member_channels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">excluded</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add to *excluded* the members of one population that the rule excludes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        library(dict):    The project's library with the rule added.</span>
+
+<span class="sd">        population(tuple):    The session id and the name of the image type.</span>
+
+<span class="sd">        member_channels(dict):    ``{image_id: [channel, ...]}``: the</span>
+<span class="sd">            observations of the population being decided for.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">        excluded(dict):    ``{photometry: set of (image_id, channel)}``, as</span>
+<span class="sd">            :func:`get_excluded` returns, updated in place.</span>
+<span class="sd">    """</span>
+
+    <span class="n">rule</span> <span class="o">=</span> <span class="n">library</span><span class="p">[</span><span class="n">rule_quantity</span><span class="p">]</span>
+    <span class="n">per_channel</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">rule</span><span class="p">))</span>
+    <span class="n">per_photometry</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">rule</span><span class="p">))</span>
+
+    <span class="n">camera_channels</span> <span class="o">=</span> <span class="n">_get_camera_channels</span><span class="p">(</span><span class="n">population</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">db_session</span><span class="p">)</span>
+    <span class="n">recorded_photometries</span> <span class="o">=</span> <span class="n">_get_recorded_photometries</span><span class="p">(</span><span class="o">*</span><span class="n">population</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="nb">sorted</span><span class="p">({</span><span class="n">name</span> <span class="k">for</span> <span class="n">names</span> <span class="ow">in</span> <span class="n">member_channels</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">per_channel</span>
+        <span class="k">else</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+    <span class="p">):</span>
+        <span class="n">slot_channels</span> <span class="o">=</span> <span class="p">(</span><span class="n">channel</span><span class="p">,)</span> <span class="k">if</span> <span class="n">per_channel</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">rule_quantity</span><span class="p">:</span> <span class="p">{</span>
+                <span class="p">(</span><span class="n">slot_channels</span><span class="p">,</span> <span class="p">(</span><span class="n">photometry</span><span class="p">,)</span> <span class="k">if</span> <span class="n">per_photometry</span> <span class="k">else</span> <span class="p">())</span>
+                <span class="k">for</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="p">(</span>
+                    <span class="n">recorded_photometries</span> <span class="k">if</span> <span class="n">per_photometry</span> <span class="k">else</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">needed</span> <span class="o">=</span> <span class="n">get_needed_values</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+        <span class="n">_check_readable</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">needed</span><span class="p">,</span> <span class="n">camera_channels</span><span class="p">,</span> <span class="n">recorded_photometries</span><span class="p">)</span>
+
+        <span class="c1"># A channel magfit is read in needs a slot to hold its reference,</span>
+        <span class="c1"># which a quoted one gets after those the rule binds.</span>
+        <span class="n">series_key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">population</span><span class="p">,</span>
+            <span class="n">slot_channels</span>
+            <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span>
+                <span class="n">read_channel</span>
+                <span class="k">for</span> <span class="n">read_channel</span> <span class="ow">in</span> <span class="n">get_magfit_channels</span><span class="p">(</span><span class="n">needed</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">read_channel</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slot_channels</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">num_unbound</span> <span class="o">=</span> <span class="n">count_unbound_images</span><span class="p">(</span>
+            <span class="n">series_key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_unbound</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"The exclusion rule </span><span class="si">%r</span><span class="s2"> decides nothing for </span><span class="si">%d</span><span class="s2"> images of "</span>
+                <span class="s2">"session </span><span class="si">%d</span><span class="s2">, which were magnitude fit but are bound to no "</span>
+                <span class="s2">"photometric reference in a channel it reads the fit in."</span><span class="p">,</span>
+                <span class="n">rule</span><span class="p">,</span>
+                <span class="n">num_unbound</span><span class="p">,</span>
+                <span class="n">population</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">reference_key</span> <span class="ow">in</span> <span class="n">split_series</span><span class="p">(</span>
+            <span class="n">series_key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="p">):</span>
+            <span class="n">verdicts</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">_evaluate</span><span class="p">(</span>
+                <span class="n">reference_key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">photometries</span><span class="p">),</span> <span class="n">verdict</span> <span class="ow">in</span> <span class="n">verdicts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">excluded</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+                    <span class="n">photometries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">per_photometry</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">set</span><span class="p">()</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">member_channel</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">image_ids</span><span class="p">[</span><span class="n">verdict</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">member_channel</span> <span class="ow">in</span> <span class="n">member_channels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="p">())</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">per_channel</span> <span class="ow">or</span> <span class="n">member_channel</span> <span class="o">==</span> <span class="n">channel</span>
+                <span class="p">)</span></div>
+
+
+
+<span class="c1">#: More than this fraction of a fit left out is conspicuous: the engine logs</span>
+<span class="c1">#: it as a warning, and the BUI highlights it.</span>
+<span class="n">conspicuous_fraction</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+
+<div class="viewcode-block" id="summarize_excluded">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules.summarize_excluded">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">summarize_excluded</span><span class="p">(</span><span class="n">excluded</span><span class="p">,</span> <span class="n">num_members</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return how much of what is fit together each verdict of a rule excludes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        excluded(dict):    What :func:`get_excluded` returned.</span>
+
+<span class="sd">        num_members(int):    How many observations are fit together.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    A dict per photometry, in order of id: ``photometry``, its</span>
+<span class="sd">            id, None for a rule deciding for every photometry at once;</span>
+<span class="sd">            ``excluded``, how many observations it excludes; ``fraction``,</span>
+<span class="sd">            what fraction that is of those fit together; and</span>
+<span class="sd">            ``conspicuous``, whether it is above</span>
+<span class="sd">            :data:`conspicuous_fraction`.</span>
+<span class="sd">    """</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">photometry</span><span class="p">,</span> <span class="n">observations</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">excluded</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">fraction</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_members</span> <span class="k">if</span> <span class="n">num_members</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"photometry"</span><span class="p">:</span> <span class="n">photometry</span><span class="p">,</span>
+                <span class="s2">"excluded"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span>
+                <span class="s2">"fraction"</span><span class="p">:</span> <span class="n">fraction</span><span class="p">,</span>
+                <span class="s2">"conspicuous"</span><span class="p">:</span> <span class="n">fraction</span> <span class="o">&gt;</span> <span class="n">conspicuous_fraction</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="_report_fractions">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules._report_fractions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_report_fractions</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">excluded</span><span class="p">,</span> <span class="n">num_members</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Log how much of what is fit together *rule* excludes."""</span>
+
+    <span class="k">for</span> <span class="n">verdict</span> <span class="ow">in</span> <span class="n">summarize_excluded</span><span class="p">(</span><span class="n">excluded</span><span class="p">,</span> <span class="n">num_members</span><span class="p">):</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span> <span class="k">if</span> <span class="n">verdict</span><span class="p">[</span><span class="s2">"conspicuous"</span><span class="p">]</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+            <span class="s2">"The exclusion rule </span><span class="si">%r</span><span class="s2"> excludes </span><span class="si">%.0f%%</span><span class="s2"> (</span><span class="si">%d</span><span class="s2"> of </span><span class="si">%d</span><span class="s2">) of the "</span>
+            <span class="s2">"observations fit together</span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
+            <span class="n">rule</span><span class="p">,</span>
+            <span class="mi">100</span> <span class="o">*</span> <span class="n">verdict</span><span class="p">[</span><span class="s2">"fraction"</span><span class="p">],</span>
+            <span class="n">verdict</span><span class="p">[</span><span class="s2">"excluded"</span><span class="p">],</span>
+            <span class="n">num_members</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="s2">""</span>
+                <span class="k">if</span> <span class="n">verdict</span><span class="p">[</span><span class="s2">"photometry"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="s2">" in photometry "</span>
+                <span class="o">+</span> <span class="n">photometry_literal</span><span class="p">(</span><span class="n">verdict</span><span class="p">[</span><span class="s2">"photometry"</span><span class="p">])</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_excluded">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules.get_excluded">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_excluded</span><span class="p">(</span>
+    <span class="n">rule</span><span class="p">,</span> <span class="n">members</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">before_magfit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the observations fit together that *rule* leaves out of the fit.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rule(str):    The exclusion rule.</span>
+
+<span class="sd">        members:    ``(image_id, channel)`` pairs: the observations fit</span>
+<span class="sd">            together, which are the ones decided for.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">        before_magfit(bool):    Whether the fit is the magnitude fit itself,</span>
+<span class="sd">            which nothing it produces can be read ahead of.</span>
+
+<span class="sd">        report(bool):    Whether to log the fraction excluded, as the engine</span>
+<span class="sd">            does for every fit. A preview shows it instead.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    ``{photometry: set of (image_id, channel)}``: the excluded</span>
+<span class="sd">            members. Under the single key ``None`` if the rule takes no</span>
+<span class="sd">            photometry slot, its verdict then applying to every photometry,</span>
+<span class="sd">            and otherwise under each photometry id recorded for the members,</span>
+<span class="sd">            those nothing is excluded in included.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ConfigurationError:    If the rule is malformed, reads a channel or a</span>
+<span class="sd">            photometry the images do not have, reads what magnitude fitting</span>
+<span class="sd">            produces when *before_magfit*, or does not give true or false.</span>
+<span class="sd">    """</span>
+
+    <span class="n">members</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">members</span><span class="p">))</span>
+    <span class="n">library</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="n">check_rule</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The exclusion rule </span><span class="si">{</span><span class="n">rule</span><span class="si">!r}</span><span class="s2"> cannot be used. "</span>
+            <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">problems</span><span class="p">),</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"rule"</span><span class="p">:</span> <span class="n">rule</span><span class="p">,</span> <span class="s2">"problems"</span><span class="p">:</span> <span class="n">problems</span><span class="p">},</span>
+        <span class="p">)</span>
+    <span class="n">library</span><span class="p">[</span><span class="n">rule_quantity</span><span class="p">]</span> <span class="o">=</span> <span class="n">rule</span>
+
+    <span class="n">per_photometry</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">rule</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">before_magfit</span><span class="p">:</span>
+        <span class="c1"># Resolved with stand-ins for the slots: what is read does not</span>
+        <span class="c1"># depend on what they are bound to.</span>
+        <span class="n">read_magfit</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">magfit_diagnostic_names</span><span class="p">()</span>
+            <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span>
+                <span class="n">get_needed_values</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">rule_quantity</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="p">(</span>
+                                <span class="p">(</span><span class="s2">""</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">rule</span><span class="p">)),</span>
+                                <span class="p">(</span><span class="mi">0</span><span class="p">,)</span> <span class="o">*</span> <span class="n">per_photometry</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="n">library</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">read_magfit</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"The exclusion rule </span><span class="si">{</span><span class="n">rule</span><span class="si">!r}</span><span class="s2"> for magnitude fitting reads "</span>
+                <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">read_magfit</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">", which magnitude fitting itself produces, so there is "</span>
+                <span class="s2">"nothing to read yet."</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"rule"</span><span class="p">:</span> <span class="n">rule</span><span class="p">,</span> <span class="s2">"diagnostics"</span><span class="p">:</span> <span class="n">read_magfit</span><span class="p">},</span>
+            <span class="p">)</span>
+
+    <span class="n">excluded</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">per_photometry</span> <span class="k">else</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="nb">set</span><span class="p">()}</span>
+    <span class="k">for</span> <span class="n">population</span><span class="p">,</span> <span class="n">member_channels</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">_get_populations</span><span class="p">(</span><span class="n">members</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">):</span>
+        <span class="n">_exclude_in_population</span><span class="p">(</span>
+            <span class="n">library</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="n">member_channels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">excluded</span><span class="o">=</span><span class="n">excluded</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">report</span><span class="p">:</span>
+        <span class="n">_report_fractions</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">excluded</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">members</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">excluded</span></div>
+
+
+
+<div class="viewcode-block" id="get_rule_reads">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules.get_rule_reads">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_rule_reads</span><span class="p">(</span><span class="n">library</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the library expressions usable as exclusion rules, as configured.</span>
+
+<span class="sd">    A rule names a library expression by a read binding the slots it takes,</span>
+<span class="sd">    the channel slot to the channel being decided for and the photometry</span>
+<span class="sd">    slot to the photometry: ``cloudy``, ``cloudy[0]``, ``cloudy[()][0]`` or</span>
+<span class="sd">    ``cloudy[0][0]``. Whether an expression gives true or false is not</span>
+<span class="sd">    known until it is evaluated, so one giving numbers is listed too.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        library(dict):    The project's library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    ``{name: read}`` for each expression :func:`check_rule`</span>
+<span class="sd">            accepts read that way.</span>
+<span class="sd">    """</span>
+
+    <span class="n">reads</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">library</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">num_channels</span> <span class="o">=</span> <span class="n">get_channel_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+            <span class="n">num_photometries</span> <span class="o">=</span> <span class="n">get_photometry_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">SyntaxError</span><span class="p">,</span> <span class="n">PipelineError</span><span class="p">):</span>
+            <span class="c1"># Broken, which the library page says; not a rule either way.</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">num_channels</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">num_photometries</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">read</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="n">num_channels</span> <span class="ow">or</span> <span class="n">num_photometries</span><span class="p">:</span>
+            <span class="n">read</span> <span class="o">+=</span> <span class="s2">"[0]"</span> <span class="k">if</span> <span class="n">num_channels</span> <span class="k">else</span> <span class="s2">"[()]"</span>
+        <span class="k">if</span> <span class="n">num_photometries</span><span class="p">:</span>
+            <span class="n">read</span> <span class="o">+=</span> <span class="s2">"[0]"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_rule</span><span class="p">(</span><span class="n">read</span><span class="p">,</span> <span class="n">library</span><span class="p">):</span>
+            <span class="n">reads</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">read</span>
+    <span class="k">return</span> <span class="n">reads</span></div>
+
+
+
+<div class="viewcode-block" id="preview_excluded">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.exclusion_rules.html#autowisp.diagnostics.exclusion_rules.preview_excluded">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">preview_excluded</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">image_ids</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the images *rule* excludes, as the engine would decide for them.</span>
+
+<span class="sd">    Each image is decided for in the given channel and photometry, which</span>
+<span class="sd">    the rule's slots are bound to, and within the population the engine</span>
+<span class="sd">    evaluates it over, so that what a preview shows is what a fit would</span>
+<span class="sd">    leave out. Nothing is refused for reading what magnitude fitting</span>
+<span class="sd">    produces: that only matters for the rule of the magnitude fit itself,</span>
+<span class="sd">    which the engine checks when it runs it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rule(str):    The exclusion rule.</span>
+
+<span class="sd">        image_ids(iterable):    The images to decide for.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">        channel(str or None):    The channel the rule's channel slot is</span>
+<span class="sd">            bound to, None for a rule without one.</span>
+
+<span class="sd">        photometry(int or None):    The photometry id the rule's photometry</span>
+<span class="sd">            slot is bound to, None for a rule without one.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        set:    The ids of the images excluded.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ConfigurationError:    As :func:`get_excluded` does, or if the rule</span>
+<span class="sd">            takes a slot nothing is bound to.</span>
+<span class="sd">    """</span>
+
+    <span class="n">per_photometry</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">rule</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">slots</span><span class="p">,</span> <span class="n">bound</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">"channel"</span><span class="p">,</span> <span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">rule</span><span class="p">),</span> <span class="n">channel</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"photometry"</span><span class="p">,</span> <span class="n">per_photometry</span><span class="p">,</span> <span class="n">photometry</span><span class="p">),</span>
+    <span class="p">]:</span>
+        <span class="k">if</span> <span class="n">slots</span> <span class="ow">and</span> <span class="n">bound</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"The exclusion rule </span><span class="si">{</span><span class="n">rule</span><span class="si">!r}</span><span class="s2"> decides per </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">: choose the "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> to decide for."</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"rule"</span><span class="p">:</span> <span class="n">rule</span><span class="p">},</span>
+            <span class="p">)</span>
+
+    <span class="n">excluded</span> <span class="o">=</span> <span class="n">get_excluded</span><span class="p">(</span>
+        <span class="n">rule</span><span class="p">,</span>
+        <span class="p">[(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span> <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">image_ids</span><span class="p">],</span>
+        <span class="n">db_session</span><span class="p">,</span>
+        <span class="n">report</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">image_id</span>
+        <span class="k">for</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">excluded</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">photometry</span> <span class="k">if</span> <span class="n">per_photometry</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="p">()</span>
+        <span class="p">)</span>
+    <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

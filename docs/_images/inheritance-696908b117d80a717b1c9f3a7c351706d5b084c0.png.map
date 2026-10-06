@@ -1,0 +1,32 @@
+<map id="inheritancea5812ddd46" name="inheritancea5812ddd46">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="1355,299,1723,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="345,372,800,397"/>
+<area shape="rect" id="node7" title="Base class for all per&#45;image diagnostics." alt="" coords="825,372,1323,397"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="1755,372,2137,397"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="2162,372,2551,397"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="2576,372,3047,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1329,225,1749,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1798,225,2190,251"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="1748,299,2288,324"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="1847,152,2141,177"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="580,445,1053,471"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="1077,445,1585,471"/>
+<area shape="rect" id="node15" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="2168,5,2516,31"/>
+<area shape="rect" id="node16" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="2721,5,2976,31"/>
+<area shape="rect" id="node17" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="2727,79,2970,104"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="3085,79,3468,104"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_series_references.TestCountUnboundImages" target="_top" title="The frames a split leaves out, for want of a binding." alt="" coords="2166,152,2609,177"/>
+<area shape="rect" id="node21" href="#autowisp.tests.test_series_references.TestPhotometryReads" target="_top" title="A per&#45;photometry diagnostic, read in the photometry each read binds." alt="" coords="2633,152,3048,177"/>
+<area shape="rect" id="node22" href="#autowisp.tests.test_series_references.TestReferenceCounts" target="_top" title="What the series table offers and counts: per reference, per" alt="" coords="3072,152,3481,177"/>
+<area shape="rect" id="node23" href="#autowisp.tests.test_series_references.TestReferenceRestriction" target="_top" title="A key naming references reads only the images fit against them." alt="" coords="3506,152,3941,177"/>
+<area shape="rect" id="node25" href="#autowisp.tests.test_series_references.TestSplitSeries" target="_top" title="Finding the reference populations a session holds." alt="" coords="3965,152,4332,177"/>
+<area shape="rect" id="node19" title="A class whose instances are single test cases." alt="" coords="3409,5,3577,31"/>
+<area shape="rect" id="node24" href="#autowisp.tests.test_series_references.TestSeriesKeyReferences" target="_top" title="What a key accepts for its references, and what it makes of them." alt="" coords="3493,79,3927,104"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="3966,5,4081,31"/>
+<area shape="rect" id="node27" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="3951,79,4095,104"/>
+<area shape="rect" id="node28" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1356,152,1723,177"/>
+<area shape="rect" id="node29" title="define a class as inspectable." alt="" coords="1871,79,2117,104"/>
+<area shape="rect" id="node30" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1935,5,2053,31"/>
+</map>

@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -200,11 +203,17 @@
 <li class="toctree-l2"><a class="reference internal" href="autowisp.light_curves.correction.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction"><code class="docutils literal notranslate"><span class="pre">Correction</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction.__init__"><code class="docutils literal notranslate"><span class="pre">Correction.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._find_qc_excluded"><code class="docutils literal notranslate"><span class="pre">Correction._find_qc_excluded()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._fix_substitutions"><code class="docutils literal notranslate"><span class="pre">Correction._fix_substitutions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_config_key_prefix"><code class="docutils literal notranslate"><span class="pre">Correction._get_config_key_prefix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_fit_data"><code class="docutils literal notranslate"><span class="pre">Correction._get_fit_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_io_iterative_fit_config"><code class="docutils literal notranslate"><span class="pre">Correction._get_io_iterative_fit_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_observation_ids"><code class="docutils literal notranslate"><span class="pre">Correction._get_observation_ids()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_photometry"><code class="docutils literal notranslate"><span class="pre">Correction._get_photometry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._is_qc_excluded"><code class="docutils literal notranslate"><span class="pre">Correction._is_qc_excluded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._match_exclusions"><code class="docutils literal notranslate"><span class="pre">Correction._match_exclusions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._process_fit"><code class="docutils literal notranslate"><span class="pre">Correction._process_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._read_exclusions"><code class="docutils literal notranslate"><span class="pre">Correction._read_exclusions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._save_result"><code class="docutils literal notranslate"><span class="pre">Correction._save_result()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction.get_result_dtype"><code class="docutils literal notranslate"><span class="pre">Correction.get_result_dtype()</span></code></a></li>
 </ul>
@@ -308,8 +317,8 @@
 <li class="toctree-l2"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection"><code class="docutils literal notranslate"><span class="pre">TFACorrection</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection.__call__"><code class="docutils literal notranslate"><span class="pre">TFACorrection.__call__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection.__init__"><code class="docutils literal notranslate"><span class="pre">TFACorrection.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._add_intercept"><code class="docutils literal notranslate"><span class="pre">TFACorrection._add_intercept()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._get_io_configurations"><code class="docutils literal notranslate"><span class="pre">TFACorrection._get_io_configurations()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._get_observation_ids"><code class="docutils literal notranslate"><span class="pre">TFACorrection._get_observation_ids()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._plot_template_selection"><code class="docutils literal notranslate"><span class="pre">TFACorrection._plot_template_selection()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._prepare_template_data"><code class="docutils literal notranslate"><span class="pre">TFACorrection._prepare_template_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._select_template_stars"><code class="docutils literal notranslate"><span class="pre">TFACorrection._select_template_stars()</span></code></a></li>

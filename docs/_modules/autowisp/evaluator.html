@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -229,6 +232,40 @@
 
 
 
+<div class="viewcode-block" id="nanrank">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.nanrank">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nanrank</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return each entry's rank as a fraction of the finite entries.</span>
+
+<span class="sd">    The smallest of *n* finite values ranks ``1/n`` and the largest ``1``;</span>
+<span class="sd">    ties share the average of the ranks they span, and NaN stays NaN</span>
+<span class="sd">    without counting towards *n*. This is pandas' ``rank(pct=True)``, which</span>
+<span class="sd">    is what the photometric reference merit's ``qnt_&lt;name&gt;`` columns used,</span>
+<span class="sd">    so a merit rewritten in terms of this ranks candidates the same way.</span>
+
+<span class="sd">    Unlike the aggregates in :attr:`EvaluatorBase.nan_aggregates`, the</span>
+<span class="sd">    result has one entry per input entry, so it composes element-wise with</span>
+<span class="sd">    the values it ranks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x(array-like):    The values to rank.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray:    The ranks, as floats in ``(0, 1]``, shaped like</span>
+<span class="sd">            *x*.</span>
+<span class="sd">    """</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">pct</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="EvaluatorBase">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EvaluatorBase</span><span class="p">(</span><span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
@@ -283,6 +320,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">func_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">func_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">func_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"nanrank"</span><span class="p">]</span> <span class="o">=</span> <span class="n">nanrank</span>
         <span class="k">for</span> <span class="n">func_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">removed_names</span><span class="p">:</span>
             <span class="c1"># Absent rather than asserted, so that an asteval release which</span>
             <span class="c1"># drops one of these on its own is not an error here.</span>

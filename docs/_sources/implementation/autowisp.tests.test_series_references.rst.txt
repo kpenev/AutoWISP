@@ -1,0 +1,7 @@
+autowisp.tests.test\_series\_references module
+==============================================
+
+.. automodule:: autowisp.tests.test_series_references
+   :members:
+   :show-inheritance:
+   :undoc-members:

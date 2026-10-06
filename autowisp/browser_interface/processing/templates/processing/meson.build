@@ -1,4 +1,5 @@
 src = [
+  '_exclusion_report.html',
   'error_detail.html',
   'error_list.html',
   'progress.html',

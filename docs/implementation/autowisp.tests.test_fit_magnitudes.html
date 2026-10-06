@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -192,9 +195,137 @@
 <area shape="rect" id="node6" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" target="_top" title="Tests of the fit_source_extracted_psf_map step." alt="" coords="5,372,377,397"/>
 </map><p>Tests of the fit_source_extracted_psf_map step.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_magfit_stat_match">
+<span class="sig-name descname"><span class="pre">_assert_magfit_stat_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expected_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_magfit_stat_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_magfit_stat_match" title="Link to this definition"></a></dt>
+<dd><p>Assert two magfit statistics files match, in any order of rows.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_master_reads">
+<span class="sig-name descname"><span class="pre">_assert_master_reads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_master_reads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_master_reads" title="Link to this definition"></a></dt>
+<dd><p>Assert the master reads as exactly its photometry tables.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_as_expected">
+<span class="sig-name descname"><span class="pre">_assert_masters_as_expected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_masters_as_expected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_as_expected" title="Link to this definition"></a></dt>
+<dd><p>Assert the masters and statistics written match the test data’s.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_built_without">
+<span class="sig-name descname"><span class="pre">_assert_masters_built_without</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excluded</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_dr_fnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset_masters_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_masters_built_without"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_built_without" title="Link to this definition"></a></dt>
+<dd><p>Assert the masters match the subset run’s and record the populations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>excluded</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – The DR files excluded from the masters.</p></li>
+<li><p><strong>fit_dr_fnames</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – The DR files fit, excluded included.</p></li>
+<li><p><strong>subset_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Where the DR files of the subset run are.</p></li>
+<li><p><strong>subset_masters_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Where the masters built from the kept
+images alone are.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The masters, in order of iteration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_match">
+<span class="sig-name descname"><span class="pre">_assert_masters_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expected_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_masters_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_match" title="Link to this definition"></a></dt>
+<dd><p>Assert two masters match, apart from their population record.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_population">
+<span class="sig-name descname"><span class="pre">_assert_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_population" title="Link to this definition"></a></dt>
+<dd><p>Assert the master’s INMASTER table holds <code class="docutils literal notranslate"><span class="pre">{dr_fname:</span> <span class="pre">included}</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_qc_included">
+<span class="sig-name descname"><span class="pre">_assert_qc_included</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_qc_included"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_qc_included" title="Link to this definition"></a></dt>
+<dd><p>Assert every photometry of the DR file records <code class="docutils literal notranslate"><span class="pre">included</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._fit_without_and_with_exclusions">
+<span class="sig-name descname"><span class="pre">_fit_without_and_with_exclusions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excluded</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._fit_without_and_with_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._fit_without_and_with_exclusions" title="Link to this definition"></a></dt>
+<dd><p>Fit the images not in <code class="docutils literal notranslate"><span class="pre">excluded</span></code> alone, then all excluding those.</p>
+<p>The list given to the second run names the first excluded file by a
+relative path, the second by an absolute one, and adds a file that is
+not among the inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>excluded</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Two DR files, under the <code class="docutils literal notranslate"><span class="pre">DR</span></code> directory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>The DR files the second run fit, those the bundle has fits for.</p>
+<dl class="simple">
+<dt>str:</dt><dd><p>The directory holding the DR files of the first run.</p>
+</dd>
+<dt>str:</dt><dd><p>The directory the masters of the first run were moved to.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._read_fits">
+<span class="sig-name descname"><span class="pre">_read_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._read_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._read_fits" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">{path:</span> <span class="pre">(magnitudes,</span> <span class="pre">fit</span> <span class="pre">residual)}</span></code> of every fit in DR.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_exclusions_kept_out_of_master">
+<span class="sig-name descname"><span class="pre">test_exclusions_kept_out_of_master</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes.test_exclusions_kept_out_of_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_exclusions_kept_out_of_master" title="Link to this definition"></a></dt>
+<dd><p>Excluding images gives the master the kept images give alone.</p>
+<p>Fits the kept images by themselves, then all images with the others
+excluded, and compares: the masters and the kept images’ fits must
+be the same, the excluded images fit at the last pass, each master
+must list every image fit, flagging the ones it was built from, and
+each image must record whether it passes the quality cut. The list
+names one input by a relative path, one by an absolute
+path, and a file that is not among the inputs, which must not be
+recorded. Both the new master and one written before exclusions were
+recorded must read as their photometry tables alone.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_existing_files_are_not_overwritten">
+<span class="sig-name descname"><span class="pre">test_existing_files_are_not_overwritten</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes.test_existing_files_are_not_overwritten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_existing_files_are_not_overwritten" title="Link to this definition"></a></dt>
+<dd><p>A file the first pass would write stops the fit before it starts.</p>
+<p>The master and the statistics of the first pass are each put in
+place alone, as a master built from another single photometric
+reference named alike would have left them. The step must fail
+without fitting any image and leave the file as it was.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_fit_magnitudes">
 <span class="sig-name descname"><span class="pre">test_fit_magnitudes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes.test_fit_magnitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_fit_magnitudes" title="Link to this definition"></a></dt>
 <dd><p>Run the fit_magnitudes step and check the outputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_later_image_fit_like_master_builders">
+<span class="sig-name descname"><span class="pre">test_later_image_fit_like_master_builders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes.test_later_image_fit_like_master_builders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_later_image_fit_like_master_builders" title="Link to this definition"></a></dt>
+<dd><p>An image fit against the final master matches its last pass.</p>
+<p>Images added after the master photometric reference exists are fit
+against it alone, and must get exactly the fit that the images which
+built it got in their last pass, at the same iteration index. One of
+two such images is on the exclusion list, which changes nothing about
+its fit, only the quality flag it records.</p>
 </dd></dl>
 
 </dd></dl>

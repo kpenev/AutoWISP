@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -176,16 +179,22 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">error_context</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ConfigurationError</span><span class="p">,</span>
     <span class="n">FileKind</span><span class="p">,</span>
     <span class="n">MasterSelectionError</span><span class="p">,</span>
     <span class="n">PipelineError</span><span class="p">,</span>
     <span class="n">RelatedFile</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">photometry_literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.exclusion_rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_excluded</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.light_curves.light_curve_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">LightCurveFile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_catalog_file</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.processing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ProcessingManager</span><span class="p">,</span>
+    <span class="n">with_exclusion_list</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_processing_sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.light_curves.collect_light_curves</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecodingStringFormatter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">processing_steps</span>
@@ -194,6 +203,7 @@
 <span class="c1"># pylint: disable=no-name-in-module</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Image</span><span class="p">,</span>
+    <span class="n">ImageMasterSelection</span><span class="p">,</span>
     <span class="n">ImageType</span><span class="p">,</span>
     <span class="n">InputMasterTypes</span><span class="p">,</span>
     <span class="n">LightCurveStatus</span><span class="p">,</span>
@@ -767,6 +777,102 @@
         <span class="k">return</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">step_config</span><span class="p">,</span> <span class="n">create_lc_cofig</span><span class="p">[</span><span class="s2">"lc_fname"</span><span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="LightCurveProcessingManager._get_detrending_exclusions">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._get_detrending_exclusions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_detrending_exclusions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">single_photref_fname</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return the observations to leave out of an EPD or TFA fit.</span>
+
+<span class="sd">        Decided by the step's exclusion rule, for the observations the step</span>
+<span class="sd">        fits together: those of the images bound to the single photometric</span>
+<span class="sd">        reference, in every session.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            step_name(str):    The step about to run.</span>
+
+<span class="sd">            configuration(dict):    Its configuration.</span>
+
+<span class="sd">            single_photref_fname(str):    The single photometric reference</span>
+<span class="sd">                whose lightcurve points the step processes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [str] or None:</span>
+<span class="sd">                One line per excluded observation, sorted: the values of the</span>
+<span class="sd">                ``--tfa-observation-id`` datasets, followed by the photometry</span>
+<span class="sd">                where the rule decides per photometry. None without a rule,</span>
+<span class="sd">                as for any step but ``epd`` and ``tfa``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ConfigurationError:    If an observation id dataset is not a</span>
+<span class="sd">                header keyword, which is all the engine can read for an image,</span>
+<span class="sd">                or as :func:`~autowisp.diagnostics.exclusion_rules.get_excluded`</span>
+<span class="sd">                does.</span>
+<span class="sd">        """</span>
+
+        <span class="n">rule</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2">_exclusion_rule"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rule</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">keywords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"tfa_observation_id"</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dset_key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"fitsheader."</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"The observation id dataset </span><span class="si">{</span><span class="n">dset_key</span><span class="si">!r}</span><span class="s2"> is not a header "</span>
+                    <span class="s2">"keyword, so the observations an exclusion rule leaves "</span>
+                    <span class="s2">"out cannot be listed by it."</span><span class="p">,</span>
+                    <span class="n">details</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">"observation_id"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
+                            <span class="n">configuration</span><span class="p">[</span><span class="s2">"tfa_observation_id"</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+            <span class="c1"># As lightcurves are filled: the last component, as a keyword.</span>
+            <span class="n">keywords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dset_key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">excluded</span> <span class="o">=</span> <span class="n">get_excluded</span><span class="p">(</span>
+                <span class="n">rule</span><span class="p">,</span>
+                <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">select</span><span class="p">(</span>
+                        <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span>
+                        <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">MasterFile</span><span class="p">,</span>
+                        <span class="n">MasterFile</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">ImageMasterSelection</span><span class="o">.</span><span class="n">master_file_id</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span> <span class="o">==</span> <span class="n">single_photref_fname</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+                <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">observation_ids</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="n">excluded</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_expressions_image</span><span class="p">(</span>
+                    <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="n">image_id</span><span class="p">),</span> <span class="n">db_session</span>
+                <span class="p">)</span>
+                <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_product_fname</span><span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">"dr"</span><span class="p">),</span> <span class="s2">"r"</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                    <span class="n">header</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+                <span class="n">observation_ids</span><span class="p">[</span><span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">]</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="n">keyword</span><span class="p">])</span> <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">keywords</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">observation_ids</span><span class="p">[</span><span class="n">member</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">(</span>
+                <span class="s2">""</span>
+                <span class="k">if</span> <span class="n">photometry</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="s2">" "</span> <span class="o">+</span> <span class="n">photometry_literal</span><span class="p">(</span><span class="n">photometry</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">photometry</span><span class="p">,</span> <span class="n">members</span> <span class="ow">in</span> <span class="n">excluded</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">members</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="LightCurveProcessingManager.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -817,9 +923,15 @@
                     <span class="p">],</span>
                 <span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">check_start_status</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                    <span class="n">new_masters</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)(</span>
-                        <span class="n">lc_fnames</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_progress</span>
-                    <span class="p">)</span>
+                    <span class="k">with</span> <span class="n">with_exclusion_list</span><span class="p">(</span>
+                        <span class="n">configuration</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_detrending_exclusions</span><span class="p">(</span>
+                            <span class="n">step_name</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">single_photref_fname</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span> <span class="k">as</span> <span class="n">step_config</span><span class="p">:</span>
+                        <span class="n">new_masters</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)(</span>
+                            <span class="n">lc_fnames</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">step_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_progress</span>
+                        <span class="p">)</span>
                 <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
                     <span class="c1"># False positive</span>
                     <span class="c1"># pylint: disable=not-callable</span>

@@ -1,0 +1,7 @@
+autowisp.tests.test\_upgrade\_from\_release module
+==================================================
+
+.. automodule:: autowisp.tests.test_upgrade_from_release
+   :members:
+   :show-inheritance:
+   :undoc-members:

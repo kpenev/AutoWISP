@@ -5,8 +5,12 @@ what order a library of them has to be evaluated in, and what is wrong with
 one. It deliberately knows about no database of any kind. The library
 arrives as a ``{name: expression}`` dictionary and the data as a
 ``{diagnostic_name: array}`` dictionary, so the same rules apply whether the
-caller is the browser interface reading its own database or a pipeline step
-handed a library from a file.
+caller is the browser interface or the pipeline, both of which read the
+project's library through :mod:`autowisp.diagnostics.expression_library`.
+
+An exclusion rule is one more expression, taking at most one channel slot
+and one photometry slot, and evaluated alongside the library under
+:data:`rule_quantity`.
 
 Passing the values in rather than fetching them is what keeps this module
 free of a database and cheap to test exhaustively; it is not a facility for
@@ -29,6 +33,9 @@ import numpy
 from autowisp.diagnostics.diagnostic_types import (
     is_diagnostic,
     is_known_quantity,
+    parse_photometry_literal,
+    photometry_diagnostic_names,
+    photometry_literal,
     time_quantity,
 )
 from autowisp.evaluator import Evaluator, EvaluatorBase
@@ -84,64 +91,154 @@ def get_expression_names(expression):
 
 def get_indexed_names(expression):
     """
-    Return what one expression reads, and in which channel slots.
+    Return what one expression reads, in which channel and photometry slots.
 
-    A slot is written as a subscript -- ``bg_center[0]``, or
+    A channel slot is written as a subscript -- ``bg_center[0]``, or
     ``sky_color[0,1]`` for a quantity taking two -- and the numbers are
     that expression's own formal parameters, bound to real channels only
     when something is plotted. So this reports the *shape* of what the
     text asks for, and says nothing about channels.
 
+    A slot may instead be a quoted channel name, ``bg_center['G0']``,
+    which binding passes through unchanged: it is already bound. That ties
+    the text to a camera's channel naming, which is the point in an
+    exclusion rule and a convenience in a project whose cameras all name
+    their channels alike.
+
+    A quantity taking photometries -- a diagnostic ``fit_magnitudes``
+    produces, or an expression reading one -- is read with a second
+    subscript for them, numbered in a namespace of its own:
+    ``magfit_residual[0][1]`` is channel slot 0 and photometry slot 1, and
+    ``magfit_residual[0]['ap4']`` quotes aperture 4. One taking no channel
+    is written with an empty channel subscript, ``name[()][0]``.
+
     Args:
         expression(str):    The expression text.
 
     Returns:
-        list:    ``(name, slots)`` pairs in the order they appear, *slots*
-            always a tuple however many were written. Repeats are kept:
-            ``sky_color[0,1] - sky_color[1,2]`` reads one name at two
-            different slot pairs, which is the whole point of the
-            parameters being formal.
+        list:    ``(name, channel_slots, photometry_slots)`` triples in the
+            order they appear, both always tuples however many were
+            written, each slot an ``int`` or a quoted ``str``; the
+            photometry slots empty where there is no second subscript.
+            Repeats are kept: ``sky_color[0,1] - sky_color[1,2]`` reads one
+            name at two different slot pairs, which is the whole point of
+            the parameters being formal.
 
     Raises:
         SyntaxError:    As for :func:`get_expression_names`.
 
         PipelineError:    If a subscript is not a plain name indexed by
-            integer literals. Anything else -- ``bg_center[i]``,
-            ``bg_center[1:2]``, ``sky_color[1][2]`` -- cannot name a
-            channel slot, and saying so here is clearer than letting it
-            fail as an unresolvable name later.
+            integer or string literals, at most twice. Anything else --
+            ``bg_center[i]``, ``bg_center[1:2]``, ``x[0][1][2]`` -- cannot
+            name a slot, and saying so here is clearer than letting it fail
+            as an unresolvable name later. So is an empty channel subscript
+            with no photometries after it.
     """
 
-    references = []
-    for node in ast.walk(ast.parse(expression, mode="eval")):
-        if not isinstance(node, ast.Subscript):
-            continue
-        if not isinstance(node.value, ast.Name):
-            raise PipelineError(
-                f"{ast.unparse(node)!r} does not name a channel slot: only "
-                "a diagnostic or an expression can take one.",
-                details={"subscript": ast.unparse(node)},
-            )
-        try:
-            slots = ast.literal_eval(node.slice)
-        except ValueError:
-            # Non-literal channel indices is a sub-case of what is handled
-            # below.
-            slots = None
-        if not isinstance(slots, tuple):
-            slots = (slots,)
-        if not slots or not all(
-            isinstance(slot, int) and not isinstance(slot, bool)
-            for slot in slots
-        ):
-            raise PipelineError(
-                f"{ast.unparse(node)!r} does not name a channel slot: a "
-                "slot is written as a whole number, as in bg_center[0].",
-                details={"subscript": ast.unparse(node)},
-            )
-        references.append((node.value.id, slots))
+    tree = ast.parse(expression, mode="eval")
+    nested = _nested_reads(tree)
+    return [
+        _get_read(node)
+        for node in _in_written_order(tree)
+        if isinstance(node, ast.Subscript) and id(node) not in nested
+    ]
 
-    return references
+
+def _in_written_order(tree):
+    """Return the nodes of *tree* in the order their text starts.
+
+    Rather than the breadth-first order of ``ast.walk``, which puts
+    ``y['R']`` before ``x['B']`` in ``2 * x['B'] + y['R']``, being
+    shallower.
+    """
+
+    return sorted(
+        (node for node in ast.walk(tree) if hasattr(node, "col_offset")),
+        key=lambda node: (node.lineno, node.col_offset),
+    )
+
+
+def _nested_reads(tree):
+    """Return the ids of the subscripts in *tree* that are part of another.
+
+    The ``x[0]`` of ``x[0][1]`` is a subscript node of its own, but it is
+    part of the whole read rather than a read.
+    """
+
+    return {
+        id(node.value)
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Subscript)
+        and isinstance(node.value, ast.Subscript)
+    }
+
+
+def _literal_slots(index):
+    """Return the slots *index* writes as a tuple, or ``None`` if it can't.
+
+    Each slot is an ``int`` or a ``str`` literal; anything else, a name or
+    a slice, writes no slot. The tuple may be empty, for the caller to
+    judge.
+    """
+
+    try:
+        written = ast.literal_eval(index)
+    except ValueError:
+        return None
+    if not isinstance(written, tuple):
+        written = (written,)
+    if all(
+        isinstance(value, str)
+        or (isinstance(value, int) and not isinstance(value, bool))
+        for value in written
+    ):
+        return written
+    return None
+
+
+def _get_read(read):
+    """Return ``(name, channel_slots, photometry_slots)`` for one read.
+
+    *read* is the whole read: ``x[0]``, or ``x[0][1]`` with photometries.
+    The photometry slots are ``()`` where there is no second subscript,
+    and the channel slots may be empty only where there is one:
+    ``name[()][0]`` is how a quantity taking photometries but no channel
+    is read.
+
+    Raises:
+        PipelineError:    As described in :func:`get_indexed_names`.
+    """
+
+    has_photometries = isinstance(read.value, ast.Subscript)
+    channel_part = read.value if has_photometries else read
+    if not isinstance(channel_part.value, ast.Name):
+        raise PipelineError(
+            f"{ast.unparse(channel_part)!r} does not name a channel slot: "
+            "only a diagnostic or an expression can take one.",
+            details={"subscript": ast.unparse(channel_part)},
+        )
+
+    channels = _literal_slots(channel_part.slice)
+    if channels is None or not (channels or has_photometries):
+        raise PipelineError(
+            f"{ast.unparse(channel_part)!r} does not name a channel slot: "
+            "a slot is written as a whole number, as in bg_center[0], or "
+            "as a quoted channel name, as in bg_center['G0'].",
+            details={"subscript": ast.unparse(channel_part)},
+        )
+
+    if not has_photometries:
+        return channel_part.value.id, channels, ()
+    photometries = _literal_slots(read.slice)
+    if not photometries:
+        raise PipelineError(
+            f"{ast.unparse(read)!r} does not name a photometry slot: a "
+            "slot is written as a whole number, as in "
+            "magfit_residual[0][0], or as a quoted photometry, as in "
+            "magfit_residual[0]['ap4'].",
+            details={"subscript": ast.unparse(read)},
+        )
+    return channel_part.value.id, channels, photometries
 
 
 def _get_bare_names(expression):
@@ -168,7 +265,7 @@ def _get_bare_names(expression):
     }
 
 
-def get_expression_parameters(expression):
+def get_channel_parameters(expression):
     """
     Return the channel slots one expression takes, in order.
 
@@ -181,12 +278,16 @@ def get_expression_parameters(expression):
     its slots out of sequence -- and the order matters, since a reference's
     arguments are matched onto these positionally.
 
+    A quoted channel is not a parameter: it is already bound. So
+    ``x[0] - x['G0']`` takes ``(0,)``, and ``sky_color['B', 'R']`` takes
+    none.
+
     Args:
         expression(str):    The expression text.
 
     Returns:
         tuple:    The distinct slot numbers, ascending. Empty for an
-            expression that reads no channel at all.
+            expression that reads no channel at all, or only quoted ones.
 
     Raises:
         SyntaxError, PipelineError:    As for
@@ -197,14 +298,75 @@ def get_expression_parameters(expression):
         sorted(
             {
                 slot
-                for _, slots in get_indexed_names(expression)
-                for slot in slots
+                for _, channels, _ in get_indexed_names(expression)
+                for slot in channels
+                if not isinstance(slot, str)
             }
         )
     )
 
 
-def get_quantity_arity(name, expressions):
+def get_photometry_parameters(expression):
+    """
+    Return the photometry slots one expression takes, in order.
+
+    As :func:`get_channel_parameters` returns the channel slots, from
+    the second subscripts instead:
+    ``magfit_residual[0][0] - magfit_residual[0][1]`` takes ``(0, 1)``, and
+    ``magfit_residual[0]['ap4']``, whose photometry is quoted, none.
+
+    Args:
+        expression(str):    The expression text.
+
+    Returns:
+        tuple:    The distinct slot numbers, ascending.
+
+    Raises:
+        SyntaxError, PipelineError:    As for
+            :func:`get_indexed_names`.
+    """
+
+    return tuple(
+        sorted(
+            {
+                slot
+                for _, _, photometries in get_indexed_names(expression)
+                for slot in photometries
+                if not isinstance(slot, str)
+            }
+        )
+    )
+
+
+def _bind_channels(slots, binding):
+    """Return the channels *slots* name under *binding*.
+
+    A slot number is looked up; a quoted channel is already one.
+    """
+
+    return tuple(
+        slot if isinstance(slot, str) else binding[slot] for slot in slots
+    )
+
+
+def _bind_photometries(slots, binding):
+    """Return the photometry ids *slots* name under *binding*.
+
+    A slot number is looked up; a quoted photometry is read as the id it
+    spells, ``'ap4'`` as 4.
+    """
+
+    return tuple(
+        (
+            parse_photometry_literal(slot)
+            if isinstance(slot, str)
+            else binding[slot]
+        )
+        for slot in slots
+    )
+
+
+def get_channel_arity(name, expressions):
     """
     Return how many channels *name* has to be bound to before it can be read.
 
@@ -231,11 +393,45 @@ def get_quantity_arity(name, expressions):
     """
 
     if name in expressions:
-        return len(get_expression_parameters(expressions[name]))
+        return len(get_channel_parameters(expressions[name]))
     if name == time_quantity:
         return 0
     if is_diagnostic(name):
         return 1
+    raise PipelineError(
+        f"Cannot plot {name}: no such diagnostic or expression.",
+        details={"unknown": [name]},
+    )
+
+
+def get_photometry_arity(name, expressions):
+    """
+    Return how many photometries *name* has to be bound to.
+
+    As :func:`get_channel_arity` counts channels: a diagnostic recorded per
+    photometry (see
+    :func:`~autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names`)
+    takes exactly one; any other diagnostic, and the time, take none; and an
+    expression takes however many photometry slots its body mentions.
+
+    Args:
+        name(str):    A diagnostic, an expression, or
+            :data:`time_quantity`.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+    Returns:
+        int:    The number of photometries to bind.
+
+    Raises:
+        PipelineError:    If *name* is neither a diagnostic nor an
+            expression nor the time.
+    """
+
+    if name in expressions:
+        return len(get_photometry_parameters(expressions[name]))
+    if name == time_quantity or is_diagnostic(name):
+        return int(name in photometry_diagnostic_names())
     raise PipelineError(
         f"Cannot plot {name}: no such diagnostic or expression.",
         details={"unknown": [name]},
@@ -274,6 +470,36 @@ def get_bare_aggregates(expression):
         and isinstance(node.func, ast.Name)
         and node.func.id in bare
     }
+
+
+def get_logical_keywords(expression):
+    """
+    Return the Python logical keywords an expression uses.
+
+    ``and``, ``or`` and ``not`` ask for the truth value of their operands,
+    which an array of more than one element refuses to have ("the truth
+    value of an array is ambiguous"): element-wise logic is ``|``, ``&``
+    and ``~``. On a quantity with one value, though, the keywords are
+    legitimate, so -- like :func:`get_bare_aggregates` -- this is for
+    callers to warn with, never to refuse.
+
+    Args:
+        expression(str):    The expression text.
+
+    Returns:
+        set:    Those of ``"and"``, ``"or"`` and ``"not"`` that appear.
+
+    Raises:
+        SyntaxError:    As for :func:`get_expression_names`.
+    """
+
+    keywords = set()
+    for node in ast.walk(ast.parse(expression, mode="eval")):
+        if isinstance(node, ast.BoolOp):
+            keywords.add("and" if isinstance(node.op, ast.And) else "or")
+        elif isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            keywords.add("not")
+    return keywords
 
 
 def rename_references(expression, old_name, new_name):
@@ -540,7 +766,15 @@ class QuantityLookUp:
     both are this class's business rather than its caller's.
     """
 
-    def __init__(self, name, shared, *, definition=None, computed=None):
+    def __init__(
+        self,
+        name,
+        shared,
+        *,
+        definition=None,
+        computed=None,
+        takes_photometries=False,
+    ):
         """
         Args:
             name(str):    What the expressions call it, used for error
@@ -549,17 +783,28 @@ class QuantityLookUp:
             shared(tuple):    The binding stack and evaluator this
                 evaluation's lookups share, from :meth:`library`.
 
-            definition(tuple):    The expression text and its parameters,
-                or ``None`` for a diagnostic, which has neither because it
-                is never evaluated.
+            definition(tuple):    The expression text, and its channel and
+                its photometry parameters as a pair, or ``None`` for a
+                diagnostic, which has none of them because it is never
+                evaluated.
 
-            computed(dict):    ``channels -> array`` known in advance: the
-                whole of a diagnostic, and empty for an expression.
+            computed(dict):    ``(channels, photometries) -> array`` known
+                in advance: the whole of a diagnostic, and empty for an
+                expression.
+
+            takes_photometries(bool):    Whether a diagnostic is read with a
+                second subscript, binding a photometry. An expression takes
+                photometries if it has photometry parameters.
         """
 
         self._name = name
         self._stack, self._evaluator = shared
-        self._text, self._parameters = definition or (None, ())
+        # The channel and the photometry parameters, paired as a binding
+        # and a stack frame are.
+        self._text, self._parameters = definition or (None, ((), ()))
+        self._takes_photometries = takes_photometries or bool(
+            self._parameters[1]
+        )
         self._computed = dict(computed or {})
 
     @classmethod
@@ -582,8 +827,8 @@ class QuantityLookUp:
         Args:
             expressions(dict):    The library, ``{name: expression}``.
 
-            values(dict):    ``{name: {channels: array}}``, as fetched for
-                one series, keyed exactly as
+            values(dict):    ``{name: {(channels, photometries): array}}``,
+                as fetched for one series, keyed exactly as
                 :func:`get_needed_values` asked.
 
         Returns:
@@ -591,16 +836,28 @@ class QuantityLookUp:
         """
 
         shared = ([], Evaluator({}))
+        per_phot_names = photometry_diagnostic_names()
         lookups = {
-            name: cls(name, shared, computed=by_channels)
-            for name, by_channels in values.items()
+            name: cls(
+                name,
+                shared,
+                computed=by_binding,
+                takes_photometries=name in per_phot_names,
+            )
+            for name, by_binding in values.items()
         }
         lookups.update(
             {
                 name: cls(
                     name,
                     shared,
-                    definition=(text, get_expression_parameters(text)),
+                    definition=(
+                        text,
+                        (
+                            get_channel_parameters(text),
+                            get_photometry_parameters(text),
+                        ),
+                    ),
                 )
                 for name, text in expressions.items()
             }
@@ -609,24 +866,31 @@ class QuantityLookUp:
         symtable = shared[1].symtable
         symtable.update(lookups)
 
-        # A quantity binding no channels -- the time, and any expression
-        # over it alone -- is written without a subscript, there being
-        # nothing to subscript it with. A lookup resolves on
-        # ``__getitem__`` and a bare name never calls one, so such a
-        # quantity has to be its *values* here, or it would reach the
-        # arithmetic as the object itself. The time first, then the
-        # expressions over it, each after what it reads.
-        for name, by_channels in values.items():
-            if () in by_channels:
-                symtable[name] = by_channels[()]
+        # A quantity binding neither channels nor photometries -- the time,
+        # and any expression whose channels and photometries, if any, are
+        # all quoted -- is written without a subscript, there being nothing
+        # to subscript it with. A lookup resolves on ``__getitem__`` and a
+        # bare name never calls one, so such a quantity has to be its
+        # *values* here, or it would reach the arithmetic as the object
+        # itself. The time first, then the expressions over it, each after
+        # what it reads. One taking photometries but no channel is written
+        # ``name[()][0]``, so it stays a lookup.
+        for name, by_binding in values.items():
+            if ((), ()) in by_binding:
+                symtable[name] = by_binding[(), ()]
 
-        channel_free = [
+        parameter_free = {
             name
             for name, text in expressions.items()
-            if not get_expression_parameters(text)
-        ]
-        for name in _evaluation_order(channel_free, expressions):
-            symtable[name] = lookups[name].at(())
+            if not get_channel_parameters(text)
+            and not get_photometry_parameters(text)
+        }
+        # The order also holds what they reach by subscript, such as
+        # ``sky_color`` in ``sky_color['B', 'R']``, which has parameters to
+        # bind and stays a lookup.
+        for name in _evaluation_order(parameter_free, expressions):
+            if name in parameter_free:
+                symtable[name] = lookups[name].at((), ())
 
         return lookups
 
@@ -638,16 +902,24 @@ class QuantityLookUp:
         the shapes take care of themselves. The binding read is the top of
         the stack, which is always the body asking: a nested evaluation
         finishes in here before the outer body's next operand is touched.
+        A quoted channel, ``x['G0']``, is not looked up in it.
+
+        A quantity taking photometries is not resolved yet: its channels
+        are bound, and the :class:`_ChannelBound` returned resolves the
+        second subscript, which such a quantity always has.
         """
 
         if not isinstance(slots, tuple):
             slots = (slots,)
-        binding = self._stack[-1]
-        return self.at(tuple(binding[slot] for slot in slots))
+        channel_binding, photometry_binding = self._stack[-1]
+        channels = _bind_channels(slots, channel_binding)
+        if self._takes_photometries:
+            return _ChannelBound(self, channels, photometry_binding)
+        return self.at(channels, ())
 
-    def at(self, channels):
+    def at(self, channels, photometries):
         """
-        Return this quantity with its parameters bound to *channels*.
+        Return this quantity with its parameters bound as given.
 
         The cache is what makes an instantiation wanted twice -- by two
         references, or by two different expressions -- computed once. For a
@@ -662,57 +934,133 @@ class QuantityLookUp:
         a finite parameter set and introduces no new symbols.
 
         Args:
-            channels(tuple):    One channel per parameter, in order.
+            channels(tuple):    One channel per channel parameter, in
+                order.
+
+            photometries(tuple):    One photometry id per photometry
+                parameter, in order.
 
         Returns:
             numpy.ndarray:    The values, over the canonical image list.
 
         Raises:
             PipelineError:    If a diagnostic was not fetched for this
-                channel.
+                binding.
         """
 
-        if channels not in self._computed:
+        binding = (channels, photometries)
+        if binding not in self._computed:
             if self._text is None:
                 raise PipelineError(
                     f"No values supplied for {self._name} in "
-                    + ", ".join(channels)
+                    + ", ".join(
+                        [*channels, *map(photometry_literal, photometries)]
+                    )
                     + ".",
-                    details={"missing": [self._name], "channels": channels},
+                    details={
+                        "missing": [self._name],
+                        "channels": channels,
+                        "photometries": photometries,
+                    },
                 )
-            self._stack.append(dict(zip(self._parameters, channels)))
+            self._stack.append(
+                tuple(
+                    dict(zip(parameters, bound))
+                    for parameters, bound in zip(self._parameters, binding)
+                )
+            )
             try:
-                self._computed[channels] = self._evaluator(self._text)
+                self._computed[binding] = self._evaluator(self._text)
             finally:
                 self._stack.pop()
-        return self._computed[channels]
+        return self._computed[binding]
 
 
-def _visit_needed(name, channels, expressions, needed):
-    """Add what *name* bound to *channels* reads, recursively."""
+class _ChannelBound:  # pylint: disable=too-few-public-methods
+    """
+    A quantity taking photometries, with its channels bound.
 
-    expected = get_quantity_arity(name, expressions)
+    What ``x[0]`` gives inside ``x[0][1]``: the second subscript then binds
+    the photometries, against the binding of the body that wrote it, and
+    returns the values. Every read of such a quantity has that second
+    subscript (:func:`check_expression` refuses one without), so this never
+    reaches the arithmetic in place of values.
+    """
+
+    def __init__(self, lookup, channels, photometry_binding):
+        """
+        Args:
+            lookup(QuantityLookUp):    The quantity read.
+
+            channels(tuple):    Its channels, already bound.
+
+            photometry_binding(dict):    The photometry binding of the body
+                reading it, taken when its channels were bound: the same
+                body's, since nothing is evaluated between the subscripts.
+        """
+
+        self._lookup = lookup
+        self._channels = channels
+        self._photometry_binding = photometry_binding
+
+    def __getitem__(self, slots):
+        """Resolve the photometries of ``x[...][slots]``, and read it."""
+
+        if not isinstance(slots, tuple):
+            slots = (slots,)
+        return self._lookup.at(
+            self._channels,
+            _bind_photometries(slots, self._photometry_binding),
+        )
+
+
+def _visit_needed(name, channels, photometries, expressions, needed):
+    """Add what *name* bound to *channels* and *photometries* reads.
+
+    Recursively, and both kinds of reference are followed. A subscripted
+    one is bound through *channels* and *photometries*; a bare one takes
+    neither, being the time or an expression whose channels and
+    photometries, if any, are all quoted -- and the latter still reads
+    diagnostics, so stopping at bare names would leave them unfetched.
+    Other bare names are functions.
+    """
+
+    expected = get_channel_arity(name, expressions)
     if len(channels) != expected:
         raise PipelineError(
             f"{name} takes {expected} channel(s), not {len(channels)}.",
             details={"quantity": name, "channels": list(channels)},
         )
+    expected = get_photometry_arity(name, expressions)
+    if len(photometries) != expected:
+        raise PipelineError(
+            f"{name} takes {expected} photometries, not "
+            f"{len(photometries)}.",
+            details={"quantity": name, "photometries": list(photometries)},
+        )
 
     if name not in expressions:
         # A diagnostic, or the time -- either way a leaf, and either way
-        # named by the channels it is read in, which for the time is none.
-        needed.setdefault(name, set()).add(channels)
+        # named by the binding it is read in, which for the time is empty.
+        needed.setdefault(name, set()).add((channels, photometries))
         return
 
     text = expressions[name]
-    binding = dict(zip(get_expression_parameters(text), channels))
-    for referenced, slots in get_indexed_names(text):
+    channel_binding = dict(zip(get_channel_parameters(text), channels))
+    photometry_binding = dict(
+        zip(get_photometry_parameters(text), photometries)
+    )
+    for referenced, channel_slots, photometry_slots in get_indexed_names(text):
         _visit_needed(
             referenced,
-            tuple(binding[slot] for slot in slots),
+            _bind_channels(channel_slots, channel_binding),
+            _bind_photometries(photometry_slots, photometry_binding),
             expressions,
             needed,
         )
+    for referenced in _get_bare_names(text):
+        if referenced in expressions or referenced == time_quantity:
+            _visit_needed(referenced, (), (), expressions, needed)
 
 
 def get_needed_values(wanted, expressions):
@@ -732,23 +1080,24 @@ def get_needed_values(wanted, expressions):
 
     It walks what evaluation walks, resolving each reference's arguments
     through the binding of the body holding it, and stops at the
-    diagnostics.
+    diagnostics and the time.
 
     Args:
-        wanted(dict):    ``{quantity: set of channel tuples}``, each tuple
-            holding one channel per parameter of that quantity. A *set*
-            because one quantity may be wanted at two bindings at once:
-            ``bg_center`` in R against ``bg_center`` in B is a plot of a
-            diagnostic between channels.
+        wanted(dict):    ``{quantity: set of (channels, photometries)}``,
+            each a tuple holding one channel per channel parameter of that
+            quantity, and one photometry id per photometry parameter. A
+            *set* because one quantity may be wanted at two bindings at
+            once: ``bg_center`` in R against ``bg_center`` in B is a plot of
+            a diagnostic between channels.
 
         expressions(dict):    The library, ``{name: expression}``.
 
     Returns:
-        dict:    ``{name: set of channel tuples}`` -- the same shape it
-            takes, which is what it means: what is wanted, resolved into
-            what must be read. One entry per diagnostic, holding every
-            combination it is read in, plus :data:`time_quantity` with the
-            empty tuple where an expression reads the time.
+        dict:    ``{name: set of (channels, photometries)}`` -- the same
+            shape it takes, which is what it means: what is wanted, resolved
+            into what must be read. One entry per diagnostic, holding every
+            binding it is read in, plus :data:`time_quantity` with
+            ``((), ())`` where an expression reads the time.
 
     Raises:
         PipelineError:    On a reference cycle, on a name that resolves to
@@ -757,23 +1106,18 @@ def get_needed_values(wanted, expressions):
 
     # Refuses a cycle and an unresolvable name, so the walk below cannot
     # recurse for ever and neither it nor the evaluation need check again.
-    _, channel_free = order_expressions(list(wanted), expressions)
+    order_expressions(list(wanted), expressions)
 
     needed = {}
-
-    # The time is the one quantity read without a subscript, so the walk
-    # below never reaches it however deep it lies: ``bg_center[0] * night``
-    # reads it only through ``night``. Taking no channel is also why no
-    # walk is needed -- order_expressions already reports it, having
-    # flattened bare and subscripted names alike -- and why nothing else
-    # can hide behind a bare reference, reading a diagnostic taking a
-    # subscript that would give its expression a parameter.
-    if time_quantity in channel_free:
-        needed[time_quantity] = {()}
-
     for quantity, bindings in wanted.items():
-        for channels in bindings:
-            _visit_needed(quantity, tuple(channels), expressions, needed)
+        for channels, photometries in bindings:
+            _visit_needed(
+                quantity,
+                tuple(channels),
+                tuple(photometries),
+                expressions,
+                needed,
+            )
 
     return needed
 
@@ -789,24 +1133,24 @@ def _canonical_length(values):
 
 def evaluate_quantities(wanted, expressions, values):
     """
-    Evaluate the quantities of one series, each bound to its channels.
+    Evaluate the quantities of one series, each bound as asked.
 
     Args:
-        wanted(dict):    ``{quantity: set of channel tuples}``, as the
-            table bound them and as :func:`get_needed_values` takes them.
-            Asking for both axes at once is what lets an instantiation
-            they share be computed once.
+        wanted(dict):    ``{quantity: set of (channels, photometries)}``,
+            as the table bound them and as :func:`get_needed_values` takes
+            them. Asking for both axes at once is what lets an
+            instantiation they share be computed once.
 
         expressions(dict):    The library, ``{name: expression}``.
 
-        values(dict):    ``{name: {channels: array}}``, every array on one
-            canonical image list, holding what
+        values(dict):    ``{name: {(channels, photometries): array}}``,
+            every array on one canonical image list, holding what
             :func:`get_needed_values` asked for and keyed the same way.
 
     Returns:
-        dict:    ``{quantity: {channels: array}}``, all of the same
-            length -- the shape *values* arrives in, being the same kind
-            of thing: a quantity read in the channels asked for.
+        dict:    ``{quantity: {(channels, photometries): array}}``, all of
+            the same length -- the shape *values* arrives in, being the
+            same kind of thing: a quantity read in the binding asked for.
 
     Raises:
         PipelineError:    If a quantity resolves to nothing, if the
@@ -827,31 +1171,58 @@ def evaluate_quantities(wanted, expressions, values):
 
     return {
         quantity: {
-            tuple(channels): _as_series(
-                lookups[quantity].at(tuple(channels)), count
+            (tuple(channels), tuple(photometries)): _as_series(
+                lookups[quantity].at(tuple(channels), tuple(photometries)),
+                count,
             )
-            for channels in bindings
+            for channels, photometries in bindings
         }
         for quantity, bindings in wanted.items()
     }
 
 
-def _spell_slots(count):
+def _spell_channel_slots(count):
     """Return *count* channel slots, spelled for a message."""
 
+    if count == 0:
+        return "no channel slot"
     return "1 channel slot" if count == 1 else f"{count} channel slots"
+
+
+def _spell_photometry_slots(count):
+    """Return *count* photometry slots, spelled for a message."""
+
+    if count == 0:
+        return "no photometry slot"
+    return "1 photometry slot" if count == 1 else f"{count} photometry slots"
+
+
+def _spell_read(name, channels, photometries):
+    """Return a read of *name* at these slots, as an expression writes it.
+
+    The channel subscript is ``[()]`` where there are no channels but
+    photometries follow, and the photometry one is left out where there are
+    none.
+    """
+
+    written = f"{name}[{', '.join(map(repr, channels)) or '()'}]"
+    if photometries:
+        written += f"[{', '.join(map(repr, photometries))}]"
+    return written
 
 
 def _slot_problems(expression, library):
     """
     Return what is wrong with how *expression* reads its quantities.
 
-    One rule: a quantity is read with exactly as many channel slots as it
-    takes, and one taking none is read bare. The first half is what makes
-    a reference's arguments match a definition's parameters positionally;
-    the second is what lets :func:`get_needed_values` and
-    :meth:`QuantityLookUp.library` treat a bare name as a value and still
-    know they have seen everything.
+    One rule: a quantity is read with exactly as many channel slots and
+    photometry slots as it takes, and one taking neither is read bare. The
+    first half is what makes a reference's arguments match a definition's
+    parameters positionally, and what makes the second subscript present
+    exactly where a :class:`_ChannelBound` needs resolving; the second is
+    what lets :func:`get_needed_values` and :meth:`QuantityLookUp.library`
+    treat a bare name as a value and still know they have seen everything.
+    And a quoted photometry must name one.
 
     Only names resolving to a quantity are judged, in either direction:
     the evaluator's own arrays can be indexed too, and most bare names are
@@ -879,31 +1250,60 @@ def _slot_problems(expression, library):
 
     problems = []
 
-    for referenced, slots in get_indexed_names(expression):
+    for referenced, channels, photometries in get_indexed_names(expression):
         if not is_quantity(referenced):
             continue
-        written = f"{referenced}[{', '.join(str(slot) for slot in slots)}]"
-        arity = get_quantity_arity(referenced, library)
-        if arity == 0:
+        written = _spell_read(referenced, channels, photometries)
+        channel_arity = get_channel_arity(referenced, library)
+        photometry_arity = get_photometry_arity(referenced, library)
+        if not channel_arity and not photometry_arity:
             problems.append(
-                f"{referenced} takes no channel slot, being one value per "
-                f"image: write {referenced} rather than {written}."
+                f"{referenced} takes no slot, being one value per image: "
+                f"write {referenced} rather than {written}."
             )
-        elif arity != len(slots):
+            continue
+        if channel_arity != len(channels):
             problems.append(
-                f"{referenced} takes {_spell_slots(arity)}, not "
-                f"{len(slots)}: {written}."
+                f"{referenced} takes {_spell_channel_slots(channel_arity)}, "
+                f"not {len(channels)}: {written}."
             )
+        if photometry_arity != len(photometries):
+            problems.append(
+                f"{referenced} takes "
+                f"{_spell_photometry_slots(photometry_arity)}, not "
+                f"{len(photometries)}: {written}."
+            )
+        problems.extend(
+            f"{literal!r} names no photometry in {written}: quote one as "
+            "'shapefit', or as 'ap' followed by the aperture index, as in "
+            "'ap4'."
+            for literal in photometries
+            if isinstance(literal, str)
+            and parse_photometry_literal(literal) is None
+        )
 
     for referenced in sorted(_get_bare_names(expression)):
         if not is_quantity(referenced):
             continue
-        arity = get_quantity_arity(referenced, library)
-        if arity:
-            sample = ", ".join(str(slot) for slot in range(arity))
+        channel_arity = get_channel_arity(referenced, library)
+        photometry_arity = get_photometry_arity(referenced, library)
+        if channel_arity or photometry_arity:
+            taken = [
+                spell(arity)
+                for spell, arity in (
+                    (_spell_channel_slots, channel_arity),
+                    (_spell_photometry_slots, photometry_arity),
+                )
+                if arity
+            ]
+            sample = _spell_read(
+                referenced,
+                tuple(range(channel_arity)),
+                tuple(range(photometry_arity)),
+            )
             problems.append(
-                f"{referenced} takes {_spell_slots(arity)}, so it cannot be "
-                f"read on its own: write {referenced}[{sample}]."
+                f"{referenced} takes {' and '.join(taken)}, so it cannot be "
+                f"read on its own: write {sample}."
             )
 
     return problems
@@ -923,8 +1323,8 @@ def check_expression(name, expression, current_library):
     project creation or created by the ``pixel_q*`` branch of
     ``_save_image_diagnostics``, which refuses every other name. So no
     project can contain a diagnostic this does not know, and an expression
-    means the same thing everywhere -- which is what lets one library be
-    shared by every project.
+    means the same thing everywhere -- which is what lets expressions be
+    exported from one project and imported into another.
 
     Whether an expression is *usable* in a particular project is a
     different question, about whether rows have been recorded, and is
@@ -960,6 +1360,30 @@ def check_expression(name, expression, current_library):
             "cannot shadow one: the two share a name space, which is what "
             "lets a selector and a URL treat them alike."
         )
+
+    return problems + _body_problems(name, expression, current_library)
+
+
+def _body_problems(name, expression, current_library):
+    """
+    Return what is wrong with the text of an expression or a rule.
+
+    Everything :func:`check_expression` judges apart from the name, which
+    is the whole of what applies to an exclusion rule as well.
+
+    Args:
+        name(str):    What the text is evaluated under: the proposed name,
+            or :data:`rule_quantity`.
+
+        expression(str):    The proposed text.
+
+        current_library(dict):    As for :func:`check_expression`.
+
+    Returns:
+        list:    Descriptions of the problems; empty if there are none.
+    """
+
+    problems = []
 
     try:
         referenced = get_expression_names(expression)
@@ -1005,5 +1429,128 @@ def check_expression(name, expression, current_library):
         order_expressions([name], new_library)
     except PipelineError as error:
         problems.append(str(error))
+
+    return problems
+
+
+#: What an exclusion rule is evaluated under, as one more entry in the
+#: library: ``dict(library, **{rule_quantity: rule})``. A rule taking a
+#: channel parameter (see :func:`get_channel_parameters`) is bound to each
+#: channel being decided for, ``(channel,)``, and excludes per channel;
+#: one taking none reads only quoted channels, is bound to ``()``, and its
+#: verdict applies to every channel of the image. Photometries likewise
+#: (see :func:`get_photometry_parameters`): a rule taking a photometry
+#: parameter excludes per photometry. Not a slug, so
+#: :func:`check_expression` lets no stored expression take the name, and it
+#: reads sensibly in an error message.
+rule_quantity = "<exclusion rule>"
+
+
+def get_quoted_channel_order(quantity, expressions):
+    """
+    Return the channels *quantity* quotes, in the order its text is written.
+
+    Following the expressions it references where they come, whether read
+    bare or through a subscript: ``gcol = sky_color['B', 'R']`` quotes
+    ``B`` and then ``R``, and so does anything reading ``gcol``. Each
+    channel is listed once, where it is first quoted.
+
+    The order is the text's rather than any other because two things are
+    laid out by it. A series whose channels are all quoted binds none of
+    its own, and is shown in the first -- its colour, and the frame a click
+    on a point opens. And a quoted channel a magfit diagnostic is read in
+    gets a column of the series table to choose its photometric reference
+    in, and those columns follow the order the expression mentions them.
+
+    Args:
+        quantity(str):    A diagnostic, an expression, or the time.
+
+        expressions(dict):    The library, ``{name: expression}``, which
+            :func:`order_expressions` has found free of cycles.
+
+    Returns:
+        list:    The channels, empty if nothing *quantity* reaches quotes
+            one -- as for anything but an expression.
+
+    Raises:
+        SyntaxError, PipelineError:    As for :func:`get_indexed_names`.
+    """
+
+    if quantity not in expressions:
+        return []
+
+    tree = ast.parse(expressions[quantity], mode="eval")
+    nested = _nested_reads(tree)
+    found = []
+    # A subscript starts where its name does and comes first, so its own
+    # quoted slots are looked at before the expression it subscripts.
+    for node in _in_written_order(tree):
+        if isinstance(node, ast.Subscript):
+            if id(node) in nested:
+                continue
+            quoted = [
+                channel
+                for channel in _get_read(node)[1]
+                if isinstance(channel, str)
+            ]
+        elif isinstance(node, ast.Name):
+            quoted = get_quoted_channel_order(node.id, expressions)
+        else:
+            continue
+        for channel in quoted:
+            if channel not in found:
+                found.append(channel)
+
+    return found
+
+
+def check_rule(rule, library):
+    """
+    Return what is wrong with a proposed exclusion rule, as plain strings.
+
+    A rule is judged as an expression would be, apart from having no name
+    of its own, and with one more constraint: it takes at most one channel
+    slot, which is bound to the channel being decided for, and at most one
+    photometry slot, bound to the photometry being decided for. Any other
+    channel or photometry it reads is named by quoting it.
+
+    Whether the quoted channels and photometries exist is a question about
+    the cameras and the configuration of a project, and is not answered
+    here.
+
+    Args:
+        rule(str):    The proposed rule text.
+
+        library(dict):    The project's library, ``{name: expression}``.
+
+    Returns:
+        list:    Descriptions of the problems; empty if there are none.
+    """
+
+    problems = _body_problems(rule_quantity, rule, library)
+
+    try:
+        channels = get_channel_parameters(rule)
+        photometries = get_photometry_parameters(rule)
+    except (SyntaxError, PipelineError):
+        # Reported above already.
+        return problems
+
+    if len(channels) > 1:
+        problems.append(
+            "An exclusion rule takes at most one channel slot, for the "
+            "channel being decided for, not "
+            + ", ".join(map(str, channels))
+            + ": name any other channel by quoting it, as in "
+            "bg_center['G0']."
+        )
+    if len(photometries) > 1:
+        problems.append(
+            "An exclusion rule takes at most one photometry slot, for the "
+            "photometry being decided for, not "
+            + ", ".join(map(str, photometries))
+            + ": name any other photometry by quoting it, as in "
+            "magfit_residual[0]['ap4']."
+        )
 
     return problems

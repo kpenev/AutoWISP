@@ -30,9 +30,9 @@ imports it, and a commit subject is not evidence about its contents.
 
 *Deliberate exclusions — do not re-raise these unasked:* `fake_image/` and
 `magnitude_fitting/tests/` have no `meson.build` at all and are not installed
-(both are also in `.coveragerc`'s omit list). `tests/generate_catalog_test_data.py`
-and `tests/update_hdf5_contents.py` are test-data tooling rather than suite
-members, and are excluded on purpose — there is a comment saying so at the top of
+(both are also in `.coveragerc`'s omit list). `tests/generate_catalog_test_data.py`,
+`tests/update_hdf5_contents.py` and `tests/compare_h5.py` are test-data tooling
+rather than suite members, and are excluded on purpose — there is a comment saying so at the top of
 `autowisp/tests/meson.build`, because an audit flags them otherwise.
 
 **Pipeline steps run the *installed* package, not your working tree.** Tests
@@ -100,10 +100,57 @@ suite is too slow to run after every edit, but `python -m autowisp.tests
 failed_test -v -k TestCalibrate` still imports `__main__`, which is where the
 suite collects from and the first thing CI trips over. `python -m unittest
 autowisp.tests.test_x` costs about the same and skips that entirely, so it
-passes happily while the suite cannot even start. Run the whole thing before
-pushing for CI.
+passes happily while the suite cannot even start.
+
+**Leave `TestFullPipeline` out while iterating.** It runs every step through
+the engine and takes far longer than the rest, while the per-step tests
+exercise the same step code on the same data. It belongs to the full-suite
+run before a merge.
+
+**Run the whole suite, or dispatch CI, before merging into master.** CI is
+`workflow_dispatch` only, so a push runs nothing. On a feature branch the
+tests covering the change are enough before a push; the full suite, slow as
+it is, gates the merge.
+
+**Run the full suite locally under Python 3.11 as well as 3.14 before
+dispatching the grid** (`conda activate wisp-py311`, then install and run as
+above). Run the two at the same time, each with its own failed-test
+directory. Syntax newer than the 3.11 floor passes everything a 3.14
+environment runs -- the suite, pylint and Black alike -- and fails only on
+the grid, where it breaks every import: `except A, B:` without parentheses
+(PEP 758, 3.14 only) did exactly that, costing a full grid run.
 
 The `<failed_test_dir>` argument is **required** — it's where artifacts from failed tests are preserved for debugging. Tests run in a temporary directory, copy test data there, and clean up on success.
+
+**The test data comes from Zenodo**, downloaded afresh on every run from the
+record named in `tests/get_test_data.py`. `--test-data <zip or directory>`
+runs against a local copy instead, which is how a regenerated bundle is
+checked before it is published. Zenodo records are permanent: they cannot be
+unpublished or replaced. So batch bundle changes, publish one new version
+once they are final, and then point `get_test_data.py` at it.
+
+**Pass `--test-data` while iterating, whichever tests are selected.** The
+bundle is a 226 MB zip, and the download happens at start-up, before `-k` is
+looked at, so even tests that never open it, such as the migration ones, wait
+several minutes for it. Keep an unzipped copy and point every run at it. A
+run that prints nothing for minutes is downloading, not testing.
+
+**Regenerating expected outputs cascades.** Each step test reads its inputs
+from the bundle and compares its outputs with it, and one step's outputs are
+the next step's inputs: the DR fits feed `TestCreateLightcurves`, whose
+lightcurves feed EPD, then TFA, then the statistics. After a change to a
+step's output, go down the chain one step at a time:
+
+1. Run the step's test against the bundle as updated so far (`--test-data`).
+   It fails and keeps its output in `<failed_test_dir>`.
+2. Check that only the step's own groups differ from the bundle, with
+   `tests/compare_h5.py <failed output dir> <bundle dir>`. The test's own
+   comparison stops at the first mismatch.
+3. Copy those groups into the bundle with `tests/update_hdf5_contents.py`.
+4. Rerun the test to see it pass, then move to the next step.
+
+Differences outside the step's groups that lie within the test tolerance,
+such as floating-point noise in `SkyPosition`, are left alone.
 
 Test classes (in order of pipeline dependency): `TestCalibrate` → `TestStackToMaster` → `TestFindStars` → `TestSolveAstrometry` → `TestFitStarShape` → `TestMeasureAperturePhotometry` → `TestFitSourceExtractedPSFMap` → `TestFitMagnitudes` → `TestCreateLightcurves` → `TestEPD` → `TestTFA` → `TestDetrendingStat`
 
@@ -116,6 +163,30 @@ the modules define and fails naming whatever is unreachable, so this is caught
 rather than remembered. Two test classes may not share a name across modules:
 the imports land in one namespace, where the second silently replaces the
 first.
+
+**Writing tests:**
+
+- *Mix the cases in one population.* Rather than one test per rule over data
+  built to trip only that rule, give the fixture entries that fail different
+  rules side by side and assert that exactly the right ones survive: each is
+  then a control for the others.
+- *Include the rare case that would go unnoticed*, e.g. a frame bound to
+  different photometric references in two channels. It is what breaks long
+  after the code was written, and what nobody thinks to try by hand.
+- *Don't pin behaviour for states real use cannot reach*, e.g. an image
+  without astrometry reaching magnitude fitting. Asserting what happens there
+  requires behaviour that is better left undefined.
+- *Compare every output a step writes with the bundle.* A step test that
+  checks only the DR or lightcurve groups leaves the step's other outputs
+  (masters, statistics files) unchecked, and the bundle's copies go stale
+  without anyone noticing: magfit's masters sat in a format from before
+  SUP-532 until SUP-553 added the comparison. Passing tests say nothing
+  about an output no test compares.
+- *Keep a fixture's data private* (`_` prefix on class attributes the tests
+  read), and keep data only one method uses local to it rather than global.
+- *Never let one name mean two things* in a fixture: references named `A` and
+  `B` next to a channel `B` make every assertion ambiguous to read. Use
+  `ref1`, `ref2`, etc.
 
 ## Linting
 
@@ -152,6 +223,42 @@ CLI tools are prefixed `wisp-*` (e.g., `wisp-calibrate`, `wisp-fit-magnitudes`).
 - `data_model/` — 25+ ORM models (Image, Target, ObservingSession, PipelineRun, HDF5 products, provenance tracking for telescope/camera/instrument)
 - Database is auto-initialized on first access when `autowisp.db` doesn't exist
 
+**Changing what project creation writes needs a revision for existing
+projects.** Creating a project fills its database with definitions: the
+steps, their parameters with their help and defaults, the dependencies and
+processing sequence, the master types, and the layout of the HDF5 products
+(`initialize_database.py`, `initialize_*_structure.py`, and the steps'
+command-line parsers, whose options become the parameters). A project
+created earlier keeps what it was given, so adding, removing or rewording
+any of these is not done until a revision in `database/migrations/versions/`
+does the same to existing projects.
+
+- *The test that enforces it* is
+  `test_every_release_ends_up_holding_what_a_new_project_does`
+  (`tests/test_upgrade_from_release.py`): each released version creates a
+  project with its own code, and after migration every table must hold what
+  a new project's does. It compares all tables, so nothing needs registering
+  for a new one.
+- *A changed default is the one exception*, because the value a project
+  stores is its own. Either migrate it, or decide that existing projects keep
+  theirs and add the parameter to `stored_values_kept` in that test, with the
+  reason.
+- *A revision that changes rows carries its own copy* of the names, help
+  texts and row definitions it writes, reflects tables from the database
+  instead of importing the models, looks before each insert so that it can
+  be run twice, and has a downgrade. `0012`–`0014` are the examples.
+- *List the revision in `versions/meson.build`.* `TestRevisionChain` checks
+  that from a checkout; an installed package that lacks the newest revision
+  looks valid and stamps projects at the wrong head.
+- *An unreleased revision may be renamed or rewritten freely* while its
+  branch is in development; avoiding the break is not worth extra code or
+  commits. A project already migrated by the earlier version is stamped
+  with an id the code no longer has, and fails to open with "Can't locate
+  revision identified by ...". Re-stamp it to the previous revision
+  (`UPDATE alembic_version SET version_num = '<previous>'` in its
+  `autowisp.db`) and reopen it: revisions look before they change anything,
+  so the new version runs over whatever the old one did.
+
 ### Data Flow
 
 - **Input**: Raw FITS images (bias, dark, flat, object frames)
@@ -175,12 +282,21 @@ where the rules live, and keep decisions separable from rendering so they stay
 testable there (e.g. `plan_spare_row` returns the row entry and the caller
 renders it).
 
+*Don't pin presentation even there.* Labels, headings, tooltips and other text
+a user reads are checked by looking at the page, even when a pure function
+builds them: what matters is whether they confuse, and fixing one and
+redesigning it are the same edit, so a test only freezes the current wording.
+Test what decides which data is read, counted or drawn.
+
 **Configuration view redesign pending.** The orgchart decision tree
 (`configuration/config_tree.html` +
 `static/configuration/js/autowisp.config.tree.js`) is slated for a redesign.
 Implement config-view features against the existing tree without gold-plating
 its styling; raise the pending redesign before any substantial rework of its
-presentation.
+presentation. Until then the tree is a standalone page rather than an
+`lcars_app.html` one, so it shows no Django messages: one added while it is in
+use (e.g. the exclusion-rule warnings `save_config` gives) appears on the next
+LCARS page instead.
 
 **Configuration conditions vs versions.** Conditions (several values per
 parameter, each guarded by header expressions, first match wins) are exercised
@@ -241,6 +357,15 @@ build does not, each guarding a failure that is silent rather than loud:
 
 Keep the rebuild as its own commit; it rewrites every page.
 
+**Rebuild once per branch, when its development is finished** — just before
+merging into master, not after each story or sub-task. Every rebuild is a
+huge commit, so rebuilding along the way scatters several of them through
+the branch's history and buries the real changes. In Jira, the rebuild is a
+single sub-task of the branch's main story, not a sub-task of each story
+that changes documented code. Editing the documentation *sources*
+(`documentation/source/`, docstrings) alongside the code is fine. It's the
+generated `docs/` that waits.
+
 The toolchain is an extra, `pip install .[docs]`, and belongs in **the same
 environment as autowisp** — `sphinx-build` imports every module it documents,
 so a system-wide Sphinx whose interpreter cannot import `autowisp` produces a
@@ -287,6 +412,13 @@ Note that `SUP-37` and `SUP-128` divide by *surface*, not by subject: the
 BUI-facing half of a concern goes under `SUP-128` and its engine half under
 `SUP-37`, so one body of work can legitimately span both.
 
+**Check for `do-first` issues before starting any new work.** Query
+`project = SUP AND labels = do-first AND statusCategory != Done` and take
+each issue it returns before anything else, unless its description says it
+waits for something that has not happened yet (e.g. a branch being merged).
+This is how work deferred to "the next development" is remembered across
+machines: label the issue, and it surfaces here.
+
 Its two Done-category statuses do not mean what Jira's stock descriptions
 suggest, and the difference matters:
 
@@ -324,9 +456,30 @@ work being abandoned.
   wrapping it, or the same substitution across 10+ files — and even then, show
   `git diff -w` afterwards as the reviewable artifact and say why.
 
+- **One edit per tool call, never a batch of them.** Each edit is reviewed as
+  it is proposed, and rejecting one must stop everything after it; edits sent
+  together are all presented anyway, including those built on the rejected
+  one.
+
+- **Say which function an edit touches, and where, before proposing it.** The
+  edit preview numbers lines relative to the snippet, so on its own it does not
+  show where in the file the change lands — give `file:line` and the function
+  name, as they are *now* (an earlier edit in the same file moves them).
+
 - **Don't commit unless asked.** Leave work uncommitted. It gets several rounds
   of edits and corrections on top, and committing each intermediate state makes
   noise that then has to be squashed. Wait for an explicit "commit".
+
+- **Push before updating Jira about a commit.** A comment written before the
+  push can only say the work is not on the remote yet, and is stale as soon
+  as it is. Push first, then comment and transition the issue.
+
+- **A commit need not be a working version on its own.** Committing code that
+  a later commit fixes is fine. And when finished work is split into a series
+  of commits at once, to make it readable, don't build or test the
+  intermediate ones: the tests of the final state already cover them. Keep
+  running tests *during* development, though -- a break found soon after the
+  edit that caused it is far easier to pinpoint.
 
 - **Plans are drafted as a file, then filed in Jira — never committed.** While
   a design is still being argued over, keep it as an uncommitted Markdown plan
@@ -337,6 +490,13 @@ work being abandoned.
   Development, leave deferred ideas Open, and delete the file. Jira then holds
   the design, the reasoning and the rejected alternatives, and nothing has to
   be committed and later removed.
+
+- **Run Black itself on the files you touch** (`black -l 80 <files>`), not
+  `--check` or `--diff` followed by applying its changes by hand. Black never
+  changes behaviour and files are meant to be Black-clean, so its output needs
+  no review hunk by hunk; `git diff` shows what it did. It is an exception to
+  *Make changes with the Edit tool*. The one thing to fix up afterwards is a
+  trailing `# pylint:` comment it has moved off the line it covered.
 
 - **Don't revert incidental Black reformatting.** The repo is not uniformly
   Black-clean at 80 columns, so a directory-wide run touches unrelated files.

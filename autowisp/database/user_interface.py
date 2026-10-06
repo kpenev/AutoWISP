@@ -3,7 +3,6 @@
 
 import copy
 import json
-import logging
 import re
 import sys
 from time import sleep
@@ -135,6 +134,40 @@ def list_channels(db_session):
     """List the combine set of channels for all cameras."""
 
     return db_session.scalars(func.distinct(CameraChannel.name)).all()
+
+
+def count_cameras_lacking(channels, db_session):
+    """
+    Count the cameras that have no channel by each of the given names.
+
+    Args:
+        channels(iterable of str):    The channel names to look for.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        dict:    ``{name: (lacking, total)}`` for each name some camera
+            lacks: how many cameras have no channel of that name, out of how
+            many cameras there are. Names every camera has are left out.
+    """
+
+    channels = set(channels)
+    # pylint: disable=not-callable
+    total = db_session.scalar(select(func.count(Camera.id)))
+    having = dict(
+        db_session.execute(
+            select(CameraChannel.name, func.count(Camera.id))
+            .join(Camera, Camera.camera_type_id == CameraChannel.camera_type_id)
+            .where(CameraChannel.name.in_(channels))
+            .group_by(CameraChannel.name)
+        ).all()
+    )
+    # pylint: enable=not-callable
+    return {
+        name: (total - having.get(name, 0), total)
+        for name in channels
+        if having.get(name, 0) < total
+    }
 
 
 def get_progress_images(step_id, image_type_id, config_version, db_session):

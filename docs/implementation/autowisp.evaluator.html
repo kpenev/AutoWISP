@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -342,6 +345,35 @@ in evaluators.</p>
 <dd><p>Allow using
 <a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rejection_average" title="autowisp.iterative_rejection_util.iterative_rejection_average"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rejection_average()</span></code></a>
 in evaluators.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.evaluator.nanrank">
+<span class="sig-prename descclassname"><span class="pre">autowisp.evaluator.</span></span><span class="sig-name descname"><span class="pre">nanrank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/evaluator.html#nanrank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.evaluator.nanrank" title="Link to this definition"></a></dt>
+<dd><p>Return each entry’s rank as a fraction of the finite entries.</p>
+<p>The smallest of <em>n</em> finite values ranks <code class="docutils literal notranslate"><span class="pre">1/n</span></code> and the largest <code class="docutils literal notranslate"><span class="pre">1</span></code>;
+ties share the average of the ranks they span, and NaN stays NaN
+without counting towards <em>n</em>. This is pandas’ <code class="docutils literal notranslate"><span class="pre">rank(pct=True)</span></code>, which
+is what the photometric reference merit’s <code class="docutils literal notranslate"><span class="pre">qnt_&lt;name&gt;</span></code> columns used,
+so a merit rewritten in terms of this ranks candidates the same way.</p>
+<p>Unlike the aggregates in <a class="reference internal" href="#autowisp.evaluator.EvaluatorBase.nan_aggregates" title="autowisp.evaluator.EvaluatorBase.nan_aggregates"><code class="xref py py-attr docutils literal notranslate"><span class="pre">EvaluatorBase.nan_aggregates</span></code></a>, the
+result has one entry per input entry, so it composes element-wise with
+the values it ranks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em>) – The values to rank.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The ranks, as floats in <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">1]</span></code>, shaped like</dt><dd><p><em>x</em>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

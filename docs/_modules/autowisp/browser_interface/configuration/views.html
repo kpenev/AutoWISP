@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -171,9 +174,14 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">delete</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">HttpResponse</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.expression_views</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_expression_warnings</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_db_configuration</span><span class="p">,</span>
     <span class="n">get_json_config</span><span class="p">,</span>
     <span class="n">save_json_config</span><span class="p">,</span>
     <span class="n">list_steps</span><span class="p">,</span>
@@ -184,6 +192,8 @@
     <span class="n">export_survey_to_json</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_expressions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_rule</span>
 
 <span class="c1"># False positive</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
@@ -308,10 +318,36 @@
 <div class="viewcode-block" id="save_config">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.configuration.views.html#autowisp.browser_interface.configuration.views.save_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">save_config</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Save a user-defined configuration to the database."""</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Save a user-defined configuration, warning about its exclusion rules.</span>
+
+<span class="sd">    A rule is saved whatever it says, as any parameter is, so each value one</span>
+<span class="sd">    is configured with is checked as a rule and as an expression: what the</span>
+<span class="sd">    engine would refuse, and what it would accept without it being meant.</span>
+
+<span class="sd">    Answered with no content rather than a redirect to the tree: the page</span>
+<span class="sd">    reloads itself once the post is answered, and ``fetch`` would follow a</span>
+<span class="sd">    redirect, rendering the tree and using up the warnings before the reload</span>
+<span class="sd">    could show them.</span>
+<span class="sd">    """</span>
 
     <span class="n">save_json_config</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"configuration:config_tree"</span><span class="p">)</span></div>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">library</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+        <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">get_db_configuration</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"-exclusion-rule"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">rules</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">check_rule</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">library</span><span class="p">):</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">problem</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">get_expression_warnings</span><span class="p">(</span>
+            <span class="n">rules</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="o">**</span><span class="n">rules</span><span class="p">),</span> <span class="n">db_session</span>
+        <span class="p">):</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">warning</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="mi">204</span><span class="p">)</span></div>
 
 
 

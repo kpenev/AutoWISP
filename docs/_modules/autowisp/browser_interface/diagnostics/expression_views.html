@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -166,39 +169,43 @@
   <h1>Source code for autowisp.browser_interface.diagnostics.expression_views</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Views for defining, listing and moving diagnostic expressions.</span>
 
-<span class="sd">The library is global -- one set of expressions shared by every project --</span>
-<span class="sd">because an expression is a way of *looking* at data rather than data</span>
-<span class="sd">itself.  That is also why this page works with no project open: validity</span>
-<span class="sd">does not depend on one (see</span>
-<span class="sd">:mod:`autowisp.diagnostics.diagnostic_types`), and the only thing that</span>
-<span class="sd">does -- whether the diagnostics an expression needs are recorded here --</span>
-<span class="sd">is reported as availability rather than as brokenness.  Today's single</span>
-<span class="sd">status conflates "meaningless" with "nothing recorded yet"; these are not</span>
-<span class="sd">the same complaint and do not read as one here.</span>
+<span class="sd">The library belongs to the open project, stored in its database, because</span>
+<span class="sd">exclusion rules make expressions part of how a project is processed.</span>
+<span class="sd">Projects share expressions by exporting and importing them.</span>
+
+<span class="sd">Validity does not depend on the project (see</span>
+<span class="sd">:mod:`autowisp.diagnostics.diagnostic_types`); what does -- whether the</span>
+<span class="sd">diagnostics an expression needs have been recorded -- is reported as</span>
+<span class="sd">availability rather than as brokenness.  "Meaningless" and "nothing</span>
+<span class="sd">recorded yet" are not the same complaint and do not read as one here.</span>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">transaction</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">HttpResponse</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_or_404</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">render</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">Http404</span><span class="p">,</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">render</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_cameras_lacking</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">expression_library</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_quantity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.exclusion_rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_rule_reads</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">check_expression</span><span class="p">,</span>
+    <span class="n">get_bare_aggregates</span><span class="p">,</span>
     <span class="n">get_expression_dependents</span><span class="p">,</span>
     <span class="n">get_expression_names</span><span class="p">,</span>
+    <span class="n">get_logical_keywords</span><span class="p">,</span>
+    <span class="n">get_quoted_channel_order</span><span class="p">,</span>
     <span class="n">order_expressions</span><span class="p">,</span>
-    <span class="n">rename_references</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineError</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.expression_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_expressions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpressionForm</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.quantities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_recorded_diagnostics</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpression</span>
 
 <span class="c1">#: Marks an export file as ours and says which shape it is in.  A file</span>
 <span class="c1">#: without the key, or carrying a version this code does not know, is</span>
@@ -291,8 +298,7 @@
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
-<span class="sd">        recorded(set):    The diagnostic names in use in the open project,</span>
-<span class="sd">            or ``None`` if no project is open.</span>
+<span class="sd">        recorded(set):    The diagnostic names in use in the open project.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict:    The fields ``diagnostic_expressions.html`` renders.</span>
@@ -301,7 +307,7 @@
     <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">expressions</span><span class="p">)</span>
 
     <span class="n">missing</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">problems</span> <span class="ow">and</span> <span class="n">recorded</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">problems</span><span class="p">:</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="n">name</span><span class="p">],</span> <span class="n">expressions</span><span class="p">)</span>
         <span class="c1"># jd is known for every image of the canonical list, so it never</span>
         <span class="c1"># counts against availability.</span>
@@ -314,6 +320,87 @@
         <span class="s2">"problems"</span><span class="p">:</span> <span class="n">problems</span><span class="p">,</span>
         <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span>
     <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="get_expression_warnings">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.get_expression_warnings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_expression_warnings</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what the given expressions were probably not meant to say.</span>
+
+<span class="sd">    None of it is refused: each is legitimate somewhere, merely unlikely</span>
+<span class="sd">    to be what was meant. Also for exclusion rules, which are expressions</span>
+<span class="sd">    too, added to the library under their parameter's name. What does not</span>
+<span class="sd">    parse is skipped rather than raised: saying what is wrong with it is</span>
+<span class="sd">    :func:`check_expression`'s or ``check_rule``'s to do.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        names(iterable):    The expressions to look at.</span>
+
+<span class="sd">        library(dict):    The library they belong to, themselves included,</span>
+<span class="sd">            ``{name: expression}``.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    The warnings, by expression.</span>
+<span class="sd">    """</span>
+
+    <span class="n">element_wise</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"and"</span><span class="p">:</span> <span class="s2">"&amp;"</span><span class="p">,</span> <span class="s2">"or"</span><span class="p">:</span> <span class="s2">"|"</span><span class="p">,</span> <span class="s2">"not"</span><span class="p">:</span> <span class="s2">"~"</span><span class="p">}</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+        <span class="n">expression</span> <span class="o">=</span> <span class="n">library</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">aggregates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_bare_aggregates</span><span class="p">(</span><span class="n">expression</span><span class="p">))</span>
+            <span class="n">keywords</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_logical_keywords</span><span class="p">(</span><span class="n">expression</span><span class="p">))</span>
+            <span class="c1"># Read through the expressions it references too: one quoting a</span>
+            <span class="c1"># channel fails without it, and so does anything reading it.</span>
+            <span class="n">lacking</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">count_cameras_lacking</span><span class="p">(</span>
+                    <span class="n">get_quoted_channel_order</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">library</span><span class="p">),</span> <span class="n">db_session</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">SyntaxError</span><span class="p">,</span> <span class="n">PipelineError</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> calls </span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">(), which goes NaN as soon as one image "</span>
+            <span class="s2">"of a series lacks a diagnostic. Did you mean "</span>
+            <span class="sa">f</span><span class="s2">"nan</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">()?"</span>
+            <span class="k">for</span> <span class="n">aggregate</span> <span class="ow">in</span> <span class="n">aggregates</span>
+        <span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> uses </span><span class="si">{</span><span class="n">keyword</span><span class="si">}</span><span class="s2">, which fails on arrays. Did you mean "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">element_wise</span><span class="p">[</span><span class="n">keyword</span><span class="p">]</span><span class="si">}</span><span class="s2">?"</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">keywords</span>
+        <span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> quotes channel </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">, which </span><span class="si">{</span><span class="n">num_lacking</span><span class="si">}</span><span class="s2"> of "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> cameras do not have."</span>
+            <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="p">(</span><span class="n">num_lacking</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span> <span class="ow">in</span> <span class="n">lacking</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">warnings</span></div>
+
+
+
+<div class="viewcode-block" id="_warn_about">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._warn_about">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_about</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">library</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Warn about what the given expressions were probably not meant to say.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        request:    The Django request to attach the warnings to.</span>
+
+<span class="sd">        names(iterable):    The expressions just written.</span>
+
+<span class="sd">        library(dict):    The library they were accepted into, themselves</span>
+<span class="sd">            included, ``{name: expression}``.</span>
+<span class="sd">    """</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">get_expression_warnings</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">warning</span><span class="p">)</span></div>
 
 
 
@@ -340,22 +427,18 @@
 
     <span class="n">expressions</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">expressions</span>
 
-    <span class="c1"># Availability is the one thing here that needs a project; validity is</span>
-    <span class="c1"># not, so with none open the page still lists and still validates, and</span>
-    <span class="c1"># simply says nothing about what has been recorded.</span>
-    <span class="n">recorded</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"project_home"</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="n">recorded</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">))</span>
-
-    <span class="c1"># The description is the one stored column no rule is derived from, so</span>
-    <span class="c1"># it is merged in here rather than threaded through the library, which</span>
-    <span class="c1"># is a name-to-expression mapping everywhere else in the feature.</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="n">descriptions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-        <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="c1"># pylint: enable=no-member</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">recorded</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">))</span>
+        <span class="c1"># The description is the one stored column no rule is derived from,</span>
+        <span class="c1"># so it is merged in here rather than threaded through the library,</span>
+        <span class="c1"># which is a name-to-expression mapping everywhere else in the</span>
+        <span class="c1"># feature.</span>
+        <span class="n">descriptions</span> <span class="o">=</span> <span class="n">expression_library</span><span class="o">.</span><span class="n">get_expression_descriptions</span><span class="p">(</span>
+            <span class="n">db_session</span>
+        <span class="p">)</span>
+    <span class="c1"># What to set an exclusion rule option to, to use one as a rule, so that</span>
+    <span class="c1"># nobody has to work out the subscripts.</span>
+    <span class="n">rule_reads</span> <span class="o">=</span> <span class="n">get_rule_reads</span><span class="p">(</span><span class="n">expressions</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
@@ -363,11 +446,11 @@
         <span class="p">{</span>
             <span class="s2">"form"</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
             <span class="s2">"edit_name"</span><span class="p">:</span> <span class="n">edit_name</span><span class="p">,</span>
-            <span class="s2">"have_project"</span><span class="p">:</span> <span class="n">recorded</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s2">"expression_rows"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="nb">dict</span><span class="p">(</span>
                     <span class="n">describe_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">recorded</span><span class="p">),</span>
                     <span class="n">description</span><span class="o">=</span><span class="n">descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+                    <span class="n">rule_read</span><span class="o">=</span><span class="n">rule_reads</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">expressions</span><span class="p">)</span>
             <span class="p">],</span>
@@ -395,63 +478,24 @@
 <span class="sd">            show the blank form.</span>
 <span class="sd">    """</span>
 
-    <span class="n">instance</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span>
-        <span class="k">else</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-    <span class="p">)</span>
+    <span class="n">expressions</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">()</span>
+    <span class="n">initial</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">expression_library</span><span class="o">.</span><span class="n">get_expression_entries</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No diagnostic expression named </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="n">initial</span> <span class="o">=</span> <span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">_render_list</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
         <span class="n">DiagnosticExpressionForm</span><span class="p">(</span>
-            <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="n">get_expressions</span><span class="p">()</span>
+            <span class="n">initial</span><span class="o">=</span><span class="n">initial</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span><span class="p">,</span> <span class="n">replacing</span><span class="o">=</span><span class="n">name</span>
         <span class="p">),</span>
         <span class="n">edit_name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="_carry_dependents_through_rename">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._carry_dependents_through_rename">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_carry_dependents_through_rename</span><span class="p">(</span><span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Rewrite everything referencing *old_name* to reference *new_name*.</span>
-
-<span class="sd">    A rename would otherwise orphan its dependents -- the delete guard's</span>
-<span class="sd">    hazard reached from the other side -- and refusing it, as deletion is</span>
-<span class="sd">    refused, is not a workable answer: unlike a delete there is no gesture</span>
-<span class="sd">    that makes it legal, because pointing a dependent at the new name will</span>
-<span class="sd">    not validate while that name does not yet exist.  So the rename carries</span>
-<span class="sd">    them with it, and the caller says which ones moved.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        old_name(str):    The name as it was.</span>
-
-<span class="sd">        new_name(str):    The name as it now is.</span>
-
-<span class="sd">        expressions(dict):    The library as it was *before* the rename,</span>
-<span class="sd">            which is what the dependents are read from.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list:    The names updated, alphabetically; empty if nothing</span>
-<span class="sd">            referenced *old_name*.</span>
-<span class="sd">    """</span>
-
-    <span class="n">updated</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">dependent</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_expression_dependents</span><span class="p">(</span><span class="n">old_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)):</span>
-        <span class="c1"># QuerySet.update rather than save(): `modified` is maintained by a</span>
-        <span class="c1"># database trigger precisely so that it survives this, see</span>
-        <span class="c1"># core.models.BuiModelBase.</span>
-        <span class="c1"># pylint: disable=no-member</span>
-        <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">dependent</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="n">expression</span><span class="o">=</span><span class="n">rename_references</span><span class="p">(</span>
-                <span class="n">expressions</span><span class="p">[</span><span class="n">dependent</span><span class="p">],</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-        <span class="c1"># pylint: enable=no-member</span>
-        <span class="n">updated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dependent</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">updated</span></div>
 
 
 
@@ -463,19 +507,17 @@
 
 <span class="sd">    Editing is keyed by ``edit_name`` rather than by primary key, so that</span>
 <span class="sd">    the page is driven entirely by the names it displays and a rename is an</span>
-<span class="sd">    edit rather than a delete followed by a create.</span>
+<span class="sd">    edit rather than a delete followed by a create.  A rename carries the</span>
+<span class="sd">    expressions referencing the old name with it (see</span>
+<span class="sd">    :func:`~autowisp.diagnostics.expression_library.store_expression`), and</span>
+<span class="sd">    says which ones moved.</span>
 <span class="sd">    """</span>
 
     <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"POST"</span>
 
-    <span class="n">expressions</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">()</span>
     <span class="n">edit_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"edit_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="n">instance</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">edit_name</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-    <span class="c1"># pylint: enable=no-member</span>
-
     <span class="n">form</span> <span class="o">=</span> <span class="n">DiagnosticExpressionForm</span><span class="p">(</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="n">get_expressions</span><span class="p">(),</span> <span class="n">replacing</span><span class="o">=</span><span class="n">edit_name</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
         <span class="c1"># Re-rendered rather than redirected, so the complaints stay</span>
@@ -483,31 +525,25 @@
         <span class="c1"># mode, so correcting one does not silently create a second row.</span>
         <span class="k">return</span> <span class="n">_render_list</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">edit_name</span><span class="o">=</span><span class="n">edit_name</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">transaction</span><span class="o">.</span><span class="n">atomic</span><span class="p">():</span>
-        <span class="n">expression</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-        <span class="n">updated</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">_carry_dependents_through_rename</span><span class="p">(</span>
-                <span class="n">edit_name</span><span class="p">,</span> <span class="n">expression</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">edit_name</span> <span class="ow">and</span> <span class="n">edit_name</span> <span class="o">!=</span> <span class="n">expression</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="n">expression_library</span><span class="o">.</span><span class="n">store_expression</span><span class="p">(</span>
+            <span class="n">db_session</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">expression</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">],</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s2">"description"</span><span class="p">],</span>
+            <span class="n">replacing</span><span class="o">=</span><span class="n">edit_name</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">updated</span><span class="p">:</span>
         <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="n">request</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">"Renamed </span><span class="si">{</span><span class="n">edit_name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">expression</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, and updated "</span>
+            <span class="sa">f</span><span class="s2">"Renamed </span><span class="si">{</span><span class="n">edit_name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, and updated "</span>
             <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">updated</span><span class="p">)</span>
             <span class="o">+</span> <span class="s2">" to match."</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">aggregate</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">bare_aggregates</span><span class="p">):</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="n">request</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">expression</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> calls </span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">(), which goes NaN as soon "</span>
-            <span class="sa">f</span><span class="s2">"as one image of a series lacks a diagnostic. Did you mean "</span>
-            <span class="sa">f</span><span class="s2">"nan</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">()?"</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="n">_warn_about</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">get_expressions</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span></div>
 
@@ -549,9 +585,8 @@
             <span class="o">+</span> <span class="s2">"."</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># pylint: disable=no-member</span>
-        <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__in</span><span class="o">=</span><span class="n">selected</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-        <span class="c1"># pylint: enable=no-member</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">expression_library</span><span class="o">.</span><span class="n">delete_expressions</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span></div>
 
@@ -583,17 +618,14 @@
         <span class="n">_reachable</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span> <span class="k">if</span> <span class="n">selected</span> <span class="k">else</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">expressions</span><span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="n">rows</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__in</span><span class="o">=</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">(</span>
-        <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"expression"</span><span class="p">,</span> <span class="s2">"description"</span>
-    <span class="p">)</span>
-    <span class="c1"># pylint: enable=no-member</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="n">expression_library</span><span class="o">.</span><span class="n">get_expression_entries</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">StringIO</span><span class="p">()</span> <span class="k">as</span> <span class="n">export_stream</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="n">_format_key</span><span class="p">:</span> <span class="n">_format_version</span><span class="p">,</span>
-                <span class="s2">"expressions"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]),</span>
+                <span class="s2">"expressions"</span><span class="p">:</span> <span class="n">entries</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">export_stream</span><span class="p">,</span>
             <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
@@ -651,19 +683,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_expressions</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Store *entries*, returning how many were new and how many replaced."""</span>
 
-    <span class="n">added</span><span class="p">,</span> <span class="n">updated</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="c1"># pylint: disable=no-member</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">update_or_create</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="n">entry</span>
-        <span class="p">)</span>
-        <span class="c1"># pylint: enable=no-member</span>
-        <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
-            <span class="n">added</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">updated</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="k">return</span> <span class="n">added</span><span class="p">,</span> <span class="n">updated</span></div>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">expression_library</span><span class="o">.</span><span class="n">write_expressions</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span></div>
 
 
 
@@ -730,6 +751,7 @@
         <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"That file listed no expressions."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">refused</span><span class="p">:</span>
         <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"Refused "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">refused</span><span class="p">))</span> <span class="o">+</span> <span class="s2">"."</span><span class="p">)</span>
+    <span class="n">_warn_about</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">fresh</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">clashing</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span>
@@ -803,6 +825,7 @@
         <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Replaced </span><span class="si">{</span><span class="n">updated</span><span class="si">}</span><span class="s2"> expression(s)."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">refused</span><span class="p">:</span>
         <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"Refused "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">refused</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"."</span><span class="p">)</span>
+    <span class="n">_warn_about</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">writable</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span></div>
 

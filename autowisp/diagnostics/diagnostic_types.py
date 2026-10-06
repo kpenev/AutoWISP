@@ -132,6 +132,109 @@ def standard_diagnostic_names():
     return frozenset(standard_diagnostic_types())
 
 
+@functools.lru_cache(maxsize=1)
+def magfit_diagnostic_names():
+    """
+    Return the diagnostics ``fit_magnitudes`` produces.
+
+    Their values depend on the photometric reference each image was fit
+    against, not only on the image, so a population they are read over has
+    to be split by reference as well. Everything deciding that asks here.
+
+    Returns:
+        frozenset:    The names, a subset of
+            :func:`standard_diagnostic_names`.
+    """
+
+    return frozenset(
+        ("photometry_mag_offset", "magfit_residual", "mag_fit_num_stars")
+    )
+
+
+@functools.lru_cache(maxsize=1)
+def photometry_diagnostic_names():
+    """
+    Return the diagnostics recorded per photometry.
+
+    Stored in ``photometry_diagnostics``, one value per shape fit and per
+    aperture, rather than in ``image_diagnostics``, so an expression reads
+    one in a photometry as well as a channel. Not the same question as
+    :func:`magfit_diagnostic_names`, although today the same names answer
+    both: a diagnostic ``fit_magnitudes`` recorded once per image would
+    depend on the reference and still take no photometry.
+
+    Returns:
+        frozenset:    The names, a subset of
+            :func:`magfit_diagnostic_names`.
+    """
+
+    return frozenset(
+        ("photometry_mag_offset", "magfit_residual", "mag_fit_num_stars")
+    )
+
+
+#: The photometry id of the shape fit. Apertures are numbered by their index,
+#: from 0, so the shape fit takes a value no aperture can have.
+shapefit_photometry = -1
+
+
+def get_photometry_id(position, has_shape_fit):
+    """
+    Return the id recorded for the photometry at *position* in magfit's arrays.
+
+    ``fit_magnitudes`` holds an image's photometries in one array: the shape
+    fit first, where the image has a usable one, and then every aperture.
+    So a position is the shape fit on one image and aperture 0 on the next,
+    and recording it would let a series pinned to one id mix photometries
+    without saying so. The id is the same on every image instead: the
+    aperture index, which is what the DR files number apertures by, or
+    :data:`shapefit_photometry`.
+
+    Args:
+        position(int):    The index into magfit's photometry arrays.
+
+        has_shape_fit(bool):    Whether those arrays start with a shape fit,
+            as ``get_magfit_sources`` decided when building them.
+
+    Returns:
+        int:    The photometry id.
+    """
+
+    if not has_shape_fit:
+        return position
+    return shapefit_photometry if position == 0 else position - 1
+
+
+def parse_photometry_literal(literal):
+    """
+    Return the photometry id a quoted photometry names, or ``None``.
+
+    An expression quotes a photometry as ``'shapefit'`` or as ``'ap'``
+    followed by the aperture index, ``'ap4'``, just as it quotes a channel
+    by name. :func:`photometry_literal` spells an id the same way.
+
+    Args:
+        literal(str):    The quoted text.
+
+    Returns:
+        int or None:    The id, or ``None`` if *literal* names no
+            photometry.
+    """
+
+    if literal == "shapefit":
+        return shapefit_photometry
+    aperture = re.fullmatch(r"ap([0-9]+)", literal)
+    return int(aperture.group(1)) if aperture else None
+
+
+def photometry_literal(photometry_id):
+    """Return how an expression quotes the photometry *photometry_id*."""
+
+    if photometry_id == shapefit_photometry:
+        return "shapefit"
+    return f"ap{photometry_id}"
+
+
 #: The one diagnostic family created at run time rather than seeded.
 #: ``calibrate`` records one per configured quantile, so which exist
 #: depends on how a project was configured and cannot be listed ahead of

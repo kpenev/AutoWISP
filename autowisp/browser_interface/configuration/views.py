@@ -5,9 +5,14 @@ from io import StringIO
 import json
 
 from sqlalchemy import select, func, delete
+from django.contrib import messages
 from django.shortcuts import render, redirect, HttpResponse
 
+from autowisp.browser_interface.diagnostics.expression_views import (
+    get_expression_warnings,
+)
 from autowisp.database.user_interface import (
+    get_db_configuration,
     get_json_config,
     save_json_config,
     list_steps,
@@ -18,6 +23,8 @@ from autowisp.database.user_interface import (
     export_survey_to_json,
 )
 from autowisp.database.interface import start_db_session
+from autowisp.diagnostics.expression_library import get_expressions
+from autowisp.diagnostics.expressions import check_rule
 
 # False positive
 # pylint: disable=no-name-in-module
@@ -131,10 +138,36 @@ def config_tree(request, version=0, step="All", force_unlock=False):
 
 
 def save_config(request, version):
-    """Save a user-defined configuration to the database."""
+    """
+    Save a user-defined configuration, warning about its exclusion rules.
+
+    A rule is saved whatever it says, as any parameter is, so each value one
+    is configured with is checked as a rule and as an expression: what the
+    engine would refuse, and what it would accept without it being meant.
+
+    Answered with no content rather than a redirect to the tree: the page
+    reloads itself once the post is answered, and ``fetch`` would follow a
+    redirect, rendering the tree and using up the warnings before the reload
+    could show them.
+    """
 
     save_json_config(request.body, version)
-    return redirect("configuration:config_tree")
+    with start_db_session() as db_session:
+        library = get_expressions(db_session)
+        rules = {
+            f"{config.parameter.name} = {config.value}": config.value
+            for config in get_db_configuration(version, db_session)
+            if config.parameter.name.endswith("-exclusion-rule")
+            and config.value
+        }
+        for name, rule in rules.items():
+            for problem in check_rule(rule, library):
+                messages.warning(request, f"{name}: {problem}")
+        for warning in get_expression_warnings(
+            rules, dict(library, **rules), db_session
+        ):
+            messages.warning(request, warning)
+    return HttpResponse(status=204)
 
 
 def format_channel_attr(camera_type):

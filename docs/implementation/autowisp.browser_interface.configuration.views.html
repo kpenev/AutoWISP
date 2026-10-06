@@ -134,7 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
@@ -259,7 +262,14 @@ corresponding database table (should be convertable to int).</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.configuration.views.save_config">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.configuration.views.</span></span><span class="sig-name descname"><span class="pre">save_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/configuration/views.html#save_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.configuration.views.save_config" title="Link to this definition"></a></dt>
-<dd><p>Save a user-defined configuration to the database.</p>
+<dd><p>Save a user-defined configuration, warning about its exclusion rules.</p>
+<p>A rule is saved whatever it says, as any parameter is, so each value one
+is configured with is checked as a rule and as an expression: what the
+engine would refuse, and what it would accept without it being meant.</p>
+<p>Answered with no content rather than a redirect to the tree: the page
+reloads itself once the post is answered, and <code class="docutils literal notranslate"><span class="pre">fetch</span></code> would follow a
+redirect, rendering the tree and using up the warnings before the reload
+could show them.</p>
 </dd></dl>
 
 <dl class="py function">

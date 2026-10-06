@@ -256,7 +256,8 @@ class EPDCorrection(Correction):
             return predictors, fit_weights, fit_points
 
         # <++> Move out
-        def correct_one_dataset(
+        # Keyword-only after the lightcurve, each named at every call.
+        def correct_one_dataset(  # pylint: disable=too-many-arguments
             light_curve,
             *,
             predictors,
@@ -296,13 +297,9 @@ class EPDCorrection(Correction):
                 None
             """
 
-            raw_values = self._get_fit_data(
+            raw_values, fit_data = self._get_fit_data(
                 light_curve, get_fit_dataset, fit_target, fit_points
             )
-            if isinstance(raw_values, tuple):
-                raw_values, fit_data = raw_values
-            else:
-                fit_data = raw_values
 
             self._logger.debug(
                 "Fit data contains %d NaNs, %d non finites, and %d negatives",
@@ -311,16 +308,22 @@ class EPDCorrection(Correction):
                 (fit_data < 0).sum(),
             )
 
-            raw_values = raw_values[fit_points]
-            fit_data = fit_data[fit_points]
+            qc_excluded = self._find_qc_excluded(
+                light_curve, fit_target, fit_points.size
+            )
+            # Every point in fit_points is corrected, but the correction is
+            # derived only from those not excluded.
+            in_fit = numpy.logical_not(qc_excluded[fit_points])
+
+            fit_data = fit_data[in_fit]
             fit_data -= numpy.nanmedian(fit_data)
 
             # Those should come from self.iteritave_fit_config.
             # pylint: disable=missing-kwoa
             fit_results = iterative_fit(
-                predictors=predictors,
+                predictors=predictors[:, in_fit],
                 target_values=fit_data,
-                weights=weights,
+                weights=(None if weights is None else weights[in_fit]),
                 **self.iterative_fit_config,
             )
             # pylint: enable=missing-kwoa
@@ -358,6 +361,7 @@ class EPDCorrection(Correction):
                     configuration=extended_configuration,
                     **fit_results,
                     fit_points=fit_points,
+                    qc_excluded=qc_excluded,
                     light_curve=light_curve,
                 )
 

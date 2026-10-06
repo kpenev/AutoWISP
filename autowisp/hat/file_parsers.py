@@ -1,5 +1,6 @@
 """Functions for parsing files generated with HAT tools."""
 
+import os
 import re
 
 
@@ -25,12 +26,13 @@ def parse_fname_keywords(fits_fname):
                 previous date.
     """
 
-    # pylint false positive
-    # pylint: disable=anomalous-backslash-in-string
+    # The system's directory separators: a backslash as well as a slash on
+    # Windows.
+    separator = "[" + re.escape(os.sep + (os.altsep or "")) + "]"
     frame_fname_rex = re.compile(
-        "^.*/(?P<STID>[0-9]*)-(?P<NIGHT>[0-9]{8})/"
-        "(?P=STID)-(?P<FNUM>[0-9]*)_(?P<CMPOS>[0-9]*)"
-        "(_(?P<CHANNEL>[BGR][12]))?\.(fits(.fz)?|hdf5)?(.0)?$"
+        rf"^.*{separator}(?P<STID>[0-9]*)-(?P<NIGHT>[0-9]{{8}}){separator}"
+        r"(?P=STID)-(?P<FNUM>[0-9]*)_(?P<CMPOS>[0-9]*)"
+        r"(_(?P<CHANNEL>[BGR][12]))?\.(fits(.fz)?|hdf5)?(.0)?$"
     )
     parsed_frame_fname = frame_fname_rex.match(fits_fname)
     assert parsed_frame_fname

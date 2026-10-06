@@ -1,4 +1,7 @@
-#diag-selector-bar {
+/* Controls side by side: each `.lcars-bar` is otherwise as wide as its
+   container, so a second one wraps underneath the first. */
+#diag-selector-bar,
+#diag-footer-bar {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -206,6 +209,13 @@
     cursor: default;
 }
 
+/* A marker scale is a factor of a few significant figures. Left alone,
+ * a text field takes the browser's default of twenty characters, and the
+ * table that width. */
+#diagnostics-table-parent .scale-input {
+    width: 4em;
+}
+
 #diagnostics-table-parent tbody tr.active {
     opacity: 1.0;
     background-color: #336;
@@ -330,4 +340,11 @@
 
 #param-sep {
     width:100%;
+}
+
+/* The exclusion mask's slot dropdowns are hidden while the rule takes no
+   such slot. `.lcars-bar` sets a display of its own, which would override
+   the `hidden` attribute. */
+.mask-slot[hidden] {
+    display: none;
 }

@@ -1,7 +1,9 @@
 // What the tree shows in place of a value that was deliberately left unset.
 const UNDEFINED_VALUE_LABEL = 'undefined (step default)';
+// Not "the step supplies a default": for some parameters, e.g. the exclusion
+// rules, the default is to do nothing, which the help says.
 const UNDEFINED_VALUE_HINT =
-    'undefined: the processing step supplies its own default';
+    "undefined: the step's default applies, as its help describes";
 
 
 // Is this node a value that was deliberately left undefined?

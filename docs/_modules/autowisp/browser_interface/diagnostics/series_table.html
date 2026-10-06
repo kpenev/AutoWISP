@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -177,25 +180,42 @@
 <span class="sd">question asked here is answered by a SQL aggregate instead.</span>
 <span class="sd">"""</span>
 
+<span class="c1"># Over pylint's 1000-line default, and left there: everything here answers</span>
+<span class="c1"># one question -- what a row may bind and how many images that draws -- and</span>
+<span class="c1"># splitting the counting from the rows would leave each half importing most</span>
+<span class="c1"># of the other.</span>
+<span class="c1"># pylint: disable=too-many-lines</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.template.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_to_string</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.core.plot_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">channel_colors</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_series</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SeriesKey</span><span class="p">,</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">magfit_diagnostic_names</span><span class="p">,</span>
+    <span class="n">photometry_literal</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_series</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeriesKey</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.image_counts</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">count_images_per_photometry</span><span class="p">,</span>
     <span class="n">count_images_with_all</span><span class="p">,</span>
     <span class="n">count_images_with_channels</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_expression_parameters</span><span class="p">,</span>
+    <span class="n">get_channel_parameters</span><span class="p">,</span>
     <span class="n">get_needed_values</span><span class="p">,</span>
-    <span class="n">get_quantity_arity</span><span class="p">,</span>
+    <span class="n">get_channel_arity</span><span class="p">,</span>
+    <span class="n">get_photometry_arity</span><span class="p">,</span>
+    <span class="n">get_photometry_parameters</span><span class="p">,</span>
+    <span class="n">get_quoted_channel_order</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># False positive due to unusual importing</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservingSession</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">MasterFile</span><span class="p">,</span> <span class="n">ObservingSession</span>
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
@@ -289,6 +309,60 @@
 
 
 
+<div class="viewcode-block" id="make_channel_value">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_channel_value">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_channel_value</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">photref</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what one option of a channel column posts.</span>
+
+<span class="sd">    The channel alone where the column binds a channel, and the channel</span>
+<span class="sd">    with the photometric reference, ``R|12``, where it reads a diagnostic</span>
+<span class="sd">    ``fit_magnitudes`` produces and so binds a (channel, photref) pair.</span>
+<span class="sd">    Built as :func:`make_id` builds the other ids, and so refused a channel</span>
+<span class="sd">    containing its separator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        channel(str):    The channel.</span>
+
+<span class="sd">        photref(int):    The ``MasterFile`` id of the reference, or</span>
+<span class="sd">            ``None`` for a column binding the channel alone.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="n">channel</span> <span class="k">if</span> <span class="n">photref</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">make_id</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">photref</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="split_channel_value">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.split_channel_value">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_channel_value</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return ``(channel, photref)`` from what a channel column posted.</span>
+
+<span class="sd">    The photref is ``None`` where the value names none: a column binding</span>
+<span class="sd">    a channel alone, or one still unset, whose channel is ``""``.</span>
+<span class="sd">    """</span>
+
+    <span class="n">channel</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">photref</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">row_id_separator</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">channel</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">photref</span><span class="p">)</span> <span class="k">if</span> <span class="n">photref</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_photometry_value">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.parse_photometry_value">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_photometry_value</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the photometry id a photometry column posted, or ``None``.</span>
+
+<span class="sd">    An option posts its id as text, and an unset column ``""``, which is</span>
+<span class="sd">    ``None`` here: every id, the shape fit's ``-1`` and aperture ``0``</span>
+<span class="sd">    included, is a valid binding, so nothing but ``None`` can mean unset.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="s2">""</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
 <div class="viewcode-block" id="get_series_key">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_series_key">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_series_key</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
@@ -301,20 +375,36 @@
 <span class="sd">    reading a stale value.  What the id carries instead is the quantity,</span>
 <span class="sd">    which the row cannot change.</span>
 
+<span class="sd">    Each channel column posts what :func:`make_channel_value` built: its</span>
+<span class="sd">    channel, and its photometric reference where it has one. They are</span>
+<span class="sd">    split here into the key's channels and references. Each photometry</span>
+<span class="sd">    column posts a photometry id.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        series(dict):    One row as the client posted it back.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        SeriesKey:    What the row identifies, with empty channels where</span>
-<span class="sd">            its dropdowns are still unset.</span>
+<span class="sd">            its dropdowns are still unset, and no photometries where any</span>
+<span class="sd">            photometry column is: a key holds ids, and there is no id</span>
+<span class="sd">            meaning unset.</span>
 <span class="sd">    """</span>
 
     <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">split_pair_id</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"pair"</span><span class="p">])</span>
+    <span class="n">channel_bindings</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">split_channel_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"channels"</span><span class="p">,</span> <span class="p">())</span>
+    <span class="p">]</span>
+    <span class="n">photometries</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">parse_photometry_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"photometries"</span><span class="p">,</span> <span class="p">())</span>
+    <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">SeriesKey</span><span class="p">(</span>
         <span class="n">session_id</span><span class="p">,</span>
         <span class="n">image_type</span><span class="p">,</span>
-        <span class="nb">tuple</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"channels"</span><span class="p">,</span> <span class="p">())),</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="n">channel</span> <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">channel_bindings</span><span class="p">),</span>
+        <span class="n">photometries</span><span class="o">=</span><span class="p">(()</span> <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">photometries</span> <span class="k">else</span> <span class="n">photometries</span><span class="p">),</span>
+        <span class="n">photrefs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">photref</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">photref</span> <span class="ow">in</span> <span class="n">channel_bindings</span><span class="p">),</span>
     <span class="p">)</span></div>
 
 
@@ -372,14 +462,28 @@
 
 
 
-<span class="c1"># Six things a row is made of, each named at the call site. Grouping them</span>
+<span class="c1"># Seven things a row is made of, each named at the call site. Grouping them</span>
 <span class="c1"># would only move the list somewhere less visible.</span>
 <span class="c1"># pylint: disable=too-many-arguments</span>
 <div class="viewcode-block" id="make_series">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_series">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">make_series</span><span class="p">(</span><span class="n">row_id</span><span class="p">,</span> <span class="n">series_key</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">slots</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">marker</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_series</span><span class="p">(</span>
+    <span class="n">row_id</span><span class="p">,</span>
+    <span class="n">series_key</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">,</span>
+    <span class="n">channel_slots</span><span class="p">,</span>
+    <span class="n">count</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">photometry_slots</span><span class="p">,</span>
+    <span class="n">marker</span><span class="p">,</span>
+    <span class="n">quoted_channel</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build the entry describing one row of the series table.</span>
+
+<span class="sd">    Its default colour is that of the channel it is shown in: the first it</span>
+<span class="sd">    binds, wherever it has a column to bind one in, and otherwise -- every</span>
+<span class="sd">    channel it reads being quoted -- the first its quantities quote.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        row_id(str):    What :func:`make_id` returned for this row.</span>
@@ -392,16 +496,23 @@
 <span class="sd">            the row rather than read from the page's context, so that a row</span>
 <span class="sd">            can be rendered on its own.</span>
 
-<span class="sd">        slots(list):    One cell per channel the axes bind, as</span>
-<span class="sd">            :func:`make_slot_cells` builds them.</span>
+<span class="sd">        channel_slots(list):    One cell per channel the axes bind, as</span>
+<span class="sd">            :func:`make_channel_cells` builds them.</span>
 
 <span class="sd">        count(int):    The number of images contributing, or ``None``</span>
 <span class="sd">            where nothing is bound yet and there is nothing to count.</span>
+
+<span class="sd">        photometry_slots(list):    One cell per photometry the axes bind,</span>
+<span class="sd">            as :func:`make_photometry_cells` builds them.</span>
 
 <span class="sd">        marker(str):    What the row is drawn with to begin with, which</span>
 <span class="sd">            its section decides: the default tells quantities apart by</span>
 <span class="sd">            shape, as the colour tells channels apart. Editable</span>
 <span class="sd">            afterwards, like the colour.</span>
+
+<span class="sd">        quoted_channel(str):    What :func:`get_quoted_channel` returned</span>
+<span class="sd">            for the row's axes, which it is shown in if *channel_slots* is</span>
+<span class="sd">            empty.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict:    A series entry with the keys expected by</span>
@@ -411,12 +522,17 @@
 
     <span class="n">pair</span> <span class="o">=</span> <span class="n">make_id</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">)</span>
     <span class="n">chosen</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">option</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span> <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="n">pair</span><span class="p">)</span>
+    <span class="n">shown</span> <span class="o">=</span> <span class="n">series_key</span><span class="o">.</span><span class="n">channel</span> <span class="k">if</span> <span class="n">channel_slots</span> <span class="k">else</span> <span class="n">quoted_channel</span>
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"id"</span><span class="p">:</span> <span class="n">row_id</span><span class="p">,</span>
-        <span class="s2">"channels"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">),</span>
+        <span class="c1"># What the row's cells post, as the client would post them: the</span>
+        <span class="c1"># entry of an added row is drawn before the client has posted it,</span>
+        <span class="c1"># and a bare channel would drop the reference its cell binds.</span>
+        <span class="s2">"channels"</span><span class="p">:</span> <span class="p">[</span><span class="n">slot</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">channel_slots</span><span class="p">],</span>
+        <span class="s2">"photometries"</span><span class="p">:</span> <span class="p">[</span><span class="n">cell</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">photometry_slots</span><span class="p">],</span>
         <span class="s2">"color"</span><span class="p">:</span> <span class="n">channel_colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="n">series_key</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">series_key</span><span class="o">.</span><span class="n">channel</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
+            <span class="n">shown</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">shown</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
             <span class="s2">"#ffffff"</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="s2">"marker"</span><span class="p">:</span> <span class="n">marker</span><span class="p">,</span>
@@ -424,9 +540,20 @@
         <span class="c1"># The quantity first, so that a legend entry says which of the</span>
         <span class="c1"># page's sections it belongs to. With one section that is</span>
         <span class="c1"># redundant, but prefixing always keeps the rule simple, and the</span>
-        <span class="c1"># label is the user's to rewrite either way.</span>
+        <span class="c1"># label is the user's to rewrite either way. Then what each channel</span>
+        <span class="c1"># cell says it binds, which names a reference as far as the table</span>
+        <span class="c1"># does -- enough to tell two rows differing only in it apart -- and</span>
+        <span class="c1"># what each photometry cell does.</span>
         <span class="s2">"label"</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">split_row_id</span><span class="p">(</span><span class="n">row_id</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">chosen</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="o">*</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">]</span>
+            <span class="p">[</span>
+                <span class="n">split_row_id</span><span class="p">(</span><span class="n">row_id</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">chosen</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span>
+                <span class="o">*</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">slot</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">channel_slots</span> <span class="o">+</span> <span class="n">photometry_slots</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="p">[]</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
         <span class="p">),</span>
         <span class="s2">"pair"</span><span class="p">:</span> <span class="n">pair</span><span class="p">,</span>
         <span class="c1"># The cell sorts by what it shows -- the label rather than the id</span>
@@ -436,7 +563,8 @@
         <span class="s2">"start"</span><span class="p">:</span> <span class="n">chosen</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span>
         <span class="s2">"end"</span><span class="p">:</span> <span class="n">chosen</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span>
         <span class="s2">"options"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
-        <span class="s2">"slots"</span><span class="p">:</span> <span class="n">slots</span><span class="p">,</span>
+        <span class="s2">"channel_slots"</span><span class="p">:</span> <span class="n">channel_slots</span><span class="p">,</span>
+        <span class="s2">"photometry_slots"</span><span class="p">:</span> <span class="n">photometry_slots</span><span class="p">,</span>
         <span class="s2">"count"</span><span class="p">:</span> <span class="s2">"-"</span> <span class="k">if</span> <span class="n">count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">count</span><span class="p">,</span>
     <span class="p">}</span></div>
 
@@ -445,16 +573,212 @@
 <span class="c1"># pylint: enable=too-many-arguments</span>
 
 
+<div class="viewcode-block" id="ChannelColumn">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.ChannelColumn">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChannelColumn</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One channel column of the series table: what it reads, and where.</span>
+
+<span class="sd">    Most bind one parameter of an axis quantity. The rest, with ``quoted``</span>
+<span class="sd">    set, choose the photometric reference of a channel the text quotes a</span>
+<span class="sd">    diagnostic ``fit_magnitudes`` produces in: the channel is written in</span>
+<span class="sd">    the text rather than bound, but its reference still has to be chosen,</span>
+<span class="sd">    as for every channel such a diagnostic is read in.</span>
+
+<span class="sd">    Hashable, being what a table's options are keyed by.</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: The diagnostics read in the column's channel.</span>
+    <span class="n">needed</span><span class="p">:</span> <span class="nb">frozenset</span>
+
+    <span class="c1">#: The channel whose reference a quoted column chooses; ``None`` for a</span>
+    <span class="c1">#: column binding a parameter.</span>
+    <span class="n">quoted</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">by_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Whether an option binds a photometric reference with a channel."""</span>
+
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="n">magfit_diagnostic_names</span><span class="p">())</span>
+
+<div class="viewcode-block" id="ChannelColumn.count_options">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.ChannelColumn.count_options">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">count_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Yield each option the column has, with how many images it draws.</span>
+
+<span class="sd">        Each (channel, photref) the images recording :attr:`needed` are</span>
+<span class="sd">        bound to, where the column reads a diagnostic ``fit_magnitudes``</span>
+<span class="sd">        produces, and each channel alone otherwise; of a quoted column,</span>
+<span class="sd">        only those of its channel.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            tuple:    One per option of each session and image type,</span>
+<span class="sd">                ``(session_label, session_id, image_type, option, count)``,</span>
+<span class="sd">                the option ``(channel, photref)``, the photref ``None`` for</span>
+<span class="sd">                a column binding channels alone.</span>
+<span class="sd">        """</span>
+
+        <span class="k">for</span> <span class="p">(</span>
+            <span class="n">label</span><span class="p">,</span>
+            <span class="n">session_id</span><span class="p">,</span>
+            <span class="n">image_type</span><span class="p">,</span>
+            <span class="n">channel</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">photref</span><span class="p">,</span>
+            <span class="n">count</span><span class="p">,</span>
+        <span class="p">)</span> <span class="ow">in</span> <span class="n">count_images_with_all</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">by_reference</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">by_reference</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quoted</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">label</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="p">(</span>
+                    <span class="n">channel</span><span class="p">,</span>
+                    <span class="n">photref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">photref</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">),</span> <span class="n">count</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PhotometryColumn">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhotometryColumn</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One photometry column of the series table: what it reads.</span>
+
+<span class="sd">    One per photometry parameter of the two axes. Apart from the channel</span>
+<span class="sd">    columns rather than folded into their options: a photometry belongs to</span>
+<span class="sd">    no channel, every image having every photometry in every channel, so</span>
+<span class="sd">    two reads in one channel may be bound to two photometries.</span>
+
+<span class="sd">    Hashable, being what a table's options are keyed by.</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: The diagnostics read in the column's photometry, in whichever</span>
+    <span class="c1">#: channels.</span>
+    <span class="n">needed</span><span class="p">:</span> <span class="nb">frozenset</span>
+
+<div class="viewcode-block" id="PhotometryColumn.count_options">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.PhotometryColumn.count_options">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">count_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Yield each option the column has, with how many images it draws.</span>
+
+<span class="sd">        Each photometry the images record every one of :attr:`needed` in.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            tuple:    One per option of each session and image type,</span>
+<span class="sd">                ``(session_label, session_id, image_type, option, count)``,</span>
+<span class="sd">                the option a photometry id.</span>
+<span class="sd">        """</span>
+
+        <span class="k">yield from</span> <span class="n">count_images_per_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_PhotometryParameter">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table._PhotometryParameter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_PhotometryParameter</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A photometry column, standing in for the photometry it binds.</span>
+
+<span class="sd">    What an axis is walked with where it takes photometries, as it is</span>
+<span class="sd">    walked with a column index where it takes channels. A type of its own</span>
+<span class="sd">    rather than the index, because the walk resolves a quoted photometry</span>
+<span class="sd">    to its id, an int: walked with indices,</span>
+<span class="sd">    ``magfit_residual[0][0] - magfit_residual[0]['ap0']`` would come back</span>
+<span class="sd">    as two reads in photometry ``0``, one bound by column 0 and one quoted,</span>
+<span class="sd">    and nothing would tell them apart. Channels need no such thing, a</span>
+<span class="sd">    quoted channel staying a string.</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: The column's position among the photometry columns.</span>
+    <span class="n">column</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+<div class="viewcode-block" id="_walk_axis">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table._walk_axis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_walk_axis</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return what one axis reads, and in which columns.</span>
+
+<span class="sd">    Walked with a *column index* standing in for each channel, and a</span>
+<span class="sd">    :class:`_PhotometryParameter` for each photometry. A reference's</span>
+<span class="sd">    arguments are matched against the definition's parameters</span>
+<span class="sd">    positionally, so whatever is passed here is what comes back at the</span>
+<span class="sd">    leaves: passing columns asks which column each diagnostic is read in,</span>
+<span class="sd">    whatever numbers the expression happened to write.</span>
+<span class="sd">    ``bg_center[3] / pixel_q99[7]`` reports column 0 and column 1.</span>
+
+<span class="sd">    A quoted channel comes back as itself rather than as a column, which</span>
+<span class="sd">    is what tells the two apart: ``bg_center[3] / bg_center['G0']`` reads</span>
+<span class="sd">    ``bg_center`` in column 0 and, fixed, in ``G0``. A quoted photometry</span>
+<span class="sd">    comes back as its id.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            tuple:    The quantity's channel parameters, as the definition</span>
+<span class="sd">                numbers them; ``None`` each for a diagnostic, which has no</span>
+<span class="sd">                numbering of its own.</span>
+
+<span class="sd">            tuple:    Its photometry parameters, likewise.</span>
+
+<span class="sd">            set:    ``(diagnostic, channel, photometry)`` reads: the</span>
+<span class="sd">                channel a column index or a quoted channel, and the</span>
+<span class="sd">                photometry ``None`` for a diagnostic recorded per image, a</span>
+<span class="sd">                :class:`_PhotometryParameter` or a quoted photometry's id.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
+        <span class="n">channel_parameters</span> <span class="o">=</span> <span class="n">get_channel_parameters</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">quantity</span><span class="p">])</span>
+        <span class="n">photometry_parameters</span> <span class="o">=</span> <span class="n">get_photometry_parameters</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">quantity</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># A diagnostic binds one channel and numbers it nothing, and one</span>
+        <span class="c1"># photometry where it is recorded per photometry; the time binds</span>
+        <span class="c1"># neither. Asked rather than derived, no arity coming from a</span>
+        <span class="c1"># definition -- and asking is also what refuses a name that</span>
+        <span class="c1"># resolves to nothing at all.</span>
+        <span class="n">channel_parameters</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">*</span> <span class="n">get_channel_arity</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="n">photometry_parameters</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">*</span> <span class="n">get_photometry_arity</span><span class="p">(</span>
+            <span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span>
+        <span class="p">)</span>
+
+    <span class="n">walked_with</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">channel_parameters</span><span class="p">))),</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_PhotometryParameter</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">photometry_parameters</span><span class="p">)))),</span>
+    <span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">read_in</span> <span class="ow">in</span> <span class="n">get_needed_values</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">quantity</span><span class="p">:</span> <span class="p">{</span><span class="n">walked_with</span><span class="p">}},</span> <span class="n">expressions</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">channel_refs</span><span class="p">,</span> <span class="n">photometry_refs</span> <span class="ow">in</span> <span class="n">read_in</span><span class="p">:</span>
+            <span class="c1"># The time, which reads nothing worth counting. Anything else</span>
+            <span class="c1"># is a diagnostic, taking one channel and at most one</span>
+            <span class="c1"># photometry.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">channel_refs</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">reads</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">channel_refs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">photometry_refs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">photometry_refs</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">channel_parameters</span><span class="p">,</span> <span class="n">photometry_parameters</span><span class="p">,</span> <span class="n">reads</span></div>
+
+
+
 <div class="viewcode-block" id="get_axis_slots">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_axis_slots">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_axis_slots</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Return the diagnostics read in each channel one axis binds.</span>
+<span class="sd">    Return the diagnostics read in each channel and photometry one axis binds.</span>
 
-<span class="sd">    An axis binds one channel per parameter of the quantity it draws, and</span>
-<span class="sd">    two axes never share one: their numbers are formal parameters, so the</span>
-<span class="sd">    first slot of the x quantity and the first of the y quantity are</span>
-<span class="sd">    unrelated, and tying them together would silently couple the axes.</span>
+<span class="sd">    An axis binds one channel per channel parameter of the quantity it</span>
+<span class="sd">    draws, and one photometry per photometry parameter, and two axes never</span>
+<span class="sd">    share one: their numbers are formal parameters, so the first slot of</span>
+<span class="sd">    the x quantity and the first of the y quantity are unrelated, and</span>
+<span class="sd">    tying them together would silently couple the axes.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        quantity(str):    The concrete quantity the axis draws, the</span>
@@ -463,133 +787,269 @@
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list:    One ``(parameter, needed)`` pair per channel to bind, in</span>
-<span class="sd">            column order: the slot number the definition writes, which</span>
-<span class="sd">            names the column, and the diagnostics read in it. The</span>
-<span class="sd">            parameter is ``None`` for a diagnostic, which has no numbering</span>
-<span class="sd">            of its own. Empty for an axis over the time alone, which binds</span>
-<span class="sd">            nothing.</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            list:    One ``(parameter, needed)`` pair per channel to bind,</span>
+<span class="sd">                in column order: the slot number the definition writes,</span>
+<span class="sd">                which names the column, and the diagnostics read in it. The</span>
+<span class="sd">                parameter is ``None`` for a diagnostic, which has no</span>
+<span class="sd">                numbering of its own. Empty for an axis binding no channel:</span>
+<span class="sd">                one over the time, or over quoted channels alone.</span>
+
+<span class="sd">            list:    The same per photometry to bind, the diagnostics read</span>
+<span class="sd">                in it in whichever channels. Empty for an axis reading</span>
+<span class="sd">                nothing per photometry, or only in quoted photometries.</span>
 <span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
-        <span class="n">parameters</span> <span class="o">=</span> <span class="n">get_expression_parameters</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">quantity</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># A diagnostic binds one channel and numbers it nothing; the time</span>
-        <span class="c1"># binds none. Asked rather than derived, neither arity coming from</span>
-        <span class="c1"># a definition -- and asking is also what refuses a name that</span>
-        <span class="c1"># resolves to nothing at all.</span>
-        <span class="n">parameters</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">*</span> <span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+    <span class="n">channel_parameters</span><span class="p">,</span> <span class="n">photometry_parameters</span><span class="p">,</span> <span class="n">reads</span> <span class="o">=</span> <span class="n">_walk_axis</span><span class="p">(</span>
+        <span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span>
+    <span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">parameters</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slots</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">stand_in</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return a ``(parameter, needed)`` pair per column of *parameters*.</span>
 
-    <span class="c1"># Walked with a *column index* standing in for each channel. A</span>
-    <span class="c1"># reference's arguments are matched against the definition's</span>
-    <span class="c1"># parameters positionally, so whatever is passed here is what comes</span>
-    <span class="c1"># back at the leaves: passing columns asks which column each</span>
-    <span class="c1"># diagnostic is read in, whatever numbers the expression happened to</span>
-    <span class="c1"># write. ``bg_center[3] / pixel_q99[7]`` reports column 0 and column 1.</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)))</span>
-    <span class="n">reads</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="nb">set</span><span class="p">()</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">}</span>
-    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">bindings</span> <span class="ow">in</span> <span class="n">get_needed_values</span><span class="p">(</span>
-        <span class="p">{</span><span class="n">quantity</span><span class="p">:</span> <span class="p">{</span><span class="n">columns</span><span class="p">}},</span> <span class="n">expressions</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">binding</span> <span class="ow">in</span> <span class="n">bindings</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">binding</span><span class="p">:</span>
-                <span class="n">reads</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="sd">        *position* is where a read holds what it is read in, among the</span>
+<span class="sd">        channel and the photometry, and *stand_in* what the walk put there</span>
+<span class="sd">        for a column.</span>
+<span class="sd">        """</span>
 
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="p">(</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">reads</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)))</span></div>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">parameter</span><span class="p">,</span>
+                <span class="nb">frozenset</span><span class="p">(</span>
+                    <span class="n">name</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">where</span> <span class="ow">in</span> <span class="n">reads</span>
+                    <span class="k">if</span> <span class="n">where</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="o">==</span> <span class="n">stand_in</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">slots</span><span class="p">(</span><span class="n">channel_parameters</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">column</span><span class="p">:</span> <span class="n">column</span><span class="p">),</span>
+        <span class="n">slots</span><span class="p">(</span><span class="n">photometry_parameters</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_PhotometryParameter</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_table_reads">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_table_reads">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_table_reads</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return everything the two axes read, in the table's columns.</span>
+
+<span class="sd">    The axes' reads laid end to end, as their columns are: a column of the</span>
+<span class="sd">    y axis comes after all of the x axis's, among the channel columns and</span>
+<span class="sd">    among the photometry columns alike. What a row's binding is resolved</span>
+<span class="sd">    against, to count what it draws.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis.</span>
+
+<span class="sd">        y_quantity(str):    Quantity on the Y axis.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        frozenset:    ``(diagnostic, channel, photometry)`` reads, as</span>
+<span class="sd">            :func:`_walk_axis` returns them, numbering the table's columns</span>
+<span class="sd">            rather than an axis's.</span>
+<span class="sd">    """</span>
+
+    <span class="n">reads</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">channel_offset</span> <span class="o">=</span> <span class="n">photometry_offset</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">):</span>
+        <span class="n">channel_parameters</span><span class="p">,</span> <span class="n">photometry_parameters</span><span class="p">,</span> <span class="n">axis_reads</span> <span class="o">=</span> <span class="n">_walk_axis</span><span class="p">(</span>
+            <span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="n">axis_reads</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">channel</span> <span class="o">+=</span> <span class="n">channel_offset</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">photometry</span><span class="p">,</span> <span class="n">_PhotometryParameter</span><span class="p">):</span>
+                <span class="n">photometry</span> <span class="o">=</span> <span class="n">_PhotometryParameter</span><span class="p">(</span>
+                    <span class="n">photometry</span><span class="o">.</span><span class="n">column</span> <span class="o">+</span> <span class="n">photometry_offset</span>
+                <span class="p">)</span>
+            <span class="n">reads</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photometry</span><span class="p">))</span>
+        <span class="n">channel_offset</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">channel_parameters</span><span class="p">)</span>
+        <span class="n">photometry_offset</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">photometry_parameters</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">reads</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_fixed_reads">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_fixed_reads">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_fixed_reads</span><span class="p">(</span><span class="n">reads</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what the two axes read where no column binds anything.</span>
+
+<span class="sd">    A quoted channel is already bound, so it offers no choice and gets no</span>
+<span class="sd">    column; but what is read in it still has to be recorded for an image</span>
+<span class="sd">    to be drawn. So it narrows the (session, image type) pairs a row may</span>
+<span class="sd">    name, exactly as a column's reads do -- and is what gives a table any</span>
+<span class="sd">    rows at all when neither axis binds a column.</span>
+
+<span class="sd">    A read in a quoted channel and a photometry a column binds is not</span>
+<span class="sd">    among them: until the column is bound, there is no photometry to look</span>
+<span class="sd">    for it in. The column's options narrow the pairs instead.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reads(frozenset):    What :func:`get_table_reads` returned.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        frozenset:    ``(diagnostic, channel, photometry)`` reads, as</span>
+<span class="sd">            :func:`count_images_with_channels` takes them.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photometry</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="n">reads</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">photometry</span><span class="p">,</span> <span class="n">_PhotometryParameter</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_quoted_channel">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_quoted_channel">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_quoted_channel</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the channel a row is shown in when it binds none of its own.</span>
+
+<span class="sd">    The first the x quantity quotes, and failing that the y's -- the axes</span>
+<span class="sd">    in the order their columns would be, had they any.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis.</span>
+
+<span class="sd">        y_quantity(str):    Quantity on the Y axis.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str:    The channel, or ``""`` where neither quotes one.</span>
+<span class="sd">    """</span>
+
+    <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">):</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">get_quoted_channel_order</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s2">""</span></div>
 
 
 
 <div class="viewcode-block" id="get_slot_headings">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_slot_headings">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_slot_headings</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">,</span> <span class="n">slots</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_slot_headings</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">slots</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Return the column heading for each channel one axis binds.</span>
+<span class="sd">    Return the column heading for each channel or photometry one axis binds.</span>
 
-<span class="sd">    Named for the axis as well as the quantity because the two axes may</span>
-<span class="sd">    name one quantity -- comparing a diagnostic between channels is</span>
-<span class="sd">    exactly that -- and two columns headed alike would say nothing. Where</span>
-<span class="sd">    an axis binds several channels the heading is the reference as the</span>
-<span class="sd">    definition writes it, so a column can be matched to the text it fills</span>
-<span class="sd">    in.</span>
+<span class="sd">    Named for the axis, since the two axes' slots are unrelated however</span>
+<span class="sd">    alike they are written, and for what the column binds. Not for the</span>
+<span class="sd">    quantity: the section header and the x selector name those already,</span>
+<span class="sd">    and the column is only as wide as its heading needs. Where an axis</span>
+<span class="sd">    binds several the heading is the slot as the definition writes it, so</span>
+<span class="sd">    a column can be matched to the text it fills in.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        axis(str):    Which axis these columns belong to.</span>
 
-<span class="sd">        axis_name(str):    The quantity as the selector names it, which</span>
-<span class="sd">            for the quantile family is the family rather than a member:</span>
-<span class="sd">            the table has one header for all of them.</span>
+<span class="sd">        kind(str):    What the columns bind: ``channel`` or</span>
+<span class="sd">            ``photometry``.</span>
 
-<span class="sd">        slots(list):    What :func:`get_axis_slots` returned for the axis.</span>
+<span class="sd">        slots(list):    What :func:`get_axis_slots` returned for the axis,</span>
+<span class="sd">            for that kind.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list:    One heading per channel to bind.</span>
+<span class="sd">        list:    One heading per slot to bind.</span>
 <span class="sd">    """</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">axis_name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">axis_name</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">]"</span> <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">]"</span> <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">]</span></div>
 
 
 
 <div class="viewcode-block" id="get_slot_options">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_slot_options">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_slot_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_slot_options</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">fixed</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Return what each slot of the table may be bound to, and the labels.</span>
+<span class="sd">    Return what each column of the table may be bound to, and the labels.</span>
 
-<span class="sd">    One aggregate per *distinct* set of diagnostics among the slots --</span>
-<span class="sd">    usually one for the whole table, since the commonest axis pairs read</span>
-<span class="sd">    the same diagnostics in every slot. Nothing is evaluated: which</span>
-<span class="sd">    channels a slot may offer is a question about rows.</span>
+<span class="sd">    One aggregate per *distinct* column -- usually one for the whole</span>
+<span class="sd">    table, since the commonest axis pairs read the same diagnostics in</span>
+<span class="sd">    every slot -- and one more for the fixed reads, if any. Nothing is</span>
+<span class="sd">    evaluated: which channels and photometries a column may offer is a</span>
+<span class="sd">    question about rows.</span>
+
+<span class="sd">    What a column offers, and how it is counted, is the column's own:</span>
+<span class="sd">    see :meth:`ChannelColumn.count_options` and</span>
+<span class="sd">    :meth:`PhotometryColumn.count_options`.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        slot_needs(list):    What each slot reads, from</span>
-<span class="sd">            :func:`get_axis_slots` for each axis in turn.</span>
+<span class="sd">        columns(list):    The table's columns, channel and photometry</span>
+<span class="sd">            columns alike, from :func:`get_channel_columns` and</span>
+<span class="sd">            :func:`get_photometry_columns`.</span>
+
+<span class="sd">        fixed(frozenset):    What :func:`get_fixed_reads` returned.</span>
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple:</span>
-<span class="sd">            dict:    One entry per distinct set of needs, holding</span>
-<span class="sd">                ``{(session_id, image_type): {channel: count}}``.</span>
+<span class="sd">            dict:    One entry per distinct column, holding</span>
+<span class="sd">                ``{(session_id, image_type): {option: count}}``, the</span>
+<span class="sd">                options as the column's ``count_options`` gives them.</span>
 
 <span class="sd">            dict:    ``{session_id: label}``, the same whatever is read.</span>
+
+<span class="sd">            dict:    ``{(session_id, image_type): count}`` of the images</span>
+<span class="sd">                recording every fixed read, or ``None`` where there are</span>
+<span class="sd">                none, which constrains nothing.</span>
 <span class="sd">    """</span>
 
     <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
         <span class="n">by_group</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="p">(</span>
             <span class="n">label</span><span class="p">,</span>
             <span class="n">session_id</span><span class="p">,</span>
             <span class="n">image_type</span><span class="p">,</span>
-            <span class="n">channel</span><span class="p">,</span>
+            <span class="n">option</span><span class="p">,</span>
             <span class="n">count</span><span class="p">,</span>
-        <span class="p">)</span> <span class="ow">in</span> <span class="n">count_images_with_all</span><span class="p">(</span><span class="n">needed</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+        <span class="p">)</span> <span class="ow">in</span> <span class="n">column</span><span class="o">.</span><span class="n">count_options</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
             <span class="n">labels</span><span class="p">[</span><span class="n">session_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
-            <span class="n">by_group</span><span class="o">.</span><span class="n">setdefault</span><span class="p">((</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">),</span> <span class="p">{})[</span><span class="n">channel</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
-        <span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">]</span> <span class="o">=</span> <span class="n">by_group</span>
+            <span class="n">by_group</span><span class="o">.</span><span class="n">setdefault</span><span class="p">((</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">),</span> <span class="p">{})[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+        <span class="n">options</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">by_group</span>
 
-    <span class="k">return</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span></div>
+    <span class="n">fixed_groups</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">fixed</span><span class="p">:</span>
+        <span class="n">fixed_groups</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">count_images_with_channels</span><span class="p">(</span>
+            <span class="n">fixed</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="p">):</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">session_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+            <span class="n">fixed_groups</span><span class="p">[(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">)]</span> <span class="o">=</span> <span class="n">count</span>
+
+    <span class="k">return</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">fixed_groups</span></div>
 
 
 
 <div class="viewcode-block" id="count_bound_images">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.count_bound_images">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">count_bound_images</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">count_bound_images</span><span class="p">(</span>
+    <span class="n">reads</span><span class="p">,</span> <span class="n">channel_bindings</span><span class="p">,</span> <span class="n">photometry_bindings</span><span class="p">,</span> <span class="n">db_session</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Count the images one binding draws on, for every group at once.</span>
 
 <span class="sd">    The exact question, where :func:`get_slot_options` answers the looser</span>
 <span class="sd">    one that fills the dropdowns: an image counts when its rows cover</span>
-<span class="sd">    every (diagnostic, channel) pair *between them*, which is what a</span>
-<span class="sd">    quantity comparing channels needs and what reading each channel on its</span>
-<span class="sd">    own cannot say.</span>
+<span class="sd">    every read *between them*, which is what a quantity comparing channels</span>
+<span class="sd">    or photometries needs and what reading each column on its own cannot</span>
+<span class="sd">    say -- and, where the binding names references, when it was fit</span>
+<span class="sd">    against each of them, as the series will be restricted to.</span>
 
 <span class="sd">    Every group is counted in one aggregate rather than one per row, since</span>
 <span class="sd">    a binding is usually shared -- by every row of a monochrome project at</span>
@@ -597,9 +1057,14 @@
 <span class="sd">    time.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        slot_needs(list):    What each slot reads, in column order.</span>
+<span class="sd">        reads(frozenset):    What :func:`get_table_reads` returned.</span>
 
-<span class="sd">        channels(tuple):    The channel bound in each of those slots.</span>
+<span class="sd">        channel_bindings(list):    The ``(channel, photref)`` bound in each</span>
+<span class="sd">            channel column, in order, the photref ``None`` where there is</span>
+<span class="sd">            none.</span>
+
+<span class="sd">        photometry_bindings(list):    The photometry id bound in each</span>
+<span class="sd">            photometry column, in order.</span>
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
@@ -608,15 +1073,20 @@
 <span class="sd">            groups with anything to draw.</span>
 <span class="sd">    """</span>
 
+    <span class="n">requirements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photometry</span> <span class="ow">in</span> <span class="n">reads</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">channel</span> <span class="o">=</span> <span class="n">channel_bindings</span><span class="p">[</span><span class="n">channel</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">photometry</span><span class="p">,</span> <span class="n">_PhotometryParameter</span><span class="p">):</span>
+            <span class="n">photometry</span> <span class="o">=</span> <span class="n">photometry_bindings</span><span class="p">[</span><span class="n">photometry</span><span class="o">.</span><span class="n">column</span><span class="p">]</span>
+        <span class="n">requirements</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photometry</span><span class="p">))</span>
+
     <span class="k">return</span> <span class="p">{</span>
         <span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">):</span> <span class="n">count</span>
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">count_images_with_channels</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">needed</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">channels</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">needed</span>
-            <span class="p">},</span>
+            <span class="n">requirements</span><span class="p">,</span>
             <span class="n">db_session</span><span class="p">,</span>
+            <span class="p">{</span><span class="n">binding</span> <span class="k">for</span> <span class="n">binding</span> <span class="ow">in</span> <span class="n">channel_bindings</span> <span class="k">if</span> <span class="n">binding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">},</span>
         <span class="p">)</span>
     <span class="p">}</span></div>
 
@@ -669,97 +1139,350 @@
     <span class="c1"># pylint: enable=no-member</span>
 
 
-<div class="viewcode-block" id="make_slot_cells">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_slot_cells">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">make_slot_cells</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+<div class="viewcode-block" id="get_reference_paths">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_reference_paths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_reference_paths</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the path of every photometric reference *options* offers.</span>
+
+<span class="sd">    What a reference is labelled from, and what hovering over it shows.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        options(dict):    What :func:`get_slot_options` returned first,</span>
+<span class="sd">            for the channel columns alone: a photometry column's options</span>
+<span class="sd">            name no reference.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    ``{photref: path}``, read in one query however many</span>
+<span class="sd">            references there are.</span>
+<span class="sd">    """</span>
+
+    <span class="n">photrefs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">photref</span>
+        <span class="k">for</span> <span class="n">by_group</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">offered</span> <span class="ow">in</span> <span class="n">by_group</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">photref</span> <span class="ow">in</span> <span class="n">offered</span>
+        <span class="k">if</span> <span class="n">photref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">photrefs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">MasterFile</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">MasterFile</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">photrefs</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1">#: Where a reference's path is split to tell it from the others: at</span>
+<span class="c1">#: directory, word and extension boundaries, each kept as a part of its own</span>
+<span class="c1">#: so that what is left between them reads as written.</span>
+<span class="n">_path_separators</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"([/_.-])"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="_common_length">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table._common_length">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_common_length</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return how many leading elements all *sequences* share."""</span>
+
+    <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">elements</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">sequences</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">length</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">length</span></div>
+
+
+
+<div class="viewcode-block" id="label_references">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.label_references">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_references</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what tells each of *paths* apart from the others.</span>
+
+<span class="sd">    What they all share at the start and at the end is dropped -- the</span>
+<span class="sd">    directories, the extension, a naming scheme -- leaving the part that</span>
+<span class="sd">    differs: ``…/DR/IMG_1234_R.h5`` and ``…/DR/IMG_1289_R.h5`` become</span>
+<span class="sd">    ``1234`` and ``1289``. Split at separators rather than characters, so</span>
+<span class="sd">    that a number is never cut: character by character, those two would</span>
+<span class="sd">    become ``34`` and ``89``.</span>
+
+<span class="sd">    Pure, so that the rule can be tested without a database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        paths(list):    The paths of the references offered in one channel.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    One label per path, in the same order. Empty where nothing</span>
+<span class="sd">            is left, which is always so for a single path: there is nothing</span>
+<span class="sd">            to tell it apart from.</span>
+<span class="sd">    """</span>
+
+    <span class="n">split</span> <span class="o">=</span> <span class="p">[</span><span class="n">_path_separators</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+    <span class="n">shortest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="k">for</span> <span class="n">parts</span> <span class="ow">in</span> <span class="n">split</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">leading</span> <span class="o">=</span> <span class="n">_common_length</span><span class="p">(</span><span class="n">split</span><span class="p">)</span>
+    <span class="c1"># Never overlapping the leading part, which a path that is a prefix of</span>
+    <span class="c1"># another, part for part, would otherwise have counted twice.</span>
+    <span class="n">trailing</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+        <span class="n">_common_length</span><span class="p">([</span><span class="n">parts</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">parts</span> <span class="ow">in</span> <span class="n">split</span><span class="p">]),</span> <span class="n">shortest</span> <span class="o">-</span> <span class="n">leading</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="n">leading</span> <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">-</span> <span class="n">trailing</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"/_.-"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">parts</span> <span class="ow">in</span> <span class="n">split</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_label_options">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table._label_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_label_options</span><span class="p">(</span><span class="n">offered</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what each ``(channel, photref)`` option of one column is called.</span>
+
+<span class="sd">    The channel, followed by what tells its reference apart from the</span>
+<span class="sd">    others offered *in the same channel* -- ``R: 1234`` -- or the channel</span>
+<span class="sd">    alone where there is nothing to tell apart: a column binding channels</span>
+<span class="sd">    alone, or a channel offering one reference.</span>
+<span class="sd">    """</span>
+
+    <span class="n">by_channel</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photref</span> <span class="ow">in</span> <span class="n">offered</span><span class="p">:</span>
+        <span class="n">by_channel</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">photref</span><span class="p">)</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">photrefs</span> <span class="ow">in</span> <span class="n">by_channel</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">photref</span><span class="p">,</span> <span class="n">told</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">photrefs</span><span class="p">,</span>
+            <span class="n">label_references</span><span class="p">([</span><span class="n">paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">photref</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="k">for</span> <span class="n">photref</span> <span class="ow">in</span> <span class="n">photrefs</span><span class="p">]),</span>
+        <span class="p">):</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">channel</span><span class="p">,</span> <span class="n">photref</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">told</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">told</span> <span class="k">else</span> <span class="n">channel</span>
+    <span class="k">return</span> <span class="n">labels</span></div>
+
+
+
+<div class="viewcode-block" id="_chosen_option">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table._chosen_option">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_chosen_option</span><span class="p">(</span><span class="n">offered</span><span class="p">,</span> <span class="o">*</span><span class="n">candidate_list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the option of one column the row chooses, or ``None``.</span>
+
+<span class="sd">    A column with one option has it chosen, whatever the row says.</span>
+<span class="sd">    Otherwise the first of *candidate_list* the column offers: what the row</span>
+<span class="sd">    binds now, and for a channel column also the channel alone, since the</span>
+<span class="sd">    row's key gives a column binding channels alone the reference of</span>
+<span class="sd">    another slot on its channel, which names no option of this column.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">offered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">offered</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">candidate</span> <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">candidate_list</span> <span class="k">if</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">offered</span><span class="p">),</span>
+        <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_make_cell">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table._make_cell">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_cell</span><span class="p">(</span><span class="n">offered</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">posted</span><span class="p">,</span> <span class="n">titles</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return one slot cell of a row, as ``_slot_cell.html`` renders it.</span>
+
+<span class="sd">    What a channel column's cell and a photometry column's share: one</span>
+<span class="sd">    offering a single option is settled and states it as text, any other</span>
+<span class="sd">    is a dropdown starting with an unset entry, and either sorts by what it</span>
+<span class="sd">    shows.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        offered(dict):    ``{option: count}``, what the column may bind</span>
+<span class="sd">            under the row's pair.</span>
+
+<span class="sd">        chosen:    The option the cell binds, or ``None``.</span>
+
+<span class="sd">        labels(dict):    ``{option: text}``, what the cell says it binds.</span>
+
+<span class="sd">        posted(dict):    ``{option: text}``, what the cell posts for it.</span>
+
+<span class="sd">        titles(dict):    ``{option: text}``, what hovering over it shows,</span>
+<span class="sd">            missing where nothing does.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    The cell, ``binding`` holding *chosen* and ``label`` what</span>
+<span class="sd">            the cell says it binds.</span>
+<span class="sd">    """</span>
+
+    <span class="n">settled</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">offered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">menu</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"value"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="n">unset_option_text</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">:</span> <span class="s2">""</span><span class="p">}]</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"value"</span><span class="p">:</span> <span class="n">posted</span><span class="p">[</span><span class="n">option</span><span class="p">],</span>
+            <span class="s2">"text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">labels</span><span class="p">[</span><span class="n">option</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+            <span class="s2">"title"</span><span class="p">:</span> <span class="n">titles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">offered</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="p">]</span>
+    <span class="n">chosen_value</span> <span class="o">=</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">chosen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">posted</span><span class="p">[</span><span class="n">chosen</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"options"</span><span class="p">:</span> <span class="n">menu</span><span class="p">,</span>
+        <span class="s2">"value"</span><span class="p">:</span> <span class="n">chosen_value</span><span class="p">,</span>
+        <span class="s2">"binding"</span><span class="p">:</span> <span class="n">chosen</span><span class="p">,</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">chosen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">labels</span><span class="p">[</span><span class="n">chosen</span><span class="p">],</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">chosen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">titles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"fixed"</span><span class="p">:</span> <span class="n">settled</span><span class="p">,</span>
+        <span class="c1"># What the column sorts by: what the cell shows, so that sorting</span>
+        <span class="c1"># follows the options chosen rather than the run-together text of</span>
+        <span class="c1"># a dropdown.</span>
+        <span class="s2">"sort"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">chosen</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">settled</span>
+            <span class="k">else</span> <span class="nb">next</span><span class="p">(</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">menu</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="n">chosen_value</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="make_channel_cells">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_channel_cells">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_channel_cells</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">bindings</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return what each channel column of one row offers, and what it says.</span>
 
-<span class="sd">    A column offering a single channel is settled rather than asked</span>
-<span class="sd">    about: that is the whole of a monochrome camera, and of a colour one</span>
-<span class="sd">    whose other channels are not processed yet, and demanding a click with</span>
-<span class="sd">    one possible outcome before anything can be drawn is ceremony. Such a</span>
-<span class="sd">    cell shows its channel as text, which is what lets a row be drawn the</span>
-<span class="sd">    moment it appears. Should another channel be recorded later, the</span>
-<span class="sd">    column has a choice to offer and asks for one.</span>
+<span class="sd">    A column offering a single option is settled rather than asked about:</span>
+<span class="sd">    that is the whole of a monochrome camera, and of a colour one whose</span>
+<span class="sd">    other channels are not processed yet, and demanding a click with one</span>
+<span class="sd">    possible outcome before anything can be drawn is ceremony. Such a cell</span>
+<span class="sd">    shows its option as text, which is what lets a row be drawn the moment</span>
+<span class="sd">    it appears. Should another be recorded later, the column has a choice</span>
+<span class="sd">    to offer and asks for one.</span>
 
 <span class="sd">    What a column may offer depends on the (session, image type) pair the</span>
 <span class="sd">    row names, so choosing another pair asks this again for all of them.</span>
-<span class="sd">    A channel the new pair still offers is kept -- the user chose it, and</span>
+<span class="sd">    An option the new pair still offers is kept -- the user chose it, and</span>
 <span class="sd">    it remains an answer -- and one it does not is cleared rather than</span>
 <span class="sd">    quietly bound to something else.</span>
 
-<span class="sd">    Pure, so that both rules can be tested without a database or a</span>
+<span class="sd">    An option is a channel, and a photometric reference where the column</span>
+<span class="sd">    reads a diagnostic ``fit_magnitudes`` produces. The cell text names a</span>
+<span class="sd">    reference only as far as it has to be told apart from the others in</span>
+<span class="sd">    its channel; its full path is the option's ``title``, and the cell's</span>
+<span class="sd">    for the chosen one, so hovering shows it.</span>
+
+<span class="sd">    Pure, so that these rules can be tested without a database or a</span>
 <span class="sd">    browser.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        available(list):    What each column may be bound to under this</span>
-<span class="sd">            row's pair, ``{channel: count}`` in column order.</span>
+<span class="sd">            row's pair, ``{(channel, photref): count}`` in column order,</span>
+<span class="sd">            the photref ``None`` for a column binding channels alone.</span>
 
-<span class="sd">        channels(tuple):    What the row binds now, in the same order.</span>
-<span class="sd">            Empty, or short, for a row whose columns are not all set.</span>
+<span class="sd">        bindings(tuple):    What the row binds now, ``(channel, photref)``</span>
+<span class="sd">            per column in the same order. Empty, or short, for a row whose</span>
+<span class="sd">            columns are not all set.</span>
+
+<span class="sd">        paths(dict):    ``{photref: path}`` for every reference offered.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list:    One cell per column, as ``_slot_cells.html`` renders it.</span>
+<span class="sd">        list:    One cell per column, as :func:`_make_cell` builds it,</span>
+<span class="sd">            ``binding`` holding the ``(channel, photref)`` chosen, or</span>
+<span class="sd">            ``None``, and ``label`` what the cell says it binds.</span>
 <span class="sd">    """</span>
 
     <span class="n">cells</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">offered</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">available</span><span class="p">):</span>
-        <span class="n">settled</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">offered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="n">settled</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">offered</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">channels</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="k">else</span> <span class="s2">""</span>
-            <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">offered</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="s2">""</span>
-
-        <span class="n">options</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"value"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="n">unset_option_text</span><span class="p">}]</span> <span class="o">+</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)"</span><span class="p">}</span>
-            <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">offered</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="p">]</span>
+        <span class="n">channel</span><span class="p">,</span> <span class="n">photref</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">bindings</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">bindings</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">"options"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
-                <span class="s2">"value"</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
-                <span class="s2">"fixed"</span><span class="p">:</span> <span class="n">settled</span><span class="p">,</span>
-                <span class="c1"># What the column sorts by: what the cell shows, so that</span>
-                <span class="c1"># sorting follows the channels chosen rather than the</span>
-                <span class="c1"># run-together text of a dropdown.</span>
-                <span class="s2">"sort"</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="n">value</span>
-                    <span class="k">if</span> <span class="n">settled</span>
-                    <span class="k">else</span> <span class="nb">next</span><span class="p">(</span>
-                        <span class="n">option</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span>
-                        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span>
-                        <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span>
-                    <span class="p">)</span>
-                <span class="p">),</span>
-            <span class="p">}</span>
+            <span class="n">_make_cell</span><span class="p">(</span>
+                <span class="n">offered</span><span class="p">,</span>
+                <span class="n">_chosen_option</span><span class="p">(</span><span class="n">offered</span><span class="p">,</span> <span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">photref</span><span class="p">),</span> <span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+                <span class="n">labels</span><span class="o">=</span><span class="n">_label_options</span><span class="p">(</span><span class="n">offered</span><span class="p">,</span> <span class="n">paths</span><span class="p">),</span>
+                <span class="n">posted</span><span class="o">=</span><span class="p">{</span>
+                    <span class="n">option</span><span class="p">:</span> <span class="n">make_channel_value</span><span class="p">(</span><span class="o">*</span><span class="n">option</span><span class="p">)</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">offered</span>
+                <span class="p">},</span>
+                <span class="n">titles</span><span class="o">=</span><span class="p">{</span><span class="n">option</span><span class="p">:</span> <span class="n">paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">""</span><span class="p">)</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">offered</span><span class="p">},</span>
+            <span class="p">)</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">cells</span></div>
 
 
 
+<div class="viewcode-block" id="make_photometry_cells">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_photometry_cells">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_photometry_cells</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">bindings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what each photometry column of one row offers, and what it says.</span>
+
+<span class="sd">    By the rules of :func:`make_channel_cells`: settled where there is a</span>
+<span class="sd">    single option, and keeping what the row binds where the row's pair</span>
+<span class="sd">    still offers it. An option is a photometry id, called what an</span>
+<span class="sd">    expression quotes it as, ``shapefit`` or ``ap2``.</span>
+
+<span class="sd">    Pure, so that these rules can be tested without a database or a</span>
+<span class="sd">    browser.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        available(list):    What each photometry column may be bound to</span>
+<span class="sd">            under this row's pair, ``{photometry: count}`` in column order.</span>
+
+<span class="sd">        bindings(tuple):    The photometry id the row binds now per column,</span>
+<span class="sd">            ``None`` where it binds none. Empty, or short, for a row whose</span>
+<span class="sd">            columns are not all set.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    One cell per column, as :func:`make_channel_cells` returns</span>
+<span class="sd">            them, ``binding`` holding the photometry id chosen.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_make_cell</span><span class="p">(</span>
+            <span class="n">offered</span><span class="p">,</span>
+            <span class="n">_chosen_option</span><span class="p">(</span>
+                <span class="n">offered</span><span class="p">,</span> <span class="n">bindings</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">bindings</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">{</span><span class="n">option</span><span class="p">:</span> <span class="n">photometry_literal</span><span class="p">(</span><span class="n">option</span><span class="p">)</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">offered</span><span class="p">},</span>
+            <span class="n">posted</span><span class="o">=</span><span class="p">{</span><span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">option</span><span class="p">)</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">offered</span><span class="p">},</span>
+            <span class="n">titles</span><span class="o">=</span><span class="p">{},</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">offered</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">available</span><span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
 <div class="viewcode-block" id="get_pair_options">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_pair_options">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_pair_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pair_options</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">fixed_groups</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the (session, image type) pairs a row may be drawn for.</span>
 
-<span class="sd">    A pair is offered where every channel column has at least one channel</span>
-<span class="sd">    to bind: unless each of them can be read somewhere in that session's</span>
-<span class="sd">    frames of that type, a row on it could name no data at all.  Which</span>
-<span class="sd">    channel a column takes is chosen in the row afterwards, so a pair is</span>
-<span class="sd">    offered once rather than once per binding it could carry.</span>
+<span class="sd">    A pair is offered where every column has at least one channel or</span>
+<span class="sd">    photometry to bind, and where some image records everything read</span>
+<span class="sd">    where no column binds anything: otherwise a row on it could name no</span>
+<span class="sd">    data at all.  What a column takes is chosen in the row afterwards, so</span>
+<span class="sd">    a pair is offered once rather than once per binding it could carry.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        slot_needs(list):    What each channel column reads, in column</span>
-<span class="sd">            order.</span>
+<span class="sd">        columns(list):    The table's columns, channel and photometry</span>
+<span class="sd">            columns alike.</span>
 
 <span class="sd">        options(dict):    What :func:`get_slot_options` returned.</span>
 
 <span class="sd">        labels(dict):    The session labels from the same call.</span>
+
+<span class="sd">        fixed_groups(dict):    The fixed reads' counts from the same call,</span>
+<span class="sd">            or ``None`` where nothing is read in a quoted channel.</span>
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
@@ -767,14 +1490,18 @@
 <span class="sd">        list:    ``{"value", "text", "start", "end"}`` per pair, by session</span>
 <span class="sd">            start time and then image type -- which is the order the</span>
 <span class="sd">            dropdown lists them in, and why the first of them is the</span>
-<span class="sd">            earliest session. Empty where the axes bind no channel at all,</span>
-<span class="sd">            there being nothing to draw and so nothing to offer.</span>
+<span class="sd">            earliest session. Empty where the axes read no diagnostic at</span>
+<span class="sd">            all -- the time against the time -- there being nothing to</span>
+<span class="sd">            constrain the pairs, and nothing worth drawing.</span>
 <span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">slot_needs</span><span class="p">:</span>
+    <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">column</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">fixed_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fixed_groups</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">constraints</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">])</span> <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span><span class="p">))</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">constraints</span><span class="p">)</span>
     <span class="n">times</span> <span class="o">=</span> <span class="n">get_session_times</span><span class="p">(</span>
         <span class="p">{</span><span class="n">session_id</span> <span class="k">for</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">},</span> <span class="n">db_session</span>
     <span class="p">)</span>
@@ -797,17 +1524,22 @@
 
 
 
-<span class="c1"># Six things, none derivable from the others here, and both callers hold</span>
-<span class="c1"># all of them. Bundling them would hide what a row depends on.</span>
-<span class="c1"># pylint: disable=too-many-arguments</span>
+<span class="c1"># Its arguments, none derivable from the others here, and both callers hold</span>
+<span class="c1"># all of them. Bundling them would hide what a row depends on; they are</span>
+<span class="c1"># also most of its locals.</span>
+<span class="c1"># pylint: disable=too-many-arguments,too-many-locals</span>
 <div class="viewcode-block" id="make_row_for_pair">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_row_for_pair">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_row_for_pair</span><span class="p">(</span>
     <span class="n">row_id</span><span class="p">,</span>
     <span class="n">series_key</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">slot_needs</span><span class="p">,</span>
+    <span class="n">columns</span><span class="p">,</span>
+    <span class="n">photometry_columns</span><span class="p">,</span>
+    <span class="n">reads</span><span class="p">,</span>
+    <span class="n">quoted_channel</span><span class="p">,</span>
     <span class="n">options</span><span class="p">,</span>
+    <span class="n">paths</span><span class="p">,</span>
     <span class="n">pair_options</span><span class="p">,</span>
     <span class="n">marker</span><span class="p">,</span>
     <span class="n">db_session</span><span class="p">,</span>
@@ -817,18 +1549,27 @@
 
 <span class="sd">    Shared by the first row of a table and by a row whose pair has just</span>
 <span class="sd">    changed, both asking the same question: what a row on this pair</span>
-<span class="sd">    offers, which of the channels it names survive there, and how many</span>
-<span class="sd">    images the result draws.</span>
+<span class="sd">    offers, which of the channels, references and photometries it names</span>
+<span class="sd">    survive there, and how many images the result draws.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        row_id(str):    What :func:`make_id` returned for this row.</span>
 
-<span class="sd">        series_key(SeriesKey):    The pair the row names, and the channels</span>
-<span class="sd">            it would keep -- those the pair does not offer are dropped.</span>
+<span class="sd">        series_key(SeriesKey):    The pair the row names, and the channels,</span>
+<span class="sd">            references and photometries it would keep -- those the pair</span>
+<span class="sd">            does not offer are dropped.</span>
 
-<span class="sd">        slot_needs(list):    What each channel column reads.</span>
+<span class="sd">        columns(list):    The table's channel columns.</span>
+
+<span class="sd">        photometry_columns(list):    Its photometry columns.</span>
+
+<span class="sd">        reads(frozenset):    What :func:`get_table_reads` returned.</span>
+
+<span class="sd">        quoted_channel(str):    What :func:`get_quoted_channel` returned.</span>
 
 <span class="sd">        options(dict):    What :func:`get_slot_options` returned.</span>
+
+<span class="sd">        paths(dict):    What :func:`get_reference_paths` returned.</span>
 
 <span class="sd">        pair_options(list):    What :func:`get_pair_options` returned.</span>
 
@@ -843,36 +1584,53 @@
 <span class="sd">    """</span>
 
     <span class="n">pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">)</span>
-    <span class="n">slots</span> <span class="o">=</span> <span class="n">make_slot_cells</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">][</span><span class="n">pair</span><span class="p">]</span> <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span><span class="p">],</span>
-        <span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span>
+    <span class="n">channel_slots</span> <span class="o">=</span> <span class="n">make_channel_cells</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">options</span><span class="p">[</span><span class="n">column</span><span class="p">][</span><span class="n">pair</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">],</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">photrefs</span><span class="p">)),</span>
+        <span class="n">paths</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">photometry_slots</span> <span class="o">=</span> <span class="n">make_photometry_cells</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">options</span><span class="p">[</span><span class="n">column</span><span class="p">][</span><span class="n">pair</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">photometry_columns</span><span class="p">],</span>
+        <span class="n">series_key</span><span class="o">.</span><span class="n">photometries</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">channels</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slot</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+    <span class="n">channel_bindings</span> <span class="o">=</span> <span class="p">[</span><span class="n">slot</span><span class="p">[</span><span class="s2">"binding"</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">channel_slots</span><span class="p">]</span>
+    <span class="n">photometry_bindings</span> <span class="o">=</span> <span class="p">[</span><span class="n">slot</span><span class="p">[</span><span class="s2">"binding"</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">photometry_slots</span><span class="p">]</span>
+    <span class="c1"># Vacuously so for a row with no columns at all, whose axes bind</span>
+    <span class="c1"># nothing: there is nothing left to choose, so it is counted at once.</span>
+    <span class="c1"># Compared with None, aperture 0's id being false.</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">channel_bindings</span><span class="p">)</span> <span class="ow">and</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photometry_bindings</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">bound</span><span class="p">:</span>
         <span class="c1"># A partly bound row binds nothing: it names no data to read, and</span>
-        <span class="c1"># an empty binding is what the colour, the label and the count all</span>
-        <span class="c1"># branch on.</span>
-        <span class="n">channels</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="c1"># an empty binding is what the colour and the label branch on.</span>
+        <span class="n">channel_bindings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">photometry_bindings</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">return</span> <span class="n">make_series</span><span class="p">(</span>
         <span class="n">row_id</span><span class="p">,</span>
-        <span class="n">SeriesKey</span><span class="p">(</span><span class="o">*</span><span class="n">pair</span><span class="p">,</span> <span class="n">channels</span><span class="p">),</span>
-        <span class="n">pair_options</span><span class="p">,</span>
-        <span class="n">slots</span><span class="p">,</span>
-        <span class="p">(</span>
-            <span class="kc">None</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">channels</span>
-            <span class="k">else</span> <span class="n">count_bound_images</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="n">pair</span><span class="p">,</span> <span class="mi">0</span>
-            <span class="p">)</span>
+        <span class="n">SeriesKey</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">pair</span><span class="p">,</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">channel</span> <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">channel_bindings</span><span class="p">),</span>
+            <span class="n">photometries</span><span class="o">=</span><span class="n">photometry_bindings</span><span class="p">,</span>
+            <span class="n">photrefs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">photref</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">photref</span> <span class="ow">in</span> <span class="n">channel_bindings</span><span class="p">),</span>
         <span class="p">),</span>
+        <span class="n">pair_options</span><span class="p">,</span>
+        <span class="n">channel_slots</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="n">count_bound_images</span><span class="p">(</span>
+                <span class="n">reads</span><span class="p">,</span> <span class="n">channel_bindings</span><span class="p">,</span> <span class="n">photometry_bindings</span><span class="p">,</span> <span class="n">db_session</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pair</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">bound</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="n">photometry_slots</span><span class="o">=</span><span class="n">photometry_slots</span><span class="p">,</span>
         <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span>
+        <span class="n">quoted_channel</span><span class="o">=</span><span class="n">quoted_channel</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 
-<span class="c1"># pylint: enable=too-many-arguments</span>
+<span class="c1"># pylint: enable=too-many-arguments,too-many-locals</span>
 
 
 <div class="viewcode-block" id="get_available_series">
@@ -904,7 +1662,7 @@
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``, passed in</span>
 <span class="sd">            rather than fetched so that nothing below the view has to know</span>
-<span class="sd">            it came from the browser-interface database.</span>
+<span class="sd">            where it is stored.</span>
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
@@ -927,33 +1685,36 @@
     <span class="c1"># either way -- it is known for every image of the session and so</span>
     <span class="c1"># constrains nothing.</span>
     <span class="n">per_axis</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">get_axis_slots</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="o">*</span><span class="n">get_axis_slots</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">),</span> <span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">))</span>
     <span class="p">]</span>
-    <span class="n">headings</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">channel_headings</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">heading</span>
-        <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">,</span> <span class="n">slots</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-            <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">),</span> <span class="n">per_axis</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">heading</span> <span class="ow">in</span> <span class="n">get_slot_headings</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">channel_slots</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">per_axis</span>
+        <span class="k">for</span> <span class="n">heading</span> <span class="ow">in</span> <span class="n">get_slot_headings</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="s2">"channel"</span><span class="p">,</span> <span class="n">channel_slots</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="n">slot_needs</span> <span class="o">=</span> <span class="p">[</span><span class="n">needed</span> <span class="k">for</span> <span class="n">slots</span> <span class="ow">in</span> <span class="n">per_axis</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">]</span>
-
-    <span class="n">options</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">get_slot_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span> <span class="k">if</span> <span class="n">slot_needs</span> <span class="k">else</span> <span class="p">({},</span> <span class="p">{})</span>
+    <span class="n">photometry_headings</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">heading</span>
+        <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">photometry_slots</span> <span class="ow">in</span> <span class="n">per_axis</span>
+        <span class="k">for</span> <span class="n">heading</span> <span class="ow">in</span> <span class="n">get_slot_headings</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="s2">"photometry"</span><span class="p">,</span> <span class="n">photometry_slots</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">row_options</span> <span class="o">=</span> <span class="n">get_row_options</span><span class="p">(</span>
+        <span class="n">y_quantity</span><span class="p">,</span>
+        <span class="n">x_quantity</span><span class="o">=</span><span class="n">x_quantity</span><span class="p">,</span>
+        <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span><span class="p">,</span>
+        <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">pair_options</span> <span class="o">=</span> <span class="n">get_pair_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
 
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">pair_options</span><span class="p">:</span>
-        <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">split_pair_id</span><span class="p">(</span><span class="n">pair_options</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">row_options</span><span class="p">[</span><span class="s2">"pair_options"</span><span class="p">]:</span>
+        <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">split_pair_id</span><span class="p">(</span>
+            <span class="n">row_options</span><span class="p">[</span><span class="s2">"pair_options"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">make_row_for_pair</span><span class="p">(</span>
                 <span class="n">make_id</span><span class="p">(</span><span class="n">y_quantity</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                 <span class="n">SeriesKey</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="p">()),</span>
-                <span class="n">slot_needs</span><span class="o">=</span><span class="n">slot_needs</span><span class="p">,</span>
-                <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-                <span class="n">pair_options</span><span class="o">=</span><span class="n">pair_options</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">row_options</span><span class="p">,</span>
                 <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span>
                 <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
@@ -962,23 +1723,39 @@
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"diagnostics_fields"</span><span class="p">:</span> <span class="p">(</span>
             <span class="p">[</span><span class="s2">"Session and Type"</span><span class="p">,</span> <span class="s2">"Start (UTC)"</span><span class="p">,</span> <span class="s2">"End (UTC)"</span><span class="p">]</span>
-            <span class="o">+</span> <span class="n">headings</span>
-            <span class="o">+</span> <span class="p">[</span><span class="s2">"Count"</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">channel_headings</span>
+            <span class="c1"># Named for the channel alone: one serves every read quoting</span>
+            <span class="c1"># it, on either axis, however deep in the library.</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">"photref: </span><span class="si">{</span><span class="n">column</span><span class="o">.</span><span class="n">quoted</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">row_options</span><span class="p">[</span><span class="s2">"columns"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">quoted</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="n">photometry_headings</span>
+            <span class="c1"># Filled by the exclusion mask the footer applies, if any.</span>
+            <span class="o">+</span> <span class="p">[</span><span class="s2">"Count"</span><span class="p">,</span> <span class="s2">"Excluded"</span><span class="p">]</span>
         <span class="p">),</span>
-        <span class="s2">"pair_options"</span><span class="p">:</span> <span class="n">pair_options</span><span class="p">,</span>
+        <span class="s2">"pair_options"</span><span class="p">:</span> <span class="n">row_options</span><span class="p">[</span><span class="s2">"pair_options"</span><span class="p">],</span>
         <span class="s2">"diagnostics_list"</span><span class="p">:</span> <span class="n">rows</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
 
-<div class="viewcode-block" id="get_axes_slot_needs">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_axes_slot_needs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_axes_slot_needs</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Return what each channel column of the table reads, in column order.</span>
+<div class="viewcode-block" id="get_channel_columns">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_channel_columns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_channel_columns</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the channel columns of the table, in order.</span>
 
 <span class="sd">    The x quantity's slots followed by the y quantity's, concatenated</span>
 <span class="sd">    rather than merged: an expression's numbers are formal parameters, so</span>
 <span class="sd">    the two axes' slots are unrelated even when written alike.</span>
+
+<span class="sd">    Then a quoted column per channel a diagnostic ``fit_magnitudes``</span>
+<span class="sd">    produces is read in by quoting it, to choose that channel's reference</span>
+<span class="sd">    in: in the order the text first quotes them, x's and then y's, so that</span>
+<span class="sd">    references are chosen in the order the expressions mention them. A</span>
+<span class="sd">    channel quoted on both axes has one, an image having one reference per</span>
+<span class="sd">    channel.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x_quantity(str):    Quantity on the X axis.</span>
@@ -988,13 +1765,57 @@
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list:    One ``frozenset`` of diagnostic names per column.</span>
+<span class="sd">        list:    One :class:`ChannelColumn` per channel column.</span>
+<span class="sd">    """</span>
+
+    <span class="n">magfit</span> <span class="o">=</span> <span class="n">magfit_diagnostic_names</span><span class="p">()</span>
+    <span class="n">quoted</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">):</span>
+        <span class="n">reads</span> <span class="o">=</span> <span class="n">_walk_axis</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">get_quoted_channel_order</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+            <span class="n">magfit_read</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">name</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">read_in</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">reads</span>
+                <span class="k">if</span> <span class="n">read_in</span> <span class="o">==</span> <span class="n">channel</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">magfit</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">magfit_read</span><span class="p">:</span>
+                <span class="n">quoted</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">magfit_read</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">ChannelColumn</span><span class="p">(</span><span class="n">needed</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">get_axis_slots</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">ChannelColumn</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">magfit_read</span><span class="p">),</span> <span class="n">channel</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">magfit_read</span> <span class="ow">in</span> <span class="n">quoted</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_photometry_columns">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_photometry_columns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_photometry_columns</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the photometry columns of the table, in order.</span>
+
+<span class="sd">    The x quantity's photometry slots followed by the y quantity's, as</span>
+<span class="sd">    :func:`get_channel_columns` lays out the channel slots. A quoted</span>
+<span class="sd">    photometry gets none: it is already bound.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis.</span>
+
+<span class="sd">        y_quantity(str):    Quantity on the Y axis.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    One :class:`PhotometryColumn` per photometry column.</span>
 <span class="sd">    """</span>
 
     <span class="k">return</span> <span class="p">[</span>
-        <span class="n">needed</span>
+        <span class="n">PhotometryColumn</span><span class="p">(</span><span class="n">needed</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">get_axis_slots</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">get_axis_slots</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="p">]</span></div>
 
 
@@ -1005,9 +1826,10 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return what a row drawing one quantity against the page's x is built from.</span>
 
-<span class="sd">    The three things that have to be worked out before any row can be</span>
-<span class="sd">    built: what each channel column reads, what each may be bound to, and</span>
-<span class="sd">    the (session, image type) pairs the row may name.</span>
+<span class="sd">    The things that have to be worked out before any row can be built:</span>
+<span class="sd">    what each channel and photometry column reads, what the axes read</span>
+<span class="sd">    altogether, what each column may be bound to, and the (session, image</span>
+<span class="sd">    type) pairs the row may name.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        y_quantity(str):    The quantity the row draws, from its id.</span>
@@ -1019,21 +1841,41 @@
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple:    ``(slot_needs, options, pair_options)``, as</span>
-<span class="sd">            :func:`get_axes_slot_needs`, :func:`get_slot_options` and</span>
-<span class="sd">            :func:`get_pair_options` return them.</span>
+<span class="sd">        dict:    ``columns``, ``photometry_columns``, ``reads``,</span>
+<span class="sd">            ``quoted_channel``, ``options``, ``paths`` and</span>
+<span class="sd">            ``pair_options``, as :func:`get_channel_columns`,</span>
+<span class="sd">            :func:`get_photometry_columns`, :func:`get_table_reads`,</span>
+<span class="sd">            :func:`get_quoted_channel`, :func:`get_slot_options`,</span>
+<span class="sd">            :func:`get_reference_paths` and :func:`get_pair_options` return</span>
+<span class="sd">            them -- keyed as :func:`make_row_for_pair` takes them.</span>
 <span class="sd">    """</span>
 
-    <span class="n">slot_needs</span> <span class="o">=</span> <span class="n">get_axes_slot_needs</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
-    <span class="n">options</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">get_slot_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span> <span class="k">if</span> <span class="n">slot_needs</span> <span class="k">else</span> <span class="p">({},</span> <span class="p">{})</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">get_channel_columns</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+    <span class="n">channel_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">columns</span> <span class="o">+=</span> <span class="n">get_photometry_columns</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">get_table_reads</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+    <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">fixed_groups</span> <span class="o">=</span> <span class="n">get_slot_options</span><span class="p">(</span>
+        <span class="n">columns</span><span class="p">,</span> <span class="n">get_fixed_reads</span><span class="p">(</span><span class="n">reads</span><span class="p">),</span> <span class="n">db_session</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">slot_needs</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">,</span>
-        <span class="n">get_pair_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"columns"</span><span class="p">:</span> <span class="n">columns</span><span class="p">[:</span><span class="n">channel_count</span><span class="p">],</span>
+        <span class="s2">"photometry_columns"</span><span class="p">:</span> <span class="n">columns</span><span class="p">[</span><span class="n">channel_count</span><span class="p">:],</span>
+        <span class="s2">"reads"</span><span class="p">:</span> <span class="n">reads</span><span class="p">,</span>
+        <span class="s2">"quoted_channel"</span><span class="p">:</span> <span class="n">get_quoted_channel</span><span class="p">(</span>
+            <span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span>
+        <span class="p">),</span>
+        <span class="s2">"options"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+        <span class="c1"># The channel columns alone: a photometry column's options name</span>
+        <span class="c1"># no reference.</span>
+        <span class="s2">"paths"</span><span class="p">:</span> <span class="n">get_reference_paths</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">options</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">[:</span><span class="n">channel_count</span><span class="p">]},</span>
+            <span class="n">db_session</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">"pair_options"</span><span class="p">:</span> <span class="n">get_pair_options</span><span class="p">(</span>
+            <span class="n">columns</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">fixed_groups</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="p">),</span>
+    <span class="p">}</span></div>
 
 
 
@@ -1098,14 +1940,14 @@
 
     <span class="n">source</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">edited</span><span class="p">,</span> <span class="o">**</span><span class="n">datasets</span><span class="p">[</span><span class="n">edited</span><span class="p">]}</span>
     <span class="n">series_key</span> <span class="o">=</span> <span class="n">get_series_key</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-    <span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">pair_options</span> <span class="o">=</span> <span class="n">get_row_options</span><span class="p">(</span>
+    <span class="n">row_options</span> <span class="o">=</span> <span class="n">get_row_options</span><span class="p">(</span>
         <span class="n">split_row_id</span><span class="p">(</span><span class="n">edited</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
         <span class="n">x_quantity</span><span class="o">=</span><span class="n">x_quantity</span><span class="p">,</span>
         <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span><span class="p">,</span>
         <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">make_id</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>
-        <span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">pair_options</span>
+        <span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">row_options</span><span class="p">[</span><span class="s2">"pair_options"</span><span class="p">]</span>
     <span class="p">}:</span>
         <span class="c1"># The row names a pair this table cannot offer, the project having</span>
         <span class="c1"># changed since the table was rendered.</span>
@@ -1114,9 +1956,7 @@
     <span class="n">entry</span> <span class="o">=</span> <span class="n">make_row_for_pair</span><span class="p">(</span>
         <span class="n">next_row_id</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span> <span class="k">if</span> <span class="n">adding</span> <span class="k">else</span> <span class="n">edited</span><span class="p">,</span>
         <span class="n">series_key</span><span class="p">,</span>
-        <span class="n">slot_needs</span><span class="o">=</span><span class="n">slot_needs</span><span class="p">,</span>
-        <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-        <span class="n">pair_options</span><span class="o">=</span><span class="n">pair_options</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">row_options</span><span class="p">,</span>
         <span class="c1"># A copy starts with its section's marker rather than the marker</span>
         <span class="c1"># of the row it was copied from, which may have been set by hand:</span>
         <span class="c1"># the client posts what the section's is. A rebound row keeps</span>

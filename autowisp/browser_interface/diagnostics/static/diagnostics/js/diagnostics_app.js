@@ -52,12 +52,13 @@ function selectSymbol(event)
         updateFigure();
 }
 
-function getRowChannels(row)
+function getRowBindings(row, kind)
 {
-    // A fixed channel is text rather than a dropdown, since there is
-    // nothing to choose; either way the cell says what the row binds.
-    return Array.from(row.querySelectorAll(".slot-cell")).map(
-        (cell) => cell.dataset.channel
+    // What the row's channel or photometry cells, as *kind* says, bind. A
+    // settled cell is text rather than a dropdown, since there is nothing
+    // to choose; either way the cell says what the row binds.
+    return Array.from(row.querySelectorAll("." + kind + "-cell")).map(
+        (cell) => cell.dataset.value
                   ?? (cell.querySelector("select") || {}).value
                   ?? ""
     );
@@ -65,8 +66,9 @@ function getRowChannels(row)
 
 function isRowBound(row)
 {
-    const channels = getRowChannels(row);
-    return channels.every((channel) => channel !== "");
+    return ["channel", "photometry"].every(
+        (kind) => getRowBindings(row, kind).every((value) => value !== "")
+    );
 }
 
 function getSelectedDatasets()
@@ -88,7 +90,8 @@ function getSelectedDatasets()
             // posts back what the dropdown says and the server takes it
             // apart, as it does the row id.
             "pair": row.querySelector(".pair-select").value,
-            "channels": getRowChannels(row),
+            "channels": getRowBindings(row, "channel"),
+            "photometries": getRowBindings(row, "photometry"),
             "color": color.value,
             "marker": marker,
             "scale": document.getElementById(
@@ -136,6 +139,8 @@ function getSelectedDatasets()
             // Layout rather than data, so it travels with the rest of
             // the layout and the download view replays it.
             "y_axes": getYAxes(),
+            // Likewise how the points are drawn, not which.
+            "exclusion_mask": getExclusionMask(),
         },
     };
 }
@@ -191,11 +196,12 @@ function applyTableResponse(data)
 
     if ( data.slot_cells !== undefined && count ) {
         // Replaced rather than edited: the number of columns never
-        // changes, but which channels each may offer does, and the server
-        // renders them so that the page keeps one renderer for a cell.
-        // They sit between the session times and the count, which is what
-        // the count cell is used to find.
-        for ( const cell of row.querySelectorAll(".slot-cell") )
+        // changes, but which channels and photometries each may offer
+        // does, and the server renders them so that the page keeps one
+        // renderer for a cell. They sit between the session times and the
+        // count, which is what the count cell is used to find.
+        for ( const cell of
+              row.querySelectorAll(".channel-cell, .photometry-cell") )
             cell.remove();
         count.insertAdjacentHTML("beforebegin", data.slot_cells);
         wireSlotCells(row);
@@ -205,6 +211,7 @@ function applyTableResponse(data)
 function showDiagnosticsPlot(data)
 {
     applyTableResponse(data);
+    showExcluded(data);
     let downloadBtn = document.getElementById("download-button");
     if (downloadBtn)
         downloadBtn.style.display = "inline";
@@ -558,11 +565,25 @@ function refreshSortKey(event)
         cell.dataset.sort = select.options[select.selectedIndex].text.trim();
 }
 
+function refreshTooltip(event)
+{
+    // A channel column's dropdown shows on hover what its chosen option
+    // names in full -- the path of a photometric reference, which the
+    // option's text shortens -- and that has to follow the choice here:
+    // the server re-renders the cells only once every column is set.
+    // Delegated, as refreshSortKey is, so replaced cells need no wiring.
+    const select = event.target;
+    if ( !select.matches(".channel-select") || select.selectedIndex < 0 )
+        return;
+    select.title = select.options[select.selectedIndex].title;
+}
+
 function wireSlotCells(row)
 {
     // Called again whenever the server replaces these cells, which it does
     // every time the row's pair changes.
-    for ( const select of row.querySelectorAll(".slot-cell select") ) {
+    for ( const select of
+          row.querySelectorAll(".channel-cell select, .photometry-cell select") ) {
         select.addEventListener("click", stopClick);
         select.addEventListener("change", onRowChange);
     }
@@ -607,6 +628,57 @@ function wireDiagnosticRow(row)
     wireSlotCells(row);
 }
 
+function getExclusionMask()
+{
+    // The rule the footer applies, with what its slots are bound to, or
+    // null for none -- also on a page without the footer's dropdowns,
+    // which is one whose library holds no rule.
+    const select = document.getElementById("exclusion-mask");
+    if ( !select || !select.value )
+        return null;
+    const chosen = select.selectedOptions[0];
+    return {
+        "rule": select.value,
+        "channel": (chosen.dataset.channelSlot
+                    ? document.getElementById("exclusion-mask-channel").value
+                    : null),
+        "photometry": (
+            chosen.dataset.photometrySlot
+            ? document.getElementById("exclusion-mask-photometry").value
+            : null
+        ),
+    };
+}
+
+function onExclusionMaskChange()
+{
+    // A slot's dropdown is shown only while the chosen rule takes the slot,
+    // so that nothing on the bar is a choice that changes nothing.
+    const select = document.getElementById("exclusion-mask");
+    const chosen = select.selectedOptions[0];
+    document.getElementById("exclusion-mask-channel").hidden =
+        !chosen.dataset.channelSlot;
+    document.getElementById("exclusion-mask-photometry").hidden =
+        !chosen.dataset.photometrySlot;
+    updateFigure();
+}
+
+function showExcluded(data)
+{
+    // Every row, so that one no longer drawn, or every row once the mask
+    // is gone, is blanked rather than left saying what it used to.
+    const excluded = data.excluded || {};
+    for ( const row of document.querySelectorAll(".diagnostic-row") ) {
+        const cell = row.querySelector(".series-excluded");
+        if ( !cell )
+            continue;
+        // Short in the cell, the whole of a refusal on hovering over it.
+        const report = excluded[row.id] || {"text": "", "title": ""};
+        cell.textContent = report.text;
+        cell.title = report.title;
+    }
+}
+
 function initImageDiagnostics(plotURL)
 {
     initDiagnosticsPlotting();
@@ -615,12 +687,21 @@ function initImageDiagnostics(plotURL)
     updateFigure.callback = showDiagnosticsPlot;
     updateFigure.getParam = getSelectedDatasets;
 
-    document.getElementById("diagnostics-table-parent").addEventListener(
-        "change", refreshSortKey
-    );
+    const tableParent = document.getElementById("diagnostics-table-parent");
+    tableParent.addEventListener("change", refreshSortKey);
+    tableParent.addEventListener("change", refreshTooltip);
     document.querySelectorAll(".diagnostics-section").forEach(wireSection);
     document.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
     refreshControls();
+
+    const mask = document.getElementById("exclusion-mask");
+    if ( mask ) {
+        mask.addEventListener("change", onExclusionMaskChange);
+        for ( const id of ["exclusion-mask-channel",
+                           "exclusion-mask-photometry"] )
+            document.getElementById(id).addEventListener("change",
+                                                         updateFigure);
+    }
 
     // A row arrives drawn, so the figure is asked for at once rather than
     // waiting for a first click that no longer has to happen.

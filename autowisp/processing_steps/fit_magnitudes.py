@@ -2,7 +2,6 @@
 
 """Apply magnitude fitting to hdf5 files"""
 
-from types import SimpleNamespace
 from itertools import count
 import math
 import os
@@ -17,6 +16,7 @@ from autowisp.error_cli import cli_entry_point
 from autowisp.error_context import error_context
 from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp import magnitude_fitting
+from autowisp.magnitude_fitting.util import get_path_substitutions
 from autowisp.astrometry.transformation import (
     Transformation,
     compute_diagonal_fov,
@@ -85,15 +85,18 @@ def parse_command_line(*args):
     parser.add_argument(
         "--master-photref-fname",
         default=None,
-        help="The name of a master photometric reference to use. If specified, "
-        "the sintgle reference is ignored and magnitude fitting proceeds "
-        "without any iterations.",
+        help="The master photometric reference to fit against, in a single "
+        "pass, instead of building one. It must have been built from the "
+        "given single photometric reference: its iteration is read from its "
+        "name, by expanding --master-photref-fname-format with that "
+        "reference's header. The pipeline sets this for each batch, to the "
+        "master built from the batch's single photometric reference, if any.",
     )
     parser.add_argument(
         "--master-photref-fname-format",
         default=(
-            "{PROJHOME}/MASTERS/mphotref_"
-            "{TARGETID}_{CLRCHNL}_{EXPTIME}sec_iter{magfit_iteration:03d}.fits"
+            "{PROJHOME}/MASTERS/mphotref_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_"
+            "{FNUM}_iter{magfit_iteration:03d}.fits"
         ),
         help="A format string involving a {magfit_iteration} substitution along"
         " with any variables from the header of the single photometric "
@@ -106,7 +109,7 @@ def parse_command_line(*args):
         default=(
             "{PROJHOME}/MASTERS/"
             "mfit_stat_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_"
-            "iter{magfit_iteration:03d}.txt"
+            "{FNUM}_iter{magfit_iteration:03d}.txt"
         ),
         help="Similar to ``master_photref_fname_format``, but defines the name"
         " to use for saving the statistics of a magnitude fitting iteration.",
@@ -214,34 +217,32 @@ def parse_command_line(*args):
         "deviating by more than this many times the median absolute deviation "
         "from the median across frames are rejected. Default: %(default)s",
     )
+    parser.add_argument(
+        "--qc-exclude-file",
+        default=None,
+        help="A file listing the DR files to leave out of the master "
+        "photometric reference, one per line. Excluded DR files are still "
+        "fit. The pipeline writes this file from the step's exclusion rule; a "
+        "stand-alone run may supply one written by hand. If unspecified, "
+        "nothing is excluded.",
+    )
+    if args:
+        parser.add_argument(
+            "--magfit-exclusion-rule",
+            default=None,
+            help="A boolean expression over the image diagnostics and the "
+            "project's diagnostic expressions, true for the images to leave "
+            "out of the master photometric reference, e.g. ``(cloud[0] > 0.3)"
+            " | (srcextract_mag_zeropt['G0'] < 19.5)``. A slot subscript "
+            "stands for the channel being decided for, a quoted channel name "
+            "for that channel. Best written as a read of a diagnostic "
+            "expression, e.g. ``cloudy[0]``, which the diagnostics page can "
+            "preview; the expressions page shows the read for each expression "
+            "usable as a rule. The pipeline evaluates it to produce the "
+            "exclusion list. Excluded images are still fit. If unset, nothing "
+            "is excluded.",
+        )
     return parser.parse_args(*args)
-
-
-def get_path_substitutions(configuration, sphotref_header):
-    """Return the path substitutions to find magfit datasets."""
-
-    result = {
-        what + "_version": configuration[what + "_version"]
-        for what in ["shapefit", "srcproj", "apphot", "background", "magfit"]
-    }
-    if configuration["master_photref_fname"] is not None:
-        for iteration in count():
-            if (
-                configuration["master_photref_fname_format"].format(
-                    **sphotref_header, **result, magfit_iteration=iteration
-                )
-                == configuration["master_photref_fname"]
-            ):
-                result["magfit_iteration"] = iteration
-                break
-            if iteration >= configuration["max_magfit_iterations"]:
-                raise ValueError(
-                    "Master photometric reference "
-                    f"{configuration['master_photref_fname']!r} does not appear"
-                    " to follow the specified filename format: "
-                    f"{configuration['master_photref_fname_format']!r}!"
-                )
-    return result
 
 
 def get_dr_fnames_and_catalog(
@@ -274,21 +275,18 @@ def fit_magnitudes(
 ):
     """Perform magnitude fitting for the given DR files."""
 
-    if start_status is None:
-        start_status = -1
-    else:
-        assert start_status % 2 == 1, (
-            f"Magnitude fitting recorded an even status {start_status}; only "
-            "odd ones mark a completed iteration it could resume from!"
-        )
-
-    with DataReductionFile(
-        configuration["single_photref_dr_fname"], "r"
-    ) as sphotref_dr_file:
-        sphotref_header = sphotref_dr_file.get_frame_header()
-
+    magfit = magnitude_fitting.MagnitudeFitting(
+        configuration,
+        start_status=start_status,
+        mark_start=mark_start,
+        mark_end=mark_end,
+    )
     dr_fnames, catalog_sources, catalog_fname = get_dr_fnames_and_catalog(
-        dr_collection, configuration, sphotref_header, mark_start, mark_end
+        dr_collection,
+        configuration,
+        magfit.sphotref_header,
+        mark_start,
+        mark_end,
     )
 
     # Everything below consumes the catalog, so name it on any error
@@ -299,71 +297,16 @@ def fit_magnitudes(
             RelatedFile(FileKind.CATALOG, catalog_fname, role="input")
         ]
     ):
-        kwargs = {
-            "fit_dr_filenames": dr_fnames,
-            "configuration": SimpleNamespace(
-                **configuration,
-                continue_from_iteration=(start_status + 1) // 2,
-                source_name_format="{0:d}",
-            ),
-            "mark_start": mark_start,
-            "mark_end": mark_end,
-            "path_substitutions": get_path_substitutions(
-                configuration, sphotref_header
-            ),
+        new_masters = magfit(dr_fnames, catalog_sources)
+    if new_masters is None:
+        return None
+    return new_masters + [
+        {
+            "filename": catalog_fname,
+            "preference_order": None,
+            "type": "magfit_catalog",
         }
-
-        if configuration["master_photref_fname"] is not None:
-            _logger.info(
-                "Using existing master photometric reference: %s with\n\t%s",
-                configuration["master_photref_fname"],
-                "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
-            )
-            assert start_status == -1, (
-                f"Magnitude fitting was asked to resume from {start_status} "
-                "against an existing master photometric reference, which "
-                "takes a single pass and so can only start from scratch!"
-            )
-            magnitude_fitting.single_iteration(
-                photref=magnitude_fitting.get_master_photref(
-                    configuration["master_photref_fname"]
-                ),
-                **kwargs,
-            )
-            return None
-
-        _logger.info(
-            "Starting iterative magfit for single photref: %s with\n\t%s",
-            configuration["single_photref_dr_fname"],
-            "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
-        )
-
-        master_photref_fname, magfit_stat_fname = (
-            magnitude_fitting.iterative_refit(
-                single_photref_dr_fname=configuration[
-                    "single_photref_dr_fname"
-                ],
-                catalog_sources=catalog_sources,
-                **kwargs,
-            )
-        )
-        return [
-            {
-                "filename": master_photref_fname,
-                "preference_order": None,
-                "type": "master_photref",
-            },
-            {
-                "filename": magfit_stat_fname,
-                "preference_order": None,
-                "type": "magfit_stat",
-            },
-            {
-                "filename": catalog_fname,
-                "preference_order": None,
-                "type": "magfit_catalog",
-            },
-        ]
+    ]
 
 
 def delete_master(filename, master_type):
@@ -409,6 +352,7 @@ def _delete_magfit(dr_file, phot_method, substitutions):
         )
     if substitutions["magfit_iteration"] == 0:
         for cfg_attr in [
+            "qc_included",
             "cfg.correction_type",
             "cfg.correction",
             "cfg.require",

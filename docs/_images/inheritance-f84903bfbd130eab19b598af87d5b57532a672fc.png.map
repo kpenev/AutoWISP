@@ -1,0 +1,6 @@
+<map id="inheritancee64552f62f" name="inheritancee64552f62f">
+<area shape="rect" id="node1" href="#autowisp.tests.test_master_photref_lookup.MasterPhotrefProject" target="_top" title="Adds writing and registering masters, holding no tests itself." alt="" coords="11,152,455,177"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_master_photref_lookup.TestPhotrefNameClash" target="_top" title="Under formats naming masters by target, channel and exposure time." alt="" coords="5,225,460,251"/>
+<area shape="rect" id="node2" href="autowisp.tests.test_photref_binding.html#autowisp.tests.test_photref_binding.PhotrefBindingProject" target="_top" title="A project with one registered single photref, holding no tests itself." alt="" coords="33,79,433,104"/>
+<area shape="rect" id="node4" title="A class whose instances are single test cases." alt="" coords="149,5,317,31"/>
+</map>

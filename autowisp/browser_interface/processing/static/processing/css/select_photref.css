@@ -19,3 +19,9 @@ svg {
     width: 100%;
     height: auto;
 }
+
+/* What the magfit exclusion rule held back from the candidates. */
+.photref-note {
+    color: #fc6;
+    padding: 0.25rem 0.5rem;
+}

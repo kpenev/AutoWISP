@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -178,10 +181,16 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ImageMasterSelection</span><span class="p">(</span><span class="n">DataModelSubBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Records the resolved master file selected for each image/channel/type.</span>
 
-<span class="sd">    Populated when a photometric reference is registered in the BUI, binding</span>
-<span class="sd">    each qualifying image/channel to the selected MasterFile. Downstream steps</span>
-<span class="sd">    (create_lightcurves, epd, tfa) query this table first to guarantee they</span>
-<span class="sd">    use the same master as fit_magnitudes, without re-evaluating conditions.</span>
+<span class="sd">    Holds the single photometric reference of every image/channel</span>
+<span class="sd">    fit_magnitudes sees. Rows are written when a reference is registered in</span>
+<span class="sd">    the BUI, binding the qualifying images, and by the pipeline before</span>
+<span class="sd">    magnitude fitting, for images not yet bound: to a suitable reference</span>
+<span class="sd">    within ``max_photref_separation`` if that is finite, otherwise to the one</span>
+<span class="sd">    the condition expressions select. All go through</span>
+<span class="sd">    :func:`autowisp.database.image_processing.record_photref_bindings`.</span>
+<span class="sd">    Downstream steps (create_lightcurves, epd, tfa) query this table first to</span>
+<span class="sd">    guarantee they use the same master as fit_magnitudes, without</span>
+<span class="sd">    re-evaluating conditions.</span>
 <span class="sd">    """</span>
 
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"image_master_selection"</span>

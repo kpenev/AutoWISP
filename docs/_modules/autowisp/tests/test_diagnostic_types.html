@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -185,9 +188,11 @@
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_photometry_id</span><span class="p">,</span>
     <span class="n">is_diagnostic</span><span class="p">,</span>
     <span class="n">is_known_quantity</span><span class="p">,</span>
     <span class="n">is_quantile_diagnostic</span><span class="p">,</span>
+    <span class="n">shapefit_photometry</span><span class="p">,</span>
     <span class="n">standard_diagnostic_names</span><span class="p">,</span>
     <span class="n">standard_diagnostic_types</span><span class="p">,</span>
     <span class="n">time_quantity</span><span class="p">,</span>
@@ -321,6 +326,34 @@
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_centre"</span><span class="p">,</span> <span class="s2">"no_such_thing"</span><span class="p">,</span> <span class="s2">""</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_known_quantity</span><span class="p">(</span><span class="n">name</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestPhotometryId">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestPhotometryId">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPhotometryId</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The id each photometry of magfit's arrays is recorded under."""</span>
+
+<div class="viewcode-block" id="TestPhotometryId.test_same_photometry_same_id">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestPhotometryId.test_same_photometry_same_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_same_photometry_same_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""With and without a shape fit, an aperture keeps its index."""</span>
+
+        <span class="c1">#: ``(position, has_shape_fit, id)``: the same apertures laid out</span>
+        <span class="c1">#: with and without a shape fit in front of them.</span>
+        <span class="n">layouts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">shapefit_photometry</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">position</span><span class="p">,</span> <span class="n">has_shape_fit</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">layouts</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span> <span class="n">has_shape_fit</span><span class="o">=</span><span class="n">has_shape_fit</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">get_photometry_id</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">has_shape_fit</span><span class="p">),</span> <span class="n">expected</span>
+                <span class="p">)</span></div>
 </div>
 
 

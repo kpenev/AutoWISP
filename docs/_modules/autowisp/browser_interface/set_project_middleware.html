@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -166,8 +169,11 @@
   <h1>Source code for autowisp.browser_interface.set_project_middleware</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Define middleware to handle multiple AutoWISP BUI projects."""</span>
 
-<span class="c1"># from autowisp.database.interface import set_project_home</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">redirect</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_project_home</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabaseError</span>
 
 
 <div class="viewcode-block" id="set_project_middleware">
@@ -176,11 +182,26 @@
 <span class="w">    </span><span class="sd">"""Middleware to set the active BUI project for processing requests."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">activate_project</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Set the correct database before processing the request."""</span>
+<span class="w">        </span><span class="sd">"""Set the correct database before processing the request.</span>
+
+<span class="sd">        The project comes from the session, which outlives a restart of the</span>
+<span class="sd">        interface, so it may name a project whose database this version</span>
+<span class="sd">        cannot use as it stands -- typically one needing a migration that</span>
+<span class="sd">        arrived with an upgrade. Only selecting a project migrates it, and</span>
+<span class="sd">        failing here would fail every page, the project list included, so</span>
+<span class="sd">        the project is dropped from the session instead and the user sent</span>
+<span class="sd">        to that list with the reason.</span>
+<span class="sd">        """</span>
 
         <span class="n">project_home</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"project_home"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">project_home</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">DatabaseError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"project_home"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"project_name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"home:home"</span><span class="p">)</span>
 
         <span class="n">response</span> <span class="o">=</span> <span class="n">get_response</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
 

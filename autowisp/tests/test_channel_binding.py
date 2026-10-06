@@ -54,6 +54,7 @@ from autowisp.database.data_model.provenance import (
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.browser_interface.core.plot_utils import channel_colors
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     collect_series_data,
     get_series_data,
@@ -281,12 +282,12 @@ class TestChannelColumns(TwoChannelProject):
         row = self.first_row("jd", "bg_center")
 
         self.assertEqual(split_pair_id(row["pair"])[0], self.session_id)
-        self.assertEqual(len(row["slots"]), 1)
-        self.assertFalse(row["slots"][0]["fixed"])
+        self.assertEqual(len(row["channel_slots"]), 1)
+        self.assertFalse(row["channel_slots"][0]["fixed"])
         self.assertEqual(
             [
                 (option["value"], option["text"])
-                for option in row["slots"][0]["options"]
+                for option in row["channel_slots"][0]["options"]
                 if option["value"]
             ],
             [
@@ -300,7 +301,7 @@ class TestChannelColumns(TwoChannelProject):
         """Two axes over a diagnostic ask for two channels, not one."""
 
         self.assertEqual(
-            len(self.first_row("bg_center", "bg_center")["slots"]), 2
+            len(self.first_row("bg_center", "bg_center")["channel_slots"]), 2
         )
 
 
@@ -362,7 +363,7 @@ class TestRebinding(TwoChannelProject):
 
         response = self.rebind(self.first_row("jd", "bg_center"), "")
 
-        self.assertIn('data-channel="R"', response["slot_cells"])
+        self.assertIn('data-value="R"', response["slot_cells"])
         self.assertEqual(response["count"], len(self.mono_values))
 
     def test_a_rebinding_carries_the_session_times(self):
@@ -405,7 +406,7 @@ class TestRebinding(TwoChannelProject):
         response = self.rebind(self.first_row("jd", "bg_center"), "B")
 
         self.assertNotIn("B", response["slot_cells"])
-        self.assertIn('data-channel="R"', response["slot_cells"])
+        self.assertIn('data-value="R"', response["slot_cells"])
 
     def test_nothing_is_answered_without_a_rebound_row(self):
         """Which is every other redraw: a colour, a marker, a row toggled.
@@ -561,19 +562,126 @@ class TestAddedRow(TwoChannelProject):
             'class="add-row"',
             'class="remove-row"',
             'class="pair-select"',
-            'class="slot-cell"',
+            'class="channel-cell"',
             'class="series-count"',
         ):
             self.assertIn(expected, fields["added_row"])
 
 
+class TestFixedChannelReads(TwoChannelProject):
+    """Expressions naming a channel by quoting it, rather than by slot.
+
+    ``B`` is recorded in the colour session only, so an expression reading
+    it there is what tells whether quoted channels narrow the pairs a row
+    may name.
+    """
+
+    expressions = {
+        "against_b": "bg_center[7] - bg_center['B']",
+        "colour": "bg_center['R'] / bg_center['B']",
+    }
+
+    def table(self, x_quantity, y_quantity):
+        """Return what the table offers, with the library above."""
+
+        with start_db_session() as db_session:
+            return get_available_series(
+                x_quantity,
+                y_quantity,
+                self.expressions,
+                db_session,
+                marker="o",
+            )
+
+    def test_a_quoted_channel_gets_no_column(self):
+        """Only the slot is a column: ``B`` is not the user's to choose."""
+
+        row = self.table("jd", "against_b")["diagnostics_list"][0]
+
+        self.assertEqual(len(row["channel_slots"]), 1)
+
+    def test_a_quoted_channel_narrows_the_pairs(self):
+        """The monochrome session records no ``B``, so is not offered."""
+
+        self.assertEqual(
+            [
+                split_pair_id(option["value"])[0]
+                for option in self.table("jd", "against_b")["pair_options"]
+            ],
+            [self.session_id],
+        )
+
+    def test_all_channels_quoted_still_makes_a_row(self):
+        """Neither axis binds a column, and the row is counted at once."""
+
+        table = self.table("jd", "colour")
+
+        self.assertEqual(len(table["diagnostics_list"]), 1)
+        row = table["diagnostics_list"][0]
+        self.assertEqual(row["channel_slots"], [])
+        self.assertEqual(row["count"], len(self.values_of["B"]))
+        self.assertEqual(split_pair_id(row["pair"])[0], self.session_id)
+
+    def test_all_channels_quoted_takes_the_first_quoted_colour(self):
+        """``colour`` quotes ``R`` first, so defaults to R's colour."""
+
+        self.assertEqual(
+            self.table("jd", "colour")["diagnostics_list"][0]["color"],
+            channel_colors["R"],
+        )
+
+    def test_a_column_decides_the_colour_despite_quotes(self):
+        """Any slot to bind makes the binding, not the quotes, decide.
+
+        So a row still to be bound is uncoloured -- rather than coloured
+        for ``B``, which ``against_b`` quotes -- until a channel is chosen.
+        """
+
+        self.assertEqual(
+            self.table("jd", "against_b")["diagnostics_list"][0]["color"],
+            "#ffffff",
+        )
+
+    def test_all_channels_quoted_is_drawn(self):
+        """A row posting no channels is bound when the axes take none."""
+
+        with start_db_session() as db_session:
+            drawn = collect_series_data(
+                [
+                    {
+                        "id": make_id("colour", 0),
+                        "pair": make_id(self.session_id, "object"),
+                        "marker": "o",
+                        "channels": [],
+                    }
+                ],
+                "jd",
+                self.expressions,
+                db_session,
+            )
+
+        self.assertEqual(len(drawn), 1)
+        series, x_values, y_values, _ = drawn[0]
+        # What a click on a point opens the frame in, binding none itself:
+        # the first channel quoted, as written.
+        self.assertEqual(series["channel"], "R")
+        self.assertEqual(x_values.tolist(), self.jd_values())
+        self.assertEqual(
+            y_values.tolist(),
+            [
+                red / blue
+                for red, blue in zip(self.values_of["R"], self.values_of["B"])
+            ],
+        )
+
+
 class TestTwoChannelSeriesValues(TwoChannelProject):
     """Which of the posted rows are drawn, and what each one reads.
 
-    Named for its fixture rather than for its subject, ``test_expression_series``
-    having a ``TestSeriesValues`` of its own: the suite gathers every test class
-    into one module namespace, where two of a name means one silently replacing
-    the other.
+    Named for its fixture rather than for its subject,
+    ``test_expression_series`` having a ``TestSeriesValues`` of its own: the
+    suite gathers every test class into one module namespace, where two of a
+    name means one silently replacing the other.
     """
 
     def test_which_rows_are_drawn(self):

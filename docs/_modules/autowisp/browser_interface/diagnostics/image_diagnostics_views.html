@@ -131,7 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
@@ -201,8 +204,12 @@
     <span class="n">get_quantity_values</span><span class="p">,</span>
     <span class="n">time_quantity</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_quantity_arity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_channel_arity</span><span class="p">,</span>
+    <span class="n">get_photometry_arity</span><span class="p">,</span>
+<span class="p">)</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exclusion_mask</span><span class="w"> </span><span class="kn">import</span> <span class="n">decide_mask</span><span class="p">,</span> <span class="n">get_mask_options</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.quantities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">describe_quantity</span><span class="p">,</span>
     <span class="n">get_available_diagnostics</span><span class="p">,</span>
@@ -213,10 +220,57 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.series_table</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_available_series</span><span class="p">,</span>
+    <span class="n">get_channel_columns</span><span class="p">,</span>
+    <span class="n">get_photometry_columns</span><span class="p">,</span>
+    <span class="n">get_quoted_channel</span><span class="p">,</span>
     <span class="n">get_series_key</span><span class="p">,</span>
     <span class="n">posted_rows</span><span class="p">,</span>
     <span class="n">split_row_id</span><span class="p">,</span>
 <span class="p">)</span>
+
+
+<div class="viewcode-block" id="_bind_axes">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views._bind_axes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_bind_axes</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">quantities</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what each of *quantities* is bound to by one row.</span>
+
+<span class="sd">    The row's channels are the two axes' channel bindings laid end to end,</span>
+<span class="sd">    in the order the columns are, and its photometries likewise, so each</span>
+<span class="sd">    axis takes as many of each as the quantity it draws has parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        series_key(SeriesKey):    What the row binds.</span>
+
+<span class="sd">        quantities(list):    The quantities on its axes, x first.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    ``(channels, photometries)`` per quantity, as</span>
+<span class="sd">            :func:`get_quantity_values` takes them.</span>
+<span class="sd">    """</span>
+
+    <span class="n">axis_bindings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">channels_taken</span> <span class="o">=</span> <span class="n">photometries_taken</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">channel_arity</span> <span class="o">=</span> <span class="n">get_channel_arity</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="n">photometry_arity</span> <span class="o">=</span> <span class="n">get_photometry_arity</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="n">axis_bindings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span>
+                    <span class="n">channels_taken</span> <span class="p">:</span> <span class="n">channels_taken</span> <span class="o">+</span> <span class="n">channel_arity</span>
+                <span class="p">],</span>
+                <span class="n">series_key</span><span class="o">.</span><span class="n">photometries</span><span class="p">[</span>
+                    <span class="n">photometries_taken</span> <span class="p">:</span> <span class="n">photometries_taken</span> <span class="o">+</span> <span class="n">photometry_arity</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">channels_taken</span> <span class="o">+=</span> <span class="n">channel_arity</span>
+        <span class="n">photometries_taken</span> <span class="o">+=</span> <span class="n">photometry_arity</span>
+
+    <span class="k">return</span> <span class="n">axis_bindings</span></div>
+
 
 
 <div class="viewcode-block" id="get_series_data">
@@ -243,7 +297,7 @@
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``, passed in</span>
 <span class="sd">            rather than fetched so that nothing below the view has to know</span>
-<span class="sd">            it came from the browser-interface database.</span>
+<span class="sd">            where it is stored.</span>
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
@@ -255,30 +309,22 @@
     <span class="n">y_quantity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])</span>
     <span class="n">quantities</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">]</span>
 
-    <span class="c1"># The row's channels are the two axes' bindings laid end to end, in</span>
-    <span class="c1"># the order the columns are, so each axis takes as many as the</span>
-    <span class="c1"># quantity it draws has parameters.</span>
-    <span class="n">bindings</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">taken</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
-        <span class="n">arity</span> <span class="o">=</span> <span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
-        <span class="n">bindings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">taken</span> <span class="p">:</span> <span class="n">taken</span> <span class="o">+</span> <span class="n">arity</span><span class="p">])</span>
-        <span class="n">taken</span> <span class="o">+=</span> <span class="n">arity</span>
+    <span class="n">axis_bindings</span> <span class="o">=</span> <span class="n">_bind_axes</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">quantities</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
 
     <span class="n">wanted</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">channels</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">quantities</span><span class="p">,</span> <span class="n">bindings</span><span class="p">):</span>
-        <span class="n">wanted</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">binding</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">quantities</span><span class="p">,</span> <span class="n">axis_bindings</span><span class="p">):</span>
+        <span class="n">wanted</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">binding</span><span class="p">)</span>
 
     <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
         <span class="n">series_key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
     <span class="p">)</span>
 
     <span class="c1"># By quantity *and* binding: the two axes may name one quantity, read</span>
-    <span class="c1"># either in the same channels -- a plot of it against itself -- or in</span>
-    <span class="c1"># two, which is how it is compared between them.</span>
+    <span class="c1"># either in the same channels and photometries -- a plot of it against</span>
+    <span class="c1"># itself -- or in two, which is how it is compared between them.</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">values</span><span class="p">[</span><span class="n">quantities</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">bindings</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
-        <span class="n">values</span><span class="p">[</span><span class="n">quantities</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="n">bindings</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+        <span class="n">values</span><span class="p">[</span><span class="n">quantities</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">axis_bindings</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+        <span class="n">values</span><span class="p">[</span><span class="n">quantities</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="n">axis_bindings</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
         <span class="n">image_ids</span><span class="p">,</span>
     <span class="p">)</span></div>
 
@@ -306,7 +352,9 @@
 <span class="sd">            naming one of</span>
 <span class="sd">            :data:`~autowisp.browser_interface.core.plot_utils.line_styles`</span>
 <span class="sd">            draws a curve instead of points, reading the scale as the line</span>
-<span class="sd">            width where points read it as the marker size.</span>
+<span class="sd">            width where points read it as the marker size. An ``excluded``</span>
+<span class="sd">            flag per image, where an exclusion mask is applied, draws the</span>
+<span class="sd">            points it flags faintly; a curve is drawn as it is.</span>
 <span class="sd">    """</span>
 
     <span class="c1"># The arrays arrive NaN-padded to the canonical image list. Dropping the</span>
@@ -318,6 +366,9 @@
     <span class="n">keep</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x_values</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_values</span><span class="p">)</span>
     <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span> <span class="o">=</span> <span class="n">x_values</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">y_values</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
     <span class="n">image_ids</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image_ids</span><span class="p">)[</span><span class="n">keep</span><span class="p">]</span>
+    <span class="n">excluded</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"excluded"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">keep</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">))</span>
+    <span class="p">)[</span><span class="n">keep</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">"marker"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">line_styles</span><span class="p">:</span>
         <span class="c1"># A curve has to be walked in x order. Against jd the canonical</span>
@@ -337,14 +388,21 @@
         <span class="p">)</span>
         <span class="k">return</span>
 
+    <span class="c1"># One collection, faint where excluded, so that every point still</span>
+    <span class="c1"># clicks through to its frame. PDF keeps the opacity, so a download</span>
+    <span class="c1"># shows the mask too.</span>
     <span class="n">collection</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
         <span class="n">x_values</span><span class="p">,</span>
         <span class="n">y_values</span><span class="p">,</span>
         <span class="n">marker</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"marker"</span><span class="p">],</span>
         <span class="n">s</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"scale"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span>
         <span class="n">c</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"color"</span><span class="p">],</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">excluded</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
         <span class="n">label</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"label"</span><span class="p">],</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">]:</span>
+        <span class="c1"># Nothing to open a frame in: the series reads no channel at all.</span>
+        <span class="k">return</span>
     <span class="n">collection</span><span class="o">.</span><span class="n">set_urls</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="n">reverse</span><span class="p">(</span>
@@ -455,7 +513,9 @@
 
 <div class="viewcode-block" id="collect_series_data">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">collect_series_data</span><span class="p">(</span><span class="n">series_list</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_series_data</span><span class="p">(</span>
+    <span class="n">series_list</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read the selected series, dropping those with nothing to draw.</span>
 
@@ -475,6 +535,12 @@
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
+<span class="sd">        mask(dict or None):    The exclusion mask to apply to every drawn</span>
+<span class="sd">            series, as :func:`~.exclusion_mask.decide_mask` takes it, or</span>
+<span class="sd">            None for none. Each drawn series is then given ``excluded``, a</span>
+<span class="sd">            flag per image, and ``excluded_report``, what its Excluded cell</span>
+<span class="sd">            says.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        list:    ``(series, x_values, y_values, image_ids)`` tuples for the</span>
 <span class="sd">            series having at least one point where both axes are finite.</span>
@@ -488,33 +554,62 @@
             <span class="k">continue</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"marker"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
             <span class="k">continue</span>
-        <span class="c1"># ``not channels`` as well as ``all``, which an empty list passes:</span>
+        <span class="c1"># As many channels as the table has channel columns -- one per</span>
+        <span class="c1"># parameter of the two axes, and one per channel a magfit</span>
+        <span class="c1"># diagnostic is read in by quoting it -- rather than merely some:</span>
         <span class="c1"># a page whose script predates the channel columns posts none at</span>
-        <span class="c1"># all, and binding nothing is not a binding.  A payload predating</span>
-        <span class="c1"># the chosen pair names no population either.  Both are skipped</span>
-        <span class="c1"># rather than refused -- a stale page should draw nothing, not</span>
-        <span class="c1"># turn the response into an error page.</span>
+        <span class="c1"># all, which is not a binding -- unless no column exists, when</span>
+        <span class="c1"># none is exactly what a bound row posts. Likewise as many</span>
+        <span class="c1"># photometries as it has photometry columns, all set. A payload</span>
+        <span class="c1"># predating the chosen pair names no population either. All are</span>
+        <span class="c1"># skipped rather than refused -- a stale page should draw nothing,</span>
+        <span class="c1"># not turn the response into an error page.</span>
+        <span class="n">quantity</span> <span class="o">=</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">channels</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"channels"</span><span class="p">,</span> <span class="p">())</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">channels</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pair"</span><span class="p">):</span>
+        <span class="n">photometries</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"photometries"</span><span class="p">,</span> <span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+            <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_channel_columns</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">))</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">photometries</span><span class="p">)</span>
+            <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_photometry_columns</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">))</span>
+            <span class="ow">or</span> <span class="s2">""</span> <span class="ow">in</span> <span class="n">photometries</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pair"</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">continue</span>
         <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_series_data</span><span class="p">(</span>
             <span class="n">series</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
         <span class="p">)</span>
         <span class="n">x_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">x_values</span><span class="p">)</span>
         <span class="n">y_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">y_values</span><span class="p">)</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x_values</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_values</span><span class="p">)</span>
         <span class="c1"># A padded array is full length even when every value is NaN, so</span>
         <span class="c1"># its size no longer tells us whether anything will be drawn.</span>
-        <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x_values</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_values</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">finite</span><span class="p">):</span>
             <span class="c1"># Two things the figure reads off the binding rather than off</span>
             <span class="c1"># the client: the channel a click on a point opens the frame</span>
             <span class="c1"># in -- the first of them, for want of a better answer once a</span>
-            <span class="c1"># series can bind several -- and the quantity the row draws,</span>
-            <span class="c1"># which its y axis is labelled for.</span>
+            <span class="c1"># series can bind several, or where it binds none the first</span>
+            <span class="c1"># its quantities quote, as the table colours it -- and the</span>
+            <span class="c1"># quantity the row draws, which its y axis is labelled for.</span>
             <span class="n">drawn</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="o">**</span><span class="n">series</span><span class="p">,</span>
-                <span class="s2">"channel"</span><span class="p">:</span> <span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">channels</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
-                <span class="s2">"quantity"</span><span class="p">:</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="c1"># From the key rather than the posted values, which name a</span>
+                <span class="c1"># reference as well where a column binds one.</span>
+                <span class="s2">"channel"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">get_series_key</span><span class="p">(</span><span class="n">series</span><span class="p">)</span><span class="o">.</span><span class="n">channel</span>
+                    <span class="ow">or</span> <span class="n">get_quoted_channel</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">"quantity"</span><span class="p">:</span> <span class="n">quantity</span><span class="p">,</span>
             <span class="p">}</span>
+            <span class="k">if</span> <span class="n">mask</span><span class="p">:</span>
+                <span class="n">drawn</span><span class="p">[</span><span class="s2">"excluded"</span><span class="p">],</span> <span class="n">drawn</span><span class="p">[</span><span class="s2">"excluded_report"</span><span class="p">]</span> <span class="o">=</span> <span class="n">decide_mask</span><span class="p">(</span>
+                    <span class="n">mask</span><span class="p">,</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span>
+                    <span class="n">finite</span><span class="p">,</span>
+                    <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span><span class="p">,</span>
+                    <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="n">series_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">drawn</span><span class="p">,</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">series_data</span></div>
@@ -592,18 +687,33 @@
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
 <span class="sd">        figure_config(dict):    Layout of the figure, defining</span>
-<span class="sd">            ``plot_height_frac``, ``num_columns`` and ``aspect_ratio``.</span>
+<span class="sd">            ``plot_height_frac``, ``num_columns`` and ``aspect_ratio``, and</span>
+<span class="sd">            optionally the ``exclusion_mask`` to apply.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        matplotlib.figure.Figure:    The completed figure.</span>
+
+<span class="sd">        dict:    What the page shows besides the figure: under ``excluded``,</span>
+<span class="sd">            each drawn row's Excluded cell by row id, empty without a mask.</span>
 <span class="sd">    """</span>
 
     <span class="n">figure_config</span> <span class="o">=</span> <span class="n">figure_config</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">against_time</span> <span class="o">=</span> <span class="n">x_quantity</span> <span class="o">==</span> <span class="n">time_quantity</span>
 
     <span class="n">series_data</span> <span class="o">=</span> <span class="n">collect_series_data</span><span class="p">(</span>
-        <span class="n">series_list</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="n">series_list</span><span class="p">,</span>
+        <span class="n">x_quantity</span><span class="p">,</span>
+        <span class="n">expressions</span><span class="p">,</span>
+        <span class="n">db_session</span><span class="p">,</span>
+        <span class="n">mask</span><span class="o">=</span><span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"exclusion_mask"</span><span class="p">),</span>
     <span class="p">)</span>
+    <span class="n">alongside</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"excluded"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">series</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]:</span> <span class="n">series</span><span class="p">[</span><span class="s2">"excluded_report"</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">series</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="ow">in</span> <span class="n">series_data</span>
+            <span class="k">if</span> <span class="s2">"excluded_report"</span> <span class="ow">in</span> <span class="n">series</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
 
     <span class="c1"># Julian dates are large numbers spanning a tiny range, so the axis is</span>
     <span class="c1"># offset to stay readable. One offset for the whole figure, not one per</span>
@@ -622,7 +732,7 @@
         <span class="n">num_columns</span><span class="o">=</span><span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"num_columns"</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">all_axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">fig</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">alongside</span>
 
     <span class="c1"># Decided from everything drawn rather than per subplot, so that a</span>
     <span class="c1"># quantity keeps the same axis, the same side and the same label in</span>
@@ -651,7 +761,7 @@
         <span class="n">host</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 
     <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">fig</span></div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">alongside</span></div>
 
 
 
@@ -753,7 +863,8 @@
 <span class="sd">                        ``figure_config`` dict.</span>
 <span class="sd">        figure_factory: Callable accepting ``series_list``, ``db_session``,</span>
 <span class="sd">                        ``figure_config``, plus any URL kwargs as keyword</span>
-<span class="sd">                        arguments.</span>
+<span class="sd">                        arguments, and returning the figure and a dict of</span>
+<span class="sd">                        fields to answer alongside it.</span>
 <span class="sd">        session_key:    If given, the posted plot configuration is stored in</span>
 <span class="sd">                        the session under this key so a download view can</span>
 <span class="sd">                        retrieve it.</span>
@@ -803,14 +914,14 @@
             <span class="p">}</span>
             <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">figure_factory</span><span class="p">(</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">figure_fields</span> <span class="o">=</span> <span class="n">figure_factory</span><span class="p">(</span>
             <span class="n">series_list</span><span class="p">,</span>
             <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
             <span class="n">figure_config</span><span class="o">=</span><span class="n">figure_config</span><span class="p">,</span>
             <span class="o">**</span><span class="n">url_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">figure_to_svg_response</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">alongside</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">figure_to_svg_response</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">alongside</span><span class="p">,</span> <span class="o">**</span><span class="n">figure_fields</span><span class="p">)</span></div>
 
 
 
@@ -839,7 +950,7 @@
     <span class="n">pyplot</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">"default"</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">figure_factory</span><span class="p">(</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">figure_factory</span><span class="p">(</span>
             <span class="n">series_list</span><span class="p">,</span>
             <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
             <span class="n">figure_config</span><span class="o">=</span><span class="n">figure_config</span><span class="p">,</span>
@@ -932,15 +1043,14 @@
 <span class="sd">            order they take their markers in.</span>
 
 <span class="sd">        expressions(dict):    The library.  It arrives as an argument</span>
-<span class="sd">            rather than being fetched here because it comes from the</span>
-<span class="sd">            browser-interface database, and keeping that out means</span>
-<span class="sd">            everything in this module can be tested against a project</span>
-<span class="sd">            database alone.  ``views.py`` supplies it.</span>
+<span class="sd">            rather than being fetched here, so that everything in this</span>
+<span class="sd">            module can be tested with a library written by the test.</span>
+<span class="sd">            ``views.py`` supplies it.</span>
 
 <span class="sd">        expression_descriptions(dict):    What each expression is for,</span>
-<span class="sd">            from the same database and passed in for the same reason. The</span>
-<span class="sd">            recorded diagnostics describe themselves in the project one,</span>
-<span class="sd">            and the two are merged here.</span>
+<span class="sd">            passed in for the same reason. The recorded diagnostics</span>
+<span class="sd">            describe themselves in the project database, and the two are</span>
+<span class="sd">            merged here.</span>
 <span class="sd">    """</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
@@ -963,10 +1073,12 @@
             <span class="k">for</span> <span class="n">section_y</span><span class="p">,</span> <span class="n">marker</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">y_quantities</span><span class="p">,</span> <span class="n">section_markers</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="n">available</span> <span class="o">=</span> <span class="n">get_available_diagnostics</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="n">mask_options</span> <span class="o">=</span> <span class="n">get_mask_options</span><span class="p">(</span><span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
 
     <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"sections"</span><span class="p">:</span> <span class="n">sections</span><span class="p">,</span>
         <span class="s2">"available_diagnostics"</span><span class="p">:</span> <span class="n">available</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">mask_options</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">context</span><span class="p">[</span><span class="s2">"x_quantity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_quantity</span>
     <span class="n">context</span><span class="p">[</span><span class="s2">"y_quantities"</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_quantities</span>

@@ -1,7 +1,6 @@
 py_src = [
   '__init__.py',
   'add_images_to_db.py',
-  'calculate_photref_merit.py',
   'calibrate.py',
   'create_lightcurves.py',
   'epd.py',

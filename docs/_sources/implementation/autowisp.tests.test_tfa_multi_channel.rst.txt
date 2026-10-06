@@ -1,0 +1,7 @@
+autowisp.tests.test\_tfa\_multi\_channel module
+===============================================
+
+.. automodule:: autowisp.tests.test_tfa_multi_channel
+   :members:
+   :show-inheritance:
+   :undoc-members:

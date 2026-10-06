@@ -5,6 +5,7 @@
 import string
 from functools import partial
 import logging
+import os
 
 import numpy
 import h5py
@@ -774,7 +775,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 ``initial_src_count``, ``final_src_count``, and ``residual``.
 
             magfit_configuration:    The configuration structure with which
-                magnitude fitting was performed.
+                magnitude fitting was performed. Its ``qc_excluded`` holds
+                the resolved paths of the DR files that fail the magnitude
+                fitting quality cut; whether this one passes is recorded with
+                the first iteration only, like the rest of the configuration.
 
             missing_indices:    A list of indices within the file of sources
                 for which no entries are included in fitted_magnitudes.
@@ -864,6 +868,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     self.add_attribute(
                         phot_method + ".magfit.cfg.correction_type",
                         b"linear",
+                        if_exists="error",
+                        **path_substitutions,
+                    )
+                    self.add_attribute(
+                        phot_method + ".magfit.qc_included",
+                        os.path.realpath(self.filename)
+                        not in magfit_configuration.qc_excluded,
                         if_exists="error",
                         **path_substitutions,
                     )

@@ -278,9 +278,11 @@ def _get_data_reduction_attribute_datasets(db_session):
         ("shapefit.magfit.num_input_src", None, False),
         ("shapefit.magfit.num_fit_src", None, False),
         ("shapefit.magfit.fit_residual", 2, False),
+        ("shapefit.magfit.qc_included", None, False),
         ("apphot.magfit.num_input_src", None, False),
         ("apphot.magfit.num_fit_src", None, False),
         ("apphot.magfit.fit_residual", 2, False),
+        ("apphot.magfit.qc_included", None, False),
         ("srcextract.cfg.binning", None, True),
         ("srcextract.psf_map.cfg.psf_params", None, True),
         ("srcextract.psf_map.cfg.terms", None, True),
@@ -619,6 +621,44 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     "lightcurve that satisfy the Filter "
                     "expression.",
                 ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + "exclusion_rule",
+                    abspath=(cfg_path + "ExclusionRule"),
+                    dtype="numpy.bytes_",
+                    compression="gzip",
+                    compression_options="9",
+                    description=(
+                        "The rule that decided which observations to leave "
+                        f"out of the {mode} fit, empty if they were not "
+                        "decided by a rule."
+                    ),
+                ),
+                HDF5DataSet(
+                    pipeline_key=(
+                        property_key_prefix + ".num_qc_excluded_points"
+                    ),
+                    abspath=(cfg_path + "NumberQCExcludedPoints"),
+                    dtype="numpy.uint",
+                    compression="gzip",
+                    compression_options="9",
+                    description=(
+                        "The number of corrected points that were left out "
+                        f"of the {mode} fit."
+                    ),
+                ),
+                HDF5DataSet(
+                    pipeline_key=(property_key_prefix + ".qc_included"),
+                    abspath=(root_path + "QCIncluded"),
+                    dtype="numpy.bool_",
+                    compression="gzip",
+                    compression_options="9",
+                    description=(
+                        f"Was each point among those the {mode} fit was "
+                        "derived from? Points the exclusion list left out are "
+                        "still corrected; points failing the points filter "
+                        "are not."
+                    ),
+                ),
             ]
         )
         if mode == "epd":
@@ -947,8 +987,8 @@ def _get_attributes(db_session):
 def _get_datasets(db_session):
     """Return a list of all datasets in light curves."""
 
-    (dr_dataset_datasets, magfit_datasets) = (
-        _get_data_reduction_dataset_datasets(db_session)
+    dr_dataset_datasets, magfit_datasets = _get_data_reduction_dataset_datasets(
+        db_session
     )
     return (
         _get_source_extraction_datasets()
