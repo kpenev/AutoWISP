@@ -190,7 +190,7 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
     interpreter would have whichever came first shadow the other.
     """
 
-    release_baselines = ("1.8.1", "2.0.0")
+    release_baselines = ("1.8.1", "2.0.0", "2.3.0")
     """Released versions a project database may be upgraded from.
 
     Add each new release tag as it ships; every entry gets its own
@@ -584,7 +584,9 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
 
         * downgraded, they leave what the project held before them, even
           of an exclusion rule a user has since set under a condition, which
-          goes with the parameter it was a value of.
+          goes with the parameter it was a value of. Checked only for a
+          release that predates them: one created with them applied never
+          held what downgrading leaves.
         """
 
         new_project = get_project_contents(
@@ -606,6 +608,9 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                 stored_values = self._get_stored_values(engine)
                 self._run_alembic(
                     engine, alembic_command.upgrade, self.last_schema_revision
+                )
+                predates_data_revisions = (
+                    get_project_revision(engine) == self.last_schema_revision
                 )
                 before_data_revisions = get_project_contents(engine)
 
@@ -632,6 +637,10 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                     reason="Repeating the revisions that change rows should "
                     "change nothing",
                 )
+                if not predates_data_revisions:
+                    # Created with them already applied, so it never held
+                    # what downgrading them leaves.
+                    continue
 
                 self._add_user_rule(engine)
                 self._run_alembic(
