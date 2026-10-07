@@ -653,7 +653,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         if self._mode.endswith("stat"):
             self.add_argument(
                 f"--{self._mode[:3]}-statistics-fname",
-                default=f"{{PROJHOME}}/MASTER/{self._mode[:3]}_statistics.txt",
+                default=f"{{PROJHOME}}/MASTERS/{self._mode[:3]}_statistics.txt",
                 help="The statistics filename for the results of the "
                 f"{self._mode[:3].upper()} fit.",
             )

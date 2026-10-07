@@ -208,6 +208,11 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
         # parseable only under the format they were named by.
         "master-photref-fname-format",
         "magfit-stat-fname-format",
+        # The default moved from MASTER/ to MASTERS/. The BUI's detrending
+        # diagnostics find the statistics files by expanding the stored
+        # name, so moving it would lose the ones already written.
+        "epd-statistics-fname",
+        "tfa-statistics-fname",
     )
     """Parameters whose default has changed since one of the releases.
 
