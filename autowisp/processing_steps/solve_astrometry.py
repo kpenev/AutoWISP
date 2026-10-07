@@ -784,7 +784,7 @@ def solve_image(  # pylint: disable=too-many-locals
                 result["fail_reason"] = fail_reasons["failed to converge"]
             else:
                 _logger.info(
-                    "Succesful astrometry solution found for %s:", dr_fname
+                    "Successful astrometry solution found for %s:", dr_fname
                 )
                 mark_start(dr_fname)
                 save_to_dr(
