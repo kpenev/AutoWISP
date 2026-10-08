@@ -1,0 +1,5 @@
+<map id="inheritance26cca7775a" name="inheritance26cca7775a">
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="57,79,407,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" target="_top" title="Upgrading an existing database keeps its data and stamps it." alt="" coords="5,152,459,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="148,5,316,31"/>
+</map>

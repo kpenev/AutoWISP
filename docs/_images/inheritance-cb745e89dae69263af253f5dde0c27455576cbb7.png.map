@@ -1,0 +1,5 @@
+<map id="inheritance6de1713a3c" name="inheritance6de1713a3c">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="5,79,488,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostic_expressions.TestStoreExpression" target="_top" title="Adding, replacing and renaming one expression." alt="" coords="27,152,467,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="163,5,331,31"/>
+</map>

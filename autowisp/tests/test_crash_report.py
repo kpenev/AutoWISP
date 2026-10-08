@@ -21,6 +21,7 @@ from autowisp.database.data_model import (
     Error,
     Image,
     ImageProcessingProgress,
+    LightCurveProcessingProgress,
     Parameter,
     Step,
 )
@@ -38,6 +39,7 @@ from autowisp.crash_report import (
     scrub_text,
     select_error_logs,
 )
+from autowisp.exceptions import collect_environment
 from autowisp.error_persistence import persist_error
 from autowisp.tests.error_fixtures import make_find_stars_error
 
@@ -200,6 +202,25 @@ class TestFindErrorProgress(unittest.TestCase):
             return progress.id
         # pylint: enable=not-callable
 
+    def _add_lc_progress(self, step_name, run_id):
+        # pylint: disable=not-callable
+        with start_db_session() as db_session:
+            step = db_session.scalar(select(Step).where(Step.name == step_name))
+            if step is None:
+                step = Step(name=step_name, description=step_name + " step")
+                db_session.add(step)
+                db_session.flush()
+            progress = LightCurveProcessingProgress(
+                run_id=run_id,
+                step_id=step.id,
+                single_photref_id=None,
+                configuration_version=0,
+            )
+            db_session.add(progress)
+            db_session.flush()
+            return progress.id
+        # pylint: enable=not-callable
+
     def test_resolves_by_run_and_step(self):
         """An error's run + step pick out the matching progress."""
 
@@ -209,6 +230,23 @@ class TestFindErrorProgress(unittest.TestCase):
         )
         progress = find_error_progress(error)
         self.assertIsNotNone(progress)
+        self.assertEqual(progress.id, progress_id)
+
+    def test_resolves_lightcurve_step(self):
+        """A lightcurve-step error resolves via the LC progress table.
+
+        Regression for the crash-report gap where LC steps (tfa/epd/...)
+        recorded in ``light_curve_processing_progress`` -- a different
+        table than image steps -- could never resolve, so their logs were
+        never collected.
+        """
+
+        progress_id = self._add_lc_progress("tfa", run_id=7)
+        error = SimpleNamespace(
+            pipeline_run_id=7, step_name="tfa", image_id=None
+        )
+        progress = find_error_progress(error)
+        self.assertIsInstance(progress, LightCurveProcessingProgress)
         self.assertEqual(progress.id, progress_id)
 
     def test_none_for_stepless_or_runless(self):
@@ -276,12 +314,15 @@ class TestCollectProvenance(unittest.TestCase):
             "platform",
             "python_version",
             "code_version",
+            "resources",
             "packages",
         ):
             self.assertIn(key, provenance)
         # numpy is a hard dependency, so its version is always recorded.
         self.assertIn("numpy", provenance["packages"])
         self.assertIsInstance(provenance["packages"]["numpy"], str)
+        # psutil is a hard dependency, so the RAM ceiling is recorded.
+        self.assertGreater(provenance["resources"]["ram_total"], 0)
         # Everything must be JSON-serializable for the manifest.
         json.dumps(provenance)
 
@@ -292,6 +333,19 @@ class TestCollectProvenance(unittest.TestCase):
         self.assertNotIn(
             "definitely-not-a-real-package", provenance["packages"]
         )
+
+
+class TestCollectEnvironment(unittest.TestCase):
+    """collect_environment records platform + requested package versions."""
+
+    def test_fields_and_requested_packages(self):
+        """Only the requested (installed) packages are reported."""
+
+        env = collect_environment(packages=("numpy", "not-a-real-pkg-xyz"))
+        self.assertIn("platform", env)
+        self.assertIn("python_version", env)
+        self.assertIn("numpy", env["packages"])
+        self.assertNotIn("not-a-real-pkg-xyz", env["packages"])
 
 
 class TestBuildCrashReport(unittest.TestCase):

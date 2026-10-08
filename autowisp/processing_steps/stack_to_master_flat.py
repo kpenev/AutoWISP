@@ -14,9 +14,11 @@ from autowisp.error_cli import cli_entry_point
 from autowisp.exceptions import Component
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.processing_steps.manual_util import ignore_progress
+from autowisp.error_context import error_context
 from autowisp.processing_steps.stack_to_master import (
     get_command_line_parser,
     get_master_fname as get_single_master_fname,
+    stacking_related_files,
 )
 from autowisp.image_calibration import MasterMaker, MasterFlatMaker
 from autowisp.file_utilities import find_fits_fnames
@@ -30,6 +32,9 @@ from autowisp.image_smoothing import (
 
 
 input_type = "calibrated"
+#: Frames are marked as started and nothing else until the masters are
+#: written, so that is the only state an interrupted stack leaves behind.
+allowed_interrupted_status_values = (0,)
 _logger = logging.getLogger(__name__)
 fail_reasons = {
     "stacking_failed_high": -2,
@@ -71,7 +76,8 @@ def parse_command_line(*args):
     parser.add_argument(
         "--stamp-smoothing-outlier-threshold",
         type=float,
-        default=3.0,
+        nargs="+",
+        default=(3.0,),
         help="Pixels deviating by more than this many standard deviations form "
         "the best fit smoothing function are discarded after each smoothnig "
         "fit iteration. One or two numbers should be specified. If two, one "
@@ -96,7 +102,8 @@ def parse_command_line(*args):
     parser.add_argument(
         "--stamp-pixel-outlier-threshold",
         type=float,
-        default=3.0,
+        nargs="+",
+        default=(3.0,),
         help="The threshold in deviation around mean units to use for "
         "discarding stamp pixels during averaging of the smoothed stamps. One "
         "or two numbers should be specified. If two, one "
@@ -355,11 +362,13 @@ def stack_to_master_flat(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Stack the given frames to produce single high and/or low master flat."""
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     def key_translate(k):
         return "size" if k == "filter_size" else k
-
-    assert start_status is None
 
     split_config = {}
     for prefix in [
@@ -437,36 +446,50 @@ def stack_to_master_flat(
 
     fnames = get_master_fnames(image_collection[0], configuration)
 
-    for image_fname in image_collection:
-        assert get_master_fnames(image_fname, configuration) == fnames
-        mark_start(image_fname)
-
-    success, classified_images = create_master(
-        image_collection,
-        high_master_fname=fnames["high"],
-        low_master_fname=fnames["low"],
-    )
-
-    for classification, images in classified_images.items():
-        if classification == "high":
-            status = (
-                2 if success["high"] else fail_reasons["stacking_failed_high"]
+    with error_context(
+        related_files=stacking_related_files(
+            image_collection, [fnames["high"], fnames["low"]]
+        )
+    ):
+        for image_fname in image_collection:
+            assert get_master_fnames(image_fname, configuration) == fnames, (
+                f"{image_fname} belongs in flat masters "
+                f"{get_master_fnames(image_fname, configuration)}, not the "
+                f"{fnames} the rest of this batch is being stacked into!"
             )
-        elif classification == "low":
-            status = (
-                1
-                if success["high"] and success["low"]
-                else fail_reasons["stacking_failed_low"]
-            )
-        else:
-            status = fail_reasons[classification]
-        for image_fname in images:
-            mark_end(image_fname, status)
+            mark_start(image_fname)
+
+        success, classified_images = create_master(
+            image_collection,
+            high_master_fname=fnames["high"],
+            low_master_fname=fnames["low"],
+        )
+
+        for classification, images in classified_images.items():
+            if classification == "high":
+                status = (
+                    2
+                    if success["high"]
+                    else fail_reasons["stacking_failed_high"]
+                )
+            elif classification == "low":
+                status = (
+                    1
+                    if success["high"] and success["low"]
+                    else fail_reasons["stacking_failed_low"]
+                )
+            else:
+                status = fail_reasons[classification]
+            for image_fname in images:
+                mark_end(image_fname, status)
 
     result = {}
     for illumination in ["high", "low"]:
         if success[illumination]:
-            assert exists(fnames[illumination])
+            assert exists(fnames[illumination]), (
+                f"Stacking reported a successful {illumination} flat but "
+                f"{fnames[illumination]} was not created!"
+            )
             header = get_primary_header(fnames[illumination])
             result[illumination] = {
                 "filename": fnames[illumination],
@@ -509,9 +532,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
 
     stack_to_master_flat(
         list(find_fits_fnames(cmdline_config["calibrated_images"])),
@@ -520,6 +541,7 @@ def main():
         ignore_progress,
         ignore_progress,
     )
+
 
 if __name__ == "__main__":
     main()

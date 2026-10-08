@@ -1,0 +1,7 @@
+autowisp.diagnostics.detrending module
+======================================
+
+.. automodule:: autowisp.diagnostics.detrending
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,481 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.diagnostics.expression_library &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.diagnostics.expression_library</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.diagnostics.expression_library</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Read and write the diagnostic expression library of a project.</span>
+
+<span class="sd">The library lives in the project database, so that the pipeline, which</span>
+<span class="sd">evaluates exclusion rules over it, and the browser interface, which plots</span>
+<span class="sd">and edits it, see the same expressions for the same project. Everything</span>
+<span class="sd">here takes an open session on that database and knows nothing of Django.</span>
+
+<span class="sd">Reading hands back the plain ``{name: expression}`` dictionary that</span>
+<span class="sd">:mod:`autowisp.diagnostics.expressions` takes as an argument. What an</span>
+<span class="sd">expression means, and what is wrong with a proposed one, is decided there;</span>
+<span class="sd">this module only stores what it is given, keeping the references between</span>
+<span class="sd">stored expressions intact when one of them is renamed.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">update</span>
+
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpression</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_expression_dependents</span><span class="p">,</span>
+    <span class="n">rename_references</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: The expression the photometric reference selection page ranks candidates</span>
+<span class="c1">#: by, unless another is chosen there.</span>
+<span class="n">photref_merit</span> <span class="o">=</span> <span class="s2">"photref_merit"</span>
+
+<span class="c1">#: What project creation puts in the library, in the form</span>
+<span class="c1">#: :func:`write_expressions` takes.</span>
+<span class="n">default_expressions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">photref_merit</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"expression"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"1.0 / ((1.0 - nanrank(s_center[0]))**2 "</span>
+            <span class="s2">"+ nanrank(bg_center[0])**2)"</span>
+        <span class="p">),</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"How good a single photometric reference an image makes: higher "</span>
+            <span class="s2">"for a larger source extraction S (sharper stars) and a lower "</span>
+            <span class="s2">"background, each ranked among the images a reference is being "</span>
+            <span class="s2">"chosen for."</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_expressions">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_library.html#autowisp.diagnostics.expression_library.get_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_expressions</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the whole library as ``{name: expression}``.</span>
+
+<span class="sd">    The whole library, not the part the project has recorded diagnostics</span>
+<span class="sd">    for: an expression naming a diagnostic nothing has recorded is not an</span>
+<span class="sd">    error but a thing to leave unoffered, which callers that care establish</span>
+<span class="sd">    by counting rows.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    Open session on the project database.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    Every stored expression, keyed by name.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">expression</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_expression_descriptions">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_library.html#autowisp.diagnostics.expression_library.get_expression_descriptions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_expression_descriptions</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return ``{name: description}`` for the stored expressions.</span>
+
+<span class="sd">    Kept apart from :func:`get_expressions`, which everything that</span>
+<span class="sd">    *evaluates* an expression consumes: what a quantity is for is of no</span>
+<span class="sd">    interest to the evaluator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    Open session on the project database.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    Every stored expression's description, the empty string</span>
+<span class="sd">            where one was left blank.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_expression_entries">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_library.html#autowisp.diagnostics.expression_library.get_expression_entries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_expression_entries</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the stored fields of the named expressions, for exporting.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        names:    The expressions wanted. Names not in the library are</span>
+<span class="sd">            skipped.</span>
+
+<span class="sd">        db_session:    Open session on the project database.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    ``{"name": ..., "expression": ..., "description": ...}``</span>
+<span class="sd">            per expression found, ordered by name.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"expression"</span><span class="p">:</span> <span class="n">expression</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">:</span> <span class="n">description</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span>
+                <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">expression</span><span class="p">,</span>
+                <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">)))</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="store_expression">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_library.html#autowisp.diagnostics.expression_library.store_expression">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">store_expression</span><span class="p">(</span>
+    <span class="n">db_session</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">replacing</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add one expression, or replace a stored one, keeping references intact.</span>
+
+<span class="sd">    Replacing under a new name is a rename. Stored expressions referencing</span>
+<span class="sd">    the old name are rewritten to reference the new one, since leaving them</span>
+<span class="sd">    pointing at a name that no longer exists would break them, and refusing</span>
+<span class="sd">    the rename would not help: a dependent cannot be pointed at the new</span>
+<span class="sd">    name before it exists.</span>
+
+<span class="sd">    Nothing is validated here; the caller checks the expression against the</span>
+<span class="sd">    library first (see :func:`~autowisp.diagnostics.expressions.</span>
+<span class="sd">    check_expression`), including that *name* does not clash with a stored</span>
+<span class="sd">    expression other than the one being replaced.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    Open session on the project database. Changes are</span>
+<span class="sd">            flushed but not committed.</span>
+
+<span class="sd">        name(str):    The name to store the expression under.</span>
+
+<span class="sd">        expression(str):    The expression text.</span>
+
+<span class="sd">        description(str):    What the expression is for.</span>
+
+<span class="sd">        replacing(str or None):    The name of the stored expression this</span>
+<span class="sd">            one replaces, or ``None`` to add a new one. A name not in the</span>
+<span class="sd">            library is treated as ``None``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    The names of the stored expressions rewritten to follow a</span>
+<span class="sd">            rename, alphabetically; empty if nothing was renamed or nothing</span>
+<span class="sd">            referenced the old name.</span>
+<span class="sd">    """</span>
+
+    <span class="n">stored</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">replacing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stored</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">replacing</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">updated</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">stored</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">replacing</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">library</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dependent</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_expression_dependents</span><span class="p">(</span><span class="n">replacing</span><span class="p">,</span> <span class="n">library</span><span class="p">)):</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">update</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">dependent</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">values</span><span class="p">(</span>
+                    <span class="n">expression</span><span class="o">=</span><span class="n">rename_references</span><span class="p">(</span>
+                        <span class="n">library</span><span class="p">[</span><span class="n">dependent</span><span class="p">],</span> <span class="n">replacing</span><span class="p">,</span> <span class="n">name</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">updated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dependent</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">stored</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="n">DiagnosticExpression</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="n">expression</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">stored</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">stored</span><span class="o">.</span><span class="n">expression</span> <span class="o">=</span> <span class="n">expression</span>
+        <span class="n">stored</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+
+    <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">updated</span></div>
+
+
+
+<div class="viewcode-block" id="delete_expressions">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_library.html#autowisp.diagnostics.expression_library.delete_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_expressions</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Delete the named expressions.</span>
+
+<span class="sd">    Whether anything still references them is the caller's question: a</span>
+<span class="sd">    whole chain may be deleted together while one link of it may not be</span>
+<span class="sd">    deleted alone, which only the caller knows.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        names:    The expressions to delete. Names not in the library are</span>
+<span class="sd">            ignored.</span>
+
+<span class="sd">        db_session:    Open session on the project database.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    """</span>
+
+    <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">delete</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="write_expressions">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_library.html#autowisp.diagnostics.expression_library.write_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_expressions</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Store *entries*, adding new names and overwriting existing ones.</span>
+
+<span class="sd">    For importing, where references are carried by name, so overwriting an</span>
+<span class="sd">    expression leaves its dependents pointing at the new text as intended.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        entries(dict):    ``{name: {"expression": ..., "description": ...}}``.</span>
+
+<span class="sd">        db_session:    Open session on the project database. Changes are</span>
+<span class="sd">            flushed but not committed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (int, int):    How many expressions were added, and how many</span>
+<span class="sd">            replaced.</span>
+<span class="sd">    """</span>
+
+    <span class="n">stored</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">row</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">entries</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">stored</span><span class="p">:</span>
+            <span class="n">stored</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">expression</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">]</span>
+            <span class="n">stored</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"description"</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="n">DiagnosticExpression</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">expression</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">],</span>
+                    <span class="n">description</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">"description"</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">stored</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">stored</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+autowisp.browser\_interface.diagnostics.migrations package
+==========================================================
+
+.. automodule:: autowisp.browser_interface.diagnostics.migrations
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.diagnostics.migrations.0001_initial
+   autowisp.browser_interface.diagnostics.migrations.0002_delete_diagnosticexpression

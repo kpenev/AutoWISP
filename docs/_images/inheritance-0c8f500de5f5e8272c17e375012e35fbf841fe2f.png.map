@@ -1,0 +1,10 @@
+<map id="inheritance3adcc9d071" name="inheritance3adcc9d071">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="5,152,388,177"/>
+<area shape="rect" id="node3" href="autowisp.browser_interface.home.models.html#autowisp.browser_interface.home.models.Project" target="_top" title="Model to represent a project." alt="" coords="25,225,369,251"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="880,79,1231,104"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" target="_top" title="Upgrading an existing database keeps its data and stamps it." alt="" coords="413,152,866,177"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_bui_models.TestModelBase" target="_top" title="Every browser&#45;interface model carries the timestamp columns." alt="" coords="890,152,1221,177"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_bui_models.TestModifiedIsMaintained" target="_top" title="``modified`` advances however the row is written." alt="" coords="1245,152,1644,177"/>
+<area shape="rect" id="node5" title="A class whose instances are single test cases." alt="" coords="971,5,1139,31"/>
+<area shape="rect" id="node9" title="Make subclasses preserve the alters_data attribute on overridden methods." alt="" coords="75,5,318,31"/>
+</map>

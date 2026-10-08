@@ -1,12 +1,21 @@
 """Interface for performing iterative magnitude fitting."""
 
 import logging
+import os
 from functools import partial
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 
 import numpy
 from astropy.io import fits
 
 from autowisp.error_context import run_pool
+from autowisp.exceptions import (
+    ConfigurationError,
+    FileKind,
+    FitMagnitudesError,
+    RelatedFile,
+)
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.fits_utilities import update_stack_header
 from autowisp.magnitude_fitting import (
@@ -17,6 +26,8 @@ from autowisp.magnitude_fitting.util import (
     get_single_photref,
     get_master_photref,
     format_master_catalog,
+    get_path_substitutions,
+    read_exclusions,
 )
 
 
@@ -32,6 +43,80 @@ def _get_common_header(fit_dr_filenames):
             )
             first = False
     return result
+
+
+def _magfit_related_files(dr_fname, single_photref=None, master_photref=None):
+    """``related_files`` classifier for a magnitude-fit work item.
+
+    The item is the DR file being fit; the batch is fit against the single
+    photometric reference (and, once it exists, the master photometric
+    reference). Module-level so a ``partial`` binding the references is
+    picklable to the workers.
+    """
+
+    related = [RelatedFile(FileKind.DR_FILE, dr_fname, role="input")]
+    if single_photref:
+        related.append(
+            RelatedFile(FileKind.DR_FILE, single_photref, role="single_photref")
+        )
+    if master_photref:
+        related.append(
+            RelatedFile(
+                FileKind.MASTER_PHOTREF, master_photref, role="master_photref"
+            )
+        )
+    return related
+
+
+def _get_population_record(exclusion_rule, dr_filenames, excluded_dr_filenames):
+    """
+    Return the header keywords and table recording what masters are built from.
+
+    Args:
+        exclusion_rule(str):    The rule that decided the exclusions, empty if
+            they were not decided by a rule.
+
+        dr_filenames([str]):    Every DR file fit while the masters are built,
+            excluded ones included, as given to magnitude fitting.
+
+        excluded_dr_filenames([str]):    The DR files among ``dr_filenames``
+            fit but left out of the masters.
+
+    Returns:
+        dict:
+            The ``QCRULE``, ``QCNIMG`` and ``QCNEXCL`` header keywords, as
+            ``(value, comment)`` tuples.
+
+        fits.BinTableHDU:
+            The ``INMASTER`` table listing every DR file fit, with an
+            ``included`` column flagging those the masters are built from.
+    """
+
+    header = {
+        "QCRULE": (exclusion_rule, "Rule excluding images from the master"),
+        "QCNIMG": (len(dr_filenames), "Images fit, excluded included"),
+        "QCNEXCL": (len(excluded_dr_filenames), "Images excluded from master"),
+    }
+    excluded = set(excluded_dr_filenames)
+    table = fits.BinTableHDU.from_columns(
+        [
+            fits.Column(
+                name="dr_fname",
+                format=f"{max(len(fname) for fname in dr_filenames)}A",
+                array=numpy.array(dr_filenames, dtype=str),
+            ),
+            fits.Column(
+                name="included",
+                format="L",
+                array=numpy.array(
+                    [fname not in excluded for fname in dr_filenames],
+                    dtype=bool,
+                ),
+            ),
+        ],
+        name="INMASTER",
+    )
+    return header, table
 
 
 # Could not come up with a sensible way to simplify
@@ -78,6 +163,13 @@ def single_iteration(
                 if magfit_stat_collector is None
                 else magfit_stat_collector.add_input
             ),
+            related_files=partial(
+                _magfit_related_files,
+                single_photref=getattr(
+                    configuration, "single_photref_dr_fname", None
+                ),
+                master_photref=configuration.master_photref_fname,
+            ),
         )
     elif magfit_stat_collector is None:
         for dr_fname in fit_dr_filenames:
@@ -89,91 +181,329 @@ def single_iteration(
 # pylint: enable=too-many-arguments
 
 
-# Could not come up with a sensible way to simplify
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-locals
-def iterative_refit(
-    fit_dr_filenames,
-    *,
-    single_photref_dr_fname,
-    catalog_sources,
-    configuration,
-    mark_start,
-    mark_end,
-    path_substitutions,
-):
+# A callable: __call__() is the whole interface.
+# pylint: disable=too-few-public-methods
+class MagnitudeFitting:
     """
-    Iteratively performa magnitude fitting/generating master until convergence.
+    Magnitude fitting of one batch of DR files.
 
-    Args:
-        fit_dr_filenames(str iterable):    A list of the data reduction files to
-            fit.
+    With an existing master photometric reference configured, every image is
+    fit once against it. Otherwise the images are fit and the master
+    re-derived from them, pass after pass, until it converges; images on the
+    exclusion list are fit too, but kept out of the masters.
 
-        single_photref_dr_fname(str):    The name of the data reduction file of
-            the single photometric reference to use to start the magnitude
-            fitting iterations.
-
-        catalog(pandas.DataFrame):    The the catalog to use as extra
-            information in magnitude fitting terms and for excluding sources
-            from the fit.
-
-        configuration:    Passed directly as the config argument to
-            LinearMagnitudeFit.__init__() but it must also contain the following
-            attributes:
-
-                * num_parallel_processes(int): the the maximum number of
-                  magnitude fitting parallel processes to use.
-
-                * max_photref_change(float): the maximum square average change
-                  of photometric reference magnitudes to consider the iterations
-                  converged.
-
-                * master_photref_fname_format(str): A format string involving a
-                  {magfit_iteration} substitution along with any variables from
-                  the header of the single photometric reference or passed
-                  through the path_substitutions arguments, that expands to the
-                  name of the file to save the master photometric reference for
-                  a particular iteration.
-
-                * magfit_stat_fname_format(str): Similar
-                  to ``master_photref_fname_format``, but defines the name to
-                  use for saving the statistics of a magnitude fitting
-                  iteration.
-
-                * num_parallel_processes(int): How many processes to use
-                  for simultaneus fitting.
-
-                * master_scatter_fit_terms(str): Terms to include in the fit
-                  for the scatter when deciding which stars to include in the
-                  master.
-
-        mark_start(callable):    A function called at the start of each DR file
-            fitting.
-
-        mark_end(callable):    A function called after each DR file has finished
-            fitting.
-
-        max_iterations(int):    The maximum number of iterations of deriving a
-            master and re-fitting to allow.
-
-        path_substitutions(dict):     Any variables to substitute in
-            ``master_photref_fname_format`` or to pass to data reduction files
-            to identify components to use in the fit.
-
-    Returns:
-        The filename of the last master photometric reference created.
+    Attributes:
+        sphotref_header(fits.Header):    The header of the single photometric
+            reference.
     """
 
-    def update_photref(
-        *,
-        magfit_stat_collector,
-        old_reference,
-        num_photometries,
-        fname_substitutions,
-        sphotref_header,
+    _logger = logging.getLogger(__name__)
+
+    def __init__(self, configuration, *, start_status, mark_start, mark_end):
+        """
+        Get ready to fit a batch of DR files.
+
+        Args:
+            configuration(dict):    The configuration of the fit_magnitudes
+                step.
+
+            start_status(int or None):    The status an interrupted run left
+                the batch at, or None to start from scratch.
+
+            mark_start(callable):    Called at the start of fitting each DR
+                file.
+
+            mark_end(callable):    Called after each DR file has been fit.
+        """
+
+        if start_status is None:
+            start_status = -1
+        else:
+            assert start_status % 2 == 1, (
+                f"Magnitude fitting recorded an even status {start_status}; "
+                "only odd ones mark a completed iteration it could resume "
+                "from!"
+            )
+        assert (
+            configuration["master_photref_fname"] is None or start_status == -1
+        ), (
+            f"Magnitude fitting was asked to resume from {start_status} "
+            "against an existing master photometric reference, which takes a "
+            "single pass and so can only start from scratch!"
+        )
+        self._configuration = SimpleNamespace(
+            **configuration,
+            continue_from_iteration=(start_status + 1) // 2,
+            source_name_format="{0:d}",
+        )
+        self._mark_start = mark_start
+        self._mark_end = mark_end
+        with DataReductionFile(
+            configuration["single_photref_dr_fname"], "r"
+        ) as sphotref_dr:
+            self.sphotref_header = sphotref_dr.get_frame_header()
+            self._parse_source_id = sphotref_dr.parse_hat_source_id
+        self._path_substitutions = get_path_substitutions(
+            configuration, self.sphotref_header
+        )
+
+    def __call__(self, dr_fnames, catalog_sources):
+        """
+        Fit the given DR files.
+
+        Args:
+            dr_fnames([str]):    The DR files to fit.
+
+            catalog_sources(pandas.DataFrame):    The catalog to use as extra
+                information in magnitude fitting terms and for excluding
+                sources from the fit.
+
+        Returns:
+            [dict] or None:
+                The new masters to record, as for
+                ``ImageProcessingManager.add_masters()``, or None when fitting
+                against an existing master, which creates none.
+        """
+
+        excluded = read_exclusions(self._configuration.qc_exclude_file)
+        # Recorded in each DR file, even where no master is built.
+        self._configuration.qc_excluded = excluded
+
+        if self._configuration.master_photref_fname is not None:
+            self._logger.info(
+                "Fitting %d images against existing master photometric "
+                "reference %s",
+                len(dr_fnames),
+                self._configuration.master_photref_fname,
+            )
+            self._fit_pass(
+                dr_fnames,
+                get_master_photref(self._configuration.master_photref_fname),
+            )
+            return None
+
+        excluded_dr_fnames = [
+            dr_fname
+            for dr_fname in dr_fnames
+            if os.path.realpath(dr_fname) in excluded
+        ]
+        fit_dr_fnames = [
+            dr_fname
+            for dr_fname in dr_fnames
+            if os.path.realpath(dr_fname) not in excluded
+        ]
+        if not fit_dr_fnames:
+            raise ConfigurationError(
+                f"All {len(dr_fnames)} images are excluded from the master "
+                "photometric reference, leaving nothing to build it from!"
+            )
+
+        population_header, population_table = _get_population_record(
+            # Defined only when the pipeline configures the step.
+            getattr(self._configuration, "magfit_exclusion_rule", None) or "",
+            dr_fnames,
+            excluded_dr_fnames,
+        )
+        master_inputs = SimpleNamespace(
+            catalog=format_master_catalog(
+                catalog_sources, self._parse_source_id
+            ),
+            header=self.sphotref_header.copy(),
+            extra_hdus=[population_table],
+        )
+        master_inputs.header["IMAGETYP"] = "mphotref"
+        master_inputs.header.update(population_header)
+
+        self._logger.info(
+            "Starting iterative magfit of %d images, %d of them excluded from "
+            "the master, for single photref %s",
+            len(dr_fnames),
+            len(excluded_dr_fnames),
+            self._configuration.single_photref_dr_fname,
+        )
+        master_fname, stat_fname = self._refit(
+            fit_dr_fnames, excluded_dr_fnames, master_inputs
+        )
+        new_masters = [
+            {
+                "filename": stat_fname,
+                "preference_order": None,
+                "type": "magfit_stat",
+            }
+        ]
+        # None when no pass was fit against a master, e.g. with
+        # --max-magfit-iterations 0.
+        if master_fname is not None:
+            new_masters.append(
+                {
+                    "filename": master_fname,
+                    "preference_order": None,
+                    "type": "master_photref",
+                }
+            )
+        return new_masters
+
+    def _expand(self, fname_format):
+        """Return the given file name format expanded for the current pass."""
+
+        # dict() first: a header may repeat a keyword.
+        return fname_format.format_map(
+            {**dict(self.sphotref_header), **self._path_substitutions}
+        )
+
+    def _refuse_clash(self):
+        """
+        Raise if a file this pass would write exists already.
+
+        Only the pass itself writes its files, and cleaning up an interrupted
+        run deletes the partial ones, so a file there can only belong to
+        another master: one built from a single photometric reference the
+        file name formats do not tell apart from this one, or one built
+        earlier from this reference. Either way it is not overwritten.
+        """
+
+        for option in (
+            "master_photref_fname_format",
+            "magfit_stat_fname_format",
+        ):
+            fname = self._expand(getattr(self._configuration, option))
+            if os.path.exists(fname):
+                raise ConfigurationError(
+                    f"Magnitude fitting against single photometric reference "
+                    f"{self._configuration.single_photref_dr_fname!r} would "
+                    f"overwrite {fname!r}. If it belongs to another single "
+                    "photometric reference, make --"
+                    + option.replace("_", "-")
+                    + " tell the two apart, e.g. by including {FNUM}. If it "
+                    "is an earlier master of this reference, remove that "
+                    "master's files to rebuild it: disabling it is not enough."
+                )
+
+    def _fit_pass(self, dr_fnames, photref, magfit_stat_collector=None):
+        """Fit the given DR files once, against the given reference."""
+
+        single_iteration(
+            dr_fnames,
+            photref=photref,
+            configuration=self._configuration,
+            path_substitutions=self._path_substitutions,
+            mark_start=self._mark_start,
+            mark_end=self._mark_end,
+            magfit_stat_collector=magfit_stat_collector,
+        )
+
+    def _mark_pass(self, dr_fnames):
+        """Record the current pass for DR files that are not fit in it."""
+
+        iteration = self._path_substitutions["magfit_iteration"]
+        for dr_fname in dr_fnames:
+            self._mark_start(dr_fname, status=2 * iteration)
+            self._mark_end(dr_fname, status=2 * iteration + 1, final=False)
+
+    def _start_reference(self):
+        """Return the first pass's reference, and the master it is, if any."""
+
+        if self._configuration.continue_from_iteration > 0:
+            master_fname = self._expand(
+                self._configuration.master_photref_fname_format
+            )
+            return get_master_photref(master_fname), master_fname
+        with DataReductionFile(
+            self._configuration.single_photref_dr_fname, "r"
+        ) as sphotref_dr:
+            return (
+                get_single_photref(sphotref_dr, **self._path_substitutions),
+                None,
+            )
+
+    def _refit(self, fit_dr_fnames, excluded_dr_fnames, master_inputs):
+        """
+        Fit and re-derive the master photometric reference until it converges.
+
+        Args:
+            fit_dr_fnames([str]):    The DR files to fit and build the masters
+                from.
+
+            excluded_dr_fnames([str]):    DR files to fit but leave out of the
+                masters. They are fit only once, against the reference of the
+                last pass, which gives them exactly the fit they would get in
+                that pass. Each pass still marks their progress along with the
+                rest, so an interrupted run leaves the whole batch at one
+                status.
+
+            master_inputs:    What the masters are built with: ``catalog``,
+                ``header`` and ``extra_hdus`` attributes, see
+                MasterPhotrefCollector.generate_master().
+
+        Returns:
+            str or None:
+                The filename of the master photometric reference the last pass
+                was fit against, or None if every pass was against the single
+                photometric reference.
+
+            str:
+                The filename of the statistics of the last pass.
+        """
+
+        self._path_substitutions["magfit_iteration"] = (
+            self._configuration.continue_from_iteration - 1
+        )
+        photref, photref_fname = self._start_reference()
+        num_photometries = next(iter(photref.values()))["mag"].size
+
+        while (
+            photref
+            and self._path_substitutions["magfit_iteration"]
+            < self._configuration.max_magfit_iterations
+        ):
+            self._path_substitutions["magfit_iteration"] += 1
+            self._refuse_clash()
+            assert next(iter(photref.values()))["mag"].size == num_photometries
+
+            stat_fname = self._expand(
+                self._configuration.magfit_stat_fname_format
+            )
+            magfit_stat_collector = MasterPhotrefCollector(
+                stat_fname,
+                num_photometries,
+                len(fit_dr_fnames),
+                source_name_format=self._configuration.source_name_format,
+                tempstore_dir=self._configuration.tempstore_dir,
+                outlier_threshold=self._configuration.stat_rej_level,
+            )
+            self._fit_pass(fit_dr_fnames, photref, magfit_stat_collector)
+            self._mark_pass(excluded_dr_fnames)
+            self._mark_start = partial(self._mark_end, final=False)
+
+            next_photref, next_photref_fname = self._next_reference(
+                magfit_stat_collector, photref, master_inputs
+            )
+            if next_photref is None:
+                if excluded_dr_fnames:
+                    self._fit_pass(excluded_dr_fnames, photref)
+                break
+            photref, photref_fname = next_photref, next_photref_fname
+
+        for dr_fname in list(fit_dr_fnames) + list(excluded_dr_fnames):
+            self._mark_end(
+                dr_fname,
+                status=2 * self._path_substitutions["magfit_iteration"] - 1,
+                final=True,
+            )
+        return photref_fname, stat_fname
+
+    def _next_reference(
+        self, magfit_stat_collector, old_reference, master_inputs
     ):
         """
-        Return the next iteration photometric reference or None if converged.
+        Return the reference for the next pass, or None if this pass was last.
+
+        The master built from the pass just completed is saved only if another
+        pass is fit against it: once it agrees with the reference that pass
+        used, or the iterations run out, that reference is final and the new
+        master, used for nothing, is discarded. A pass against the single
+        photometric reference is never the last, so the final master is
+        always one that images were fit against.
 
         Args:
             magfit_stat_collector(MasterPhotrefCollector):    The object used by
@@ -183,30 +513,56 @@ def iterative_refit(
             old_reference(dict):    The photometric reference used for the last
                 magnitude fitting iteration.
 
-            source_id_parser(callable):    Should return the integers
-                identifying a source, given its string ID.
+            master_inputs:    See _refit().
 
-            num_photometries(int):    How many different photometric
-                measurements are being fit.
+        Returns:
+            dict or None:
+                The reference to fit the next pass against, or None if there
+                is no next pass.
+
+            str or None:
+                The file the returned reference was saved to, or None if there
+                is no next pass.
         """
 
-        logger = logging.getLogger(__name__)
-        master_reference_fname = (
-            configuration.master_photref_fname_format.format_map(
-                fname_substitutions
-            )
+        master_fname = self._expand(
+            self._configuration.master_photref_fname_format
         )
-        try:
-            magfit_stat_collector.generate_master(
-                master_reference_fname=master_reference_fname,
-                catalog=catalog,
-                fit_terms_expression=configuration.mphotref_scatter_fit_terms,
-                extra_header=sphotref_header,
+        with TemporaryDirectory(
+            dir=os.path.dirname(os.path.abspath(master_fname))
+        ) as candidate_dir:
+            candidate_fname = os.path.join(
+                candidate_dir, os.path.basename(master_fname)
             )
-        except RuntimeError:
-            return None, None
-        new_reference = get_master_photref(master_reference_fname)
+            try:
+                magfit_stat_collector.generate_master(
+                    master_reference_fname=candidate_fname,
+                    catalog=master_inputs.catalog,
+                    fit_terms_expression=(
+                        self._configuration.mphotref_scatter_fit_terms
+                    ),
+                    extra_header=master_inputs.header,
+                    extra_hdus=master_inputs.extra_hdus,
+                )
+            # Catch only the master-photref generation failure, so an
+            # unrelated error inside generate_master surfaces instead of
+            # being swallowed.
+            except FitMagnitudesError:
+                return None, None
+            new_reference = get_master_photref(candidate_fname)
 
+            iteration = self._path_substitutions["magfit_iteration"]
+            if iteration >= self._configuration.max_magfit_iterations:
+                return None, None
+            if iteration > 0 and self._converged(old_reference, new_reference):
+                return None, None
+            os.replace(candidate_fname, master_fname)
+        return new_reference, master_fname
+
+    def _converged(self, old_reference, new_reference):
+        """True iff the references agree within ``max_photref_change``."""
+
+        num_photometries = next(iter(old_reference.values()))["mag"].size
         common_sources = set(new_reference) & set(old_reference)
 
         average_square_change = numpy.zeros(
@@ -222,18 +578,18 @@ def iterative_refit(
             # pylint: disable=assignment-from-no-return
             finite_entries = numpy.isfinite(square_diff)
             # pylint: enable=assignment-from-no-return
-            logger.debug("Num photometries: %s", repr(num_photometries))
-            logger.debug(
+            self._logger.debug("Num photometries: %s", repr(num_photometries))
+            self._logger.debug(
                 "square_diff (shape=%s): %s",
                 repr(square_diff.shape),
                 repr(square_diff),
             )
-            logger.debug(
+            self._logger.debug(
                 "finite_entries (shape=%s): %s",
                 repr(finite_entries.shape),
                 repr(finite_entries),
             )
-            logger.debug(
+            self._logger.debug(
                 "average_square_change (shape=%s): %s",
                 repr(average_square_change.shape),
                 repr(average_square_change),
@@ -243,92 +599,16 @@ def iterative_refit(
             num_finite += finite_entries
 
         average_square_change /= num_finite
-        logger.debug(
+        self._logger.debug(
             "Fit iteration resulted in average square change in magnitudes of: "
             "%s",
             repr(average_square_change),
         )
 
-        if average_square_change.max() <= configuration.max_photref_change:
-            return None, master_reference_fname
-
-        return new_reference, master_reference_fname
-
-    path_substitutions["magfit_iteration"] = (
-        configuration.continue_from_iteration - 1
-    )
-
-    with DataReductionFile(single_photref_dr_fname, "r") as photref_dr:
-        sphotref_header = photref_dr.get_frame_header()
-        fname_substitutions = dict(sphotref_header)
-        fname_substitutions.update(path_substitutions)
-        if configuration.continue_from_iteration > 0:
-            master_reference_fname = (
-                configuration.master_photref_fname_format.format_map(
-                    fname_substitutions
-                )
-            )
-            photref = get_master_photref(master_reference_fname)
-        else:
-            photref = get_single_photref(photref_dr, **path_substitutions)
-
-    catalog = format_master_catalog(
-        catalog_sources, photref_dr.parse_hat_source_id
-    )
-
-    num_photometries = next(iter(photref.values()))["mag"].size
-
-    photref_fname = None
-    sphotref_header["IMAGETYP"] = "mphotref"
-    while (
-        photref
-        and path_substitutions["magfit_iteration"]
-        < configuration.max_magfit_iterations
-    ):
-        path_substitutions["magfit_iteration"] += 1
-        fname_substitutions["magfit_iteration"] += 1
-
-        assert next(iter(photref.values()))["mag"].size == num_photometries
-
-        stat_fname = configuration.magfit_stat_fname_format.format_map(
-            fname_substitutions
+        return (
+            average_square_change.max()
+            <= self._configuration.max_photref_change
         )
 
-        magfit_stat_collector = MasterPhotrefCollector(
-            stat_fname,
-            num_photometries,
-            len(fit_dr_filenames),
-            source_name_format=configuration.source_name_format,
-            tempstore_dir=configuration.tempstore_dir,
-            outlier_threshold=configuration.stat_rej_level,
-        )
 
-        single_iteration(
-            fit_dr_filenames,
-            photref=photref,
-            configuration=configuration,
-            path_substitutions=path_substitutions,
-            mark_start=mark_start,
-            mark_end=mark_end,
-            magfit_stat_collector=magfit_stat_collector,
-        )
-
-        photref, photref_fname = update_photref(
-            magfit_stat_collector=magfit_stat_collector,
-            old_reference=photref,
-            num_photometries=num_photometries,
-            fname_substitutions=fname_substitutions,
-            sphotref_header=sphotref_header,
-        )
-        mark_start = partial(mark_end, final=False)
-    for fit_dr_fname in fit_dr_filenames:
-        mark_end(
-            fit_dr_fname,
-            status=2 * path_substitutions["magfit_iteration"] - 1,
-            final=True,
-        )
-    return photref_fname, stat_fname
-
-
-# pylint: enable=too-many-arguments
-# pylint: enable=too-many-locals
+# pylint: enable=too-few-public-methods

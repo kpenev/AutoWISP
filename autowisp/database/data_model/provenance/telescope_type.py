@@ -1,6 +1,6 @@
 """Define the telescope type dataset table for the pipeline"""
 
-from sqlalchemy import Column, String, Float
+from sqlalchemy import Column, String, Double
 
 from sqlalchemy.orm import relationship
 
@@ -27,10 +27,10 @@ class TelescopeType(DataModelBase):
         String(100), nullable=False, doc="The version of the telescope"
     )
     f_ratio = Column(
-        Float, nullable=False, doc="The focal ratio of the telescope"
+        Double, nullable=False, doc="The focal ratio of the telescope"
     )
     focal_length = Column(
-        Float, nullable=False, doc="The focal length of the telescope in mm"
+        Double, nullable=False, doc="The focal length of the telescope in mm"
     )
     notes = Column(
         String(1000),

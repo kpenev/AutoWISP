@@ -15,25 +15,27 @@
 {% if available_diagnostics %}
 <div class="lcars-bar horizontal"
      id="diag-selector-bar"
-     data-image-url="{% url 'diagnostics:display_image_diagnostics' diagnostic_name='YPLACEHOLDER' %}"
-     data-diag-vs-diag-url="{% url 'diagnostics:display_diag_vs_diag' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}">
+     data-diagnostics-url="{% url 'diagnostics:display_diagnostics' x_quantity='XPLACEHOLDER' y_quantities='YPLACEHOLDER' %}"
+     data-section-url="{% url 'diagnostics:diagnostics_section' x_quantity=x_quantity y_quantity='YPLACEHOLDER' %}">
+    {% comment %} An action rather than a state: choosing a quantity adds
+       its section, or scrolls to it if the page already has one. The
+       leading placeholder is what the selector returns to afterwards --
+       without it, choosing the quantity already shown would fire no
+       `change` at all. {% endcomment %}
     <select id="diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
-            onchange="navigateDiagnostics()">
+            onchange="addOrJumpToSection()">
+        <option value="">Add or go to&hellip;</option>
         {% for diag_name in available_diagnostics %}
-        <option value="{{ diag_name }}"
-                {% if diag_name == y_diagnostic %}selected{% endif %}>
-            {{ diag_name }}
-        </option>
+        <option value="{{ diag_name }}">{{ diag_name }}</option>
         {% endfor %}
     </select>
     <select id="x-diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
             onchange="navigateDiagnostics()">
-        <option value="time" {% if not x_diagnostic %}selected{% endif %}>time</option>
         {% for diag_name in available_diagnostics %}
         <option value="{{ diag_name }}"
-                {% if diag_name == x_diagnostic %}selected{% endif %}>
+                {% if diag_name == x_quantity %}selected{% endif %}>
             {{ diag_name }}
         </option>
         {% endfor %}
@@ -43,6 +45,11 @@
 {% endblock header_bar_extra %}
 
 {% block left_menu %}
+<a href="{% url 'diagnostics:list_expressions' %}">
+    <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+        Diagnostic Expressions
+    </div>
+</a>
 {% if download_pdf_url %}
 <a id="download-button" href="{{ download_pdf_url }}">
     <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
@@ -55,63 +62,14 @@
 
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">
+    {% comment %} One section per y quantity, in the order the URL names
+       them -- which is the order they took their markers in, and the
+       order the legend follows. A section added later is appended here.
+    {% endcomment %}
     <div id="diagnostics-table-parent">
-        <table class="lcars-table standard-header">
-            <thead>
-                <tr>
-                    <th>Color</th>
-                    <th>Style</th>
-                    <th>Scale</th>
-                    <th>Label</th>
-                    {% block diagnostics_table_header %}
-                    {% for field in diagnostics_fields %}
-                    <th>{{ field }}</th>
-                    {% endfor %}
-                    {% endblock diagnostics_table_header %}
-                </tr>
-            </thead>
-            <tbody class="lcars-table select-row">
-                {% for diagnostic in diagnostics_list %}
-                <tr class="diagnostic-row" id="{{ diagnostic.id }}" channel="{{ diagnostic.channel }}">
-                    <td>
-                        <input type="color"
-                               id="plot-color:{{ diagnostic.id }}"
-                               value="{{ diagnostic.color|default:'#ffffff' }}">
-                    </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="dropbtn selected-marker"
-                                    id="marker-button:{{ diagnostic.id }}">
-                                {% include "core/plot_marker.html" with symb=diagnostic.marker size="30" svg="T" %}
-                            </button>
-                            <div class="dropdown-content"
-                                 id="marker:{{ diagnostic.id }}">
-                                {% for symb in " x+osv^<>" %}
-                                {% include "core/plot_marker.html" with symb=symb size="30" svg="T" %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <input type="text"
-                               id="scale:{{ diagnostic.id }}"
-                               value="{{ diagnostic.scale|default:'1.0' }}">
-                    </td>
-                    <td>
-                        <input class="param"
-                               id="label:{{ diagnostic.id }}"
-                               type="text"
-                               value="{{ diagnostic.label|default:'' }}">
-                    </td>
-                    {% block diagnostics_table_row %}
-                    {% for field in diagnostic.info %}
-                    <td>{{ field }}</td>
-                    {% endfor %}
-                    {% endblock diagnostics_table_row %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% for section in sections %}
+        {% include "diagnostics/_series_section.html" %}
+        {% endfor %}
     </div>
     <div id="plot-sep" class="lcars-bracket hollow top"></div>
     <div id="diagnostics-display" class="fill-space">
@@ -122,6 +80,8 @@
 </div>
 
 <script src="{% static 'js/autowisp.util.js' %}"></script>
+{# One delegated listener on document, no init call, so load order is free. #}
+<script src="{% static 'js/sortable.min.js' %}"></script>
 <script src="{% static 'diagnostics/js/diagnostics_app.js' %}"></script>
 {% if update_plot_url %}
 <script type="text/javascript">
@@ -132,11 +92,44 @@
 {% endblock main %}
 
 {% block footer_bar_extra %}
-<div class="lcars-bar horizontal bottom">
+<div class="lcars-bar horizontal bottom" id="diag-footer-bar">
     <button id="legend-toggle"
             class="lcars-bar bottom button lcars-rust-bg"
             onclick="this.classList.toggle('inactive'); this.textContent = this.classList.contains('inactive') ? 'Show Legend' : 'Hide Legend'; updateFigure();">
         Hide Legend
     </button>
+    {% comment %} Dims the points an exclusion rule would leave out, in every
+       row. Any library expression usable as a rule is offered, as the read
+       it is configured with; the channel and photometry its slots are bound
+       to are chosen here, shown only for a rule taking them.
+    {% endcomment %}
+    {% if exclusion_masks %}
+    <select id="exclusion-mask"
+            class="lcars-bar bottom button lcars-rust-bg"
+            title="Dim the points this rule would exclude">
+        <option value="">No exclusion mask</option>
+        {% for mask in exclusion_masks %}
+        <option value="{{ mask.read }}"
+                data-channel-slot="{{ mask.channel_slot|yesno:'1,' }}"
+                data-photometry-slot="{{ mask.photometry_slot|yesno:'1,' }}">{{ mask.read }}</option>
+        {% endfor %}
+    </select>
+    <select id="exclusion-mask-channel"
+            class="lcars-bar bottom button lcars-rust-bg mask-slot"
+            title="The channel the rule decides for"
+            hidden>
+        {% for channel in mask_channels %}
+        <option value="{{ channel }}">{{ channel }}</option>
+        {% endfor %}
+    </select>
+    <select id="exclusion-mask-photometry"
+            class="lcars-bar bottom button lcars-rust-bg mask-slot"
+            title="The photometry the rule decides for"
+            hidden>
+        {% for photometry in mask_photometries %}
+        <option value="{{ photometry.id }}">{{ photometry.label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
 </div>
 {% endblock footer_bar_extra %}

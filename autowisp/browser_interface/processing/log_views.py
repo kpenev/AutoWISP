@@ -8,12 +8,14 @@ from sqlalchemy import select, func, and_
 
 from autowisp.database.interface import start_db_session
 from autowisp.database.image_processing import ImageProcessingManager
+from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 
 # False positive
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     ImageProcessingProgress,
     LightCurveProcessingProgress,
+    MasterFile,
     Step,
     ImageType,
     ProcessingSequence,
@@ -62,15 +64,20 @@ def review(request, selected_processing_id, min_log_level="WARNING"):
             else ImageProcessingProgress.image_type_id
         )
         target_id = getattr(selected_progress, target_column.key)
-        image_type_id = (
-            db_session.scalar(
-                select(ProcessingSequence.image_type_id).where(
-                    ProcessingSequence.step_id == selected_progress.step_id
+        if progress_class is LightCurveProcessingProgress:
+            image_type = db_session.execute(
+                select(ImageType.id, ImageType.name)
+                .select_from(MasterFile)
+                .join(
+                    ImageProcessingProgress,
+                    ImageProcessingProgress.id == MasterFile.progress_id,
                 )
-            )
-            if progress_class is LightCurveProcessingProgress
-            else target_id
-        )
+                .join(ImageType)
+                .where(MasterFile.id == target_id)
+            ).one()
+            image_type_id = image_type.id
+        else:
+            image_type_id = target_id
         selected_progress = (
             selected_progress.id,
             selected_progress.step_id,
@@ -128,12 +135,6 @@ def review(request, selected_processing_id, min_log_level="WARNING"):
         )
 
         if progress_class is LightCurveProcessingProgress:
-            image_type = db_session.execute(
-                select(ImageType.id, ImageType.name)
-                .select_from(ProcessingSequence)
-                .join(ImageType)
-                .where(ProcessingSequence.step_id == selected_progress[1])
-            ).one()
             context["image_types"] = [
                 (*image_type, selected_processing_id, processing_type)
             ]
@@ -190,7 +191,12 @@ def review_single(
                 progress_class.id == selected_processing_id
             )
         )
-        log_output_fnames = ImageProcessingManager(
+        manager_class = (
+            LightCurveProcessingManager
+            if progress_class is LightCurveProcessingProgress
+            else ImageProcessingManager
+        )
+        log_output_fnames = manager_class(
             pipeline_run_id=None
         ).find_processing_outputs(processing_progress, db_session)
     context["sub_processes"] = range(1, len(log_output_fnames[1][0]) + 1)

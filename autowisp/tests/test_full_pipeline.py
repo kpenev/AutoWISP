@@ -23,8 +23,8 @@ from autowisp.database.initialize_database import initialize_database
 from autowisp.processing_steps import stack_to_master, stack_to_master_flat
 from autowisp.database.interface import start_db_session
 from autowisp.database.photref_selection import (
-    bind_images_to_photref,
     compute_photref_candidates,
+    record_single_photref,
 )
 from autowisp.database.user_interface import (
     apply_master_config,
@@ -58,6 +58,14 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
             encoding="utf-8",
         ) as cfg_file:
             overwrite_default_config = parse_config_overwrites(cfg_file)
+        # The DR file the test will register as the single photometric
+        # reference comes from test.cfg, so adjusting the test or adding
+        # new fixtures only requires editing the config file. The engine
+        # sets the option itself, so a project does not store it.
+        self._photref_dr_path = path.join(
+            self.processing_directory,
+            overwrite_default_config.pop("single-photref-dr-fname")[0][1],
+        )
         # The per-step CLI uses different ``--outlier-threshold``
         # defaults for ``wisp-stack-to-master`` and
         # ``wisp-stack-to-master-flat``, but the pipeline registers a
@@ -104,14 +112,6 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
             encoding="utf-8",
         ) as survey_json:
             import_json_to_survey(survey_json)
-
-        # The DR file the test will register as the single photometric
-        # reference comes from test.cfg, so adjusting the test or adding
-        # new fixtures only requires editing the config file.
-        self._photref_dr_path = path.join(
-            self.processing_directory,
-            overwrite_default_config["single-photref-dr-fname"][0][1],
-        )
 
     def test_full_pipeline(self):
         """Run the full pipeline and compare every output to expected.
@@ -165,8 +165,6 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
         self._assert_h5_dir_match("DR")
         self._assert_h5_dir_match("LC")
 
-        self.successful_test = True
-
     def _register_photref(self):
         """Mimic the BUI's ``record_photref_selection`` for the test photref.
 
@@ -184,7 +182,7 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
 
         photref_batch = None
         for candidate in result["candidates"]:
-            for _, _, batch in candidate["groups"]:
+            for _, batch in candidate["groups"]:
                 if any(entry[1] == self._photref_dr_path for entry in batch):
                     photref_batch = batch
                     break
@@ -196,15 +194,7 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
             f"{self._photref_dr_path!r}.",
         )
 
-        processing.add_masters(
-            {
-                "type": "single_photref",
-                "filename": self._photref_dr_path,
-                "preference_order": None,
-                "disable": False,
-            }
-        )
-        bind_images_to_photref(self._photref_dr_path, photref_batch)
+        record_single_photref(self._photref_dr_path, photref_batch)
 
     def _assert_dir_fits_match(self, relative_dir):
         """Assert every ``*.fits*`` in ``relative_dir`` matches expected."""

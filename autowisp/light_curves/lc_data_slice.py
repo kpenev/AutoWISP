@@ -20,9 +20,9 @@ from ctypes import (
 )
 
 import numpy
+import psutil
 
 _logger = logging.getLogger(__name__)
-
 
 # pylint: disable=too-few-public-methods
 class LCDataSliceBase(Structure):
@@ -141,6 +141,9 @@ def create_lc_data_slice_type(
                 )
             )
             # pylint: enable=logging-not-lazy
+
+    total_memory = psutil.virtual_memory().total
+    max_mem = min(max_mem, int(total_memory * 0.95))
 
     num_frames = min(int(max_mem / perframe_bytes), 1000)
 

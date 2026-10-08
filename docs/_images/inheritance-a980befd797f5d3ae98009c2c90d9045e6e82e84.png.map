@@ -1,0 +1,16 @@
+<map id="inheritance49b2ef480d" name="inheritance49b2ef480d">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="246,299,614,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="283,372,577,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,225,425,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="450,225,842,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="499,152,793,177"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="807,5,922,31"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="793,79,937,104"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="961,79,1107,104"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="973,5,1095,31"/>
+<area shape="rect" id="node11" title="An HTTP response class with a string as content." alt="" coords="1375,79,1629,104"/>
+<area shape="rect" id="node12" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="1359,5,1645,31"/>
+<area shape="rect" id="node13" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="32,152,399,177"/>
+<area shape="rect" id="node14" title="define a class as inspectable." alt="" coords="523,79,769,104"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
+</map>

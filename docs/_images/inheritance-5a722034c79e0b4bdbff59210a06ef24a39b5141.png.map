@@ -1,0 +1,8 @@
+<map id="inheritance4788dbbe47" name="inheritance4788dbbe47">
+<area shape="rect" id="node1" title="Buffered I/O implementation using an in&#45;memory bytes buffer." alt="" coords="5,5,101,31"/>
+<area shape="rect" id="node2" title="An HTTP response class with a string as content." alt="" coords="142,79,397,104"/>
+<area shape="rect" id="node3" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="126,5,413,31"/>
+<area shape="rect" id="node4" title="Abstract base class for objects that render into a FigureCanvas." alt="" coords="441,5,607,31"/>
+<area shape="rect" id="node6" title="Base class for `.Figure` and `.SubFigure` containing the methods that add" alt="" coords="421,79,627,104"/>
+<area shape="rect" id="node5" title="The top level container for all the plot elements." alt="" coords="437,152,611,177"/>
+</map>

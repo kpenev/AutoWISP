@@ -1,5 +1,8 @@
 """Functions for formatting magnitude fitting inputs as needed."""
 
+import os
+from itertools import count
+
 import numpy
 from numpy.lib import recfunctions
 from astropy.io import fits
@@ -146,8 +149,12 @@ def get_master_photref(photref_fname):
 
     result = {}
     with fits.open(photref_fname, "readonly") as photref_fits:
-        num_photometries = len(photref_fits) - 1
-        for phot_ind, phot_reference in enumerate(photref_fits[1:]):
+        # Masters written before the tables were named have them unnamed.
+        phot_references = [
+            hdu for hdu in photref_fits[1:] if hdu.name in ("MPHOTREF", "")
+        ]
+        num_photometries = len(phot_references)
+        for phot_ind, phot_reference in enumerate(phot_references):
             if "source_id" in phot_reference.data.dtype.names:
                 source_ids = phot_reference.data["source_id"]
             else:
@@ -192,4 +199,62 @@ def format_master_catalog(cat_sources, source_id_parser=None):
         return {
             source_id_parser(source_id): source_data
             for source_id, source_data in zip(cat_ids, cat_sources)
+        }
+
+
+def get_path_substitutions(configuration, sphotref_header):
+    """Return the path substitutions to find magfit datasets."""
+
+    result = {
+        what + "_version": configuration[what + "_version"]
+        for what in ["shapefit", "srcproj", "apphot", "background", "magfit"]
+    }
+    if configuration["master_photref_fname"] is not None:
+        # dict() first: a header may repeat a keyword, which ** would pass
+        # to format() once per copy.
+        fname_substitutions = dict(sphotref_header)
+        fname_substitutions.update(result)
+        for iteration in count():
+            fname_substitutions["magfit_iteration"] = iteration
+            if (
+                configuration["master_photref_fname_format"].format_map(
+                    fname_substitutions
+                )
+                == configuration["master_photref_fname"]
+            ):
+                # Master iterNNN is built after pass NNN and fit against in
+                # pass NNN + 1, so a fit against it belongs at that index.
+                result["magfit_iteration"] = iteration + 1
+                break
+            if iteration >= configuration["max_magfit_iterations"]:
+                raise ValueError(
+                    "Master photometric reference "
+                    f"{configuration['master_photref_fname']!r} does not appear"
+                    " to follow the specified filename format: "
+                    f"{configuration['master_photref_fname_format']!r}!"
+                )
+    return result
+
+
+def read_exclusions(exclusion_fname):
+    """
+    Return the DR files an exclusion list names, as resolved paths.
+
+    Args:
+        exclusion_fname(str or None):    The exclusion list: one DR file per
+            line, blank lines ignored. None excludes nothing.
+
+    Returns:
+        set:
+            The ``os.path.realpath`` of each listed DR file, so that a file
+            matches however its path is spelled.
+    """
+
+    if exclusion_fname is None:
+        return set()
+    with open(exclusion_fname, encoding="utf-8") as exclusion_list:
+        return {
+            os.path.realpath(line.strip())
+            for line in exclusion_list
+            if line.strip()
         }

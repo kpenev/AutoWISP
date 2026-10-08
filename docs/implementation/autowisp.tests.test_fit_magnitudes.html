@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_fit_magnitudes module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,53 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,27 +175,157 @@
 <span id="autowisp-tests-test-fit-magnitudes-module"></span><h1>autowisp.tests.test_fit_magnitudes module<a class="headerlink" href="#module-autowisp.tests.test_fit_magnitudes" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-8d319c5f99f85c1ccbb2497de2cea1d2b7e834c3.png" alt="Inheritance diagram of H5TestCase, TestFitMagnitudes" usemap="#inheritance405775c1cd" class="inheritance graphviz" /></div>
-<map id="inheritance405775c1cd" name="inheritance405775c1cd">
-<area shape="rect" id="node3" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="59,155,287,181"/>
-<area shape="rect" id="node4" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase" target="_top" title="Add assert for comparing groups in HDF5 files." alt="" coords="40,229,306,256"/>
-<area shape="rect" id="node5" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" target="_top" title="Tests of the fit_source_extracted_psf_map step." alt="" coords="5,304,341,331"/>
+<div class="graphviz"><img src="../_images/inheritance-5ded40269c37336d5fd4696d5d036a5017e26d3a.png" alt="Inheritance diagram of DRTestCase, TestFitMagnitudes" usemap="#inheritancee59e5976ee" class="inheritance graphviz" /></div>
+<map id="inheritancee59e5976ee" name="inheritancee59e5976ee">
+<area shape="rect" id="node3" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="70,152,313,177"/>
+<area shape="rect" id="node5" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase" target="_top" title="Add assert for comparing groups in HDF5 files." alt="" coords="48,225,335,251"/>
+<area shape="rect" id="node4" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase" target="_top" title="H5TestCase aware of row&#45;order ambiguity in SourceExtraction groups." alt="" coords="48,299,335,324"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" target="_top" title="Tests of the fit_source_extracted_psf_map step." alt="" coords="5,372,377,397"/>
 </map><p>Define test case for the fit_source_extracted_psf_map step.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_fit_magnitudes.</span></span><span class="sig-name descname"><span class="pre">TestFitMagnitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase" title="autowisp.tests.h5_test_case.H5TestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">H5TestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-2c073e2c28399756134a4ea8d08e21c2d7a5d1fb.png" alt="Inheritance diagram of autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" usemap="#inheritance22427e5125" class="inheritance graphviz" /></div>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_fit_magnitudes.</span></span><span class="sig-name descname"><span class="pre">TestFitMagnitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase" title="autowisp.tests.h5_test_case.DRTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DRTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-a8f9055ff5fe4e23ff4ecd26ab4bf1269f413f4a.png" alt="Inheritance diagram of autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" usemap="#inheritance22427e5125" class="inheritance graphviz" /></div>
 <map id="inheritance22427e5125" name="inheritance22427e5125">
-<area shape="rect" id="node3" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="59,155,287,181"/>
-<area shape="rect" id="node4" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase" target="_top" title="Add assert for comparing groups in HDF5 files." alt="" coords="40,229,306,256"/>
-<area shape="rect" id="node5" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" target="_top" title="Tests of the fit_source_extracted_psf_map step." alt="" coords="5,304,341,331"/>
+<area shape="rect" id="node3" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="70,152,313,177"/>
+<area shape="rect" id="node5" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase" target="_top" title="Add assert for comparing groups in HDF5 files." alt="" coords="48,225,335,251"/>
+<area shape="rect" id="node4" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase" target="_top" title="H5TestCase aware of row&#45;order ambiguity in SourceExtraction groups." alt="" coords="48,299,335,324"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes" target="_top" title="Tests of the fit_source_extracted_psf_map step." alt="" coords="5,372,377,397"/>
 </map><p>Tests of the fit_source_extracted_psf_map step.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_magfit_stat_match">
+<span class="sig-name descname"><span class="pre">_assert_magfit_stat_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expected_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_magfit_stat_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_magfit_stat_match" title="Link to this definition"></a></dt>
+<dd><p>Assert two magfit statistics files match, in any order of rows.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_master_reads">
+<span class="sig-name descname"><span class="pre">_assert_master_reads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_master_reads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_master_reads" title="Link to this definition"></a></dt>
+<dd><p>Assert the master reads as exactly its photometry tables.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_as_expected">
+<span class="sig-name descname"><span class="pre">_assert_masters_as_expected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_masters_as_expected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_as_expected" title="Link to this definition"></a></dt>
+<dd><p>Assert the masters and statistics written match the test data’s.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_built_without">
+<span class="sig-name descname"><span class="pre">_assert_masters_built_without</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excluded</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_dr_fnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset_masters_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_masters_built_without"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_built_without" title="Link to this definition"></a></dt>
+<dd><p>Assert the masters match the subset run’s and record the populations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>excluded</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – The DR files excluded from the masters.</p></li>
+<li><p><strong>fit_dr_fnames</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – The DR files fit, excluded included.</p></li>
+<li><p><strong>subset_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Where the DR files of the subset run are.</p></li>
+<li><p><strong>subset_masters_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Where the masters built from the kept
+images alone are.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The masters, in order of iteration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_match">
+<span class="sig-name descname"><span class="pre">_assert_masters_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expected_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_masters_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_masters_match" title="Link to this definition"></a></dt>
+<dd><p>Assert two masters match, apart from their population record.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_population">
+<span class="sig-name descname"><span class="pre">_assert_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_population" title="Link to this definition"></a></dt>
+<dd><p>Assert the master’s INMASTER table holds <code class="docutils literal notranslate"><span class="pre">{dr_fname:</span> <span class="pre">included}</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_qc_included">
+<span class="sig-name descname"><span class="pre">_assert_qc_included</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._assert_qc_included"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._assert_qc_included" title="Link to this definition"></a></dt>
+<dd><p>Assert every photometry of the DR file records <code class="docutils literal notranslate"><span class="pre">included</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._fit_without_and_with_exclusions">
+<span class="sig-name descname"><span class="pre">_fit_without_and_with_exclusions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excluded</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._fit_without_and_with_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._fit_without_and_with_exclusions" title="Link to this definition"></a></dt>
+<dd><p>Fit the images not in <code class="docutils literal notranslate"><span class="pre">excluded</span></code> alone, then all excluding those.</p>
+<p>The list given to the second run names the first excluded file by a
+relative path, the second by an absolute one, and adds a file that is
+not among the inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>excluded</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Two DR files, under the <code class="docutils literal notranslate"><span class="pre">DR</span></code> directory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>The DR files the second run fit, those the bundle has fits for.</p>
+<dl class="simple">
+<dt>str:</dt><dd><p>The directory holding the DR files of the first run.</p>
+</dd>
+<dt>str:</dt><dd><p>The directory the masters of the first run were moved to.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._read_fits">
+<span class="sig-name descname"><span class="pre">_read_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes._read_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes._read_fits" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">{path:</span> <span class="pre">(magnitudes,</span> <span class="pre">fit</span> <span class="pre">residual)}</span></code> of every fit in DR.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_exclusions_kept_out_of_master">
+<span class="sig-name descname"><span class="pre">test_exclusions_kept_out_of_master</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes.test_exclusions_kept_out_of_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_exclusions_kept_out_of_master" title="Link to this definition"></a></dt>
+<dd><p>Excluding images gives the master the kept images give alone.</p>
+<p>Fits the kept images by themselves, then all images with the others
+excluded, and compares: the masters and the kept images’ fits must
+be the same, the excluded images fit at the last pass, each master
+must list every image fit, flagging the ones it was built from, and
+each image must record whether it passes the quality cut. The list
+names one input by a relative path, one by an absolute
+path, and a file that is not among the inputs, which must not be
+recorded. Both the new master and one written before exclusions were
+recorded must read as their photometry tables alone.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_existing_files_are_not_overwritten">
+<span class="sig-name descname"><span class="pre">test_existing_files_are_not_overwritten</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes.test_existing_files_are_not_overwritten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_existing_files_are_not_overwritten" title="Link to this definition"></a></dt>
+<dd><p>A file the first pass would write stops the fit before it starts.</p>
+<p>The master and the statistics of the first pass are each put in
+place alone, as a master built from another single photometric
+reference named alike would have left them. The step must fail
+without fitting any image and leave the file as it was.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_fit_magnitudes">
 <span class="sig-name descname"><span class="pre">test_fit_magnitudes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes.test_fit_magnitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_fit_magnitudes" title="Link to this definition"></a></dt>
-<dd><p>Run the fit_source_extracted_psf_map step and check the outputs.</p>
+<dd><p>Run the fit_magnitudes step and check the outputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_later_image_fit_like_master_builders">
+<span class="sig-name descname"><span class="pre">test_later_image_fit_like_master_builders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_fit_magnitudes.html#TestFitMagnitudes.test_later_image_fit_like_master_builders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_later_image_fit_like_master_builders" title="Link to this definition"></a></dt>
+<dd><p>An image fit against the final master matches its last pass.</p>
+<p>Images added after the master photometric reference exists are fit
+against it alone, and must get exactly the fit that the images which
+built it got in their last pass, at the same iteration index. One of
+two such images is on the exclusion list, which changes nothing about
+its fit, only the quality flag it records.</p>
 </dd></dl>
 
 </dd></dl>

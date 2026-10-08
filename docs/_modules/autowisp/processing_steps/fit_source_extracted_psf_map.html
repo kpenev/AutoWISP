@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.processing_steps.fit_source_extracted_psf_map &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,53 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -122,7 +169,7 @@
   <h1>Source code for autowisp.processing_steps.fit_source_extracted_psf_map</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
-<span class="sd">&quot;&quot;&quot;Fit a smooth dependence of source extracted PSF parameters.&quot;&quot;&quot;</span>
+<span class="sd">"""Fit a smooth dependence of source extracted PSF parameters."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
@@ -130,8 +177,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli_entry_point</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_dr_fnames</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fit_expression</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Interface</span> <span class="k">as</span> <span class="n">FitTermsInterface</span><span class="p">,</span>
     <span class="n">iterative_fit</span><span class="p">,</span>
@@ -144,68 +193,71 @@
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;dr&quot;</span>
+<span class="n">input_type</span> <span class="o">=</span> <span class="s2">"dr"</span>
+<span class="c1">#: This step records only "started" before it finishes, so that is</span>
+<span class="c1">#: the only state an interrupted run can leave behind.</span>
+<span class="n">allowed_interrupted_status_values</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
 
 
 <div class="viewcode-block" id="parse_command_line">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.parse_command_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the parsed command line arguments."""</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
-        <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span><span class="p">),</span>
-        <span class="n">inputs_help_extra</span><span class="o">=</span><span class="s2">&quot;The DR files must already contain astrometry.&quot;</span><span class="p">,</span>
-        <span class="n">add_component_versions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;srcextract&quot;</span><span class="p">,</span> <span class="s2">&quot;catalogue&quot;</span><span class="p">,</span> <span class="s2">&quot;skytoframe&quot;</span><span class="p">),</span>
+        <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span><span class="p">),</span>
+        <span class="n">inputs_help_extra</span><span class="o">=</span><span class="s2">"The DR files must already contain astrometry."</span><span class="p">,</span>
+        <span class="n">add_component_versions</span><span class="o">=</span><span class="p">(</span><span class="s2">"srcextract"</span><span class="p">,</span> <span class="s2">"catalogue"</span><span class="p">,</span> <span class="s2">"skytoframe"</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-only-if&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expression involving the header of the input images that &quot;</span>
-        <span class="s2">&quot;evaluates to True/False if a particular image from the specified &quot;</span>
-        <span class="s2">&quot;image collection should/should not be processed.&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-only-if"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"True"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Expression involving the header of the input images that "</span>
+        <span class="s2">"evaluates to True/False if a particular image from the specified "</span>
+        <span class="s2">"image collection should/should not be processed."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-psf-params&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-psf-params"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of the parameters describing PSF shapes of the extracted &quot;</span>
-        <span class="s2">&quot;sources to fit a smooth dependence for. If left unspecified, smooth &quot;</span>
-        <span class="s2">&quot;map will be fit for (`&#39;S&#39;`, `&#39;D&#39;`, `&#39;K&#39;`) or (`&#39;fwhm&#39;`, `&#39;round&#39;`, &quot;</span>
-        <span class="s2">&quot;`&#39;pa&#39;`), whichever is available.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List of the parameters describing PSF shapes of the extracted "</span>
+        <span class="s2">"sources to fit a smooth dependence for. If left unspecified, smooth "</span>
+        <span class="s2">"map will be fit for (`'S'`, `'D'`, `'K'`) or (`'fwhm'`, `'round'`, "</span>
+        <span class="s2">"`'pa'`), whichever is available."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-psfmap-terms&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;O3{x, y}*O1</span><span class="si">{phot_g_mean_mag}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression involving source extraction and/or catalogue &quot;</span>
-        <span class="s2">&quot;variables for the terms to include in the smoothing fit.&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-psfmap-terms"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"O3{x, y}*O1</span><span class="si">{phot_g_mean_mag}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"An expression involving source extraction and/or catalogue "</span>
+        <span class="s2">"variables for the terms to include in the smoothing fit."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-psfmap-weights&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-psfmap-weights"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression involving source extraction and/or catalogue &quot;</span>
-        <span class="s2">&quot;variables for the weights to use for the smoothing fit.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"An expression involving source extraction and/or catalogue "</span>
+        <span class="s2">"variables for the weights to use for the smoothing fit."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-psfmap-error-avg&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How to average fitting residuals for outlier rejection. &quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-psfmap-error-avg"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"median"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"How to average fitting residuals for outlier rejection. "</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-psfmap-rej-level&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-psfmap-rej-level"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How far away from the fit should a point be before it is rejected&quot;</span>
-        <span class="s2">&quot; in units of error_avg.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"How far away from the fit should a point be before it is rejected"</span>
+        <span class="s2">" in units of error_avg."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-psfmap-max-rej-iter&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-psfmap-max-rej-iter"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of rejection/re-fitting iterations to perform.&quot;</span>
-        <span class="s2">&quot;If the fit has not converged by then, the latest iteration is &quot;</span>
-        <span class="s2">&quot;accepted. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The maximum number of rejection/re-fitting iterations to perform."</span>
+        <span class="s2">"If the fit has not converged by then, the latest iteration is "</span>
+        <span class="s2">"accepted. Default: </span><span class="si">%(default)s</span><span class="s2">"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
@@ -216,8 +268,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_predictors_and_weights</span><span class="p">(</span>
     <span class="n">matched_sources</span><span class="p">,</span> <span class="n">fit_terms_expression</span><span class="p">,</span> <span class="n">weights_expression</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the matrix of predictors to use for fitting.&quot;&quot;&quot;</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Matched columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">matched_sources</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+<span class="w">    </span><span class="sd">"""Return the matrix of predictors to use for fitting."""</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Matched columns: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">matched_sources</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">weights_expression</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">FitTermsInterface</span><span class="p">(</span><span class="n">fit_terms_expression</span><span class="p">)(</span><span class="n">matched_sources</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
     <span class="c1"># TODO fix matched_sources to records in Evaluator not here</span>
@@ -231,15 +283,15 @@
 <div class="viewcode-block" id="get_psf_param">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.get_psf_param">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_psf_param</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">,</span> <span class="n">psf_parameters</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a numpy structured array of the PSF parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a numpy structured array of the PSF parameters."""</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">),</span>
         <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">psf_parameters</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">psf_parameters</span><span class="p">:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setting PSF param </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Matched columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">matched_sources</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Setting PSF param </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Matched columns: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">matched_sources</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
         <span class="n">result</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">matched_sources</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">result</span></div>
@@ -249,12 +301,12 @@
 <div class="viewcode-block" id="detect_psf_parameters">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.detect_psf_parameters">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">detect_psf_parameters</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the default PSF parameters to fit for he given DR file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the default PSF parameters to fit for he given DR file."""</span>
 
     <span class="k">for</span> <span class="n">try_psf_params</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;fwhm&quot;</span><span class="p">,</span> <span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="s2">&quot;pa&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"S"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">,</span> <span class="s2">"K"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"s"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">,</span> <span class="s2">"k"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"fwhm"</span><span class="p">,</span> <span class="s2">"round"</span><span class="p">,</span> <span class="s2">"pa"</span><span class="p">),</span>
     <span class="p">]:</span>
         <span class="n">found_all</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">try_psf_params</span><span class="p">:</span>
@@ -266,12 +318,69 @@
 
 
 
+<div class="viewcode-block" id="_collect_psf_map_diagnostics">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map._collect_psf_map_diagnostics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_psf_map_diagnostics</span><span class="p">(</span>
+    <span class="n">matched_sources</span><span class="p">,</span> <span class="n">psf_parameters</span><span class="p">,</span> <span class="n">fit_results</span><span class="p">,</span> <span class="n">fit_terms_expression</span><span class="p">,</span> <span class="n">header</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return diagnostics for PSF map center values and fit residuals.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        matched_sources(pandas.DataFrame):    The matched source data used</span>
+<span class="sd">            for the fit.</span>
+
+<span class="sd">        psf_parameters:    The PSF parameter names that were fit.</span>
+
+<span class="sd">        fit_results(dict):    The fitting results containing ``coefficients``</span>
+<span class="sd">            and ``fit_res2`` per parameter.</span>
+
+<span class="sd">        fit_terms_expression(str):    The fit terms expression used.</span>
+
+<span class="sd">        header:    The FITS header of the frame.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:</span>
+<span class="sd">            A list of ``(name, value)`` tuples for s/d/k center values and</span>
+<span class="sd">            map residuals, or an empty list if computation fails.</span>
+<span class="sd">    """</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">center_source</span> <span class="o">=</span> <span class="n">matched_sources</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">numeric_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">center_source</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS1"</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">center_source</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS2"</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">center_predictors</span> <span class="o">=</span> <span class="n">get_predictors_and_weights</span><span class="p">(</span>
+            <span class="n">center_source</span><span class="p">,</span> <span class="n">fit_terms_expression</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="n">diagnostics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">psf_parameters</span><span class="p">:</span>
+            <span class="n">param_lower</span> <span class="o">=</span> <span class="n">param_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">param_lower</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"s"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">,</span> <span class="s2">"k"</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">center_value</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
+                <span class="n">fit_results</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">][</span><span class="n">param_name</span><span class="p">],</span>
+                <span class="n">center_predictors</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">diagnostics</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">param_lower</span><span class="si">}</span><span class="s2">_center"</span><span class="p">,</span> <span class="n">center_value</span><span class="p">))</span>
+            <span class="n">diagnostics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">param_lower</span><span class="si">}</span><span class="s2">_map_residual"</span><span class="p">,</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">fit_results</span><span class="p">[</span><span class="s2">"fit_res2"</span><span class="p">][</span><span class="n">param_name</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">diagnostics</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to compute PSF map diagnostics"</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+
 <div class="viewcode-block" id="smooth_srcextract_psf">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.smooth_srcextract_psf">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">smooth_srcextract_psf</span><span class="p">(</span>
     <span class="n">dr_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fit PSF parameters as polynomials of srcextract and catalogue info.</span>
 
 <span class="sd">    Args:</span>
@@ -312,9 +421,9 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"r+"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
         <span class="n">matched_sources</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_matched_sources</span><span class="p">(</span><span class="o">**</span><span class="n">path_substitutions</span><span class="p">)</span>
         <span class="n">predictors</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">get_predictors_and_weights</span><span class="p">(</span>
             <span class="n">matched_sources</span><span class="p">,</span>
@@ -322,32 +431,32 @@
             <span class="n">configuration</span><span class="o">.</span><span class="n">weights_expression</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Predictors (</span><span class="si">%s</span><span class="s2">x</span><span class="si">%d</span><span class="s2">)}: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="p">)</span>
+            <span class="s2">"Predictors (</span><span class="si">%s</span><span class="s2">x</span><span class="si">%d</span><span class="s2">)}: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="o">*</span><span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Weights </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+                <span class="s2">"Weights </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">format</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not using weights&quot;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Not using weights"</span><span class="p">)</span>
 
-        <span class="n">fit_results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;coefficients&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;fit_res2&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;num_fit_src&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">fit_results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"coefficients"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"fit_res2"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"num_fit_src"</span><span class="p">:</span> <span class="p">{}}</span>
 
         <span class="n">psf_parameters</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">psf_parameters</span>
         <span class="k">if</span> <span class="n">psf_parameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">psf_parameters</span> <span class="o">=</span> <span class="n">detect_psf_parameters</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">psf_parameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Matched sources in </span><span class="si">{</span><span class="n">dr_file</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> do not contain a full &quot;</span>
-                <span class="s2">&quot;set of either fistar or hatphot PSF parameters.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Matched sources in </span><span class="si">{</span><span class="n">dr_file</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> do not contain a full "</span>
+                <span class="s2">"set of either fistar or hatphot PSF parameters."</span>
             <span class="p">)</span>
 
         <span class="n">psf_param</span> <span class="o">=</span> <span class="n">get_psf_param</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">,</span> <span class="n">psf_parameters</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">psf_parameters</span><span class="p">:</span>
             <span class="p">(</span>
-                <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;coefficients&quot;</span><span class="p">][</span><span class="n">param_name</span><span class="p">],</span>
-                <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;fit_res2&quot;</span><span class="p">][</span><span class="n">param_name</span><span class="p">],</span>
-                <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;num_fit_src&quot;</span><span class="p">][</span><span class="n">param_name</span><span class="p">],</span>
+                <span class="n">fit_results</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">][</span><span class="n">param_name</span><span class="p">],</span>
+                <span class="n">fit_results</span><span class="p">[</span><span class="s2">"fit_res2"</span><span class="p">][</span><span class="n">param_name</span><span class="p">],</span>
+                <span class="n">fit_results</span><span class="p">[</span><span class="s2">"num_fit_src"</span><span class="p">][</span><span class="n">param_name</span><span class="p">],</span>
             <span class="p">)</span> <span class="o">=</span> <span class="n">iterative_fit</span><span class="p">(</span>
                 <span class="n">predictors</span><span class="p">,</span>
                 <span class="n">psf_param</span><span class="p">[</span><span class="n">param_name</span><span class="p">],</span>
@@ -355,31 +464,38 @@
                 <span class="n">error_avg</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">error_avg</span><span class="p">,</span>
                 <span class="n">rej_level</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">rej_level</span><span class="p">,</span>
                 <span class="n">max_rej_iter</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">max_rej_iter</span><span class="p">,</span>
-                <span class="n">fit_identifier</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Extracted sources PSF </span><span class="si">{</span><span class="n">param_name</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2"> map&quot;</span><span class="p">,</span>
+                <span class="n">fit_identifier</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Extracted sources PSF </span><span class="si">{</span><span class="n">param_name</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2"> map"</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;coefficients&quot;</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fit_results</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">mark_start</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
                 <span class="n">mark_end</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
                 <span class="k">return</span>
 
+        <span class="n">diagnostics</span> <span class="o">=</span> <span class="n">_collect_psf_map_diagnostics</span><span class="p">(</span>
+            <span class="n">matched_sources</span><span class="p">,</span>
+            <span class="n">psf_parameters</span><span class="p">,</span>
+            <span class="n">fit_results</span><span class="p">,</span>
+            <span class="n">configuration</span><span class="o">.</span><span class="n">fit_terms_expression</span><span class="p">,</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">(),</span>
+        <span class="p">)</span>
         <span class="n">mark_start</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
         <span class="n">dr_file</span><span class="o">.</span><span class="n">save_source_extracted_psf_map</span><span class="p">(</span>
             <span class="n">fit_results</span><span class="o">=</span><span class="n">fit_results</span><span class="p">,</span>
             <span class="n">fit_configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
             <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">mark_end</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span></div>
+        <span class="n">mark_end</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">diagnostics</span><span class="o">=</span><span class="n">diagnostics</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="get_dr_substitutions">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.get_dr_substitutions">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_dr_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the path substitutions needed to resolve input datasets.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the path substitutions needed to resolve input datasets."""</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="n">what</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="n">what</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">what</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">,</span> <span class="s2">&quot;catalogue&quot;</span><span class="p">,</span> <span class="s2">&quot;skytoframe&quot;</span><span class="p">]</span>
+        <span class="n">what</span> <span class="o">+</span> <span class="s2">"_version"</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="n">what</span> <span class="o">+</span> <span class="s2">"_version"</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">what</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"srcextract"</span><span class="p">,</span> <span class="s2">"catalogue"</span><span class="p">,</span> <span class="s2">"skytoframe"</span><span class="p">]</span>
     <span class="p">}</span></div>
 
 
@@ -389,35 +505,39 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">fit_source_extracted_psf_map</span><span class="p">(</span>
     <span class="n">dr_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit a smooth dependence of source extraction PSF for a DR collection.&quot;&quot;&quot;</span>
-
-    <span class="k">assert</span> <span class="n">start_status</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">"""Fit a smooth dependence of source extraction PSF for a DR collection."""</span>
+    <span class="c1"># ``start_status`` is part of the signature the manager calls</span>
+    <span class="c1"># with; the values this step accepts are declared in</span>
+    <span class="c1"># ``allowed_start_status_values`` and checked there.</span>
+    <span class="c1"># pylint: disable=unused-argument</span>
 
     <span class="c1"># This defines a type not variable</span>
     <span class="c1"># pylint: disable=invalid-name</span>
     <span class="n">SmoothingConfigType</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
-        <span class="s2">&quot;SmoothingConfigType&quot;</span><span class="p">,</span>
+        <span class="s2">"SmoothingConfigType"</span><span class="p">,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;psf_parameters&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fit_terms_expression&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;weights_expression&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;error_avg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rej_level&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;max_rej_iter&quot;</span><span class="p">,</span>
+            <span class="s2">"psf_parameters"</span><span class="p">,</span>
+            <span class="s2">"fit_terms_expression"</span><span class="p">,</span>
+            <span class="s2">"weights_expression"</span><span class="p">,</span>
+            <span class="s2">"error_avg"</span><span class="p">,</span>
+            <span class="s2">"rej_level"</span><span class="p">,</span>
+            <span class="s2">"max_rej_iter"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">)</span>
     <span class="c1"># pylint: enable=invalid-name</span>
 
     <span class="n">smoothing_config</span> <span class="o">=</span> <span class="n">SmoothingConfigType</span><span class="p">(</span>
-        <span class="n">psf_parameters</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_params&quot;</span><span class="p">],</span>
-        <span class="n">fit_terms_expression</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_psfmap_terms&quot;</span><span class="p">],</span>
-        <span class="n">weights_expression</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_psfmap_weights&quot;</span><span class="p">],</span>
+        <span class="n">psf_parameters</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_psf_params"</span><span class="p">],</span>
+        <span class="n">fit_terms_expression</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_psfmap_terms"</span><span class="p">],</span>
+        <span class="n">weights_expression</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_psfmap_weights"</span><span class="p">],</span>
         <span class="o">**</span><span class="p">{</span>
-            <span class="n">fit_config</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_psfmap_&quot;</span> <span class="o">+</span> <span class="n">fit_config</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">fit_config</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;error_avg&quot;</span><span class="p">,</span> <span class="s2">&quot;rej_level&quot;</span><span class="p">,</span> <span class="s2">&quot;max_rej_iter&quot;</span><span class="p">]</span>
+            <span class="n">fit_config</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_psfmap_"</span> <span class="o">+</span> <span class="n">fit_config</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">fit_config</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"error_avg"</span><span class="p">,</span> <span class="s2">"rej_level"</span><span class="p">,</span> <span class="s2">"max_rej_iter"</span><span class="p">]</span>
         <span class="p">},</span>
     <span class="p">)</span>
 
+    <span class="c1"># ``smooth_srcextract_psf`` opens the DR file, which attaches itself to</span>
+    <span class="c1"># any error raised while it is open, so no explicit scope is needed.</span>
     <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_collection</span><span class="p">:</span>
         <span class="n">smooth_srcextract_psf</span><span class="p">(</span>
             <span class="n">dr_fname</span><span class="o">=</span><span class="n">dr_fname</span><span class="p">,</span>
@@ -432,15 +552,13 @@
 <div class="viewcode-block" id="cleanup_interrupted">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.cleanup_interrupted">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_interrupted</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove the source extracted PSF map from the given DR file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Remove the source extracted PSF map from the given DR file."""</span>
 
     <span class="n">path_substitutions</span> <span class="o">=</span> <span class="n">get_dr_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">0</span>
-
-        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
-            <span class="n">dr_file</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="s2">&quot;srcextract.psf_map&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"r+"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="s2">"srcextract.psf_map"</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
 
@@ -449,12 +567,12 @@
 <div class="viewcode-block" id="has_astrometry">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.has_astrometry">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">has_astrometry</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the DR file contains a sky-to-frame transformation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check if the DR file contains a sky-to-frame transformation."""</span>
 
-    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">dr_file</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span>
-                <span class="s2">&quot;skytoframe.coefficients&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
+                <span class="s2">"skytoframe.coefficients"</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
@@ -464,18 +582,20 @@
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.main">[docs]</a>
+<span class="nd">@cli_entry_point</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step from the command line.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run the step from the command line."""</span>
 
     <span class="n">configuration</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
-    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">)</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">"main"</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">)</span>
+
     <span class="n">dr_substitutions</span> <span class="o">=</span> <span class="n">get_dr_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
     <span class="n">fit_source_extracted_psf_map</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="n">dr_fname</span>
             <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">find_dr_fnames</span><span class="p">(</span>
-                <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dr_files&quot;</span><span class="p">),</span>
-                <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;srcextract_only_if&quot;</span><span class="p">),</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"dr_files"</span><span class="p">),</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"srcextract_only_if"</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">has_astrometry</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">dr_substitutions</span><span class="p">)</span>
         <span class="p">],</span>
@@ -487,7 +607,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

@@ -1,6 +1,6 @@
 """Define the observatory dataset table for the pipeline"""
 
-from sqlalchemy import Column, String, Float
+from sqlalchemy import Column, String, Double
 
 from sqlalchemy.orm import relationship
 
@@ -20,13 +20,13 @@ class Observatory(DataModelBase):
     __tablename__ = "observatory"
 
     latitude = Column(
-        Float, nullable=False, doc="The latitude of the observatory"
+        Double, nullable=False, doc="The latitude of the observatory"
     )
     longitude = Column(
-        Float, nullable=False, doc="The longitude of the observatory"
+        Double, nullable=False, doc="The longitude of the observatory"
     )
     altitude = Column(
-        Float, nullable=False, doc="The altitude of the observatory"
+        Double, nullable=False, doc="The altitude of the observatory"
     )
     name = Column(
         String(100), nullable=False, doc="The name of the observatory"

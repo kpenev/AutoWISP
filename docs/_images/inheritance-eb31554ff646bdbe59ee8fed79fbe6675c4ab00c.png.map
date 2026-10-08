@@ -1,0 +1,26 @@
+<map id="inheritance0118a81800" name="inheritance0118a81800">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="1133,299,1501,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="5,372,412,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="436,372,731,397"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="755,372,1071,397"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="1095,372,1538,397"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="1562,372,2205,397"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="2229,372,2679,397"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="2703,372,3114,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="892,225,1312,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1337,225,1729,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="1385,152,1680,177"/>
+<area shape="rect" id="node12" href="#autowisp.tests.test_crash_report.TestBuildCrashReport" target="_top" title="build_crash_report assembles a scrubbed, best&#45;effort zip." alt="" coords="1680,79,2057,104"/>
+<area shape="rect" id="node13" title="A class whose instances are single test cases." alt="" coords="3202,5,3370,31"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_crash_report.TestCollectEnvironment" target="_top" title="collect_environment records platform + requested package versions." alt="" coords="2082,79,2474,104"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_crash_report.TestCollectProvenance" target="_top" title="collect_provenance captures the current environment, JSON&#45;safe." alt="" coords="2499,79,2884,104"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_crash_report.TestCrashReportCli" target="_top" title="The wisp&#45;crash&#45;report CLI: latest&#45;error lookup and the entry point." alt="" coords="2908,79,3269,104"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_crash_report.TestFindErrorProgress" target="_top" title="find_error_progress resolves a step error to its processing record." alt="" coords="3294,79,3673,104"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_crash_report.TestScrubConfigValues" target="_top" title="scrub_config_values redacts secret configuration values in the DB." alt="" coords="3697,79,4081,104"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_crash_report.TestScrubMapping" target="_top" title="scrub_mapping redacts values whose key names a secret." alt="" coords="4105,79,4461,104"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_crash_report.TestScrubText" target="_top" title="scrub_text redacts secret values, leaves everything else intact." alt="" coords="4485,79,4812,104"/>
+<area shape="rect" id="node21" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="919,152,1285,177"/>
+<area shape="rect" id="node22" title="define a class as inspectable." alt="" coords="1410,79,1655,104"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1474,5,1591,31"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="3394,5,3578,31"/>
+</map>

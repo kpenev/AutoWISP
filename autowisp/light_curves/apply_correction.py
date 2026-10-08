@@ -1,12 +1,14 @@
 """Unified interface to the detrending algorithms."""
 
 import logging
+from functools import partial
 
 import numpy
 from scipy.optimize import minimize
 import pandas
 
 from autowisp.error_context import run_pool
+from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
@@ -164,13 +166,21 @@ def recalculate_correction_statistics(
     """
     Extract the performance metrics for a de-trending step directly from LCs.
 
+    Only the points selected by ``lc_points_filter_expression`` that the fit
+    did not leave out as excluded contribute.
+
     Args:
         lc_fnames([str]):    The filenames of the light curves that were
             corrected.
 
         fit_datasets:    See Correction.__init__().
 
-        extra_predictors:    See EPDCorrection.__init__().
+        variables:    The variables ``lc_points_filter_expression`` uses.
+            See ``used_variables`` argument to EPDCorrection.__init__().
+
+        lc_points_filter_expression(str or None):    See
+            ``fit_points_filter_expression`` argument to
+            EPDCorrection.__init__(). None selects every point.
 
         calculate__scatter_config:    Arguments passed directly to
             calculate_iterative_rejection_scatter().
@@ -183,24 +193,40 @@ def recalculate_correction_statistics(
         len(lc_fnames), dtype=EPDCorrection.get_result_dtype(len(fit_datasets))
     )
 
+    # The lightcurve attaches itself to any error raised while it is open,
+    # so no explicit scope is needed here.
     for lc_index, fname in enumerate(lc_fnames):
         with LightCurveFile(fname, "r") as lightcurve:
             for fit_index, (_, substitutions, to_dset) in enumerate(
                 fit_datasets
             ):
                 try:
-                    stat_points = lightcurve.evaluate_expression(
-                        variables, lc_points_filter_expression
+                    values = lightcurve.get_dataset(to_dset, **substitutions)
+                    # Points the fit left out are corrected, but say nothing
+                    # about how well the correction works. Lightcurves
+                    # detrended before fits recorded them left none out.
+                    stat_points = numpy.broadcast_to(
+                        lightcurve.get_dataset(
+                            to_dset.rsplit(".", 1)[0] + ".qc_included",
+                            default_value=True,
+                            **substitutions,
+                        ),
+                        values.shape,
                     )
+                    if lc_points_filter_expression is not None:
+                        stat_points = numpy.logical_and(
+                            stat_points,
+                            lightcurve.evaluate_expression(
+                                variables, lc_points_filter_expression
+                            ),
+                        )
                     # False positive
                     # pylint: disable=unbalanced-tuple-unpacking
                     (
                         result["rms"][lc_index][fit_index],
                         result["num_finite"][lc_index][fit_index],
                     ) = calculate_iterative_rejection_scatter(
-                        lightcurve.get_dataset(to_dset, **substitutions)[
-                            stat_points
-                        ],
+                        values[stat_points],
                         **calculate_scatter_config,
                     )
                     # pylint: enable=unbalanced-tuple-unpacking
@@ -208,6 +234,37 @@ def recalculate_correction_statistics(
                     result["rms"][lc_index][fit_index] = numpy.nan
                     result["num_finite"][lc_index][fit_index] = 0
     return result
+
+
+def _detrending_related_files(lc_fname, single_photref_dr_fname=None):
+    """Related files for a detrending work item: the LC + its photref.
+
+    Module-level (so a ``partial`` of it is picklable to the workers) and
+    passed as the ``run_pool`` ``related_files`` classifier, so any error --
+    a config-vs-LC mismatch or a silent crash -- carries both the light
+    curve being corrected and the single photometric reference the whole
+    batch is detrended against.
+
+    Args:
+        lc_fname(str):    The light curve work item.
+
+        single_photref_dr_fname(str or None):    The batch's single
+            photometric reference DR file, if configured.
+
+    Returns:
+        list:    The :class:`RelatedFile` entries for this item.
+    """
+
+    related = [RelatedFile(FileKind.LIGHTCURVE, lc_fname, role="input")]
+    if single_photref_dr_fname:
+        related.append(
+            RelatedFile(
+                FileKind.DR_FILE,
+                single_photref_dr_fname,
+                role="single_photref",
+            )
+        )
+    return related
 
 
 def apply_parallel_correction(
@@ -246,6 +303,12 @@ def apply_parallel_correction(
                 lc_fnames,
                 config=config,
                 num_processes=num_parallel_processes,
+                related_files=partial(
+                    _detrending_related_files,
+                    single_photref_dr_fname=config.get(
+                        "single_photref_dr_fname"
+                    ),
+                ),
             )
         )
 

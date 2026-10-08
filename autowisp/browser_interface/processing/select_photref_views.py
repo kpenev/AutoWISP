@@ -2,13 +2,13 @@
 
 from io import StringIO
 from os import path
+import logging
 
 # from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
 import numpy
 import matplotlib
 from matplotlib import pyplot
-from sqlalchemy import select
 import pandas
 from astropy.coordinates import SkyCoord
 from astropy import units as astropy_units
@@ -16,72 +16,43 @@ from astropy import units as astropy_units
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.interface import start_db_session
 from autowisp.database.photref_selection import (
-    bind_images_to_photref,
     compute_photref_candidates,
+    get_group_exclusions,
+    get_merit_expressions,
+    get_offered_candidates,
+    get_photref_exclusions,
+    rank_photref_candidates,
+    record_single_photref,
 )
-from autowisp.evaluator import Evaluator
+from autowisp.diagnostics.expression_library import (
+    get_expressions,
+    photref_merit,
+)
+from autowisp.evaluator import nanrank
 
 # false positive due to unusual importing
-# pylint: disable=no-name-in-module
-from autowisp.database.data_model import (
-    DiagnosticType,
-    Image,
-    ImageDiagnostics,
-)
+# pylint: disable-next=no-name-in-module
+from autowisp.database.data_model import Image
 
-# pylint: enable=no-name-in-module
 from autowisp.bui_util import encode_fits
 from .display_fits_util import update_fits_display
 
+_logger = logging.getLogger(__name__)
 
-def get_photref_merit_info(photref_group, db_session, merit_function):
+
+def _get_merit(request, db_session):
     """
-    Return the diagnostics, ranking, and std for each photref_group image.
+    Return the library expressions to rank by, and the one to rank by now.
 
-    Args:
-        photref_group:    The group of images for which an independent
-            reference needs to be selected: list of
-            (_, image_id, channel) tuples.
-
-        db_session:    Active SQLAlchemy session for DB queries.
-
-        merit_function(str):    Expression to evaluate for ranking images.
-            May reference any diagnostic column as ``qnt_<name>`` (rank) or
-            ``std_<name>`` (standard deviation).
-
-    Returns:
-        pandas.DataFrame with one row per image/channel, columns for all
-        available diagnostics by name, additionally the rank of the image
-        in that diagnostic is added (qnt_<name>). Finally a 'merit' column
-        contains the value of the specified merit function.
+    The one chosen on the page if it can still rank candidates, otherwise
+    :data:`photref_merit`; None if that cannot either, e.g. deleted.
     """
 
-    rows = []
-    for _, image_id, channel in photref_group:
-        row = {}
-        for diag_name, diag_value in db_session.execute(
-            select(DiagnosticType.name, ImageDiagnostics.value)
-            .join(
-                DiagnosticType,
-                ImageDiagnostics.diagnostic_id == DiagnosticType.id,
-            )
-            .where(ImageDiagnostics.image_id == image_id)
-            .where(ImageDiagnostics.channel == channel)
-        ).all():
-            row[diag_name] = diag_value
-        rows.append(row)
-
-    merit_info = pandas.DataFrame(rows)
-    frame_quantities = list(merit_info.columns)
-    for column in frame_quantities:
-        merit_info["qnt_" + column] = merit_info[column].rank(pct=True)
-
-    eval_merit = Evaluator(merit_info)
-    for column in frame_quantities:
-        eval_merit.symtable["std_" + column] = merit_info[column].std()
-    merit_info["merit"] = eval_merit(merit_function)
-
-    return merit_info
+    choices = get_merit_expressions(get_expressions(db_session))
+    for merit in (request.session.get("photref_merit"), photref_merit):
+        if merit in choices:
+            return choices, merit
+    return choices, None
 
 
 def _get_missing_photref(request):
@@ -92,9 +63,6 @@ def _get_missing_photref(request):
     with start_db_session() as db_session:
         result = compute_photref_candidates(processing, db_session)
 
-    request.session["merit_function"] = (
-        "1.0 / ((1.0 - qnt_s_center)**2 + qnt_bg_center**2)"
-    )
     request.session["demo"] = result["demo"]
     # Preserve the original "last entry wins" behavior: the outer loop in
     # the previous implementation overwrote ``request.session["need_photref"]``
@@ -109,28 +77,62 @@ def _get_missing_photref(request):
     request.session.modified = True
 
 
-def _get_merit_data(request, target_index):
-    """Add to the session the merit information for selecting single ref."""
+def _get_merit_data(request, batch):
+    """
+    Return the candidates for a group's reference, best first.
 
-    if "merit_info" not in request.session:
-        request.session["merit_info"] = {}
-    if str(target_index) not in request.session["merit_info"]:
-        print("Calculating merit for target " + str(target_index))
-        batch = request.session["need_photref"]["master_values"][target_index][
-            2
-        ]
-        photref_group = [(entry[1], entry[2], entry[3]) for entry in batch]
-        with start_db_session() as db_session:
-            request.session["merit_info"][str(target_index)] = (
-                get_photref_merit_info(
-                    photref_group,
-                    db_session,
-                    request.session["merit_function"],
-                )
-                .sort_values(by="merit", ascending=False)
-                .to_json()
-            )
-    request.session.modified = True
+    Evaluated on every request rather than kept, so that a change to the
+    merit expression or to the exclusion rule shows on the next one. Only
+    the images offered as the reference are ranked: not those the magnitude
+    fitting exclusion rule leaves out.
+
+    Returns:
+        tuple:
+            pandas.DataFrame:    A row per candidate, best first, indexed by
+                its position in *batch*, which is what a choice is mapped
+                back through. A column per diagnostic, and one for the merit
+                under its name.
+
+            str or None:    The name of the merit ranked by, None if none.
+
+            str:    What to say about the images not offered.
+    """
+
+    with start_db_session() as db_session:
+        merit = _get_merit(request, db_session)[1]
+        exclusions = get_group_exclusions(batch, db_session)
+        offered = get_offered_candidates(batch, exclusions)
+        positions, values = rank_photref_candidates(
+            batch, merit, offered, db_session
+        )
+    return (
+        pandas.DataFrame(values, index=positions),
+        merit,
+        _describe_held_back(exclusions, len(offered) - sum(offered)),
+    )
+
+
+def _describe_held_back(exclusions, num_held_back):
+    """Return what to say about the images not offered as the reference."""
+
+    if not exclusions:
+        return ""
+    if "error" in exclusions:
+        return (
+            "Every image is offered: the magfit exclusion rule "
+            f"{exclusions['rule']} is refused. {exclusions['error']}"
+        )
+    if num_held_back == 0:
+        return (
+            f"Every image is offered: the magfit exclusion rule "
+            f"{exclusions['rule']} excludes them all."
+            if exclusions["excluded"]
+            else ""
+        )
+    return (
+        f"{num_held_back} image(s) the magfit exclusion rule "
+        f"{exclusions['rule']} excludes are not offered."
+    )
 
 
 def create_svg(fig):
@@ -250,9 +252,16 @@ def _create_pointing_plots(  # pylint: disable=too-many-locals
 
 
 def _create_merit_histograms(
-    merit_data, image_index, max_photref_separation=0.2
+    merit_data, merit, image_index, max_photref_separation=0.2
 ):
-    """Create SVG histograms of various merit metrics showing image in each."""
+    """
+    Create SVG histograms of the candidates' merit and every diagnostic.
+
+    After the pointing plots, which show what the image shown would leave
+    unbound as the reference, the merit comes first. Each histogram marks
+    the image shown, and the quantile in a diagnostic's title is among the
+    candidates.
+    """
 
     matplotlib.use("svg")
     pyplot.style.use("dark_background")
@@ -262,48 +271,49 @@ def _create_merit_histograms(
         _create_pointing_plots(merit_data, image_index, max_photref_separation)
     )
 
-    for column in merit_data.columns:
-        if column.startswith("qnt_"):
+    for column in sorted(merit_data.columns, key=lambda name: name != merit):
+        if merit_data[column].isna().all():
             continue
         fig, ax = pyplot.subplots()
-        ax.hist(merit_data[column], bins="auto", linewidth=0, color="white")
+        ax.hist(
+            merit_data[column].dropna(), bins="auto", linewidth=0, color="white"
+        )
         ax.axvline(
             x=merit_data[column].iloc[image_index], linewidth=5, color="red"
         )
-        if column == "merit":
-            fig.suptitle("merit", fontsize=32)
+        if column == merit:
+            fig.suptitle(f"merit: {merit}", fontsize=32)
         else:
-            quantile = merit_data["qnt_" + column].iloc[image_index]
+            quantile = nanrank(merit_data[column])[image_index]
             fig.suptitle(column + f" ({quantile:.3f} quantile)", fontsize=32)
         result.append(create_svg(fig))
     return result
 
 
-def select_photref_image(request, *, target_index, recalculate=False):
+def select_photref_image(request, *, target_index):
     """Display the interface for reviewing canditate reference frames."""
 
     assert request.method == "GET"
     if "need_photref" not in request.session:
         return redirect("processing:select_photref_target")
-    print("Image view with request: " + repr(request))
+    _logger.debug("Image view with request: %s", repr(request))
     update_fits_display(request)
     image_index = request.session["fits_display"]["image_index"]
-    if recalculate:
-        print("Deleting merit info")
-        del request.session["merit_info"]
-    _get_merit_data(request, target_index)
-    print("Merit info keys: " + repr(request.session["merit_info"].keys()))
-
-    merit_data = pandas.read_json(
-        StringIO(request.session["merit_info"][str(target_index)])
-    )
-    batch = request.session["need_photref"]["master_values"][target_index][2]
-    fits_fname = batch[
-        # False positive
-        # pylint:disable=no-member
-        merit_data.index[image_index]
-        # pylint:enable=no-member
-    ][0]
+    batch = request.session["need_photref"]["master_values"][target_index][1]
+    merit_data, merit, photref_note = _get_merit_data(request, batch)
+    if merit is None:
+        photref_note = " ".join(
+            filter(
+                None,
+                [
+                    photref_note,
+                    f"Candidates are in order of time: the library has no "
+                    f"{photref_merit} expression, and no other was chosen to "
+                    "rank by.",
+                ],
+            )
+        )
+    fits_fname, dr_fname = batch[int(merit_data.index[image_index])][:2]
 
     max_photref_separation = 0.2
     try:
@@ -326,15 +336,14 @@ def select_photref_image(request, *, target_index, recalculate=False):
 
     context = {
         "target_index": target_index,
-        # False positive
-        # pylint: disable=no-member
+        "dr_fname": dr_fname,
         "num_images": merit_data.shape[0],
-        # pylint: enable=no-member
         "histograms": _create_merit_histograms(
-            merit_data, image_index, max_photref_separation
+            merit_data, merit, image_index, max_photref_separation
         ),
         "fits_fname": path.basename(fits_fname),
         "view_config": request.session.get("view_config", "undefined"),
+        "photref_note": photref_note,
     }
     context.update(request.session["fits_display"])
     context.update(
@@ -350,23 +359,37 @@ def select_photref_image(request, *, target_index, recalculate=False):
 def select_photref_target(request, recalc=False):
     """Display view to select which of the missing photrefs to define."""
 
-    if recalc:
-        merit_function = (
-            request.POST.get("merit-function")
-            if request.method == "POST"
-            else None
-        )
-        request.session.flush()
-        if merit_function is not None:
-            request.session["merit_function"] = merit_function
-        return redirect("/processing/select_photref_target")
+    if recalc or request.method == "POST":
+        # Refresh posts the form too, so the merit chosen survives the flush
+        # that makes the photref groups be derived again.
+        merit = request.POST.get("merit")
+        if recalc:
+            request.session.flush()
+        if merit:
+            request.session["photref_merit"] = merit
+        return redirect("processing:select_photref_target")
     if "need_photref" not in request.session:
         _get_missing_photref(request)
 
-    print(
-        "Request master values: "
-        + repr(request.session["need_photref"]["master_values"])
+    _logger.debug(
+        "Request master values: %s",
+        repr(request.session["need_photref"]["master_values"]),
     )
+    # Recomputed on every visit, which is how a selection just recorded
+    # shows here: this page is where recording one returns to. Each group
+    # still needing a reference says what the magfit rule would exclude of
+    # it, to inform the choice; each reference selected, what every step's
+    # rule excludes of the images bound to it.
+    with start_db_session() as db_session:
+        targets = [
+            {
+                "values": target[0] + [len(target[1])],
+                "exclusions": get_group_exclusions(target[1], db_session),
+            }
+            for target in request.session["need_photref"]["master_values"]
+        ]
+        exclusion_reports = get_photref_exclusions(db_session)
+        merit_choices, merit = _get_merit(request, db_session)
     return render(
         request,
         "processing/select_photref_target.html",
@@ -374,48 +397,57 @@ def select_photref_target(request, recalc=False):
             "master_expressions": request.session["need_photref"][
                 "master_expressions"
             ]
-            + ["Num. Images"],
-            "master_values": [
-                target[0] + [len(target[2])]
-                for target in request.session["need_photref"]["master_values"]
-            ],
-            "merit_function": request.session["merit_function"],
+            + ["Num. Images", "Excluded by magfit rule"],
+            "targets": targets,
+            "merit_choices": merit_choices,
+            "merit": merit,
             "view_config": request.body,
+            "exclusion_reports": [
+                dict(report, photref_name=path.basename(report["photref"]))
+                for report in exclusion_reports
+            ],
         },
     )
 
 
-def record_photref_selection(request, target_index, image_index):
-    """Record a single photometric reference frame selected by the user."""
+def record_photref_selection(request):
+    """
+    Record the single photometric reference whose DR file is ``?photref=``.
 
+    The frame is named by its DR file rather than by a position, among the
+    ranked candidates or in its group, since both change as references are
+    recorded. Only the entries just bound stop needing a reference, so the
+    groups are updated rather than derived again, which would re-read every
+    raw header.
+    """
+
+    # The selection is recorded by following a plain link, so the browser can
+    # re-issue this GET (refresh, back button, double click). The reference
+    # leaves its group below, so by then no group holds it and nothing
+    # happens.
+    dr_fname = request.GET.get("photref")
+    groups = request.session.get("need_photref", {}).get("master_values", [])
+    containing = [
+        index
+        for index, (_, batch) in enumerate(groups)
+        if any(entry[1] == dr_fname for entry in batch)
+    ]
+    if not containing:
+        return redirect("processing:select_photref_target")
     if request.session["demo"]:
-        print("Demo only! Not saving selected reference!")
-        return None
-    print("Merit info keys: " + repr(request.session["merit_info"].keys()))
-    merit_data = pandas.read_json(
-        StringIO(request.session["merit_info"][str(target_index)])
-    )
-    batch = request.session["need_photref"]["master_values"][target_index][2]
-    dr_fname = batch[
-        # False positive
-        # pylint:disable=no-member
-        merit_data.index[image_index]
-        # pylint:enable=no-member
-    ][1]
+        _logger.info("Demo only! Not saving selected reference!")
+        return redirect("processing:select_photref_target")
+    batch = groups[containing[0]][1]
 
-    ImageProcessingManager(pipeline_run_id=None).add_masters(
-        {
-            "type": "single_photref",
-            "filename": dr_fname,
-            "preference_order": None,
-            "disable": False,
-        }
-    )
-    bind_images_to_photref(dr_fname, batch)
+    bound = set(record_single_photref(dr_fname, batch))
 
-    # Force full re-derivation of the photref selection list on next page load
-    request.session.pop("need_photref", None)
-    request.session.pop("merit_info", None)
+    groups[containing[0]][1] = [
+        entry
+        for entry in batch
+        if (entry[2], entry[3]) not in bound and entry[1] != dr_fname
+    ]
+    if not groups[containing[0]][1]:
+        del groups[containing[0]]
     request.session.modified = True
 
     return redirect("/processing/select_photref_target")

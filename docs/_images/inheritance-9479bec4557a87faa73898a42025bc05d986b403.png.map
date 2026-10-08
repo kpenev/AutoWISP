@@ -1,0 +1,25 @@
+<map id="inheritancea11b153db9" name="inheritancea11b153db9">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,445,207,471"/>
+<area shape="rect" id="node8" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="131,519,335,544"/>
+<area shape="rect" id="node2" title="Proxy class to default TapPlus object (pointing to Gaia Archive)" alt="" coords="900,152,1123,177"/>
+<area shape="rect" id="node5" href="autowisp.catalog.html#autowisp.catalog.WISPGaia" target="_top" title="Extend queries with condition and sorting." alt="" coords="911,225,1111,251"/>
+<area shape="rect" id="node3" title="TAP plus class" alt="" coords="895,79,1127,104"/>
+<area shape="rect" id="node4" title="TAP class" alt="" coords="909,5,1114,31"/>
+<area shape="rect" id="node6" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="16,665,449,691"/>
+<area shape="rect" id="node7" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,592,460,617"/>
+<area shape="rect" id="node9" href="autowisp.error_context.html#autowisp.error_context.ErrorContext" target="_top" title="Immutable bundle of the ambient context attached to errors." alt="" coords="1138,5,1397,31"/>
+<area shape="rect" id="node10" title="Represents an HDF5 file." alt="" coords="231,445,365,471"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="469,79,657,104"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="474,152,653,177"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="293,5,452,31"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="477,5,650,31"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="674,5,861,31"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="314,225,546,251"/>
+<area shape="rect" id="node21" title="Wraps a Group, AttributeManager or DimensionManager object to provide" alt="" coords="571,225,777,251"/>
+<area shape="rect" id="node22" title="Wraps a Group or AttributeManager object to provide a mutable" alt="" coords="301,299,559,324"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="1421,5,1535,31"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="1406,79,1550,104"/>
+<area shape="rect" id="node19" title="Mixin class that allows sharing information between objects which" alt="" coords="40,225,289,251"/>
+<area shape="rect" id="node20" title="Base class for high&#45;level interface objects." alt="" coords="91,299,265,324"/>
+<area shape="rect" id="node23" title="Represents an HDF5 group." alt="" coords="219,372,377,397"/>
+</map>

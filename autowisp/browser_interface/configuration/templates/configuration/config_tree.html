@@ -143,10 +143,20 @@
                         </label>
                     </td>
                     <td>
-                        <input type="text" 
-                               id="edit-node" 
+                        <input type="text"
+                               id="edit-node"
                                style="width: 100%;font-size:24px"
                                onchange="theTree.changeNodeText()">
+                    </td>
+                    <td style="width:1%;white-space:nowrap">
+                        <button type="button"
+                                id="undefine-node"
+                                class="undefine-value-button hidden-button"
+                                disabled
+                                title="Leave this parameter undefined, so the processing step works out its own default when it runs"
+                                onclick="theTree.setNodeUndefined()">
+                            Leave undefined
+                        </button>
                     </td>
                 </tr>
             </table>

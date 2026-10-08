@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Python Module Index &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,53 @@
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-note-on-versions">A note on versions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -146,11 +193,6 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.astrometry.anmatch_transformation.html#module-autowisp.astrometry.anmatch_transformation"><code class="xref">autowisp.astrometry.anmatch_transformation</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.astrometry.astrometry.html#module-autowisp.astrometry.astrometry"><code class="xref">autowisp.astrometry.astrometry</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -166,11 +208,6 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.astrometry.healpix_utilities.html#module-autowisp.astrometry.healpix_utilities"><code class="xref">autowisp.astrometry.healpix_utilities</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.astrometry.map_projections.html#module-autowisp.astrometry.map_projections"><code class="xref">autowisp.astrometry.map_projections</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -181,12 +218,437 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.html#module-autowisp.browser_interface"><code class="xref">autowisp.browser_interface</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.configuration.html#module-autowisp.browser_interface.configuration"><code class="xref">autowisp.browser_interface.configuration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.configuration.admin.html#module-autowisp.browser_interface.configuration.admin"><code class="xref">autowisp.browser_interface.configuration.admin</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.configuration.apps.html#module-autowisp.browser_interface.configuration.apps"><code class="xref">autowisp.browser_interface.configuration.apps</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.configuration.migrations.html#module-autowisp.browser_interface.configuration.migrations"><code class="xref">autowisp.browser_interface.configuration.migrations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.configuration.models.html#module-autowisp.browser_interface.configuration.models"><code class="xref">autowisp.browser_interface.configuration.models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.configuration.tests.html#module-autowisp.browser_interface.configuration.tests"><code class="xref">autowisp.browser_interface.configuration.tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.configuration.urls.html#module-autowisp.browser_interface.configuration.urls"><code class="xref">autowisp.browser_interface.configuration.urls</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.configuration.views.html#module-autowisp.browser_interface.configuration.views"><code class="xref">autowisp.browser_interface.configuration.views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.html#module-autowisp.browser_interface.core"><code class="xref">autowisp.browser_interface.core</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.admin.html#module-autowisp.browser_interface.core.admin"><code class="xref">autowisp.browser_interface.core.admin</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.apps.html#module-autowisp.browser_interface.core.apps"><code class="xref">autowisp.browser_interface.core.apps</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.context_processors.html#module-autowisp.browser_interface.core.context_processors"><code class="xref">autowisp.browser_interface.core.context_processors</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.migrations.html#module-autowisp.browser_interface.core.migrations"><code class="xref">autowisp.browser_interface.core.migrations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.models.html#module-autowisp.browser_interface.core.models"><code class="xref">autowisp.browser_interface.core.models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.plot_utils.html#module-autowisp.browser_interface.core.plot_utils"><code class="xref">autowisp.browser_interface.core.plot_utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.templatetags.html#module-autowisp.browser_interface.core.templatetags"><code class="xref">autowisp.browser_interface.core.templatetags</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.templatetags.custom_filters.html#module-autowisp.browser_interface.core.templatetags.custom_filters"><code class="xref">autowisp.browser_interface.core.templatetags.custom_filters</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.tests.html#module-autowisp.browser_interface.core.tests"><code class="xref">autowisp.browser_interface.core.tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.timestamp_triggers.html#module-autowisp.browser_interface.core.timestamp_triggers"><code class="xref">autowisp.browser_interface.core.timestamp_triggers</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.views.html#module-autowisp.browser_interface.core.views"><code class="xref">autowisp.browser_interface.core.views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.core.walk_fs_view.html#module-autowisp.browser_interface.core.walk_fs_view"><code class="xref">autowisp.browser_interface.core.walk_fs_view</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.html#module-autowisp.browser_interface.diagnostics"><code class="xref">autowisp.browser_interface.diagnostics</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.apps.html#module-autowisp.browser_interface.diagnostics.apps"><code class="xref">autowisp.browser_interface.diagnostics.apps</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.detrending_diagnostics_views.html#module-autowisp.browser_interface.diagnostics.detrending_diagnostics_views"><code class="xref">autowisp.browser_interface.diagnostics.detrending_diagnostics_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.exclusion_mask.html#module-autowisp.browser_interface.diagnostics.exclusion_mask"><code class="xref">autowisp.browser_interface.diagnostics.exclusion_mask</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.expression_data.html#module-autowisp.browser_interface.diagnostics.expression_data"><code class="xref">autowisp.browser_interface.diagnostics.expression_data</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.expression_views.html#module-autowisp.browser_interface.diagnostics.expression_views"><code class="xref">autowisp.browser_interface.diagnostics.expression_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.forms.html#module-autowisp.browser_interface.diagnostics.forms"><code class="xref">autowisp.browser_interface.diagnostics.forms</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#module-autowisp.browser_interface.diagnostics.image_diagnostics_views"><code class="xref">autowisp.browser_interface.diagnostics.image_diagnostics_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.migrations.html#module-autowisp.browser_interface.diagnostics.migrations"><code class="xref">autowisp.browser_interface.diagnostics.migrations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.migrations.0001_initial.html#module-autowisp.browser_interface.diagnostics.migrations.0001_initial"><code class="xref">autowisp.browser_interface.diagnostics.migrations.0001_initial</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.migrations.0002_delete_diagnosticexpression.html#module-autowisp.browser_interface.diagnostics.migrations.0002_delete_diagnosticexpression"><code class="xref">autowisp.browser_interface.diagnostics.migrations.0002_delete_diagnosticexpression</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.preview_calibrated.html#module-autowisp.browser_interface.diagnostics.preview_calibrated"><code class="xref">autowisp.browser_interface.diagnostics.preview_calibrated</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.quantities.html#module-autowisp.browser_interface.diagnostics.quantities"><code class="xref">autowisp.browser_interface.diagnostics.quantities</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.series_table.html#module-autowisp.browser_interface.diagnostics.series_table"><code class="xref">autowisp.browser_interface.diagnostics.series_table</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.tests.html#module-autowisp.browser_interface.diagnostics.tests"><code class="xref">autowisp.browser_interface.diagnostics.tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.urls.html#module-autowisp.browser_interface.diagnostics.urls"><code class="xref">autowisp.browser_interface.diagnostics.urls</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.diagnostics.views.html#module-autowisp.browser_interface.diagnostics.views"><code class="xref">autowisp.browser_interface.diagnostics.views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.django_project.html#module-autowisp.browser_interface.django_project"><code class="xref">autowisp.browser_interface.django_project</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.django_project.asgi.html#module-autowisp.browser_interface.django_project.asgi"><code class="xref">autowisp.browser_interface.django_project.asgi</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.django_project.db_config.html#module-autowisp.browser_interface.django_project.db_config"><code class="xref">autowisp.browser_interface.django_project.db_config</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.django_project.settings.html#module-autowisp.browser_interface.django_project.settings"><code class="xref">autowisp.browser_interface.django_project.settings</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.django_project.urls.html#module-autowisp.browser_interface.django_project.urls"><code class="xref">autowisp.browser_interface.django_project.urls</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.django_project.wsgi.html#module-autowisp.browser_interface.django_project.wsgi"><code class="xref">autowisp.browser_interface.django_project.wsgi</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.error_capture_middleware.html#module-autowisp.browser_interface.error_capture_middleware"><code class="xref">autowisp.browser_interface.error_capture_middleware</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.html#module-autowisp.browser_interface.home"><code class="xref">autowisp.browser_interface.home</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.admin.html#module-autowisp.browser_interface.home.admin"><code class="xref">autowisp.browser_interface.home.admin</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.apps.html#module-autowisp.browser_interface.home.apps"><code class="xref">autowisp.browser_interface.home.apps</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.create_project_view.html#module-autowisp.browser_interface.home.create_project_view"><code class="xref">autowisp.browser_interface.home.create_project_view</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.migrations.html#module-autowisp.browser_interface.home.migrations"><code class="xref">autowisp.browser_interface.home.migrations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.migrations.0001_initial.html#module-autowisp.browser_interface.home.migrations.0001_initial"><code class="xref">autowisp.browser_interface.home.migrations.0001_initial</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.migrations.0002_project_modified_alter_project_created.html#module-autowisp.browser_interface.home.migrations.0002_project_modified_alter_project_created"><code class="xref">autowisp.browser_interface.home.migrations.0002_project_modified_alter_project_created</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.models.html#module-autowisp.browser_interface.home.models"><code class="xref">autowisp.browser_interface.home.models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.tests.html#module-autowisp.browser_interface.home.tests"><code class="xref">autowisp.browser_interface.home.tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.urls.html#module-autowisp.browser_interface.home.urls"><code class="xref">autowisp.browser_interface.home.urls</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.home.views.html#module-autowisp.browser_interface.home.views"><code class="xref">autowisp.browser_interface.home.views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.manage.html#module-autowisp.browser_interface.manage"><code class="xref">autowisp.browser_interface.manage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.html#module-autowisp.browser_interface.processing"><code class="xref">autowisp.browser_interface.processing</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.admin.html#module-autowisp.browser_interface.processing.admin"><code class="xref">autowisp.browser_interface.processing.admin</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.apps.html#module-autowisp.browser_interface.processing.apps"><code class="xref">autowisp.browser_interface.processing.apps</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.display_fits_util.html#module-autowisp.browser_interface.processing.display_fits_util"><code class="xref">autowisp.browser_interface.processing.display_fits_util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.error_views.html#module-autowisp.browser_interface.processing.error_views"><code class="xref">autowisp.browser_interface.processing.error_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.log_views.html#module-autowisp.browser_interface.processing.log_views"><code class="xref">autowisp.browser_interface.processing.log_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.migrations.html#module-autowisp.browser_interface.processing.migrations"><code class="xref">autowisp.browser_interface.processing.migrations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.models.html#module-autowisp.browser_interface.processing.models"><code class="xref">autowisp.browser_interface.processing.models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.progress_view.html#module-autowisp.browser_interface.processing.progress_view"><code class="xref">autowisp.browser_interface.processing.progress_view</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.select_photref_views.html#module-autowisp.browser_interface.processing.select_photref_views"><code class="xref">autowisp.browser_interface.processing.select_photref_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.select_raw_view.html#module-autowisp.browser_interface.processing.select_raw_view"><code class="xref">autowisp.browser_interface.processing.select_raw_view</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.tests.html#module-autowisp.browser_interface.processing.tests"><code class="xref">autowisp.browser_interface.processing.tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.tune_starfind_views.html#module-autowisp.browser_interface.processing.tune_starfind_views"><code class="xref">autowisp.browser_interface.processing.tune_starfind_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.urls.html#module-autowisp.browser_interface.processing.urls"><code class="xref">autowisp.browser_interface.processing.urls</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.processing.views.html#module-autowisp.browser_interface.processing.views"><code class="xref">autowisp.browser_interface.processing.views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.html#module-autowisp.browser_interface.results"><code class="xref">autowisp.browser_interface.results</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.admin.html#module-autowisp.browser_interface.results.admin"><code class="xref">autowisp.browser_interface.results.admin</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.apps.html#module-autowisp.browser_interface.results.apps"><code class="xref">autowisp.browser_interface.results.apps</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.lightcurve_views.html#module-autowisp.browser_interface.results.lightcurve_views"><code class="xref">autowisp.browser_interface.results.lightcurve_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.migrations.html#module-autowisp.browser_interface.results.migrations"><code class="xref">autowisp.browser_interface.results.migrations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.models.html#module-autowisp.browser_interface.results.models"><code class="xref">autowisp.browser_interface.results.models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.tests.html#module-autowisp.browser_interface.results.tests"><code class="xref">autowisp.browser_interface.results.tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.urls.html#module-autowisp.browser_interface.results.urls"><code class="xref">autowisp.browser_interface.results.urls</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.results.views.html#module-autowisp.browser_interface.results.views"><code class="xref">autowisp.browser_interface.results.views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.set_project_middleware.html#module-autowisp.browser_interface.set_project_middleware"><code class="xref">autowisp.browser_interface.set_project_middleware</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.browser_interface.start.html#module-autowisp.browser_interface.start"><code class="xref">autowisp.browser_interface.start</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.bui_util.html#module-autowisp.bui_util"><code class="xref">autowisp.bui_util</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.catalog.html#module-autowisp.catalog"><code class="xref">autowisp.catalog</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.crash_report.html#module-autowisp.crash_report"><code class="xref">autowisp.crash_report</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -221,167 +683,12 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.base.html#module-autowisp.database.data_model.base"><code class="xref">autowisp.database.data_model.base</code></a></td><td>
+       <a href="implementation/autowisp.database.defaults.html#module-autowisp.database.defaults"><code class="xref">autowisp.database.defaults</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.condition.html#module-autowisp.database.data_model.condition"><code class="xref">autowisp.database.data_model.condition</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.condition_expression.html#module-autowisp.database.data_model.condition_expression"><code class="xref">autowisp.database.data_model.condition_expression</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.configuration.html#module-autowisp.database.data_model.configuration"><code class="xref">autowisp.database.data_model.configuration</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.hdf5_attributes.html#module-autowisp.database.data_model.hdf5_attributes"><code class="xref">autowisp.database.data_model.hdf5_attributes</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.hdf5_datasets.html#module-autowisp.database.data_model.hdf5_datasets"><code class="xref">autowisp.database.data_model.hdf5_datasets</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.hdf5_links.html#module-autowisp.database.data_model.hdf5_links"><code class="xref">autowisp.database.data_model.hdf5_links</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.hdf5_products.html#module-autowisp.database.data_model.hdf5_products"><code class="xref">autowisp.database.data_model.hdf5_products</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.hdf5_structure_versions.html#module-autowisp.database.data_model.hdf5_structure_versions"><code class="xref">autowisp.database.data_model.hdf5_structure_versions</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.image.html#module-autowisp.database.data_model.image"><code class="xref">autowisp.database.data_model.image</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.image_type.html#module-autowisp.database.data_model.image_type"><code class="xref">autowisp.database.data_model.image_type</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.input_master_types.html#module-autowisp.database.data_model.input_master_types"><code class="xref">autowisp.database.data_model.input_master_types</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.light_curve_processing_progress.html#module-autowisp.database.data_model.light_curve_processing_progress"><code class="xref">autowisp.database.data_model.light_curve_processing_progress</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.light_curve_status.html#module-autowisp.database.data_model.light_curve_status"><code class="xref">autowisp.database.data_model.light_curve_status</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.master_files.html#module-autowisp.database.data_model.master_files"><code class="xref">autowisp.database.data_model.master_files</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.observing_session.html#module-autowisp.database.data_model.observing_session"><code class="xref">autowisp.database.data_model.observing_session</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.processing_sequence.html#module-autowisp.database.data_model.processing_sequence"><code class="xref">autowisp.database.data_model.processing_sequence</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.html#module-autowisp.database.data_model.provenance"><code class="xref">autowisp.database.data_model.provenance</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.camera.html#module-autowisp.database.data_model.provenance.camera"><code class="xref">autowisp.database.data_model.provenance.camera</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.camera_access.html#module-autowisp.database.data_model.provenance.camera_access"><code class="xref">autowisp.database.data_model.provenance.camera_access</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.camera_channel.html#module-autowisp.database.data_model.provenance.camera_channel"><code class="xref">autowisp.database.data_model.provenance.camera_channel</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.camera_type.html#module-autowisp.database.data_model.provenance.camera_type"><code class="xref">autowisp.database.data_model.provenance.camera_type</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.mount.html#module-autowisp.database.data_model.provenance.mount"><code class="xref">autowisp.database.data_model.provenance.mount</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.mount_access.html#module-autowisp.database.data_model.provenance.mount_access"><code class="xref">autowisp.database.data_model.provenance.mount_access</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.mount_type.html#module-autowisp.database.data_model.provenance.mount_type"><code class="xref">autowisp.database.data_model.provenance.mount_type</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.observatory.html#module-autowisp.database.data_model.provenance.observatory"><code class="xref">autowisp.database.data_model.provenance.observatory</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.observer.html#module-autowisp.database.data_model.provenance.observer"><code class="xref">autowisp.database.data_model.provenance.observer</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.telescope.html#module-autowisp.database.data_model.provenance.telescope"><code class="xref">autowisp.database.data_model.provenance.telescope</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.telescope_access.html#module-autowisp.database.data_model.provenance.telescope_access"><code class="xref">autowisp.database.data_model.provenance.telescope_access</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.provenance.telescope_type.html#module-autowisp.database.data_model.provenance.telescope_type"><code class="xref">autowisp.database.data_model.provenance.telescope_type</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.step_dependencies.html#module-autowisp.database.data_model.step_dependencies"><code class="xref">autowisp.database.data_model.step_dependencies</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.steps_and_parameters.html#module-autowisp.database.data_model.steps_and_parameters"><code class="xref">autowisp.database.data_model.steps_and_parameters</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.data_model.target.html#module-autowisp.database.data_model.target"><code class="xref">autowisp.database.data_model.target</code></a></td><td>
+       <a href="implementation/autowisp.database.frozen_row.html#module-autowisp.database.frozen_row"><code class="xref">autowisp.database.frozen_row</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -421,7 +728,17 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.database.manually_fill_tables.html#module-autowisp.database.manually_fill_tables"><code class="xref">autowisp.database.manually_fill_tables</code></a></td><td>
+       <a href="implementation/autowisp.database.migrate.html#module-autowisp.database.migrate"><code class="xref">autowisp.database.migrate</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.migrate_cli.html#module-autowisp.database.migrate_cli"><code class="xref">autowisp.database.migrate_cli</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.photref_selection.html#module-autowisp.database.photref_selection"><code class="xref">autowisp.database.photref_selection</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -431,12 +748,77 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.provenance_resolver.html#module-autowisp.database.provenance_resolver"><code class="xref">autowisp.database.provenance_resolver</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.database.user_interface.html#module-autowisp.database.user_interface"><code class="xref">autowisp.database.user_interface</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.Dump2hdf5.html#module-autowisp.Dump2hdf5"><code class="xref">autowisp.Dump2hdf5</code></a></td><td>
+       <a href="implementation/autowisp.diagnostics.html#module-autowisp.diagnostics"><code class="xref">autowisp.diagnostics</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.diagnostics.detrending.html#module-autowisp.diagnostics.detrending"><code class="xref">autowisp.diagnostics.detrending</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.diagnostics.diagnostic_types.html#module-autowisp.diagnostics.diagnostic_types"><code class="xref">autowisp.diagnostics.diagnostic_types</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.diagnostics.exclusion_rules.html#module-autowisp.diagnostics.exclusion_rules"><code class="xref">autowisp.diagnostics.exclusion_rules</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.diagnostics.expression_library.html#module-autowisp.diagnostics.expression_library"><code class="xref">autowisp.diagnostics.expression_library</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.diagnostics.expression_series.html#module-autowisp.diagnostics.expression_series"><code class="xref">autowisp.diagnostics.expression_series</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.diagnostics.expressions.html#module-autowisp.diagnostics.expressions"><code class="xref">autowisp.diagnostics.expressions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.diagnostics.get_from_lc.html#module-autowisp.diagnostics.get_from_lc"><code class="xref">autowisp.diagnostics.get_from_lc</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.diagnostics.image_counts.html#module-autowisp.diagnostics.image_counts"><code class="xref">autowisp.diagnostics.image_counts</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.error_cli.html#module-autowisp.error_cli"><code class="xref">autowisp.error_cli</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.error_context.html#module-autowisp.error_context"><code class="xref">autowisp.error_context</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.error_persistence.html#module-autowisp.error_persistence"><code class="xref">autowisp.error_persistence</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.error_render.html#module-autowisp.error_render"><code class="xref">autowisp.error_render</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -446,12 +828,7 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.fake_image.html#module-autowisp.fake_image"><code class="xref">autowisp.fake_image</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.fake_image.raw.html#module-autowisp.fake_image.raw"><code class="xref">autowisp.fake_image.raw</code></a></td><td>
+       <a href="implementation/autowisp.exceptions.html#module-autowisp.exceptions"><code class="xref">autowisp.exceptions</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -661,22 +1038,7 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#module-autowisp.magnitude_fitting.master_photref_collector_grcollect"><code class="xref">autowisp.magnitude_fitting.master_photref_collector_grcollect</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#module-autowisp.magnitude_fitting.master_photref_collector_zarr"><code class="xref">autowisp.magnitude_fitting.master_photref_collector_zarr</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.magnitude_fitting.tests.html#module-autowisp.magnitude_fitting.tests"><code class="xref">autowisp.magnitude_fitting.tests</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#module-autowisp.magnitude_fitting.tests.test_mphotref_collector"><code class="xref">autowisp.magnitude_fitting.tests.test_mphotref_collector</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -701,22 +1063,12 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.pipeline_exceptions.html#module-autowisp.pipeline_exceptions"><code class="xref">autowisp.pipeline_exceptions</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.processing_steps.html#module-autowisp.processing_steps"><code class="xref">autowisp.processing_steps</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.processing_steps.add_images_to_db.html#module-autowisp.processing_steps.add_images_to_db"><code class="xref">autowisp.processing_steps.add_images_to_db</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.processing_steps.calculate_photref_merit.html#module-autowisp.processing_steps.calculate_photref_merit"><code class="xref">autowisp.processing_steps.calculate_photref_merit</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -811,6 +1163,11 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.run_pipeline.html#module-autowisp.run_pipeline"><code class="xref">autowisp.run_pipeline</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.source_finder.html#module-autowisp.source_finder"><code class="xref">autowisp.source_finder</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -826,12 +1183,12 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.tess_interface.html#module-autowisp.tess_interface"><code class="xref">autowisp.tess_interface</code></a></td><td>
+       <a href="implementation/autowisp.tests.html#module-autowisp.tests"><code class="xref">autowisp.tests</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/autowisp.tests.html#module-autowisp.tests"><code class="xref">autowisp.tests</code></a></td><td>
+       <a href="implementation/autowisp.tests.error_fixtures.html#module-autowisp.tests.error_fixtures"><code class="xref">autowisp.tests.error_fixtures</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -851,7 +1208,37 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.synthetic_light_curve_test_case.html#module-autowisp.tests.synthetic_light_curve_test_case"><code class="xref">autowisp.tests.synthetic_light_curve_test_case</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_bui_db_config.html#module-autowisp.tests.test_bui_db_config"><code class="xref">autowisp.tests.test_bui_db_config</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_bui_models.html#module-autowisp.tests.test_bui_models"><code class="xref">autowisp.tests.test_bui_models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.tests.test_calibrate.html#module-autowisp.tests.test_calibrate"><code class="xref">autowisp.tests.test_calibrate</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_catalog.html#module-autowisp.tests.test_catalog"><code class="xref">autowisp.tests.test_catalog</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_channel_binding.html#module-autowisp.tests.test_channel_binding"><code class="xref">autowisp.tests.test_channel_binding</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_crash_report.html#module-autowisp.tests.test_crash_report"><code class="xref">autowisp.tests.test_crash_report</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -861,12 +1248,102 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_custom_group_values.html#module-autowisp.tests.test_custom_group_values"><code class="xref">autowisp.tests.test_custom_group_values</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_database_migration.html#module-autowisp.tests.test_database_migration"><code class="xref">autowisp.tests.test_database_migration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_detrending_exclusions.html#module-autowisp.tests.test_detrending_exclusions"><code class="xref">autowisp.tests.test_detrending_exclusions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.tests.test_detrending_stat.html#module-autowisp.tests.test_detrending_stat"><code class="xref">autowisp.tests.test_detrending_stat</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_diagnostic_expressions.html#module-autowisp.tests.test_diagnostic_expressions"><code class="xref">autowisp.tests.test_diagnostic_expressions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_diagnostic_types.html#module-autowisp.tests.test_diagnostic_types"><code class="xref">autowisp.tests.test_diagnostic_types</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_diagnostics_rules.html#module-autowisp.tests.test_diagnostics_rules"><code class="xref">autowisp.tests.test_diagnostics_rules</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_diagnostics_views.html#module-autowisp.tests.test_diagnostics_views"><code class="xref">autowisp.tests.test_diagnostics_views</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_engine_exclusions.html#module-autowisp.tests.test_engine_exclusions"><code class="xref">autowisp.tests.test_engine_exclusions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.tests.test_epd.html#module-autowisp.tests.test_epd"><code class="xref">autowisp.tests.test_epd</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_error_capture_middleware.html#module-autowisp.tests.test_error_capture_middleware"><code class="xref">autowisp.tests.test_error_capture_middleware</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_error_cli.html#module-autowisp.tests.test_error_cli"><code class="xref">autowisp.tests.test_error_cli</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_error_context.html#module-autowisp.tests.test_error_context"><code class="xref">autowisp.tests.test_error_context</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_error_persistence.html#module-autowisp.tests.test_error_persistence"><code class="xref">autowisp.tests.test_error_persistence</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_error_render.html#module-autowisp.tests.test_error_render"><code class="xref">autowisp.tests.test_error_render</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_evaluator.html#module-autowisp.tests.test_evaluator"><code class="xref">autowisp.tests.test_evaluator</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_exception_hierarchy.html#module-autowisp.tests.test_exception_hierarchy"><code class="xref">autowisp.tests.test_exception_hierarchy</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_exclusion_rules.html#module-autowisp.tests.test_exclusion_rules"><code class="xref">autowisp.tests.test_exclusion_rules</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_expression_series.html#module-autowisp.tests.test_expression_series"><code class="xref">autowisp.tests.test_expression_series</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_expressions.html#module-autowisp.tests.test_expressions"><code class="xref">autowisp.tests.test_expressions</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -891,7 +1368,72 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_full_pipeline.html#module-autowisp.tests.test_full_pipeline"><code class="xref">autowisp.tests.test_full_pipeline</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_lc_filter.html#module-autowisp.tests.test_lc_filter"><code class="xref">autowisp.tests.test_lc_filter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_master_photref_lookup.html#module-autowisp.tests.test_master_photref_lookup"><code class="xref">autowisp.tests.test_master_photref_lookup</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.tests.test_measure_aperture_photometry.html#module-autowisp.tests.test_measure_aperture_photometry"><code class="xref">autowisp.tests.test_measure_aperture_photometry</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_parameter_description_length.html#module-autowisp.tests.test_parameter_description_length"><code class="xref">autowisp.tests.test_parameter_description_length</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_parse_config_overwrites.html#module-autowisp.tests.test_parse_config_overwrites"><code class="xref">autowisp.tests.test_parse_config_overwrites</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_photometry_slots.html#module-autowisp.tests.test_photometry_slots"><code class="xref">autowisp.tests.test_photometry_slots</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_photref_binding.html#module-autowisp.tests.test_photref_binding"><code class="xref">autowisp.tests.test_photref_binding</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_photref_candidates.html#module-autowisp.tests.test_photref_candidates"><code class="xref">autowisp.tests.test_photref_candidates</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_project_creation_guard.html#module-autowisp.tests.test_project_creation_guard"><code class="xref">autowisp.tests.test_project_creation_guard</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_provenance_resolver.html#module-autowisp.tests.test_provenance_resolver"><code class="xref">autowisp.tests.test_provenance_resolver</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_reference_columns.html#module-autowisp.tests.test_reference_columns"><code class="xref">autowisp.tests.test_reference_columns</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_related_files.html#module-autowisp.tests.test_related_files"><code class="xref">autowisp.tests.test_related_files</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_series_references.html#module-autowisp.tests.test_series_references"><code class="xref">autowisp.tests.test_series_references</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -901,12 +1443,47 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_source_finder.html#module-autowisp.tests.test_source_finder"><code class="xref">autowisp.tests.test_source_finder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.tests.test_stack_to_master.html#module-autowisp.tests.test_stack_to_master"><code class="xref">autowisp.tests.test_stack_to_master</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_suite_registration.html#module-autowisp.tests.test_suite_registration"><code class="xref">autowisp.tests.test_suite_registration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_templates.html#module-autowisp.tests.test_templates"><code class="xref">autowisp.tests.test_templates</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="implementation/autowisp.tests.test_tfa.html#module-autowisp.tests.test_tfa"><code class="xref">autowisp.tests.test_tfa</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_tfa_multi_channel.html#module-autowisp.tests.test_tfa_multi_channel"><code class="xref">autowisp.tests.test_tfa_multi_channel</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_tfa_num_templates.html#module-autowisp.tests.test_tfa_num_templates"><code class="xref">autowisp.tests.test_tfa_num_templates</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_timestamp_triggers.html#module-autowisp.tests.test_timestamp_triggers"><code class="xref">autowisp.tests.test_timestamp_triggers</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_upgrade_from_release.html#module-autowisp.tests.test_upgrade_from_release"><code class="xref">autowisp.tests.test_upgrade_from_release</code></a></td><td>
        <em></em></td></tr>
    </table>
 

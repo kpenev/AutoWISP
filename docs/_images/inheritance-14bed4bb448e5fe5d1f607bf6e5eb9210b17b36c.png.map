@@ -1,0 +1,10 @@
+<map id="inheritance2001d889b2" name="inheritance2001d889b2">
+<area shape="rect" id="node1" title="Text I/O implementation using an in&#45;memory buffer." alt="" coords="6,5,103,31"/>
+<area shape="rect" id="node2" href="autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" target="_top" title="Validate one proposed expression against the library it would join." alt="" coords="5,299,504,324"/>
+<area shape="rect" id="node3" title="A collection of Fields, plus their associated data." alt="" coords="161,225,348,251"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="417,5,671,31"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="423,79,665,104"/>
+<area shape="rect" id="node6" title="The main implementation of all the Form logic. Note that this class is" alt="" coords="145,152,364,177"/>
+<area shape="rect" id="node10" title="An HTTP response class with a string as content." alt="" coords="950,79,1205,104"/>
+<area shape="rect" id="node11" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="934,5,1221,31"/>
+</map>

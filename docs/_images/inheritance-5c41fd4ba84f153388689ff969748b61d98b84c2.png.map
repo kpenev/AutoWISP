@@ -1,0 +1,5 @@
+<map id="inheritancebf70c1170b" name="inheritancebf70c1170b">
+<area shape="rect" id="node1" href="#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="35,79,418,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_series_references.TestCountUnboundImages" target="_top" title="The frames a split leaves out, for want of a binding." alt="" coords="5,152,448,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="143,5,311,31"/>
+</map>

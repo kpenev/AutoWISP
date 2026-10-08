@@ -1,0 +1,19 @@
+<map id="inheritance525b5c9aea" name="inheritance525b5c9aea">
+<area shape="rect" id="node1" href="autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" target="_top" title="Validate one proposed expression against the library it would join." alt="" coords="5,299,504,324"/>
+<area shape="rect" id="node2" title="A collection of Fields, plus their associated data." alt="" coords="161,225,348,251"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="1267,79,1749,104"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite" target="_top" title="Deleting several, and writing an import&#39;s worth at once." alt="" coords="389,152,827,177"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess" target="_top" title="What reading hands to the expression layer and to an export." alt="" coords="851,152,1277,177"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostic_expressions.TestNameSpace" target="_top" title="Names have to behave like the diagnostic names they sit beside." alt="" coords="1301,152,1715,177"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_diagnostic_expressions.TestStoreExpression" target="_top" title="Adding, replacing and renaming one expression." alt="" coords="1739,152,2179,177"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_diagnostic_expressions.TestStoredFields" target="_top" title="What the library keeps, and what it deliberately does not check." alt="" coords="2203,152,2618,177"/>
+<area shape="rect" id="node4" title="A class whose instances are single test cases." alt="" coords="1667,5,1835,31"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm" target="_top" title="The name checks the management form makes itself." alt="" coords="1774,79,2213,104"/>
+<area shape="rect" id="node11" title="The main implementation of all the Form logic. Note that this class is" alt="" coords="145,152,364,177"/>
+<area shape="rect" id="node14" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DBAPIError" target="_top" title="Raised when the execution of a database operation fails." alt="" coords="2656,225,2853,251"/>
+<area shape="rect" id="node16" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DatabaseError" target="_top" title="Wraps a DB&#45;API DatabaseError." alt="" coords="2645,299,2864,324"/>
+<area shape="rect" id="node15" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.StatementError" target="_top" title="An error occurred during execution of a SQL statement." alt="" coords="2642,152,2867,177"/>
+<area shape="rect" id="node18" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.IntegrityError" target="_top" title="Wraps a DB&#45;API IntegrityError." alt="" coords="2649,372,2861,397"/>
+<area shape="rect" id="node17" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.HasDescriptionCode" target="_top" title="helper which adds &#39;code&#39; as an attribute and &#39;_code_str&#39; as a method" alt="" coords="2625,5,2884,31"/>
+<area shape="rect" id="node19" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.SQLAlchemyError" target="_top" title="Generic error class." alt="" coords="2635,79,2875,104"/>
+</map>

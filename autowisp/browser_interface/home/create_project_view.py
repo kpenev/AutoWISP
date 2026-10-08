@@ -80,19 +80,24 @@ class CreateProjectView(WalkFSView):
         ) and not os.path.exists(
             os.path.join(project_home, DB_URL_FNAME)
         ), f"Directory {project_home} appears to already contain a project."
-        proj = Project(
-            name=config["project-name"],
-            path=project_home,
-            description=config["project-description"],
-        )
-        proj.save()
-        set_project_home(project_home, db_url=db_url)
+        # new_project refuses a database that already holds AutoWISP
+        # tables -- initialize_database below drops them all, which on a
+        # shared/centralised server would wipe another project.
+        set_project_home(project_home, db_url=db_url, new_project=True)
 
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
             *apply_master_config(config),
             parse_config_overwrites(config["custom-config"].splitlines()),
         )
+
+        # Recorded only once the project database exists, so a refused or
+        # failed creation does not leave a Project row pointing at nothing.
+        Project(
+            name=config["project-name"],
+            path=project_home,
+            description=config["project-description"],
+        ).save()
 
     def _save_form(self, request):
         """Save the current state of the form to the session."""

@@ -1,15 +1,40 @@
+function sectionQuantities()
+{
+    // In page order, which is the order the URL lists them, the order
+    // they took their markers in, and the order of the legend.
+    return Array.from(
+        document.querySelectorAll(".diagnostics-section")
+    ).map((section) => section.dataset.quantity);
+}
+
+function pageUrl(xQuantity)
+{
+    const bar = document.getElementById("diag-selector-bar");
+    return bar.dataset.diagnosticsUrl
+        .replace("XPLACEHOLDER", xQuantity)
+        .replace("YPLACEHOLDER", sectionQuantities().join(","));
+}
+
+function refreshPageUrl()
+{
+    // So the page can be bookmarked or reloaded as it is seen, sections
+    // and all. replaceState rather than pushState: Back should leave the
+    // page, not undo the additions one at a time.
+    history.replaceState(null, "", pageUrl(currentXQuantity()));
+}
+
+function currentXQuantity()
+{
+    return document.getElementById("x-diagnostic-selector").value;
+}
+
 function navigateDiagnostics()
 {
-    const bar = document.getElementById('diag-selector-bar');
-    const yDiag = document.getElementById('diagnostic-selector').value;
-    const xDiag = document.getElementById('x-diagnostic-selector').value;
-    if (xDiag === 'time') {
-        window.location.href = bar.dataset.imageUrl.replace('YPLACEHOLDER', yDiag);
-    } else {
-        window.location.href = bar.dataset.diagVsDiagUrl
-            .replace('XPLACEHOLDER', xDiag)
-            .replace('YPLACEHOLDER', yDiag);
-    }
+    // Every section's channel columns depend on the x, so changing it
+    // rebuilds the page rather than patching it -- carrying the sections
+    // across, since those are what the user asked to look at. What is
+    // lost is the row state, which is what changing x has always cost.
+    window.location.href = pageUrl(currentXQuantity());
 }
 
 function selectSymbol(event)
@@ -18,46 +43,175 @@ function selectSymbol(event)
     let master_id = event.currentTarget.parentElement.id.split(":")[1];
     let button = document.getElementById("marker-button:" + master_id);
     button.replaceChild(event.currentTarget.cloneNode(true), button.children[0]);
+
+    // A series table draws on every edit, so the figure has to catch up
+    // with the style just chosen.  The detrending page, whose rows are not
+    // .diagnostic-row, redraws when its Plot button is pressed instead, and
+    // must not be made to redraw per marker.
+    if ( event.currentTarget.closest(".diagnostic-row") )
+        updateFigure();
+}
+
+function getRowBindings(row, kind)
+{
+    // What the row's channel or photometry cells, as *kind* says, bind. A
+    // settled cell is text rather than a dropdown, since there is nothing
+    // to choose; either way the cell says what the row binds.
+    return Array.from(row.querySelectorAll("." + kind + "-cell")).map(
+        (cell) => cell.dataset.value
+                  ?? (cell.querySelector("select") || {}).value
+                  ?? ""
+    );
+}
+
+function isRowBound(row)
+{
+    return ["channel", "photometry"].every(
+        (kind) => getRowBindings(row, kind).every((value) => value !== "")
+    );
 }
 
 function getSelectedDatasets()
 {
-    const activeRows = document.querySelectorAll(".diagnostic-row.active");
+    // Every row, not only the drawn ones: the server answers a rebinding
+    // out of the row's own posted state, and a row switched off is rebound
+    // like any other.
+    const rows = document.querySelectorAll(".diagnostic-row");
     let datasets = {};
-    for ( const row of activeRows ) {
+    for ( const row of rows ) {
         let seriesId = row.id;
         let button = document.getElementById("marker-button:" + seriesId);
         let marker = button.children[0].className.baseVal.split(" ")[1];
-        if ( marker != "" ) {
-            datasets[seriesId] = {
-                "channel": row.getAttribute("channel"),
-                "color": document.getElementById(
-                    "plot-color:" + seriesId
-                ).value,
-                "marker": marker,
-                "scale": document.getElementById(
-                    "scale:" + seriesId
-                ).value,
-                "label": document.getElementById(
-                    "label:" + seriesId
-                ).value,
-            };
-        }
+        let color = document.getElementById("plot-color:" + seriesId);
+        let label = document.getElementById("label:" + seriesId);
+        datasets[seriesId] = {
+            "selected": row.classList.contains("active"),
+            // The observing session and image type, opaque here: the row
+            // posts back what the dropdown says and the server takes it
+            // apart, as it does the row id.
+            "pair": row.querySelector(".pair-select").value,
+            "channels": getRowBindings(row, "channel"),
+            "photometries": getRowBindings(row, "photometry"),
+            "color": color.value,
+            "marker": marker,
+            "scale": document.getElementById(
+                "scale:" + seriesId
+            ).value,
+            "label": label.value,
+            // Whether each still holds what it was rendered with, which
+            // is what tells the server it may replace them with the
+            // defaults of a new binding -- before the figure is drawn, so
+            // the plot and the table never disagree about a row that has
+            // just been rebound. The same test applyTableResponse makes
+            // when the answer comes back, so both mean the same fields.
+            "automatic_color": color.value === color.dataset.default,
+            "automatic_label": label.value === label.dataset.default,
+        };
     }
     let display = document.getElementById("diagnostics-display");
     let rect = display.getBoundingClientRect();
     let legendToggle = document.getElementById("legend-toggle");
+
+    // Set by whatever was just done to a row -- a dropdown rebinding it,
+    // or `+` asking for a copy of it -- and cleared here so that the next
+    // redraw, a colour or a marker or a row switched on, does not ask for
+    // the same thing all over again.
+    const bind = getSelectedDatasets.bind;
+    const add = getSelectedDatasets.add;
+    const sectionMarker = getSelectedDatasets.sectionMarker;
+    getSelectedDatasets.bind = null;
+    getSelectedDatasets.add = null;
+    getSelectedDatasets.sectionMarker = null;
+
+    // Every change to what is drawn -- a row switched off, a channel
+    // chosen, a row removed -- asks for a redraw, so this is the one
+    // place that sees all of them.
+    refreshDrawnCounts();
+
     return {
         "datasets": datasets,
+        "bind": bind,
+        "add": add,
+        "section_marker": sectionMarker,
         "figure_config": {
             "aspect_ratio": rect.width / rect.height,
             "show_legend": !legendToggle || !legendToggle.classList.contains("inactive"),
+            // Layout rather than data, so it travels with the rest of
+            // the layout and the download view replays it.
+            "y_axes": getYAxes(),
+            // Likewise how the points are drawn, not which.
+            "exclusion_mask": getExclusionMask(),
         },
     };
 }
 
+function applyTableResponse(data)
+{
+    // The copy `+` asked for, inserted directly below the row it was
+    // taken from. Directly below holds under any sort, the sort library
+    // not re-sorting when a row appears.
+    if ( data.added_row ) {
+        const source = document.getElementById(data.after);
+        if ( source ) {
+            source.insertAdjacentHTML("afterend", data.added_row);
+            wireDiagnosticRow(source.nextElementSibling);
+            refreshControls();
+            // The row arrived after the counts were last taken, and it is
+            // drawn by the figure this same response carries.
+            refreshDrawnCounts();
+        }
+    }
+
+    // What a rebound row earns: its count, the channel cells its pair
+    // offers, that session's start and end, and the defaults that follow
+    // from what it now binds.
+    if ( !data.bind )
+        return;
+    const row = document.getElementById(data.bind);
+    if ( !row )
+        return;
+
+    const count = row.querySelector(".series-count");
+    if ( count && data.count !== undefined )
+        count.textContent = data.count;
+
+    for ( const [selector, value] of [[".session-start", data.start],
+                                      [".session-end", data.end]] ) {
+        const cell = row.querySelector(selector);
+        if ( cell && value !== undefined )
+            cell.textContent = value;
+    }
+
+    // Only where the field still holds what it was rendered with: a colour
+    // or a label the user chose is theirs, and must survive a rebinding.
+    for ( const [prefix, value] of [["plot-color", data.color],
+                                    ["label", data.label]] ) {
+        const input = document.getElementById(prefix + ":" + data.bind);
+        if ( input && value !== undefined
+             && input.value === input.dataset.default ) {
+            input.value = value;
+            input.dataset.default = value;
+        }
+    }
+
+    if ( data.slot_cells !== undefined && count ) {
+        // Replaced rather than edited: the number of columns never
+        // changes, but which channels and photometries each may offer
+        // does, and the server renders them so that the page keeps one
+        // renderer for a cell. They sit between the session times and the
+        // count, which is what the count cell is used to find.
+        for ( const cell of
+              row.querySelectorAll(".channel-cell, .photometry-cell") )
+            cell.remove();
+        count.insertAdjacentHTML("beforebegin", data.slot_cells);
+        wireSlotCells(row);
+    }
+}
+
 function showDiagnosticsPlot(data)
 {
+    applyTableResponse(data);
+    showExcluded(data);
     let downloadBtn = document.getElementById("download-button");
     if (downloadBtn)
         downloadBtn.style.display = "inline";
@@ -105,6 +259,426 @@ function initDiagnosticsPlotting(plotURL)
     initDiagnosticsPlotting.done = true;
 }
 
+function onRowChange(event)
+{
+    // One handler for both of a row's dropdowns, which ask the same
+    // question of the server: redraw, and tell me what this row binds now.
+    const row = event.target.closest(".diagnostic-row");
+
+    // The pair always earns an answer, because which channels each column
+    // may offer depends on the session and image type, so its cells are
+    // re-rendered whatever they hold. A channel earns one only once every
+    // column is set: before that the row names no data to bind or count.
+    if ( event.target.matches(".pair-select") || isRowBound(row) )
+        getSelectedDatasets.bind = row.id;
+
+    // With nothing to ask and nothing drawn, nothing has changed that
+    // anyone can see.
+    if ( getSelectedDatasets.bind || row.classList.contains("active") )
+        updateFigure();
+}
+
+async function addOrJumpToSection()
+{
+    // One control for both, because a user picking a quantity wants to
+    // look at it and does not much care whether it is already there.
+    const selector = document.getElementById("diagnostic-selector");
+    const quantity = selector.value;
+
+    // Back to the placeholder, so that picking the same quantity a
+    // second time is still a change the selector reports.
+    selector.value = "";
+    if ( !quantity )
+        return;
+
+    let section = document.getElementById("section:" + quantity);
+    if ( !section ) {
+        const bar = document.getElementById("diag-selector-bar");
+        const taken = sectionMarkers().join(",");
+        const response = await fetch(
+            bar.dataset.sectionUrl.replace("YPLACEHOLDER", quantity)
+            + "?taken=" + encodeURIComponent(taken)
+        );
+
+        // Only a section may be inserted here. A quantity the server
+        // cannot build one for -- one naming nothing that resolves --
+        // comes back as something else entirely, and pasting that into
+        // the table strews a second copy of the whole page across this
+        // one.
+        //
+        // `redirected` is the test rather than `ok`, because a failure
+        // does not arrive as a failing status: the error middleware
+        // records the error, queues a message naming it and sends the
+        // browser back where it came from, which fetch follows without
+        // complaint and reports as a perfectly good 200. Following it
+        // ourselves is what puts that message in front of the user.
+        if ( response.redirected ) {
+            window.location.href = response.url;
+            return;
+        }
+        if ( !response.ok ) {
+            alert("Could not add " + quantity + ": " + response.status);
+            return;
+        }
+
+        document.getElementById("diagnostics-table-parent")
+                .insertAdjacentHTML("beforeend", await response.text());
+
+        section = document.getElementById("section:" + quantity);
+        wireSection(section);
+        section.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
+        refreshControls();
+        refreshDrawnCounts();
+        refreshPageUrl();
+
+        // Only where the new section brings something to draw. Its row is
+        // bound already where each of its channel columns has a single
+        // channel recorded; on a colour camera it waits to be bound and
+        // the figure is exactly as it was, so redrawing would rebuild it
+        // to look the same.
+        if ( Array.from(section.querySelectorAll(".diagnostic-row"))
+                  .some(isRowBound) )
+            updateFigure();
+    }
+
+    section.classList.remove("collapsed");
+    section.scrollIntoView({block: "start"});
+}
+
+function sectionMarkers()
+{
+    return Array.from(
+        document.querySelectorAll(".diagnostics-section")
+    ).map((section) => section.dataset.marker);
+}
+
+function onToggleSection(event)
+{
+    // Collapsed, a section still shows its header -- what it draws, and
+    // how much of the plot came from it -- so what is hidden is only the
+    // rows, which is what takes the room. The caret follows the class in
+    // CSS, so nothing here has to keep a glyph in step.
+    event.currentTarget
+         .closest(".diagnostics-section")
+         .classList.toggle("collapsed");
+}
+
+function onRemoveSection(event)
+{
+    removeSection(event.target.closest(".diagnostics-section"));
+    updateFigure();
+}
+
+function removeSection(section)
+{
+    section.remove();
+    refreshControls();
+    refreshDrawnCounts();
+    refreshPageUrl();
+}
+
+function refreshAxisOptions()
+{
+    // One option per section, since a page of N sections can use at most
+    // N axes. Rebuilt whenever that number changes, keeping whatever each
+    // section was already set to -- removing a section must not quietly
+    // move another one's quantity onto a different scale.
+    const sections = document.querySelectorAll(".diagnostics-section");
+
+    // Read every choice before changing any of them, since each option's
+    // label depends on what the others are set to.
+    const chosen = new Map(
+        Array.from(sections, (section) => [
+            section,
+            section.querySelector(".axis-select").value || "1",
+        ])
+    );
+
+    // An axis means more as the quantity already on it than as a number,
+    // so each option says which one that is -- the first in section
+    // order, an axis being able to carry several. A number nothing has
+    // taken yet stands alone: choosing it is asking for a new scale.
+    const firstOn = new Map();
+    for ( const section of sections )
+        if ( !firstOn.has(chosen.get(section)) )
+            firstOn.set(chosen.get(section), section.dataset.quantity);
+
+    for ( const section of sections ) {
+        const select = section.querySelector(".axis-select");
+        select.replaceChildren(...Array.from(sections, (ignored, index) => {
+            const number = String(index + 1);
+            const option = document.createElement("option");
+            option.value = number;
+            option.textContent = firstOn.has(number)
+                ? number + ": " + firstOn.get(number)
+                : number;
+            return option;
+        }));
+        // The choice survives only while there is still an axis to hold
+        // it: a section set to 3 on a page cut down to two sections falls
+        // back to the first, as it would be drawn anyway.
+        select.value =
+            Number(chosen.get(section)) <= sections.length
+                ? chosen.get(section)
+                : "1";
+    }
+}
+
+function onAxisChange()
+{
+    // Every selector's labels name the first quantity on each axis, so
+    // moving one section changes what the others read.
+    refreshAxisOptions();
+    updateFigure();
+}
+
+function getYAxes()
+{
+    // What the figure needs: which axis number each *quantity* is on,
+    // the quantity being what a row names and the figure groups by.
+    const axes = {};
+    for ( const section of document.querySelectorAll(".diagnostics-section") )
+        axes[section.dataset.quantity] =
+            Number(section.querySelector(".axis-select").value);
+    return axes;
+}
+
+function refreshDrawnCounts()
+{
+    // What each section contributes to the plot: its rows that are both
+    // switched on and bound, an unbound row naming no data to draw.
+    for ( const section of document.querySelectorAll(".diagnostics-section") ) {
+        const drawn = Array.from(
+            section.querySelectorAll(".diagnostic-row")
+        ).filter(
+            (row) => row.classList.contains("active") && isRowBound(row)
+        );
+        section.querySelector(".section-drawn").textContent = drawn.length;
+    }
+}
+
+function wireSection(section)
+{
+    // One listener, on the whole section, rather than one per part that
+    // ought to respond: the bracket and the header both exist to say
+    // where a section begins and neither does anything else, and so does
+    // any space beside them. What must *not* collapse the section is its
+    // rows, so the body stops the click before it reaches here.
+    section.addEventListener("click", onToggleSection);
+    section.querySelector(".section-body").addEventListener("click", stopClick);
+
+    // In the header, so its click would collapse the section; and a
+    // change to it is a change to the figure's layout, nothing the
+    // server has to work out.
+    const axis = section.querySelector(".axis-select");
+    axis.addEventListener("click", stopClick);
+    axis.addEventListener("change", onAxisChange);
+
+    // Inside the header, so its click would collapse the section on the
+    // way out without this.
+    const remove = section.querySelector(".remove-section");
+    remove.addEventListener("click", stopClick);
+    remove.addEventListener("click", onRemoveSection);
+}
+
+function onAddRow(event)
+{
+    // Asked for on the redraw the new row needs anyway, rather than in a
+    // request of its own: the payload already carries the clicked row's
+    // state and every row id on the page, which is all the server needs
+    // to build the copy and give it an id of its own.
+    const row = event.target.closest(".diagnostic-row");
+    const section = row.closest(".diagnostics-section");
+
+    getSelectedDatasets.add = row.id;
+    // The copy starts with the section's marker rather than with the
+    // marker of the row it was copied from, which may have been set by
+    // hand. The detrending page has no sections and sends none, and the
+    // server then keeps the source's marker.
+    getSelectedDatasets.sectionMarker = section ? section.dataset.marker : null;
+    updateFigure();
+}
+
+function onRemoveRow(event)
+{
+    // Nothing to ask the server, the table being the only place this row
+    // exists: it goes, and the figure is redrawn without it. Nothing is
+    // lost that `+` and the dropdowns cannot build again, which is why
+    // this asks for no confirmation.
+    const row = event.target.closest(".diagnostic-row");
+    const section = row.closest(".diagnostics-section");
+
+    row.remove();
+
+    // A section with no rows left draws nothing and offers nothing, so it
+    // goes with its last row -- unless it is the only section, the page
+    // needing a quantity to name in its URL.
+    if ( section
+         && !section.querySelector(".diagnostic-row")
+         && document.querySelectorAll(".diagnostics-section").length > 1 )
+        removeSection(section);
+    else
+        refreshControls();
+
+    updateFigure();
+}
+
+function refreshControls()
+{
+    // Everything whose choices depend on what the page now holds, called
+    // wherever a row or a section arrives or leaves -- one function, so
+    // that adding a control of this kind cannot miss a call site.
+    //
+    // The page needs a row to draw anything at all, and a section to name
+    // in its URL, so the last of each cannot be removed. Said with a
+    // disabled button rather than by refusing the click, so that it is
+    // visible before it is tried.
+    const rows = document.querySelectorAll(".diagnostic-row");
+    for ( const row of rows )
+        row.querySelector(".remove-row").disabled = rows.length < 2;
+
+    // Empty on the detrending page, which loads this file but has no
+    // sections, so the rest does nothing there.
+    const sections = document.querySelectorAll(".diagnostics-section");
+    for ( const section of sections )
+        section.querySelector(".remove-section").disabled = sections.length < 2;
+
+    refreshAxisOptions();
+}
+
+function stopClick(event)
+{
+    event.stopPropagation();
+}
+
+function refreshSortKey(event)
+{
+    // A dropdown cell sorts by `data-sort`, the text of the option chosen
+    // in it, since the cell's own text is every option run together. One
+    // delegated listener rather than one per dropdown, so that a cell the
+    // server replaces goes on sorting without being wired again.
+    const select = event.target;
+    if ( !select.matches("select") )
+        return;
+    const cell = select.closest("td");
+    if ( cell && select.selectedIndex >= 0 )
+        cell.dataset.sort = select.options[select.selectedIndex].text.trim();
+}
+
+function refreshTooltip(event)
+{
+    // A channel column's dropdown shows on hover what its chosen option
+    // names in full -- the path of a photometric reference, which the
+    // option's text shortens -- and that has to follow the choice here:
+    // the server re-renders the cells only once every column is set.
+    // Delegated, as refreshSortKey is, so replaced cells need no wiring.
+    const select = event.target;
+    if ( !select.matches(".channel-select") || select.selectedIndex < 0 )
+        return;
+    select.title = select.options[select.selectedIndex].title;
+}
+
+function wireSlotCells(row)
+{
+    // Called again whenever the server replaces these cells, which it does
+    // every time the row's pair changes.
+    for ( const select of
+          row.querySelectorAll(".channel-cell select, .photometry-cell select") ) {
+        select.addEventListener("click", stopClick);
+        select.addEventListener("change", onRowChange);
+    }
+}
+
+function wireDiagnosticRow(row)
+{
+    row.addEventListener("click", function() {
+        this.classList.toggle("active");
+        updateFigure();
+    });
+
+    // The row's own listener fires for clicks on its descendants, so
+    // editing a row would otherwise toggle it: choosing a marker or a
+    // channel, or picking a colour, would undraw the series rather than
+    // redraw it in what was just chosen.
+    for ( const control of
+          row.querySelectorAll("input, select, button, .dropdown") )
+        control.addEventListener("click", stopClick);
+
+    row.querySelector(".add-row").addEventListener("click", onAddRow);
+    row.querySelector(".remove-row").addEventListener("click", onRemoveRow);
+
+    // A colour, a scale or a label changes only how a series looks, so
+    // there is nothing to ask the server and the figure is simply
+    // redrawn. On `change` rather than `input`: dragging through a colour
+    // picker then redraws once it is settled rather than at every shade
+    // on the way, and a label redraws when it is finished rather than per
+    // keystroke.
+    for ( const input of row.querySelectorAll("input") )
+        input.addEventListener("change", updateFigure);
+
+    // The row's marker menu, wired here so that a row built after page
+    // load gets a working one too. Rows the page-load pass already covered
+    // are unaffected: adding the same listener to the same element twice
+    // has no effect.
+    for ( const symbol of row.querySelectorAll(".plot-marker") )
+        if ( symbol.parentElement.className == "dropdown-content" )
+            symbol.addEventListener("click", selectSymbol);
+
+    row.querySelector(".pair-select").addEventListener("change", onRowChange);
+    wireSlotCells(row);
+}
+
+function getExclusionMask()
+{
+    // The rule the footer applies, with what its slots are bound to, or
+    // null for none -- also on a page without the footer's dropdowns,
+    // which is one whose library holds no rule.
+    const select = document.getElementById("exclusion-mask");
+    if ( !select || !select.value )
+        return null;
+    const chosen = select.selectedOptions[0];
+    return {
+        "rule": select.value,
+        "channel": (chosen.dataset.channelSlot
+                    ? document.getElementById("exclusion-mask-channel").value
+                    : null),
+        "photometry": (
+            chosen.dataset.photometrySlot
+            ? document.getElementById("exclusion-mask-photometry").value
+            : null
+        ),
+    };
+}
+
+function onExclusionMaskChange()
+{
+    // A slot's dropdown is shown only while the chosen rule takes the slot,
+    // so that nothing on the bar is a choice that changes nothing.
+    const select = document.getElementById("exclusion-mask");
+    const chosen = select.selectedOptions[0];
+    document.getElementById("exclusion-mask-channel").hidden =
+        !chosen.dataset.channelSlot;
+    document.getElementById("exclusion-mask-photometry").hidden =
+        !chosen.dataset.photometrySlot;
+    updateFigure();
+}
+
+function showExcluded(data)
+{
+    // Every row, so that one no longer drawn, or every row once the mask
+    // is gone, is blanked rather than left saying what it used to.
+    const excluded = data.excluded || {};
+    for ( const row of document.querySelectorAll(".diagnostic-row") ) {
+        const cell = row.querySelector(".series-excluded");
+        if ( !cell )
+            continue;
+        // Short in the cell, the whole of a refusal on hovering over it.
+        const report = excluded[row.id] || {"text": "", "title": ""};
+        cell.textContent = report.text;
+        cell.title = report.title;
+    }
+}
+
 function initImageDiagnostics(plotURL)
 {
     initDiagnosticsPlotting();
@@ -113,13 +687,25 @@ function initImageDiagnostics(plotURL)
     updateFigure.callback = showDiagnosticsPlot;
     updateFigure.getParam = getSelectedDatasets;
 
-    const rows = document.querySelectorAll(".diagnostic-row");
-    rows.forEach(function(row) {
-        row.addEventListener("click", function() {
-            this.classList.toggle("active");
-            updateFigure();
-        });
-    });
+    const tableParent = document.getElementById("diagnostics-table-parent");
+    tableParent.addEventListener("change", refreshSortKey);
+    tableParent.addEventListener("change", refreshTooltip);
+    document.querySelectorAll(".diagnostics-section").forEach(wireSection);
+    document.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
+    refreshControls();
+
+    const mask = document.getElementById("exclusion-mask");
+    if ( mask ) {
+        mask.addEventListener("change", onExclusionMaskChange);
+        for ( const id of ["exclusion-mask-channel",
+                           "exclusion-mask-photometry"] )
+            document.getElementById(id).addEventListener("change",
+                                                         updateFigure);
+    }
+
+    // A row arrives drawn, so the figure is asked for at once rather than
+    // waiting for a first click that no longer has to happen.
+    updateFigure();
 }
 
 document.addEventListener("DOMContentLoaded", function() {

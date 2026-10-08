@@ -1,0 +1,10 @@
+<map id="inheritance3a47d92c61" name="inheritance3a47d92c61">
+<area shape="rect" id="node1" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="30,5,225,31"/>
+<area shape="rect" id="node3" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="5,79,249,104"/>
+<area shape="rect" id="node2" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="21,152,233,177"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="256,5,511,31"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="273,79,493,104"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="258,152,509,177"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.NoSourcesFoundError" target="_top" title="Source extraction completed but found no sources in a frame." alt="" coords="234,225,533,251"/>
+<area shape="rect" id="node8" href="#autowisp.source_finder.SourceFinder" target="_top" title="Find sources in an image of the night sky and report properties." alt="" coords="535,5,794,31"/>
+</map>

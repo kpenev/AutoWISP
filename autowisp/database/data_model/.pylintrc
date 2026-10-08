@@ -7,7 +7,7 @@ extension-pkg-whitelist=lxml.etree
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS,Dump2hdf5.py,DbSource.py
+ignore=CVS,DbSource.py
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.

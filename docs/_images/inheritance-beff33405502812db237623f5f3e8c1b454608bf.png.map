@@ -1,0 +1,7 @@
+<map id="inheritancebd145f2683" name="inheritancebd145f2683">
+<area shape="rect" id="node1" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="79,225,471,251"/>
+<area shape="rect" id="node3" href="#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="5,299,545,324"/>
+<area shape="rect" id="node2" title="Base class used for declarative class definitions." alt="" coords="128,152,423,177"/>
+<area shape="rect" id="node4" title="define a class as inspectable." alt="" coords="153,79,398,104"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="217,5,334,31"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="inheritance9232b21663" name="inheritance9232b21663">
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="17,5,272,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="23,79,266,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="5,152,284,177"/>
+<area shape="rect" id="node4" href="#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="297,5,601,31"/>
+</map>

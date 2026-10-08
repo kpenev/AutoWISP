@@ -13,7 +13,6 @@ Submodules
    :maxdepth: 4
 
    autowisp.processing_steps.add_images_to_db
-   autowisp.processing_steps.calculate_photref_merit
    autowisp.processing_steps.calibrate
    autowisp.processing_steps.create_lightcurves
    autowisp.processing_steps.epd

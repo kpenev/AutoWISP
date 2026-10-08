@@ -1,0 +1,17 @@
+{% comment %} The binding cells of one row of the series table: the
+channel columns' and then the photometry columns'.
+
+A partial of its own because the server sends these back alone: which
+channels and photometries a column may offer depends on the (session,
+image type) pair the row names, so choosing another pair re-renders every
+one of them. Sending the whole row instead would replace the colour, style
+and label set in it, and lose its place under whatever sort is in force.
+
+Takes one context variable, `diagnostic`, as `make_series` builds it.
+{% endcomment %}
+{% for slot in diagnostic.channel_slots %}
+{% include "diagnostics/_slot_cell.html" with kind="channel" %}
+{% endfor %}
+{% for slot in diagnostic.photometry_slots %}
+{% include "diagnostics/_slot_cell.html" with kind="photometry" %}
+{% endfor %}

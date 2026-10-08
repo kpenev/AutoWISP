@@ -1,0 +1,93 @@
+{% comment %} One row of the series table.
+
+A partial rather than an inline loop so that a row has one renderer
+wherever it is built. Its channel cells are a partial of their own,
+`_slot_cells.html`, because the server re-renders those on their own when
+a row is moved to another (session, image type) pair.
+
+A row *starts* drawn -- building one is the request to draw it, and a
+table of rows drawing nothing says little. Clicking still toggles it, which
+is how a plot built from several rows is cycled through: this channel
+against that one, this night against the next, without taking the rows
+apart to do it. One still missing a channel names no data, so it draws
+nothing until it is bound whatever its toggle says.
+
+Takes one context variable, `diagnostic`, as `make_series` builds it.
+{% endcomment %}
+<tr class="diagnostic-row active" id="{{ diagnostic.id }}">
+    {% comment %} A copy of this row, and away with it. The copy is what
+       makes a second series quick to build: the next one usually differs
+       from this one in a single thing, so copying leaves only that to
+       change. Removing loses nothing that `+` and the dropdowns cannot
+       build again, which is why it needs no confirming.
+    {% endcomment %}
+    <td class="row-button">
+        <button type="button"
+                class="add-row"
+                title="Add a copy of this row below it">+</button>
+    </td>
+    <td class="row-button">
+        <button type="button"
+                class="remove-row"
+                title="Remove this row">&minus;</button>
+    </td>
+    <td>
+        <input type="color"
+               id="plot-color:{{ diagnostic.id }}"
+               data-default="{{ diagnostic.color|default:'#ffffff' }}"
+               value="{{ diagnostic.color|default:'#ffffff' }}">
+    </td>
+    <td>
+        <div class="dropdown">
+            <button class="dropbtn selected-marker"
+                    id="marker-button:{{ diagnostic.id }}">
+                {% include "core/plot_marker.html" with symb=diagnostic.marker size="30" svg="T" %}
+            </button>
+            <div class="dropdown-content"
+                 id="marker:{{ diagnostic.id }}">
+                {% comment %} The point markers, then the line styles of
+                   ``core.plot_utils.line_styles``. The detrending page has
+                   a menu of its own, so what is offered here is offered
+                   there only if it is added there too. {% endcomment %}
+                {% for symb in " x+osv^<>-|:" %}
+                {% include "core/plot_marker.html" with symb=symb size="30" svg="T" %}
+                {% endfor %}
+            </div>
+        </div>
+    </td>
+    <td>
+        <input type="text"
+               class="scale-input"
+               id="scale:{{ diagnostic.id }}"
+               value="{{ diagnostic.scale|default:'1.0' }}">
+    </td>
+    <td>
+        <input class="param"
+               id="label:{{ diagnostic.id }}"
+               type="text"
+               data-default="{{ diagnostic.label|default:'' }}"
+               value="{{ diagnostic.label|default:'' }}">
+    </td>
+    {% comment %} Session and image type as one dropdown, since the pair is
+       the unit everything here is counted by: a separate type dropdown
+       would have to rebuild its options whenever the session changed.
+    {% endcomment %}
+    <td class="pair-cell" data-sort="{{ diagnostic.pair_sort }}">
+        <select class="pair-select">
+            {% for option in diagnostic.options %}
+            <option value="{{ option.value }}"
+                    {% if option.value == diagnostic.pair %}selected{% endif %}>{{ option.text }}</option>
+            {% endfor %}
+        </select>
+    </td>
+    {% comment %} Read-only, and what puts the rows in chronological order
+       when the labels are in no order at all. {% endcomment %}
+    <td class="session-start">{{ diagnostic.start }}</td>
+    <td class="session-end">{{ diagnostic.end }}</td>
+    {% include "diagnostics/_slot_cells.html" %}
+    <td class="series-count">{{ diagnostic.count }}</td>
+    {% comment %} What the footer's exclusion mask excludes of the drawn
+       points, or why it could not decide for them; filled by a redraw.
+    {% endcomment %}
+    <td class="series-excluded"></td>
+</tr>

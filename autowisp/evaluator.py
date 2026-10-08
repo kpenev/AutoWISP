@@ -10,9 +10,160 @@ import pandas
 
 from autowisp.fits_utilities import get_primary_header
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.iterative_rejection_util import (
+    iterative_rejection_average,
+    iterative_rej_polynomial_fit,
+    iterative_rej_smoothing_spline,
+)
 
 
-class Evaluator(asteval.Interpreter):
+def eval_iterative_rejection_average(*args, **kwargs):
+    """
+    Allow using
+    :func:`~autowisp.iterative_rejection_util.iterative_rejection_average`
+    in evaluators.
+    """
+
+    return iterative_rejection_average(*args, **kwargs)[0]
+
+
+def eval_iterative_rej_polynomial_fit(x, y, *args, **kwargs):
+    """
+    Allow using
+    :func:`~autowisp.iterative_rejection_util.iterative_rej_polynomial_fit`
+    in evaluators.
+    """
+
+    finite = numpy.isfinite(x)
+    kwargs["return_predicted"] = True
+    result = numpy.full(x.shape, numpy.nan)
+    result[finite] = iterative_rej_polynomial_fit(
+        x[finite], y[finite], *args, **kwargs
+    )[-1]
+    return result
+
+
+def eval_iterative_rej_smoothing_spline(x, *args, **kwargs):
+    """
+    Allow using
+    :func:`~autowisp.iterative_rejection_util.iterative_rej_smoothing_spline`
+    in evaluators.
+    """
+
+    spline = iterative_rej_smoothing_spline(x, *args, **kwargs)
+    return spline(x)
+
+
+def nanrank(x):
+    """
+    Return each entry's rank as a fraction of the finite entries.
+
+    The smallest of *n* finite values ranks ``1/n`` and the largest ``1``;
+    ties share the average of the ranks they span, and NaN stays NaN
+    without counting towards *n*. This is pandas' ``rank(pct=True)``, which
+    is what the photometric reference merit's ``qnt_<name>`` columns used,
+    so a merit rewritten in terms of this ranks candidates the same way.
+
+    Unlike the aggregates in :attr:`EvaluatorBase.nan_aggregates`, the
+    result has one entry per input entry, so it composes element-wise with
+    the values it ranks.
+
+    Args:
+        x(array-like):    The values to rank.
+
+    Returns:
+        numpy.ndarray:    The ranks, as floats in ``(0, 1]``, shaped like
+            *x*.
+    """
+
+    values = numpy.asarray(x, dtype=float)
+    return (
+        pandas.Series(values.ravel())
+        .rank(pct=True)
+        .to_numpy()
+        .reshape(values.shape)
+    )
+
+
+class EvaluatorBase(asteval.Interpreter):
+    """Asteval interpreter with the symbols all AutoWISP expressions share."""
+
+    # The NaN-ignoring aggregates available to every user expression. Listed
+    # explicitly rather than derived from ``dir(numpy)`` so that the names
+    # users can rely on are a property of AutoWISP and not of whichever numpy
+    # or asteval version happens to be installed. Asteval's default symtable
+    # supplies only some of these, and which ones has varied between releases.
+    nan_aggregates = (
+        "nanmean",
+        "nanmedian",
+        "nanstd",
+        "nanvar",
+        "nansum",
+        "nanprod",
+        "nanmin",
+        "nanmax",
+        "nanpercentile",
+        "nanquantile",
+        "nanargmin",
+        "nanargmax",
+        "nancumsum",
+        "nancumprod",
+    )
+
+    # Names asteval offers that an AutoWISP expression has no business
+    # using. Asteval is a genuine sandbox against code execution -- no
+    # imports, no eval/exec/getattr, no dunder traversal, and it refuses
+    # every file mode but reading -- but reading is enough: `open` lets an
+    # expression pull the contents of any file the user can read, and
+    # expressions now travel between installations in export files.
+    # `print` is a side effect rather than a value, so an expression using
+    # it was a mistake in any case.
+    removed_names = ("open", "print")
+
+    def __init__(self):
+        """
+        Create an interpreter with AutoWISP's symbol table.
+
+        Sub-classes should add their data to the symbol table after invoking
+        this, so a variable named like one of the aggregates shadows the
+        function rather than the other way around.
+
+        Returns:
+            None
+        """
+
+        super().__init__()
+        for func_name in self.nan_aggregates:
+            self.symtable[func_name] = getattr(numpy, func_name)
+        self.symtable["nanrank"] = nanrank
+        for func_name in self.removed_names:
+            # Absent rather than asserted, so that an asteval release which
+            # drops one of these on its own is not an error here.
+            self.symtable.pop(func_name, None)
+        for iter_rej_func in [
+            "iterative_rejection_average",
+            "iterative_rej_polynomial_fit",
+            "iterative_rej_smoothing_spline",
+        ]:
+            self.symtable[iter_rej_func] = globals()[f"eval_{iter_rej_func}"]
+
+    def __call__(self, *args, **kwargs):
+        """
+        Evaluate the expression, raising rather than returning None on error.
+
+        Asteval defaults to printing the error and returning ``None``, which
+        only relocates the failure: the ``None`` flows on and breaks somewhere
+        unrelated, long after the message about the offending expression has
+        scrolled away. Callers wanting the permissive behaviour can still pass
+        ``raise_errors=False`` explicitly.
+        """
+
+        if "raise_errors" not in kwargs:
+            kwargs["raise_errors"] = True
+        return super().__call__(*args, **kwargs)
+
+
+class Evaluator(EvaluatorBase):
     """Evaluator for expressions involving fields of numpy array or headers."""
 
     def __init__(self, *data):
@@ -51,13 +202,6 @@ class Evaluator(asteval.Interpreter):
                     self.symtable[hdr_key.replace("-", "_")] = hdr_val
         self.symtable["units"] = units
 
-    def __call__(self, *args, **kwargs):
-        """Evaluate the expression enabling error."""
-
-        if "raise_errors" not in kwargs:
-            kwargs["raise_errors"] = True
-        return super().__call__(*args, **kwargs)
-
 
 # Needed to implement real-time lookup of datasets
 # pylint: disable=too-few-public-methods
@@ -90,7 +234,7 @@ class LightCurveLookUp:
 # pylint: enable=too-few-public-methods
 
 
-class LightCurveEvaluator(asteval.Interpreter):
+class LightCurveEvaluator(EvaluatorBase):
     """Evaluator for expressions involving lightcurve datasets."""
 
     def _reset(self):
@@ -106,8 +250,6 @@ class LightCurveEvaluator(asteval.Interpreter):
         self.lightcurve = lightcurve
         self._lc_substitutions = lc_substitutions
         self._lc_points_selection = lc_points_selection
-        self.symtable["nanmean"] = numpy.nanmean
-        self.symtable["nanmedian"] = numpy.nanmedian
         self._extra_names = set(
             element.split(".")[0] for element in lightcurve.elements["dataset"]
         )

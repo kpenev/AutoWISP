@@ -4,6 +4,7 @@
 {% block extra_head %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'processing/css/floating_params.css' %}"/>
+<link rel="stylesheet" href="{% static 'processing/css/tune_starfind.css' %}"/>
 {% endblock extra_head %}
 
 
@@ -23,7 +24,7 @@ Tune Source Extraction
 </a>
 
 {% url 'processing:find_stars' fits_fname=fits_fname as starfindURL %}
-<div onclick="showImageLocations('{{ starfindURL }}', getExtractParams(), true)">
+<div onclick="updateDetectedStars('{{ starfindURL }}')">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -33,10 +34,7 @@ Tune Source Extraction
 </div>
 
 {% url 'processing:project_catalog' fits_fname=fits_fname as projectCatURL %}
-<div onclick="showImageLocations('{{ projectCatURL }}',
-                          getExtractParams(),
-                          false,
-                          {'shape': 'circle', 'r': 8.0, 'color': '#f00'})">
+<div onclick="updateProjectedCatalog('{{ projectCatURL }}')">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -48,6 +46,17 @@ Tune Source Extraction
 
 {% block full_view %}
 {{ block.super }}
+
+<div id="star-counts" aria-live="polite">
+    <div class="star-count-box">
+        <span class="star-count-label">Detected stars</span>
+        <span id="detected-star-count" class="star-count-value">N/A</span>
+    </div>
+    <div class="star-count-box">
+        <span class="star-count-label">Projected catalog</span>
+        <span id="projected-catalog-count" class="star-count-value">N/A</span>
+    </div>
+</div>
 
 {% url 'processing:save_starfind_config' imtype=imtype batch_index=batch_index as save_url %}
 <form id="save_config" 

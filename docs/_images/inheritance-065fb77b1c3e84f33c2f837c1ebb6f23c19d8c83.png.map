@@ -1,0 +1,8 @@
+<map id="inheritancef812a97079" name="inheritancef812a97079">
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="583,79,946,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" target="_top" title="An unconfigured installation keeps working untouched." alt="" coords="5,152,388,177"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_bui_db_config.TestDiscovery" target="_top" title="Where the URL is looked for, and in what order." alt="" coords="412,152,749,177"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_bui_db_config.TestMysqlDriver" target="_top" title="Django&#39;s MySQL backend is made to work with the driver present." alt="" coords="773,152,1124,177"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" target="_top" title="A URL becomes Django&#39;s DATABASES dictionary." alt="" coords="1149,152,1511,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="681,5,849,31"/>
+</map>

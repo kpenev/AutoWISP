@@ -17,6 +17,14 @@ from autowisp.tests import AutoWISPTestCase
 class H5TestCase(AutoWISPTestCase):
     """Add assert for comparing groups in HDF5 files."""
 
+    # Datasets (keyed by leaf name) whose stored value has a large, arbitrary
+    # zero-point, so a relative tolerance is meaningless: rtol=1e-8 on a
+    # ~2.4e6 BJD is a ~2000 s absolute slop, which silently hides real timing
+    # errors. Compare these with a purely absolute tolerance (in the dataset's
+    # own units) instead. BJD is in days, so 1e-6 day (~0.086 s) catches real
+    # timing errors while tolerating cross-platform numerical noise.
+    _absolute_tolerance_datasets = {"BJD": 1e-6}
+
     def _project_relative(self, dr_fname, value):
         """Return ``value`` as a path relative to whichever project_home
         ``dr_fname`` lives in (``test_directory`` or ``processing_directory``).
@@ -84,9 +92,15 @@ class H5TestCase(AutoWISPTestCase):
                     [self._project_relative(dr_fname2, v) for v in data2]
                 )
             if dset1.dtype.kind == "f":
+                abs_atol = self._absolute_tolerance_datasets.get(
+                    dset1.name.rsplit("/", 1)[-1]
+                )
+                rtol, atol = (
+                    (0.0, abs_atol) if abs_atol is not None else (1e-8, 1e-8)
+                )
                 differ = numpy.logical_not(
                     numpy.isclose(
-                        data1, data2, rtol=1e-8, atol=1e-8, equal_nan=True
+                        data1, data2, rtol=rtol, atol=atol, equal_nan=True
                     )
                 )
                 if differ.any():
@@ -106,6 +120,23 @@ class H5TestCase(AutoWISPTestCase):
                         + f"\n\t{data1[differ]}"
                         + f"\n\t{data2[differ]}"
                         + f"\n\tdiff: {data1[differ] - data2[differ]}\n\t"
+                    )
+            elif dset1.dtype.kind == "O":
+                # Variable-length (ragged) rows -- each entry is itself an
+                # array (e.g. TFA TemplateStarIDs). Compare row by row.
+                mismatched = [
+                    index
+                    for index in range(len(data1))
+                    if not numpy.array_equal(data1[index], data2[index])
+                ]
+                if mismatched:
+                    self.fail(
+                        f"Data in datasets {dr_fname1!r}/{dset1.name!r} and "
+                        f"{dr_fname2!r}/{dset2.name!r} do not match "
+                        f"(different rows: {mismatched})."
+                        f"\n{dr_fname1!r}/{dset1.name!r}"
+                        f"\n\t{[data1[index] for index in mismatched]}"
+                        f"\n\t{[data2[index] for index in mismatched]}"
                     )
             else:
                 differ = data1 != data2
@@ -175,11 +206,10 @@ class H5TestCase(AutoWISPTestCase):
                         f"Object {dr_fname2!r}/{obj2.name!r} is not a dataset!",
                     )
                     if obj1.name == "/FITSHeader":
-                        with DataReductionFile(
-                            dr_fname1, "r"
-                        ) as dr1_file, DataReductionFile(
-                            dr_fname2, "r"
-                        ) as dr2_file:
+                        with (
+                            DataReductionFile(dr_fname1, "r") as dr1_file,
+                            DataReductionFile(dr_fname2, "r") as dr2_file,
+                        ):
                             self._compare_headers(
                                 dr_fname1,
                                 dr_fname2,
@@ -254,8 +284,6 @@ class H5TestCase(AutoWISPTestCase):
             for group in compare:
                 self.assert_groups_match(gen_fname, exp_fname, group, ignore)
                 self.assert_groups_match(exp_fname, gen_fname, group, ignore)
-
-        self.successful_test = True
 
     # pylint: enable=too-many-arguments
 

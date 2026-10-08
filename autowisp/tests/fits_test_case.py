@@ -69,9 +69,10 @@ class FITSTestCase(AutoWISPTestCase):
     def assert_fits_tables_match(self, fname1, fname2):
         """Check that all table extensions in two FITS files match."""
 
-        with fits.open(fname1, mode="readonly") as hdul1, fits.open(
-            fname2, mode="readonly"
-        ) as hdul2:
+        with (
+            fits.open(fname1, mode="readonly") as hdul1,
+            fits.open(fname2, mode="readonly") as hdul2,
+        ):
 
             tables1 = [
                 hdu for hdu in hdul1 if isinstance(hdu, fits.BinTableHDU)

@@ -7,7 +7,10 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_project.settings')
+    os.environ.setdefault(
+        "DJANGO_SETTINGS_MODULE",
+        "autowisp.browser_interface.django_project.settings",
+    )
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -16,16 +19,17 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    print(f"Running {sys.argv!r} with python paths:\n\t" +
-          '\n\t'.join(sys.path))
+    print(
+        f"Running {sys.argv!r} with python paths:\n\t" + "\n\t".join(sys.path)
+    )
     sys.stdout.flush()
     sys.stderr.flush()
 
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
-    print('Executing with sys.argv:', sys.argv)
+if __name__ == "__main__":
+    print("Executing with sys.argv:", sys.argv)
     sys.stdout.flush()
     sys.stderr.flush()
     main()

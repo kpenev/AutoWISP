@@ -1,0 +1,7 @@
+autowisp.tests.test\_photref\_candidates module
+===============================================
+
+.. automodule:: autowisp.tests.test_photref_candidates
+   :members:
+   :show-inheritance:
+   :undoc-members:

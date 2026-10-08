@@ -4,6 +4,7 @@ py_src = [
   'apps.py',
   'lightcurve_views.py',
   'models.py',
+  'tests.py',
   'urls.py',
   'views.py',
 ]

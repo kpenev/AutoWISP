@@ -1,0 +1,35 @@
+autowisp.browser\_interface.diagnostics package
+===============================================
+
+.. automodule:: autowisp.browser_interface.diagnostics
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.diagnostics.migrations
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.diagnostics.apps
+   autowisp.browser_interface.diagnostics.detrending_diagnostics_views
+   autowisp.browser_interface.diagnostics.exclusion_mask
+   autowisp.browser_interface.diagnostics.expression_data
+   autowisp.browser_interface.diagnostics.expression_views
+   autowisp.browser_interface.diagnostics.forms
+   autowisp.browser_interface.diagnostics.image_diagnostics_views
+   autowisp.browser_interface.diagnostics.preview_calibrated
+   autowisp.browser_interface.diagnostics.quantities
+   autowisp.browser_interface.diagnostics.series_table
+   autowisp.browser_interface.diagnostics.tests
+   autowisp.browser_interface.diagnostics.urls
+   autowisp.browser_interface.diagnostics.views

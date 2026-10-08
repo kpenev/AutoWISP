@@ -45,6 +45,7 @@ classifiers = [
 ]
 
 dependencies = [
+    'alembic',
     'antlr4-python3-runtime',
     'asteval',
     'astropy',
@@ -52,7 +53,9 @@ dependencies = [
     'astrowisp >= 2.0.1',
     'configargparse',
     'Django',
-    'h5py',
+    # >= 2.10 for the new dtype API (vlen_dtype/string_dtype/check_enum_dtype,
+    # all added in 2.10.0); modern installs are 3.x regardless.
+    'h5py >= 2.10',
     'lxml',
     'matplotlib',
     # meepmeep is transitive-only (via pytransit); we never import it. Pin <1
@@ -94,8 +97,23 @@ documentation = 'https://kpenev.github.io/AutoWISP/'
 [project.optional-dependencies]
 test = []
 
-browser_interface = [
-    'Django'
+# Building the documentation, which nothing else needs -- `pip install
+# autowisp` should not drag a documentation toolchain along with it.
+#
+# Install these into the same environment as autowisp itself, not
+# system-wide: `sphinx-build` imports every module it documents, so the
+# interpreter running it has to be the one that can import the package
+# and everything the package imports.
+docs = [
+    # nbsphinx highlights a notebook's cells with the ``ipython3`` lexer,
+    # which is registered by IPython rather than by Pygments.
+    'ipython',
+    'nbsphinx',
+    'sphinx',
+    # The theme conf.py names, and the two extensions it lists that are
+    # not part of Sphinx itself.
+    'sphinx_mdinclude',
+    'sphinx_rtd_theme',
 ]
 
 [tool.black]
@@ -117,7 +135,8 @@ wisp-generate-epd-statistics = 'autowisp.processing_steps.generate_epd_statistic
 wisp-tfa = 'autowisp.processing_steps.tfa:main'
 wisp-generate-tfa-statistics = 'autowisp.processing_steps.generate_tfa_statistics:main'
 wisp-get-from-lc = 'autowisp.diagnostics.get_from_lc:main'
-wisp-bui = 'autowisp.browser_interface.start:start_server'
+wisp-bui = 'autowisp.browser_interface.start:main'
 wisp-survey = 'autowisp.database.user_interface:main'
+wisp-migrate = 'autowisp.database.migrate_cli:main'
 wisp-cleanup-errors = 'autowisp.error_persistence:cleanup_main'
 wisp-crash-report = 'autowisp.crash_report:crash_report_main'

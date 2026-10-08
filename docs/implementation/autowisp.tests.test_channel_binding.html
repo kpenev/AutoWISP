@@ -1,0 +1,615 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_channel_binding module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.tests.test_crash_report module" href="autowisp.tests.test_crash_report.html" />
+    <link rel="prev" title="autowisp.tests.test_catalog module" href="autowisp.tests.test_catalog.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.tests.html">autowisp.tests package</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_channel_binding module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.tests.test_channel_binding.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.tests.test_channel_binding">
+<span id="autowisp-tests-test-channel-binding-module"></span><h1>autowisp.tests.test_channel_binding module<a class="headerlink" href="#module-autowisp.tests.test_channel_binding" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-6cba826e4d173c8edc68c90bcea909381bb05e88.png" alt="Inheritance diagram of Camera, CameraChannel, CameraType, DiagnosticType, Image, ImageDiagnostics, ImageType, ObservingSession, TestAddedRow, TestChannelColumns, TestFixedChannelReads, TestRebinding, TestTwoChannelSeriesValues, TwoChannelProject, datetime" usemap="#inheritance3adcb67b49" class="inheritance graphviz" /></div>
+<map id="inheritance3adcb67b49" name="inheritance3adcb67b49">
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="345,372,800,397"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1755,372,2225,397"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="837,445,1311,471"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_channel_binding.TestAddedRow" target="_top" title="What a press of ``+`` earns: a copy of the row it was pressed in." alt="" coords="2152,152,2511,177"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="2973,79,3359,104"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_channel_binding.TestChannelColumns" target="_top" title="What each column of a row offers, given what the project records." alt="" coords="2535,152,2933,177"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads" target="_top" title="Expressions naming a channel by quoting it, rather than by slot." alt="" coords="2958,152,3374,177"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_channel_binding.TestRebinding" target="_top" title="What the server answers when a row&#39;s binding changes." alt="" coords="3398,152,3753,177"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues" target="_top" title="Which of the posted rows are drawn, and what each one reads." alt="" coords="3777,152,4227,177"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="3398,5,3513,31"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="3383,79,3527,104"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1922,5,2039,31"/>
+</map><p>Tests for binding a channel to each column of the series table.</p>
+<p>Its own module because these need a project recording <em>two</em> channels, and
+a session per kind of camera: a colour one with a choice to offer and a
+monochrome one without.  The fixture in <code class="docutils literal notranslate"><span class="pre">test_diagnostics_views</span></code> records
+a single channel, and giving it a second would change what every
+series-table test there sees.</p>
+<p>Django is configured here, unlike in the other series-table tests, because
+what a rebinding answers includes the row’s channel cells as rendered
+HTML, and rendering them needs the template engine.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestAddedRow">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_channel_binding.</span></span><span class="sig-name descname"><span class="pre">TestAddedRow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestAddedRow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestAddedRow" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_channel_binding.TwoChannelProject" title="autowisp.tests.test_channel_binding.TwoChannelProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TwoChannelProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-8219cd06253707e19474492422a9fd8b036a3748.png" alt="Inheritance diagram of autowisp.tests.test_channel_binding.TestAddedRow" usemap="#inheritancee5c5ace1e2" class="inheritance graphviz" /></div>
+<map id="inheritancee5c5ace1e2" name="inheritancee5c5ace1e2">
+<area shape="rect" id="node1" href="#autowisp.tests.test_channel_binding.TestAddedRow" target="_top" title="What a press of ``+`` earns: a copy of the row it was pressed in." alt="" coords="19,152,378,177"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="5,79,392,104"/>
+</map><p>What a press of <code class="docutils literal notranslate"><span class="pre">+</span></code> earns: a copy of the row it was pressed in.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestAddedRow.add_below">
+<span class="sig-name descname"><span class="pre">add_below</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">others</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestAddedRow.add_below"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestAddedRow.add_below" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(rows</span> <span class="pre">to</span> <span class="pre">draw,</span> <span class="pre">fields)</span></code> for <code class="docutils literal notranslate"><span class="pre">+</span></code> pressed in <em>row</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestAddedRow.test_the_copy_carries_the_pair_and_channels">
+<span class="sig-name descname"><span class="pre">test_the_copy_carries_the_pair_and_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestAddedRow.test_the_copy_carries_the_pair_and_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestAddedRow.test_the_copy_carries_the_pair_and_channels" title="Link to this definition"></a></dt>
+<dd><p>The next series usually differs in one thing, so copying
+leaves only that thing to change.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestAddedRow.test_the_copy_is_drawn_with_the_figure_that_carries_it">
+<span class="sig-name descname"><span class="pre">test_the_copy_is_drawn_with_the_figure_that_carries_it</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestAddedRow.test_the_copy_is_drawn_with_the_figure_that_carries_it"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestAddedRow.test_the_copy_is_drawn_with_the_figure_that_carries_it" title="Link to this definition"></a></dt>
+<dd><p>Rather than the table gaining a row the plot catches up with.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestAddedRow.test_the_copy_is_rendered_as_a_row">
+<span class="sig-name descname"><span class="pre">test_the_copy_is_rendered_as_a_row</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestAddedRow.test_the_copy_is_rendered_as_a_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestAddedRow.test_the_copy_is_rendered_as_a_row" title="Link to this definition"></a></dt>
+<dd><p>Through the one row template, so it arrives able to do
+everything a row rendered with the page can.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestAddedRow.test_the_copy_takes_the_next_ordinal">
+<span class="sig-name descname"><span class="pre">test_the_copy_takes_the_next_ordinal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestAddedRow.test_the_copy_takes_the_next_ordinal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestAddedRow.test_the_copy_takes_the_next_ordinal" title="Link to this definition"></a></dt>
+<dd><p>And one past the highest, so a gap left by a removal is not
+reused while the row that had it may still be on the page.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestChannelColumns">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_channel_binding.</span></span><span class="sig-name descname"><span class="pre">TestChannelColumns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestChannelColumns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestChannelColumns" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_channel_binding.TwoChannelProject" title="autowisp.tests.test_channel_binding.TwoChannelProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TwoChannelProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-3fae61de8c816c9ede4f977adfb9e87298588478.png" alt="Inheritance diagram of autowisp.tests.test_channel_binding.TestChannelColumns" usemap="#inheritance16bdbe56bb" class="inheritance graphviz" /></div>
+<map id="inheritance16bdbe56bb" name="inheritance16bdbe56bb">
+<area shape="rect" id="node1" href="#autowisp.tests.test_channel_binding.TestChannelColumns" target="_top" title="What each column of a row offers, given what the project records." alt="" coords="5,152,404,177"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="11,79,398,104"/>
+</map><p>What each column of a row offers, given what the project records.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestChannelColumns.test_a_colour_session_offers_a_choice">
+<span class="sig-name descname"><span class="pre">test_a_colour_session_offers_a_choice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestChannelColumns.test_a_colour_session_offers_a_choice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestChannelColumns.test_a_colour_session_offers_a_choice" title="Link to this definition"></a></dt>
+<dd><p>Both channels, with the images each would draw.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestChannelColumns.test_a_column_per_axis_that_binds_one">
+<span class="sig-name descname"><span class="pre">test_a_column_per_axis_that_binds_one</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestChannelColumns.test_a_column_per_axis_that_binds_one"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestChannelColumns.test_a_column_per_axis_that_binds_one" title="Link to this definition"></a></dt>
+<dd><p>Two axes over a diagnostic ask for two channels, not one.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_channel_binding.</span></span><span class="sig-name descname"><span class="pre">TestFixedChannelReads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestFixedChannelReads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_channel_binding.TwoChannelProject" title="autowisp.tests.test_channel_binding.TwoChannelProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TwoChannelProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-a23acab1268a30436a14c8ddaa2fff94cb1f351b.png" alt="Inheritance diagram of autowisp.tests.test_channel_binding.TestFixedChannelReads" usemap="#inheritance682aed03c1" class="inheritance graphviz" /></div>
+<map id="inheritance682aed03c1" name="inheritance682aed03c1">
+<area shape="rect" id="node1" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads" target="_top" title="Expressions naming a channel by quoting it, rather than by slot." alt="" coords="5,152,421,177"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="20,79,407,104"/>
+</map><p>Expressions naming a channel by quoting it, rather than by slot.</p>
+<p><code class="docutils literal notranslate"><span class="pre">B</span></code> is recorded in the colour session only, so an expression reading
+it there is what tells whether quoted channels narrow the pairs a row
+may name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads.expressions">
+<span class="sig-name descname"><span class="pre">expressions</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'against_b':</span> <span class="pre">&quot;bg_center[7]</span> <span class="pre">-</span> <span class="pre">bg_center['B']&quot;,</span> <span class="pre">'colour':</span> <span class="pre">&quot;bg_center['R']</span> <span class="pre">/</span> <span class="pre">bg_center['B']&quot;}</span></span><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads.expressions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads.table">
+<span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestFixedChannelReads.table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads.table" title="Link to this definition"></a></dt>
+<dd><p>Return what the table offers, with the library above.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_column_decides_the_colour_despite_quotes">
+<span class="sig-name descname"><span class="pre">test_a_column_decides_the_colour_despite_quotes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestFixedChannelReads.test_a_column_decides_the_colour_despite_quotes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_column_decides_the_colour_despite_quotes" title="Link to this definition"></a></dt>
+<dd><p>Any slot to bind makes the binding, not the quotes, decide.</p>
+<p>So a row still to be bound is uncoloured – rather than coloured
+for <code class="docutils literal notranslate"><span class="pre">B</span></code>, which <code class="docutils literal notranslate"><span class="pre">against_b</span></code> quotes – until a channel is chosen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_quoted_channel_gets_no_column">
+<span class="sig-name descname"><span class="pre">test_a_quoted_channel_gets_no_column</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestFixedChannelReads.test_a_quoted_channel_gets_no_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_quoted_channel_gets_no_column" title="Link to this definition"></a></dt>
+<dd><p>Only the slot is a column: <code class="docutils literal notranslate"><span class="pre">B</span></code> is not the user’s to choose.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_quoted_channel_narrows_the_pairs">
+<span class="sig-name descname"><span class="pre">test_a_quoted_channel_narrows_the_pairs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestFixedChannelReads.test_a_quoted_channel_narrows_the_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_a_quoted_channel_narrows_the_pairs" title="Link to this definition"></a></dt>
+<dd><p>The monochrome session records no <code class="docutils literal notranslate"><span class="pre">B</span></code>, so is not offered.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_is_drawn">
+<span class="sig-name descname"><span class="pre">test_all_channels_quoted_is_drawn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestFixedChannelReads.test_all_channels_quoted_is_drawn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_is_drawn" title="Link to this definition"></a></dt>
+<dd><p>A row posting no channels is bound when the axes take none.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_still_makes_a_row">
+<span class="sig-name descname"><span class="pre">test_all_channels_quoted_still_makes_a_row</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestFixedChannelReads.test_all_channels_quoted_still_makes_a_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_still_makes_a_row" title="Link to this definition"></a></dt>
+<dd><p>Neither axis binds a column, and the row is counted at once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_takes_the_first_quoted_colour">
+<span class="sig-name descname"><span class="pre">test_all_channels_quoted_takes_the_first_quoted_colour</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestFixedChannelReads.test_all_channels_quoted_takes_the_first_quoted_colour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestFixedChannelReads.test_all_channels_quoted_takes_the_first_quoted_colour" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">colour</span></code> quotes <code class="docutils literal notranslate"><span class="pre">R</span></code> first, so defaults to R’s colour.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_channel_binding.</span></span><span class="sig-name descname"><span class="pre">TestRebinding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_channel_binding.TwoChannelProject" title="autowisp.tests.test_channel_binding.TwoChannelProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TwoChannelProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-bfc5e83a3a75a4fe21d740be6b75519e1b9de53d.png" alt="Inheritance diagram of autowisp.tests.test_channel_binding.TestRebinding" usemap="#inheritance4f3c5add55" class="inheritance graphviz" /></div>
+<map id="inheritance4f3c5add55" name="inheritance4f3c5add55">
+<area shape="rect" id="node1" href="#autowisp.tests.test_channel_binding.TestRebinding" target="_top" title="What the server answers when a row&#39;s binding changes." alt="" coords="21,152,376,177"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="5,79,392,104"/>
+</map><p>What the server answers when a row’s binding changes.</p>
+<p>Its own class rather than more of the one above: what a column offers
+is a question about the project, where this is a question about one
+edit and what the figure is drawn from afterwards. They share only the
+fixture.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.rebind">
+<span class="sig-name descname"><span class="pre">rebind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.rebind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.rebind" title="Link to this definition"></a></dt>
+<dd><p>Return only what a rebinding answers, discarding the rows.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.rebinding">
+<span class="sig-name descname"><span class="pre">rebinding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.rebinding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.rebinding" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(rows</span> <span class="pre">to</span> <span class="pre">draw,</span> <span class="pre">fields)</span></code> for <em>row</em> moved and rebound.</p>
+<p>The monochrome session unless told otherwise, that being the move
+which changes what the columns may offer. <em>automatic</em> says what
+the client reports about the row’s colour and label, which is what
+decides whether the server replaces them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_a_channel_the_new_pair_lacks_is_dropped">
+<span class="sig-name descname"><span class="pre">test_a_channel_the_new_pair_lacks_is_dropped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_a_channel_the_new_pair_lacks_is_dropped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_a_channel_the_new_pair_lacks_is_dropped" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">B</span></code> is recorded for the colour session alone.</p>
+<p>Carrying it over would leave the row naming data that is not
+there; the column takes the one channel it does offer instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_a_channel_the_new_pair_offers_is_kept">
+<span class="sig-name descname"><span class="pre">test_a_channel_the_new_pair_offers_is_kept</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_a_channel_the_new_pair_offers_is_kept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_a_channel_the_new_pair_offers_is_kept" title="Link to this definition"></a></dt>
+<dd><p>The user chose it, and the new session records it too.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_a_colour_the_user_chose_survives_the_rebinding">
+<span class="sig-name descname"><span class="pre">test_a_colour_the_user_chose_survives_the_rebinding</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_a_colour_the_user_chose_survives_the_rebinding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_a_colour_the_user_chose_survives_the_rebinding" title="Link to this definition"></a></dt>
+<dd><p>Theirs, in the figure as well as in the table.</p>
+<p>Colouring by quantity rather than by channel is a thing a user may
+want, and a rebinding must not quietly undo it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_a_label_names_its_quantity_first">
+<span class="sig-name descname"><span class="pre">test_a_label_names_its_quantity_first</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_a_label_names_its_quantity_first"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_a_label_names_its_quantity_first" title="Link to this definition"></a></dt>
+<dd><p>So that a legend entry says which section a series belongs to.</p>
+<p>With one section that is redundant, but prefixing always keeps the
+rule simple – and the label is the user’s to rewrite either way.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_a_pair_change_is_answered_with_the_channels_unset">
+<span class="sig-name descname"><span class="pre">test_a_pair_change_is_answered_with_the_channels_unset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_a_pair_change_is_answered_with_the_channels_unset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_a_pair_change_is_answered_with_the_channels_unset" title="Link to this definition"></a></dt>
+<dd><p>Which channels a column may offer depends on the pair, so the
+cells are re-rendered before anything is bound in them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_a_rebinding_carries_the_session_times">
+<span class="sig-name descname"><span class="pre">test_a_rebinding_carries_the_session_times</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_a_rebinding_carries_the_session_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_a_rebinding_carries_the_session_times" title="Link to this definition"></a></dt>
+<dd><p>Read-only cells that the client cannot work out for itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_a_session_recording_one_channel_settles_on_it">
+<span class="sig-name descname"><span class="pre">test_a_session_recording_one_channel_settles_on_it</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_a_session_recording_one_channel_settles_on_it"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_a_session_recording_one_channel_settles_on_it" title="Link to this definition"></a></dt>
+<dd><p>One channel to choose from is no choice at all, so the cell
+states what it binds and the row is counted at once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_an_automatic_colour_is_corrected_before_drawing">
+<span class="sig-name descname"><span class="pre">test_an_automatic_colour_is_corrected_before_drawing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_an_automatic_colour_is_corrected_before_drawing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_an_automatic_colour_is_corrected_before_drawing" title="Link to this definition"></a></dt>
+<dd><p>The whole point of answering before the figure is made.</p>
+<p>A row rebound onto another channel is drawn in that channel’s
+colour, with a legend naming it, in the same round trip that
+writes them into the table – rather than drawn in the colour of
+the binding it just left while the table shows the new one.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_no_row_but_the_rebound_one_is_touched">
+<span class="sig-name descname"><span class="pre">test_no_row_but_the_rebound_one_is_touched</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_no_row_but_the_rebound_one_is_touched"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_no_row_but_the_rebound_one_is_touched" title="Link to this definition"></a></dt>
+<dd><p>A rebinding answers for the row that was rebound, and no other.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestRebinding.test_nothing_is_answered_without_a_rebound_row">
+<span class="sig-name descname"><span class="pre">test_nothing_is_answered_without_a_rebound_row</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestRebinding.test_nothing_is_answered_without_a_rebound_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestRebinding.test_nothing_is_answered_without_a_rebound_row" title="Link to this definition"></a></dt>
+<dd><p>Which is every other redraw: a colour, a marker, a row toggled.</p>
+<p>The rows still come back, those being what the figure is drawn
+from whether or not anything was rebound.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_channel_binding.</span></span><span class="sig-name descname"><span class="pre">TestTwoChannelSeriesValues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestTwoChannelSeriesValues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_channel_binding.TwoChannelProject" title="autowisp.tests.test_channel_binding.TwoChannelProject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TwoChannelProject</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-26f96013b1a968d7211508485fce5c1c124d26df.png" alt="Inheritance diagram of autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues" usemap="#inheritancec669495829" class="inheritance graphviz" /></div>
+<map id="inheritancec669495829" name="inheritancec669495829">
+<area shape="rect" id="node1" href="#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues" target="_top" title="Which of the posted rows are drawn, and what each one reads." alt="" coords="5,152,456,177"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="37,79,424,104"/>
+</map><p>Which of the posted rows are drawn, and what each one reads.</p>
+<p>Named for its fixture rather than for its subject,
+<code class="docutils literal notranslate"><span class="pre">test_expression_series</span></code> having a <code class="docutils literal notranslate"><span class="pre">TestSeriesValues</span></code> of its own: the
+suite gathers every test class into one module namespace, where two of a
+name means one silently replacing the other.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_one_quantity_on_both_axes_in_two_channels">
+<span class="sig-name descname"><span class="pre">test_one_quantity_on_both_axes_in_two_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestTwoChannelSeriesValues.test_one_quantity_on_both_axes_in_two_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_one_quantity_on_both_axes_in_two_channels" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">bg_center</span></code> against <code class="docutils literal notranslate"><span class="pre">bg_center</span></code>: the plainest colour plot.</p>
+<p>The two axes name one quantity and differ only in what the row
+bound each column to. Resolving them by name alone would draw one
+binding on both axes – a perfect diagonal, and no error anywhere.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_the_columns_are_split_between_the_axes">
+<span class="sig-name descname"><span class="pre">test_the_columns_are_split_between_the_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestTwoChannelSeriesValues.test_the_columns_are_split_between_the_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_the_columns_are_split_between_the_axes" title="Link to this definition"></a></dt>
+<dd><p>An axis takes as many channels as the quantity it draws.</p>
+<p><code class="docutils literal notranslate"><span class="pre">jd</span></code> takes none, so the row’s one channel belongs to the other
+axis – and a slice taken from the wrong end would bind it to the
+time instead and refuse, or worse, silently shift.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_which_rows_are_drawn">
+<span class="sig-name descname"><span class="pre">test_which_rows_are_drawn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TestTwoChannelSeriesValues.test_which_rows_are_drawn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TestTwoChannelSeriesValues.test_which_rows_are_drawn" title="Link to this definition"></a></dt>
+<dd><p>Every row is posted, so five of them have to be skipped here.</p>
+<p>Two are the user saying not to draw it, and three name no data: a
+row still to be bound, one from a page whose script predates the
+channel columns and posts no channels at all, and one from before
+the session and type were chosen in the row, which names no
+population to read. The stale two are skipped rather than refused
+– such a page should draw nothing, not turn the response into an
+error page. Defaulting <code class="docutils literal notranslate"><span class="pre">selected</span></code> to true keeps a payload stored
+before the table posted every row still plotting.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_channel_binding.</span></span><span class="sig-name descname"><span class="pre">TwoChannelProject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-d10461a72404b1e125afc2ee1099843389fbd4ba.png" alt="Inheritance diagram of autowisp.tests.test_channel_binding.TwoChannelProject" usemap="#inheritanceb19783c255" class="inheritance graphviz" /></div>
+<map id="inheritanceb19783c255" name="inheritanceb19783c255">
+<area shape="rect" id="node1" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="5,79,392,104"/>
+</map><p>The fixture the classes below share, holding no tests of its own.</p>
+<p>Its own project rather than the shared one, which records a single
+channel: giving that one a second would change what every other
+series-table test sees.  Two sessions, one per kind of camera – a
+colour one with a choice to offer and a monochrome one without –
+since the table treats them differently and a project may hold both.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject._add_camera">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_add_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject._add_camera"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject._add_camera" title="Link to this definition"></a></dt>
+<dd><p>Describe a camera defining <em>channels</em>, and return its id.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject._add_session">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_add_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject._add_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject._add_session" title="Link to this definition"></a></dt>
+<dd><p>Add one session of object frames and return its id.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject._fill_database">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_fill_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject._fill_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject._fill_database" title="Link to this definition"></a></dt>
+<dd><p>Two sessions: a colour camera’s frames, and a monochrome one’s.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject.first_row">
+<span class="sig-name descname"><span class="pre">first_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject.first_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject.first_row" title="Link to this definition"></a></dt>
+<dd><p>Return the row the table starts with, on the colour session.</p>
+<p>Both sessions begin at the same moment in this fixture, so the
+pairs are ordered by their text and <code class="docutils literal notranslate"><span class="pre">colour_night</span></code> comes first.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject.jd_values">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">jd_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject.jd_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject.jd_values" title="Link to this definition"></a></dt>
+<dd><p>Return the Julian dates the fixture gave its frames, in order.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject.mono_values">
+<span class="sig-name descname"><span class="pre">mono_values</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[11.0,</span> <span class="pre">12.0]</span></span><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject.mono_values" title="Link to this definition"></a></dt>
+<dd><p>The monochrome session’s frames, in its camera’s one channel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject.moved_to">
+<span class="sig-name descname"><span class="pre">moved_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject.moved_to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject.moved_to" title="Link to this definition"></a></dt>
+<dd><p>Return <em>row</em> as the client posts it after moving it to a session.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject.setUpClass">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject.setUpClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject.table_for">
+<span class="sig-name descname"><span class="pre">table_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject.table_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject.table_for" title="Link to this definition"></a></dt>
+<dd><p>Return what one section’s table offers for an axis pair.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject.tearDownClass">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_channel_binding.html#TwoChannelProject.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject.tearDownClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding.TwoChannelProject.values_of">
+<span class="sig-name descname"><span class="pre">values_of</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'B':</span> <span class="pre">[2.0,</span> <span class="pre">3.0,</span> <span class="pre">8.0],</span> <span class="pre">'R':</span> <span class="pre">[8.0,</span> <span class="pre">6.0,</span> <span class="pre">4.0]}</span></span><a class="headerlink" href="#autowisp.tests.test_channel_binding.TwoChannelProject.values_of" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">bg_center</span></code> per channel, distinct so that reading the wrong one
+cannot pass by coincidence.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding._first_jd">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_channel_binding.</span></span><span class="sig-name descname"><span class="pre">_first_jd</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2460000.5</span></span><a class="headerlink" href="#autowisp.tests.test_channel_binding._first_jd" title="Link to this definition"></a></dt>
+<dd><p>JD of the colour session’s first frame.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.tests.test_channel_binding._night_separation">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_channel_binding.</span></span><span class="sig-name descname"><span class="pre">_night_separation</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></span><a class="headerlink" href="#autowisp.tests.test_channel_binding._night_separation" title="Link to this definition"></a></dt>
+<dd><p>The monochrome session is a night later, so the two cannot overlap.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.tests.test_catalog.html" class="btn btn-neutral float-left" title="autowisp.tests.test_catalog module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.test_crash_report.html" class="btn btn-neutral float-right" title="autowisp.tests.test_crash_report module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

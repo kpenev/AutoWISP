@@ -1,0 +1,33 @@
+<map id="inheritance58db907be6" name="inheritance58db907be6">
+<area shape="rect" id="node1" title="Text I/O implementation using an in&#45;memory buffer." alt="" coords="5,5,103,31"/>
+<area shape="rect" id="node2" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="57,152,440,177"/>
+<area shape="rect" id="node8" href="autowisp.browser_interface.home.models.html#autowisp.browser_interface.home.models.Project" target="_top" title="Model to represent a project." alt="" coords="77,225,421,251"/>
+<area shape="rect" id="node4" href="autowisp.browser_interface.core.walk_fs_view.html#autowisp.browser_interface.core.walk_fs_view.WalkFSView" target="_top" title="Base class allowing user to walk through the file system." alt="" coords="511,79,919,104"/>
+<area shape="rect" id="node6" href="autowisp.browser_interface.home.create_project_view.html#autowisp.browser_interface.home.create_project_view.CreateProjectView" target="_top" title="View to create a new AutoWISP project." alt="" coords="465,152,966,177"/>
+<area shape="rect" id="node5" title="Intentionally simple parent class for all views. Only implements" alt="" coords="600,5,831,31"/>
+<area shape="rect" id="node7" href="autowisp.browser_interface.home.create_project_view.html#autowisp.browser_interface.home.create_project_view.MasterConfigView" target="_top" title="Handle master configuration part of the project creation view." alt="" coords="466,225,965,251"/>
+<area shape="rect" id="node9" title="The base class for all table classes." alt="" coords="1230,299,1598,324"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="41,372,448,397"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="472,372,788,397"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="812,372,1195,397"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="1219,372,1609,397"/>
+<area shape="rect" id="node17" href="autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="1633,372,2024,397"/>
+<area shape="rect" id="node18" title="The table describing each of the channels of a type of camera." alt="" coords="2049,372,2574,397"/>
+<area shape="rect" id="node19" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="2599,372,3048,397"/>
+<area shape="rect" id="node10" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="989,225,1409,251"/>
+<area shape="rect" id="node11" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1434,225,1826,251"/>
+<area shape="rect" id="node12" title="Base class used for declarative class definitions." alt="" coords="1483,152,1777,177"/>
+<area shape="rect" id="node20" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1916,5,2171,31"/>
+<area shape="rect" id="node21" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="1808,79,2023,104"/>
+<area shape="rect" id="node23" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="2051,79,2294,104"/>
+<area shape="rect" id="node24" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="1801,152,2024,177"/>
+<area shape="rect" id="node22" href="autowisp.exceptions.html#autowisp.exceptions.DatabaseError" target="_top" title="Failure interacting with the pipeline database." alt="" coords="2049,152,2302,177"/>
+<area shape="rect" id="node25" href="autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter" target="_top" title="Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg." alt="" coords="2318,79,2782,104"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/string.html#string.Formatter" target="_top" title="string.Formatter" alt="" coords="2487,5,2613,31"/>
+<area shape="rect" id="node27" title="Make subclasses preserve the alters_data attribute on overridden methods." alt="" coords="127,5,370,31"/>
+<area shape="rect" id="node28" title="An HTTP response class with a string as content." alt="" coords="2807,79,3061,104"/>
+<area shape="rect" id="node29" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="2791,5,3077,31"/>
+<area shape="rect" id="node30" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1016,152,1383,177"/>
+<area shape="rect" id="node31" title="define a class as inspectable." alt="" coords="1507,79,1753,104"/>
+<area shape="rect" id="node32" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1571,5,1689,31"/>
+</map>

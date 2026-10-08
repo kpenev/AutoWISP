@@ -105,9 +105,67 @@ exactly one source of truth.
    retype the worthwhile subset of the Phase 7 "deferred" raise sites,
    and introduce a few new exceptions raised specifically so the BUI can
    handle them. *(section pending)*
+9. ✅ [Silent-worker-death diagnostics + crash-report completeness](#phase-9--silent-worker-death-diagnostics--crash-report-completeness):
+   close the gaps a real `WorkerCrashedError` crash report exposed — the
+   step link that log-collection depends on, lightcurve-step log
+   selection, the specific culprit input, a native/OS-level cause for the
+   death, and run-time (not report-time) provenance.
 
-Phases 1–7 are implemented and have their own sections below; phase 8 gets
-its section when we start it.
+10. ⏳ [Assertion messages](#phase-10--assertion-messages): give every
+    surviving `assert` a message saying what its failure *indicates*, and
+    convert the ones that are really input/config validation into proper
+    raises. A bare `assert` reaches the user as the literal word
+    "AssertionError".
+
+Every phase has its own section below.
+
+## Status at a glance
+
+*As of 2026-08-05. Everything below this section is the design record —
+long, and written as each piece was worked out. This table is the state.
+Commit hashes are on the `error_reports` branch; phases 1–7 are on
+`master`.*
+
+| phase | state | where |
+| ----- | ----- | ----- |
+| **1–7** | ✅ done | on `master` |
+| **8** strand 1 — retype deferred raise sites | ◑ **partial, and deliberately so** | 1a `CatalogError` + `catalog.py` (`a2f69b42`); 1b cohesive library clusters (`6ec38e59`) |
+| **8** strand 2 — BUI-specific raises | ☐ **not started, undesigned** | — |
+| **9** — silent-worker-death diagnostics | ✅ done, all 9 items | see below |
+| **10** — assertion messages | ⏳ **started**, 264 bare asserts to triage | seeded by `browser_interface/configuration/views.py` |
+
+**Phase 8 strand 1** is the only "unfinished" work that may need no
+further code. Its backlog lists 73 catalogued `raise <stdlib>` sites, but
+the strand's own rule is to retype *the subset that benefits* — a class
+callers can `except`, a clearer `user_message`, or explicit
+`related_files` — not the whole list. Every one of them already
+auto-wraps into the right `StepError` subclass carrying step name,
+pipeline-run snapshot, `subprocess_id`, related files and the original
+traceback. "Close it as sufficient" is a legitimate outcome; what is left
+is a judgement pass, not a migration.
+
+**Phase 8 strand 2** needs design before code: which conditions the BUI
+wants to detect and present or recover from differently, rather than
+letting them surface through the generic phase-5 rendering.
+
+### Phase 9, item by item
+
+| item | what it fixed | commit |
+| ---- | ------------- | ------ |
+| 1 | `WorkerCrashedError` carries its queryable step link (the "no matching logs found" root cause) | `84f0cb12` |
+| 2 | log selection resolves lightcurve-step logs | `3e0f2b42` |
+| 3–4 | shared in-flight map naming the crashed input; `faulthandler` in every worker | `65170fec` |
+| 5 | OS-level cause of a worker death (POSIX signal / Windows NTSTATUS) | `4e456b7d` |
+| 6 | memory snapshot to confirm or deny OOM | `2e05a54a` |
+| 7 | crash-time provenance and consistent host | `b80ae7ad` |
+| 8 | the resolved config recorded on every error | `1549e30a` |
+| 9 | `related_files` populated for every step | `fc66e632`, `8b2bb23d`, `aa331fd7`, `85d7d602`, `9d6bda6e`, `0ccf6021`, `fc4e479d`, `26dc92f7` |
+
+Item 9 took the most passes because two things surfaced mid-way: the
+scoping mechanism was reaching no errors at all (see "The scoping trap"
+under item 9), and HDF5 products turned out to be able to attach
+themselves, which removed several scopes written earlier in the same
+item.
 
 ## Phase 1 — Exception hierarchy
 
@@ -532,10 +590,18 @@ class ResourceError(PipelineError): ...        # disk / memory / CPU
 class MasterSelectionError(PipelineError): ...
 class PhotrefBindingError(PipelineError): ...
 class DependencyResolutionError(PipelineError): ...
-class WorkerCrashedError(PipelineError):
+```
+
+The worker-death wrapper is a `StepError`, not a pipeline error — the
+failure is in the algorithm running inside a step (see phase 9, item 1);
+the parent only synthesises and reports it:
+
+```python
+class WorkerCrashedError(StepError):
     """Re-raise wrapper used when a multiprocessing worker dies in a
     way that does not preserve the original exception (segfault,
-    OOM-killer)."""
+    OOM-killer). A single generic StepError: the parent has the ambient
+    step *name* but not the failing step's exception type."""
 ```
 
 BUI-level exceptions:
@@ -1211,9 +1277,9 @@ Segfault, OOM-killer, `os._exit` — nothing gets pickled or queued.
   on `concurrent.futures.ProcessPoolExecutor`, which raises
   `BrokenProcessPool` when a worker dies. `run_pool` catches that (and
   any other non-`AutoWISPError`) and synthesises a `WorkerCrashedError`
-  (component `PIPELINE`) carrying what the *parent* knows — step, the
-  inputs in flight (`num_inputs` + a sample), pipeline-run context — plus
-  the underlying `pool_error`.
+  (a `StepError` — component `step`; see phase 9, item 1) carrying what
+  the *parent* knows — step, the inputs in flight (`num_inputs` + a
+  sample), pipeline-run context — plus the underlying `pool_error`.
 
 - **Scheme B:** `manage_astrometry` *already* detects this
   (`not any(p.is_alive())`) and raised a bare `RuntimeError`. Phase 3
@@ -1972,7 +2038,9 @@ were delivered alongside it:
 
 ## Phase 8 — deferred-site migration + BUI-specific raises
 
-*(section pending — to be written when we start it)*
+*(In progress. Below: the two strands, the per-site design as each is
+tackled, and the "Deferred raise sites" backlog inventory carried over
+from Phase 7.)*
 
 Two strands:
 
@@ -1981,16 +2049,83 @@ Two strands:
    catalogued backlog is the "Deferred raise sites" subsection below.
    Phase 8 retypes the subset that actually benefits — a more specific
    class callers can `except`, a clearer `user_message`, or explicit
-   `related_files` — rather than the whole list. Likely first candidates:
-   the catalog-coverage cluster (a dedicated `CatalogError`?), the
-   lightcurve-IO sites (with the LC as a `related_file`), and the broad
-   `raise Exception` in `lc_data_io.py:479`.
+   `related_files` — rather than the whole list.
 
 2. **New BUI-specific raises.** Introduce a few new exceptions raised
    precisely so the BUI can detect and handle them (distinct presentation
    / recovery, not just the generic error surfacing from phase 5). The
    exact set, their `Component`/parent, and the BUI handling are to be
    designed here.
+
+### Strand 1a — `CatalogError` (done)
+
+Catalog trouble is **not astrometry-specific** — a live Gaia query can
+fail, and a cached catalog can fail to cover the frames or mismatch the
+required epoch / magnitude range / FOV, during solve_astrometry,
+find_stars, fit_star_shape, etc. So `CatalogError` is a cross-cutting
+`StepError` (component `step`, `step_name` stamped from context), giving
+callers one `except CatalogError` regardless of which step tripped it.
+
+- **Class** added in `exceptions.py` (a `StepError`).
+- **`catalog.py` migrated** — all 12 coverage/consistency raises (`FOV
+  with no consistent pointing`, `FOV > 40°`, epoch / magnitude-expression
+  / magnitude-limit / width / height / RA / Dec mismatches, missing cached
+  fixture with live query disabled) go from bare `RuntimeError`/
+  `ValueError` to `CatalogError`.
+- **The retry-exhaustion case** (`WISPGaia.get_result`) now raises a
+  `CatalogError` (chaining the underlying error via `from`) after the last
+  of its 10 attempts, instead of re-raising the raw transport error —
+  exactly the "ran out of retries" failure.
+- **Not** migrated: `solve_astrometry`'s "catalog coverage seems to be in
+  an infinite loop" — despite the wording that is a *convergence* failure
+  (the astrometry solution shifts as the catalog is re-fetched), a
+  `ConvergenceError` candidate, not a `CatalogError`.
+- Tests: `test_catalog_error_is_cross_cutting_step_error` and
+  `test_get_result_raises_catalog_error_after_retries` (mocked query +
+  no-op sleep) in `test_exception_hierarchy.py`; plus the auto-coverage
+  from the hierarchy's "every concrete class" + pickle round-trip tests.
+
+### Strand 1b — cohesive library clusters (done)
+
+Retyped the backlog clusters that sit in **library** code (so a specific
+class lets callers `except` regardless of which step reached them), each to
+an *existing* class -- no new types beyond `CatalogError`:
+
+- `image_calibration/calibrator.py` — the 4 config/data raises (bad area
+  dimension, invalid gain, invalid / malformatted leak directions) →
+  `CalibrationError`.
+- `source_finder_util.py` — unrecognized source-extraction tool →
+  `ConfigurationError` (a bad config value).
+- `astrometry/astrometry.py` — too few equations to solve for the
+  transformation coefficients → `SolveAstrometryError`.
+- `magnitude_fitting/master_photref_collector_{grcollect,zarr}.py` —
+  "failed to generate master photometric reference" → `FitMagnitudesError`,
+  **and** the one catch of it (`iterative_refit.py`, "no new master photref
+  this iteration") narrowed from the far-too-broad `except RuntimeError` to
+  `except FitMagnitudesError`, so an unrelated `RuntimeError` in
+  `generate_master` now surfaces instead of being swallowed.
+
+**Retyping a deferred site requires auditing its catch sites** — these
+sites were deferred precisely because callers `except` the *stdlib* type,
+and the AutoWISP classes deliberately do not subclass stdlib, so a blind
+swap silently breaks control flow. Each cluster above was checked: the
+calibrator / source-finder / astrometry raises have no specific-type
+handler wrapping them; the master-photref one did (handled above).
+
+- **`hdf5_file.py` — reverted, deliberately deferred.** Its ~14
+  `IOError`/`KeyError` raises are **control-flow**, not just errors:
+  `DataReductionFile.check_for_dataset(must_exist=True)` and
+  `get_attribute` raise `IOError` for "absent", and `DataReductionFile` /
+  `LightCurveFile` / `magnitude_fitting` `except IOError` all over to detect
+  absence (loop termination, `return False`, existence checks). Retyping to
+  `HDF5LayoutError` needs a coordinated update of every such catch site — a
+  careful task of its own, not a mechanical swap; left for later.
+
+These are otherwise mechanical class swaps; the classes are covered by the
+hierarchy tests, and a smoke import verifies each module. The step-internal
+backlog sites (below) are deliberately left to auto-wrapping -- the step
+boundary already stamps the step name, so retyping them mostly buys a
+narrower `user_message`, lower value.
 
 ### Deferred raise sites (Phase 7 backlog)
 
@@ -2118,3 +2253,922 @@ migration here mainly buys a clearer `user_message` or a narrower class.
 
 - `diagnostics/calibrate.py:88` `ValueError` — no observing session with the given label → `ConfigurationError`.
 - `bui_util.py:55` `RuntimeError` — requested FITS file does not exist. Reached from the BUI; candidate `ViewError`/`ResourceError` (or leave if only used as a helper).
+
+## Phase 9 — silent-worker-death diagnostics + crash-report completeness
+
+Phases 3 and 6 built the machinery to catch a silent worker death
+(`WorkerCrashedError`) and to bundle a shareable crash report. A *real*
+crash report — a BUI-generated `crash_report_error_4.zip` for a
+`WorkerCrashedError` during `tfa` — put that machinery to the test and
+exposed a set of gaps that, together, made the report say little beyond
+"the pool crashed." Phase 9 closes them. Every item here is motivated by
+what that report did and did not yield.
+
+### Evidence: what the real report proved and what it lost
+
+The failure: on an Intel-mac / conda-forge **numpy 1.26.4 / CPython
+3.13** host (a combination outside the CI matrix — no numpy-1.26 wheels
+for cp313), a `tfa` worker died with `BrokenProcessPool` and no
+worker-reported error, i.e. a hard death (native segfault or an OS kill /
+macOS jetsam), 1718 lightcurves in flight.
+
+What was *still* recoverable — but only by hand-querying the bundled
+`autowisp.db` — was genuinely useful: `light_curve_processing_progress`
+pinned the death to **~25 s into `tfa` on the 3rd of 4 photometric
+references** (EPD + epd-statistics complete for all four, `tfa` complete
+for photref 2, dead early into photref 3), i.e. in the parallel
+`apply_correction` load/template-build phase, not deep in the fit. That
+the report *contained* this but did not *surface* it is itself a finding.
+
+What was lost — the two artifacts a silent death needs most:
+
+- **The worker log** — `manifest.json` recorded the single gap
+  `logs: "no matching logs found"`. Not bad luck: log-collection
+  **cannot** succeed for this error class (items 1–2 below).
+- **The culprit input** — the sidecar carried only `num_inputs: 1718`
+  and the first-20 `inputs_sample`, which for a silent death names
+  nothing (item 3).
+- **The nature of the death** — `BrokenProcessPool` alone does not
+  distinguish SIGKILL (OOM/jetsam) from SIGSEGV (native crash); items
+  4–6 add that.
+
+### Item 1 — a `WorkerCrashedError` must carry its queryable step link
+
+**Root cause of "no matching logs found."** `select_error_logs` →
+`find_error_progress` (`crash_report.py`) bails immediately on
+`not error_row.step_name`, and for this error the `step_name` column is
+empty. Yet the step name *is* known at crash time: `_worker_crashed`
+(`error_context.py`) uses `get_error_context().step_name` to *build the
+message* ("...died during step 'tfa'...") — it just never lands in a
+queryable field. The reason is that `_stamp` copies the ambient
+`step_name` only for a `StepError` (`isinstance(exc, StepError)`), and
+`WorkerCrashedError` was a `PipelineError`.
+
+**Fix: reclassify `WorkerCrashedError` as a `StepError`** (component
+`step`). Although the *parent* synthesises it — the worker cannot describe
+its own death — the failure is in the algorithm running *inside* a step,
+and the error belongs to that step; the parent merely reports it.
+Reclassifying is both more accurate and mechanically cleaner:
+
+- It inherits the `StepError` `step_name` slot and is **auto-stamped by
+  the existing `_stamp` machinery**. That covers *both* worker-death
+  sites for free: the `run_pool` synthesis (`_worker_crashed`) *and* the
+  Scheme-B `manage_astrometry` raise (`solve_astrometry.py`), which
+  previously constructed a bare `WorkerCrashedError` with no step.
+- `_worker_crashed` additionally passes `step_name=ctx.step_name`
+  explicitly (the message already computes it) and stores it in
+  `details["step_name"]` as a belt-and-braces copy for the sidecar.
+- **No persistence change is needed:** the phase-4 write already does
+  `step_name=getattr(exc, "step_name", None)` (`error_persistence.py`),
+  so the column populates for any error carrying the attribute —
+  `WorkerCrashedError` simply never set one.
+- It stays a *single generic* class (not one of the per-stage
+  `StepError` subclasses) because the parent has only the ambient step
+  *name*, not the failing step's exception type.
+- Bonus: `open_error_count_for_steps` (`error_render.py`) counts a
+  `step`-component error as relevant only to launches whose steps include
+  its `step_name`; as a former `PipelineError` a worker crash was flagged
+  as relevant to *every* launch. Reclassifying scopes it correctly.
+
+This restores the DB link the whole log-collection path depends on. (It
+is the necessary condition; item 2 is the sufficient one.)
+
+### Item 2 — log selection must cover lightcurve steps
+
+Even with item 1, logs for `tfa` would still not be found:
+`find_error_progress` / `select_error_logs` query **`ImageProcessingProgress`**
+and call **`ImageProcessingManager.find_processing_outputs`**. But the LC
+steps (`create_lightcurves`, `epd`, `generate_epd_statistics`, `tfa`,
+`detrending_stat`) record progress in `light_curve_processing_progress`
+and are driven by `LightCurveProcessingManager`, which has **no**
+`find_processing_outputs`. So an LC-step error can never resolve to a
+progress row or its logs — a second, independent cause of the empty
+`logs` gap.
+
+The fix is *not* a second, parallel implementation.
+`ImageProcessingManager.find_processing_outputs` is already almost
+entirely generic: it reads only `progress.run.process_id`,
+`progress.step.name`, `progress.image_type.name`, and
+`self._processing_config`, then globs the per-process
+`logging_fname` / `std_out_err_fname`. Crucially, the LC manager writes
+its logs through the *same* naming scheme — `_prepare_processing` calls
+`setup_process(processing_step=step_name, image_type=self._current_image_type, ...)`
+(`lightcurve_processing.py`), i.e. keyed on **step + image type** exactly
+like image processing. So the method already works for LC logs; it just
+hard-codes two image-only assumptions. **Promote it to the base
+`ProcessingManager`** and abstract only those two:
+
+1. **Which progress table the int→row resolution queries.** The
+   `isinstance(processing_progress, ImageProcessingProgress)` /
+   `select(ImageProcessingProgress).filter_by(id=...)` becomes a
+   subclass-supplied progress model — a `_progress_model` class attribute
+   (`ImageProcessingProgress` on the image manager,
+   `LightCurveProcessingProgress` on the LC one). The base already
+   branches on exactly this pair in `_create_current_processing`, so the
+   precedent and the imports are in place.
+2. **How to get the `image_type` name for a progress row.** Image
+   progress exposes `.image_type` directly; LC progress carries
+   `single_photref_id` instead. A tiny overridable hook —
+   `_progress_image_type(progress, db_session)` — returns
+   `progress.image_type.name` on the image manager, and on the LC manager
+   derives it from the single photref the same way the manager already
+   does at run time when it sets `self._current_image_type` (resolve the
+   sphotref's source `Image` → `ImageType`). *(Check whether the cheaper
+   `MasterType.maker_image_type_id` link on the photref is equivalent; if
+   so the hook is a one-liner with no DR read. It must reproduce the
+   exact string used in the log name, so verify before relying on it.)*
+
+Everything else in `find_processing_outputs` — the `run.process_id`
+glob key, the `step.name`, the two `get_log_outerr_filenames` calls, the
+`self._processing_config` spread, the main-vs-worker split — is shared
+unchanged.
+
+Then the two crash-report entry points stop being image-only:
+
+- `find_error_progress` resolves the step's progress by trying the LC
+  progress table and the image progress table for the run+step and taking
+  whichever has a row (no hard-coded step-name list; robust to new
+  steps). Pipeline/BUI errors with no step still yield `None`.
+- `select_error_logs` instantiates the matching manager subclass for the
+  resolved progress kind and calls the now-inherited
+  `find_processing_outputs`.
+
+This also fixes the BUI error-detail "View log" cross-link for LC-step
+errors, which is broken today for the same root cause.
+
+**Implemented.** `find_processing_outputs` and the `_progress_image_type`
+hook live on the base `ProcessingManager`; the two managers set
+`_progress_model` and their `_progress_image_type`; `crash_report`
+dispatches across both progress tables and instantiates the matching
+manager. The LC `_progress_image_type` uses the DR-read derivation (the
+`MasterType.maker_image_type_id` shortcut was left unverified, so not
+relied on). One extra change the design did not anticipate:
+`LightCurveProcessingManager.__init__` unconditionally ran `set_pending`
+(which opens every pending photref's DR file), so a review-only
+`pipeline_run_id=None` instance — how `crash_report` and the BUI use it —
+must skip it; guarded on `self._pipeline_run_id is not None`
+(`ImageProcessingManager` already had no such scan). Regression:
+`test_resolves_lightcurve_step` in `test_crash_report.py`.
+
+### Item 3 — track what each worker is processing (a shared in-flight map)
+
+The parent must be able to say *which* inputs were in flight when a worker
+died — the sidecar today has only `num_inputs: 1718` and a blind first-20
+sample. The obvious fix (switch the eager `list(executor.map(...))` to
+`submit` + a `{future: item}` map) does **not** actually work, because of
+two hard limits in `concurrent.futures.process`:
+
+- On a broken pool, `_terminate_broken` sets the *same*
+  `BrokenProcessPool` on **every** entry of `pending_work_items`
+  (`process.py`, the `for work_id, work_item in ...: set_exception(bpe)`
+  loop) — there is no per-future distinction between the culprit and the
+  merely-pending.
+- `executor.map` submits *all* items upfront, so for an early crash (the
+  real `tfa` case died ~25 s in) almost nothing has completed and the
+  "not done" set is ≈ the whole input. `submit` + `{future: item}` would
+  hand back ~1718 candidates — no better than the head sample.
+
+So the association we need — *which worker is running which item right
+now* — does not exist anywhere in the executor: workers pull items off a
+shared queue themselves, and the parent is only notified when one
+*finishes*, never when one *starts*. We record it ourselves.
+
+- **A shared in-flight map.** A `multiprocessing.Manager().dict()` is
+  created in `run_pool` and **carried to each worker on the pickled
+  `_WorkerEntry` wrapper itself** — the executor already pickles the
+  wrapper for every call item, and a `Manager` proxy pickles/reconnects
+  across that boundary, so no `config`/`initargs` plumbing or ambient-
+  context field is needed. `_WorkerEntry.__call__` writes
+  `self.inflight[os.getpid()] = item` (the raw item, so Item 9 can rebuild
+  its related file) immediately before invoking the wrapped callable and
+  clears it (`pop(pid, None)`) in a `finally`. At any instant the
+  non-empty entries are exactly the items executing; a hard `os._exit`
+  skips the `finally`, leaving the culprit behind.
+- On `BrokenProcessPool`, `_worker_crashed(items, exc, inflight, ...)`
+  reads the map's values into `details["crashed_inputs"]` (as
+  `repr(item)`) — a candidate set bounded by `num_processes`, not a blind
+  slice of the inputs. The `Manager` is shut down in a `finally` in
+  `run_pool`, so nothing leaks.
+- A `Manager().dict()` (server process, one small IPC per task start/end)
+  is chosen over a `multiprocessing.Array` in shared memory because the
+  Array holds only C scalars (so it would store item *indices*, not the
+  items) and, worse, there is no stable ``0..N-1`` worker index to key it
+  by — the executor never numbers its workers, so a slot would have to be
+  claimed via an atomic counter in the initializer. The per-task IPC is
+  negligible against `tfa`/`epd` task cost; revisit only if a hot,
+  tiny-task site ever adopts `run_pool`.
+
+**Implemented.** `_WorkerEntry`/`worker_entry` gained an optional
+`inflight` proxy; `run_pool` owns the `Manager` and passes the map to both
+the wrapper and `_worker_crashed`. Verified end-to-end: a hard-exiting
+worker leaves its item in the map (`crashed_inputs`), and the proxy write
+survives the death. Tests: `test_inflight_map_tracks_then_clears_item`,
+`test_inflight_map_cleared_on_error`, `test_worker_crashed_names_inflight_input`
+in `test_error_context.py`.
+
+**Honest scope: this yields a *candidate set*, not the unique culprit.**
+When worker D segfaults on item X, the executor force-`terminate()`s the
+still-busy innocents B and C mid-item too (all their futures get the same
+`BrokenProcessPool`), so the map shows `{B:Y, C:Z, D:X}` — the guilty item
+plus up to `num_processes-1` innocents, with nothing to mark which is
+which. The executor even discards *which* worker died: it waits on all
+worker sentinels together (`mp.connection.wait(readers + worker_sentinels)`
+in `wait_result_broken_or_wakeup`) but never inspects which sentinel
+fired, then terminates the rest — erasing the liveness difference. Pinning
+the culprit *within* this set is Item 4's job.
+
+### Item 4 — `faulthandler` in every worker (the culprit's self-report)
+
+A segfault produces no Python exception — which is exactly why the death
+is "silent" — and, per Item 3, the parent cannot attribute the death to a
+specific worker. The fix is to make the dying worker **incriminate
+itself** before it goes: `faulthandler` turns its fatal signal into a
+native stack dump in its own log.
+
+- `setup_process_map` (`multiprocessing_util.py`) calls
+  `faulthandler.enable(file=<the worker's redirected stderr>)` during
+  bootstrap, so a SIGSEGV/SIGABRT/SIGFPE dumps a C-level traceback into
+  the per-process `.outerr` file — the file items 1–2 make collectable.
+- **This is what isolates the culprit within Item 3's candidate set.**
+  The worker that actually faulted (D) dumps a native traceback into *its*
+  log; the innocents (B, C) receive a clean `SIGTERM` from the executor's
+  `terminate()` and dump nothing. So the collected log carrying a
+  faulthandler stack identifies the guilty worker, and Item 3's in-flight
+  entry for that same pid names the guilty item — together, the unique
+  ``(worker, item, native stack)``. Neither item alone suffices: Item 3
+  narrows to ≤ `num_processes`, Item 4 singles out one within it.
+- Also register a fault handler on a signal (e.g. `SIGUSR1`, POSIX only)
+  so a *hung* — not crashed — worker can be prodded to dump where it is
+  stuck; ties into the phase-3 "no nested workers" resource story.
+- No-op on platforms/streams where `faulthandler` can't attach; never
+  fails bootstrap. (An OOM/jetsam `SIGKILL` cannot be caught by
+  `faulthandler` either — that death stays attributable only to Item 3's
+  candidate set plus Item 5's exit-signal; a `SIGKILL` with no native dump
+  is itself the tell that it was a kill, not a crash.)
+
+**Implemented** as `_enable_faulthandler(sys.stderr)` in
+`setup_process_map`, called right after the stderr redirect (and armed for
+`SIGUSR1` on POSIX). Verified end-to-end: a real `SIGSEGV` in a `run_pool`
+worker writes a "Fatal Python error" native traceback into that worker's
+collected `.outerr`. Test: `test_faulthandler_dumps_native_traceback` in
+`test_error_context.py`.
+
+### Item 5 — record the OS-level cause of the death
+
+Phase 3 already reads `process.exitcode` for Scheme B (negative →
+killed by signal `-exitcode`) but Scheme A (`ProcessPoolExecutor`) hides
+the dead worker behind `BrokenProcessPool`, so the report cannot tell
+SIGKILL (OOM / macOS jetsam) from SIGSEGV (native crash) — the single
+most diagnostic bit for this failure.
+
+- On catching `BrokenProcessPool`, best-effort scan the executor's
+  worker processes for a terminated one and record its `exitcode` /
+  decoded signal name. This reaches into executor internals (`_processes`),
+  so it is strictly best-effort and guarded — an empty list when the API
+  shifts, never a secondary failure.
+- Normalise the Scheme-A and Scheme-B representations so a report reads
+  the same `details["exit_signal"]` regardless of transport.
+
+**Implemented.** `decode_exit_signals(exitcodes)` turns a collection of
+`Process.exitcode` values into a portable, structured list — one
+`{"exitcode", ...}` entry per *abnormal* exit (dropping `None` = running
+and `0` = clean). Decoding is **OS-aware**, which was the subtle part: on
+POSIX a negative code is a kill by signal `-code` (so `SIGKILL` →
+OOM/jetsam, `SIGSEGV` → native crash, decoded to the name); on **Windows**
+there are no POSIX signals — a negative/large code is an NTSTATUS crash
+status (e.g. `0xC0000005` access violation), so it is reported in hex
+rather than mis-read as a signal. Scheme A: `run_pool` synthesises the
+error *inside* the `with` (the executor clears `_processes` on shutdown)
+and passes `_pool_exit_signals(executor)` — verified end-to-end that a
+segfault → `SIGSEGV`, a `SIGKILL` → `SIGKILL`, a `os._exit(7)` → a plain
+code. Scheme B: `solve_astrometry` now records the same
+`details["exit_signal"]` via `decode_exit_signals`. Tests:
+`TestExitSignalDecode` (POSIX + mocked-Windows branches, and the
+running/clean drop) and `test_worker_crashed_records_exit_signal` (POSIX
+segfault e2e), plus the updated Scheme-B `test_all_workers_dead_...`.
+
+### Item 6 — a resource snapshot to confirm/deny OOM
+
+Given macOS jetsam and `tfa`'s large in-memory template matrix over 1718
+lightcurves, "was it memory?" is the first question and the report
+currently cannot answer it.
+
+- `_worker_crashed` records a resource snapshot into `details`:
+  `num_parallel_processes`, system total/available RAM (via `psutil` if
+  present, else `os.sysconf` / platform fallbacks, best-effort), and the
+  parent's peak RSS. A dead worker's own peak RSS is gone, but the
+  parent's and the system pressure at crash time are strong signal.
+- `collect_provenance` gains the same machine-resource fields so a report
+  built later still shows the box's memory ceiling.
+
+**Implemented.** `collect_resource_snapshot()` (in `miscellaneous.py`, the
+leaf both `error_context` and `crash_report` already import) returns
+`ram_total` / `ram_available` (bytes), `ram_percent_used`, and the
+process `process_rss` via `psutil` (a hard dependency, so cross-OS without
+the sysconf fallbacks) — best-effort, never raising (empty dict if it
+can't). `_worker_crashed` records it as `details["resources"]` together
+with `num_processes` (N workers vs. total RAM is the OOM tell, paired with
+item 5's `SIGKILL` and item 4's *absent* native dump).
+`collect_provenance` adds the same snapshot so a report built later still
+shows the box's RAM ceiling. (Peak RSS was dropped in favour of current
+RSS + system available: `ru_maxrss` units differ by platform — KiB on
+Linux, bytes on macOS — and `psutil` gives a clean portable current RSS;
+the system-available figure is the more directly diagnostic number.)
+Tests: `TestResourceSnapshot` (fields + the psutil-missing degradation),
+`test_worker_crashed_records_resources`, and the provenance test.
+
+### Item 7 — crash-time provenance (scope reduced)
+
+The plan originally framed this as "the report may be built on a
+*different machine* than the run" — but that premise is essentially
+**false**. To build a report you need the project home (DB + sidecars +
+logs), which lives on the machine that ran the pipeline; the BUI shares
+that DB. So the report builder is virtually always the same box.
+
+The apparent "two hosts" in the real report were **one machine reported
+two ways**: `PipelineRun.host` used `socket.getfqdn()` (→
+`1.0.0.127.in-addr.arpa` on a loopback-only laptop) while
+`collect_provenance` used `socket.gethostname()` (→
+`Shashanks-MacBook-Pro.local`). A recording inconsistency, not a second
+machine.
+
+That leaves one *real* concern — **time, not place**: the environment on
+that one box can change *between* the crash and building the report (the
+user upgrades numpy / astrowisp, then downloads the report, and
+`collect_provenance`'s live `importlib.metadata` now shows the *fixed*
+versions, hiding the fragile combo that actually crashed). So the reduced
+scope, with the `PipelineRun` migration dropped:
+
+- **Host consistency.** A single `get_hostname()` helper (using
+  `gethostname`, the clean name) used by *both* `run_pipeline` (for
+  `PipelineRun.host`) and `collect_provenance`, so the run host and report
+  host agree instead of looking like two boxes.
+- **Crash-time environment in the sidecar.** `collect_environment()`
+  (platform + key package versions) is captured by `error_persistence`
+  *at record time, in the process that hit the error* — the correct
+  crash-time versions, no migration. `collect_provenance` records the same
+  shape for the report builder, so the two are directly comparable and a
+  difference is the tell that packages drifted between failure and report.
+
+**Implemented.** `get_hostname` / `collect_environment` (and, moved for
+cohesion, `collect_resource_snapshot` from item 6) live in `exceptions.py`
+— the leaf error module (home of `sanitize_for_json`) that
+`error_context`, `error_persistence`, `crash_report`, and `run_pipeline`
+all import cycle-free. `run_pipeline` records `host=get_hostname()`;
+`error_persistence._write_sidecar` adds `detail["environment"]`;
+`collect_provenance` reuses the shared helpers. Tests: the sidecar
+`environment` capture (`test_error_persistence`), `collect_environment`'s
+package filtering (`test_crash_report`), and the existing provenance test.
+
+### Item 8 — record the resolved config on the error
+
+The original framing here ("the bundled DB holds the resolved
+configuration, but reading it means opening SQLite") was **wrong**: the DB
+holds only the *raw* config rows (`parameter × condition × value ×
+version`); the **resolved** config a step actually ran with is a runtime
+derivation (`ProcessingManager.get_config` picks each parameter's value by
+matching the image's evaluated conditions) and is persisted **nowhere**.
+So it is the one config-related thing worth capturing — and, because it
+lives only in memory, worth capturing for *every* error, not just a crash.
+
+- The resolved config is a **per-step context item**, set the same way as
+  `step_name` / `related_files`: `ErrorContext` gains a `config` field;
+  `from_config` snapshots it (so each worker rebuilds it from the config
+  it was handed); the managers scope it at each step's dispatch via
+  `error_context(config=...)`. `_stamp` then carries it into
+  `details["config"]` on any error — so a worker error gets it from its
+  own bootstrap and a parent-side error (including a synthesised
+  `WorkerCrashedError`, which runs inside the manager's scope) gets the
+  *failing step's* config, not the base `add_images_to_db` config the
+  parent bootstrapped with. Scrubbed at report time by the existing
+  sidecar `scrub_text`.
+- **Dropped** (were phase-6 refinements): a `progress.json` timeline and a
+  `related_errors.json` summary. Both only *duplicate the bundled DB* (the
+  `*_processing_progress` and `error` tables are in the scrubbed copy), and
+  after items 1–9 the facts that once needed a hand-query — which step,
+  which photref, which input — are already on the error itself
+  (`step_name`, `related_files`, `crashed_inputs`). Not worth the code.
+
+**Implemented.** `ErrorContext.config` + `from_config` snapshot;
+`error_context(config=...)` scoped in `_process_batch` (image) and
+`__call__` (lightcurve); `_stamp` writes `details["config"]`. Tests:
+`test_worker_error_carries_config` (worker path) and
+`test_worker_crashed_carries_scoped_config` (parent/crash path, proving it
+is the failing step's config, not the base).
+
+### Item 9 — populate `related_files` (finish the deferred Phase-2 scoping)
+
+`related_files` is plumbed end to end but **never fed**: the
+`ErrorContext.related_files` field, the `error_context(related_files=...)`
+manager, the `_stamp` copy onto the exception, the sidecar serialization,
+the artifact-FK resolution (`_resolve_artifact_fks` → `image_id` / `dr` /
+`lightcurve` / `master`), and the BUI render all exist, but **no
+production code ever constructs a `RelatedFile` or passes one to
+`error_context()`** (only tests do). The manager scopes
+`error_context(step_name=...)` in `_process_batch` and nothing else. So
+every persisted error carries `related_files = ()`, and the FK-resolution
+and render run on an empty list. This is the half of the Phase-2 per-image
+dispatch scoping that was deferred and never done.
+
+The point is not cosmetic: many failures are a mismatch between the
+configuration and a *specific file's* contents (FITS header keywords vs.
+config, a DR/LC layout, a wrong master), so the file being processed is
+the single most useful thing to attach — and today it is absent from every
+error, crash or not.
+
+**The natural home is the per-item boundary, driven by a per-call-site
+classifier** (the items are heterogeneous — LC paths, DR paths, image
+records, image *sets* — so the generic wrapper cannot classify them):
+
+- **`run_pool` gains an optional `related_files` classifier**: either a
+  `FileKind` (for plain path-string items) or a picklable callable
+  ``item -> RelatedFile | Iterable[RelatedFile] | None`` (module-level or a
+  `functools.partial`, since it rides the pickled wrapper to the workers).
+  `_WorkerEntry.__call__` wraps the call in
+  `error_context(related_files=[...])` for that item, so **any** error the
+  worker raises — including a deep config-vs-file mismatch — carries the
+  file, is FK-resolved to the real row, and shows in the error detail. The
+  five call sites each pass their kind: `apply_correction` → `LIGHTCURVE`,
+  `iterative_refit` → `DR_FILE`, `measure_aperture_photometry` /
+  `find_stars` / `fit_star_shape` → the image/DR they map over.
+- **The crash case falls out** (the ask that motivated this): the
+  in-flight item *is* the related file, so a `WorkerCrashedError` links
+  straight to the offending lightcurve. `_worker_crashed` also promotes
+  the in-flight items (Item 3's map) to `related_files`, not just
+  `details["crashed_inputs"]`, so a reviewer never has to dig for it. This
+  unifies with Item 3: the same `item` the in-flight map records is the
+  one scoped as a related file.
+- **Main-process / Scheme-B paths** scope the same way at their per-item
+  point using the filename they already compute (`get_step_input` in the
+  manager dispatch; the `dr_fname` in `solve_astrometry`'s worker) — the
+  literal deferred Phase-2 line. *(Superseded in part: where the per-item
+  file is an HDF5 product it now attaches itself, so several of these
+  scopes were written and then removed again — see "HDF5 products attach
+  themselves" below.)*
+
+**More than the per-item file: per-step auxiliary inputs.** The item being
+mapped over is not the only file a failure implicates — most steps also
+consume auxiliary inputs that are exactly what a config-vs-file mismatch is
+usually *about*, and they are known at dispatch time.
+
+**Every step, and the files each one implicates.** The per-item column is
+what the step maps over (the natural `role="input"`); the auxiliary column
+is everything else the step reads or is about to write, all of it known at
+dispatch time. `→ out` marks a file the step *produces*, attached as
+`role="expected_output"` — worth attaching because a failure mid-write is
+exactly when you want to know which output is now suspect.
+
+| step | per-item file | auxiliary files | how the per-item file is attached |
+| ---- | ------------- | --------------- | --------------------------------- |
+| `add_images_to_db` | raw image | — | explicit dispatch scope (FITS) |
+| `calibrate` | raw image | master bias / dark / flat applied | explicit, `_calibration_related_files` (FITS) |
+| `stack_to_master` | calibrated frame | the master being stacked `→ out` | explicit, `stacking_related_files` (FITS) |
+| `stack_to_master_flat` | calibrated frame | the high / low master flats `→ out` | explicit, `stacking_related_files` (FITS) |
+| `find_stars` | calibrated image | DR file `→ out` | explicit classifier (image); DR **automatic** once opened |
+| `solve_astrometry` | DR file | the Gaia catalog(s) queried | DR **automatic**; catalogs explicit in `find_final_transformation`, accumulating one scope per coverage iteration |
+| `fit_star_shape` | the frame *set* (simultaneous fit) | each frame's DR; the catalog | explicit `_frame_set_related_files`; DRs automatic; catalog explicit in `fit_frame_set` |
+| `measure_aperture_photometry` | calibrated image | DR file | explicit classifier (image); DR automatic |
+| `fit_source_extracted_psf_map` | DR file | — | **automatic** |
+| `calculate_photref_merit` | DR file | — | **automatic** |
+| `fit_magnitudes` | DR file | single photref DR; master photref; the catalog | explicit `_magfit_related_files` (needed for crash promotion); catalog explicit around the fit |
+| `create_lightcurves` | the DR being read, **or** the one LC being written | single photref DR; the lightcurve catalog; the Gaia catalog; the catalog source-list filter | **automatic** for both; LC catalog + filter explicit at the step, Gaia catalog explicit around the writing pass |
+| `epd` | lightcurve | single photref DR; output statistics `→ out` | explicit `_detrending_related_files` (crash promotion); LC also automatic |
+| `tfa` | lightcurve | single photref DR; the template lightcurves; output statistics `→ out` | as `epd`; each template **automatic** while being read (see below) |
+| `generate_epd_statistics`, `generate_tfa_statistics` | lightcurve | single photref DR; the detrending catalog; output statistics `→ out` | **automatic** for the LC; catalog/output explicit at the step |
+
+### HDF5 products attach themselves
+
+Most of the "per-item file" column above needs no code in the step at
+all. `HDF5File.__enter__` / `__exit__` scope the product they opened, so
+**any DR or lightcurve opened through a `with` block names itself on
+every error raised while it is open**, at whatever depth. Each subclass
+declares one class attribute (`related_file_kind`); the role comes from
+the open mode (`r` → `input`, else `output`), and a nameless in-memory
+product attaches nothing. Entering the same object twice pushes a stack
+of scopes rather than a single slot.
+
+That covers roughly 67 `with` sites and made the explicit DR/LC scoping
+in `fit_source_extracted_psf_map`, `calculate_photref_merit`,
+`collect_light_curves`, `recalculate_correction_statistics` and
+`_add_catalog_info` redundant; all of it was removed. It cannot cover
+FITS images, masters, catalogs, statistics outputs or the source-list
+filter, which is why the explicit scopes above remain.
+
+Two limits worth knowing:
+
+- **The open itself is not covered.** `h5py.File` opens in the
+  *constructor*, before `__enter__` runs, so "could not open this DR"
+  carries no related file (the filename is in the `HDF5LayoutError`
+  message instead). The `run_pool` sites keep their explicit classifiers
+  regardless, because crash promotion needs one when a worker dies without
+  raising: no `__enter__` ever runs, so there is nothing to attach. Scheme
+  B does *not* need one -- its dead-worker `WorkerCrashedError` is raised
+  in the parent, where a worker-side scope could never have reached it.
+- **Coverage follows the `with`, not the step.** Narrowing a block so the
+  work happens after the file closes silently drops the file from any
+  error. A generic test of the hook cannot see that, so each step relying
+  solely on the automatic path has a test that runs it against a real but
+  empty product and asserts the natural failure names it.
+
+### The scoping trap: a scope must outlive the stamp
+
+`related_files` used to be lost on every main-process scope, and the
+tests did not notice. `error_context` resets its ContextVar as the
+exception unwinds — *before* any enclosing `except` runs — so by the time
+`capture_errors` (at `ProcessingManager._run_step`) stamped the error,
+the ambient context was empty. Only the `run_pool` and Scheme-B sites
+worked, because they stamp *inside* the scope on purpose.
+
+The fix keeps the files with the exception rather than with the context:
+`error_context` records its own contribution onto the exception passing
+through it, `capture_errors` / `_stamp_worker_error` carry that over when
+they wrap it in a `StepError` subclass, and `_stamp` merges the recorded
+entries with any scopes still in force. Two consequences to preserve:
+
+- **A test that reads the ambient context from inside a scope proves
+  nothing.** It passes whether or not anything reaches the error. Assert
+  on the related files of the *stamped exception* instead.
+- Entries accumulate innermost-first, but **order carries no meaning** —
+  the renderer lists them and the artifact-FK lookup is an SQL `IN`. Tests
+  compare with `assertCountEqual`, which ignores order while still
+  catching a missing, extra or duplicated entry.
+
+Two distinct shapes fall out of the table, and they are wired differently:
+
+- **Per-item** files vary with the work item and must be classified inside
+  the worker boundary (the `run_pool` classifier, or the dispatch scope for
+  main-process/Scheme-B steps).
+- **Auxiliary** files are **batch-constant** (the LC/magfit manager
+  processes one single photref at a time; the masters and the catalog come
+  from the step's resolved config), so they are bound once at the call site.
+
+**Never attach a collection — attach the file in hand.** `related_files`
+is a *diagnostic pointer*, not an inventory of what the step touched, and
+the two must not be confused where the collection is large.
+`create_lightcurves` is the case that forces the rule: it writes one
+lightcurve per catalog source, which is **tens of thousands** of files in
+a large field. Attaching them all would bloat every sidecar, drown the
+rendered list, and still not say which one failed. The scope must
+therefore sit at the innermost point that handles a *single* file, so the
+ambient context is never more than one item deep. In
+`collect_light_curves` that is three distinct points, each already a loop
+over one file:
+
+| loop | file to scope | role |
+| ---- | ------------- | ---- |
+| `data_io.read` over the DR chunk | that DR file | `input` |
+| `data_io.write` over `sources_lc_fnames` | that one LC | `expected_output` |
+| the `confirm_lc_length` pass | that one LC | `output` |
+
+So a failure writing source *N*'s lightcurve names *that* lightcurve plus
+the step's auxiliaries, and a failure reading a DR names that DR — while
+a failure in the surrounding setup (catalog, photref, memory planning)
+names only the auxiliaries, which is the correct answer for it.
+
+The `create_lightcurves` auxiliaries are worth spelling out, because
+"the catalog" is ambiguous here — the step has **two**:
+
+- **the single photref DR** (`single_photref_dr_fname`) — the reference
+  the whole step is bound to;
+- **the lightcurve catalog** (`--lightcurve-catalog-fname`, the
+  `lc_catalog_{TARGETID}_{CLRCHNL}_{EXPTIME}.fits` master): read as an
+  `input` when it already exists, attached as `expected_output` on the
+  run that creates it (it is registered as a `MasterFile` of type
+  `lightcurve_catalog`, so it FK-resolves);
+- **the Gaia query catalog** (`--lc-catalog`, the cached
+  `MASTERS/Gaia/{checksum}.fits`) — `FileKind.CATALOG`, `input`;
+- **the catalog source-list filter** (`--lc-catalog-source-list`), when
+  given: a plain text list of GAIA source IDs that restricts the catalog
+  at read time. **Only present once this branch is merged with master** —
+  it arrived with the lc-filter work (`read_source_id_list` in
+  `catalog.py`) and does not exist on this branch yet. It belongs in the
+  list because a wrong or malformed filter file silently changes which
+  sources get lightcurves at all, which is exactly the kind of
+  config-vs-file mismatch this item exists to surface.
+
+`FileKind` needs no new member for these: both catalogs are
+`FileKind.CATALOG`, told apart by `role` (`"lc_catalog"` vs
+`"query_catalog"`) rather than by kind, and the source-list filter is
+`FileKind.CONFIG` — it is a user-supplied control file, not catalog data.
+A dedicated ``LIGHTCURVE_CATALOG`` kind would only be worth it if the BUI
+wants to render the two differently. Rather than a second `run_pool` argument, they are folded into
+the *same* `related_files` classifier: the call site binds the auxiliary
+files into a picklable `functools.partial` of a module-level function that
+returns ``[item_file, *auxiliaries]``. One argument, and both the
+normal-error scope and the crash promotion (which already run every
+in-flight item through the classifier) pick up the auxiliaries for free;
+`_worker_crashed` dedups so a shared auxiliary (e.g. the single photref)
+appears once, not once per crashed input.
+
+The step builds them from what it already holds: the sphotref /
+master-photref / stat filenames and the master bias/dark/flat paths in its
+config. Main-process steps that do not use `run_pool` (`calibrate`,
+`create_lightcurves`, the two statistics generators) attach them in their
+dispatch scope alongside the per-item file.
+
+`FileKind`: the enum already covers the item kinds (`LIGHTCURVE`,
+`DR_FILE`, `CALIBRATED_IMAGE`, `RAW_IMAGE`) and the masters
+(`MASTER_BIAS` / `MASTER_DARK` / `MASTER_FLAT` / `MASTER_PHOTREF`); the
+single photref is a `MasterFile` row, so `DR_FILE` (or a new
+``SINGLE_PHOTREF`` kind, if the single-vs-master distinction is worth
+surfacing) suffices. Note the masters and the photref are `MasterFile`
+rows, so they FK-resolve via `MasterFile.filename` — but
+`_resolve_artifact_fks` returns a *single* `master_file_id`, so with
+several masters attached only the first becomes an FK while all appear by
+path in the rendered list; broadening that to multiple master FKs is a
+separate, optional follow-up.
+
+Sequence within the item: land the **lightcurve path
+(`apply_correction`) + the `_worker_crashed` promotion** first — that is
+the path the real crash hit and the smallest end-to-end slice — then the
+remaining `run_pool` sites, then the main-process/Scheme-B dispatch.
+
+**Implemented (the table's last column is the authority on what is
+explicit, what is automatic, and what is left).**
+`run_pool`/`worker_entry`/`_WorkerEntry` gained an optional `related_files`
+classifier (a `FileKind` or an ``item -> RelatedFile | Iterable | None``
+callable, resolved by `_resolve_related_files`); `_WorkerEntry.__call__`
+scopes `error_context(related_files=...)` around the call so the stamping
+`except` (inside the scope) copies the files onto the error before it
+pickles back. `_worker_crashed` promotes the in-flight items through the
+same classifier (deduping shared auxiliaries) so a silent death carries
+them too. Wired at every site:
+
+- **`run_pool` sites** — `apply_correction` →
+  `partial(_detrending_related_files, single_photref_dr_fname=...)` (LC +
+  single photref); `iterative_refit` →
+  `partial(_magfit_related_files, single_photref=..., master_photref=...)`
+  (DR + single/master photref); `measure_aperture_photometry` /
+  `find_stars` → `FileKind.CALIBRATED_IMAGE`; `fit_star_shape` →
+  `_frame_set_related_files` (every frame in the simultaneous-fit set).
+- **calibrate** (main-process) — scopes `_calibration_related_files`
+  (the raw image + the channel-keyed master bias/dark/flat applied)
+  around each image.
+- **Lightcurve steps** (`create_lightcurves`, `epd`, `tfa`,
+  `generate_epd_statistics`, `generate_tfa_statistics`) — the
+  `LightCurveProcessingManager.__call__` dispatch scopes the single
+  photref once for the whole step (covering the main-process paths); the
+  epd/tfa parallel workers additionally scope each LC via
+  `apply_correction`.
+- **solve_astrometry** (Scheme B) — nothing explicit: `solve_image`
+  opens the DR as its first act and works inside that block, so the file
+  records itself on the exception and `capture_for_queue` stamps it onto
+  the queued error.
+
+**Still to wire.**
+
+1. ~~Steps with no scope at all~~ — **done.** `add_images_to_db` took the
+   per-item dispatch scope `calibrate` already used;
+   `fit_source_extracted_psf_map` and `calculate_photref_merit` need none
+   at all, since the DR they open attaches itself. The two stackers are
+   the one shape that legitimately attaches a *collection*: stacking has
+   no per-item boundary — the whole set is averaged in a single
+   `MasterMaker`/`MasterFlatMaker` call — so a failure (too few valid
+   frames, mismatched geometry) is about the set, not one frame.
+   `stacking_related_files` (in `stack_to_master`, reused by the flat
+   variant) attaches every input frame plus the master(s) being written as
+   `expected_output`. That does not contradict the "never attach a
+   collection" rule above: the rule applies where a single-file boundary
+   exists, and a stack is bounded by what one master consumes, unlike the
+   per-source lightcurves `create_lightcurves` writes.
+2. ~~Per-item scope missing under a manager-level scope~~ — **done.**
+   `create_lightcurves` and the two statistics generators now name the
+   individual DR or lightcurve, all of it automatic: the reading,
+   writing and confirmation passes each open exactly one product at a
+   time, which is also what keeps a large field's tens of thousands of
+   lightcurves out of any single error. What the steps do scope
+   explicitly is what is *not* an HDF5 product — the lightcurve catalog
+   (`MasterCatalog.as_related_file`, whose role depends on whether this
+   run creates it), the Gaia catalog, the source-list filter, and the
+   detrending catalog plus statistics output.
+3. ~~Auxiliaries not yet attached where the item already is~~ — **done**,
+   and two of the three turned out to need nothing.
+
+   **The catalog** is now scoped at all four consumers. Not inside
+   `ensure_catalog`, which was the obvious-looking place and is wrong: it
+   *returns*, so a scope there would pop before the caller uses anything
+   it produced — including `solve_astrometry`'s coverage loop, whose
+   "infinite loop" `RuntimeError` is the most catalog-implicating failure
+   there is. The rule this settles: **the scope belongs at the unit of
+   work, not at the point of discovery; discovery just hands the name
+   outward.** `ensure_catalog` already returned the resolved
+   `{checksum}` filename as its third element (three of four callers were
+   discarding it), so no new plumbing was needed —
+   `create_source_list_creator` now returns it too, for the same reason.
+   `solve_astrometry` is the one special case: it re-resolves the catalog
+   on every coverage iteration, so the scopes accumulate in an
+   `ExitStack` and the error names every catalog tried, not just the last.
+
+   **The TFA templates** need nothing: every template read goes through
+   `with LightCurveFile(...)`, so the one being read is already named.
+   Attaching the whole set (64 by default, `sqrt_num_templates=8`) was
+   considered and rejected — that is inventory rather than a pointer, and
+   the template identities are already persisted in the lightcurve's own
+   `*.tfa.cfg.template_source_ids` config datasets.
+
+   **The `→ out` products** are likewise mostly covered: DR files and
+   lightcurves opened for writing attach themselves with `role="output"`,
+   and the masters, statistics files and lightcurve catalog are already
+   explicit. The one gap left deliberately is `calibrate`'s calibrated
+   image: naming it means computing `calibrated_fname` per channel from
+   the raw header (as `cleanup_interrupted` does), i.e. a FITS open on
+   every image purely to build a scope that matters only on failure. The
+   raw image and the masters applied are attached, which is the
+   information a calibration failure actually needs.
+
+Note `_resolve_artifact_fks` only FK-links images/masters — the raw
+image, masters, single/master photref all resolve to their rows, while
+LC / DR / calibrated files (no row) surface by path in the rendered
+related-files list. Tests: the classifier logic in
+`test_related_files.py`; the scope/promotion mechanism (including the
+multi-file and dedup cases) in `test_error_context.py`.
+
+### What changes, concretely
+
+| File | Change |
+| ---- | ------ |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError`, records `crashed_inputs` (from the map), and records `exit_signal` from `_pool_exit_signals(executor)` (item 5; `decode_exit_signals` is OS-aware — POSIX signal vs. Windows NTSTATUS). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). `_worker_crashed` also records `details["resources"]` (memory snapshot + `num_processes`) via `collect_resource_snapshot` (item 6). `ErrorContext` gains a `config` field (`from_config` snapshots it) and `_stamp` writes `details["config"]` (item 8). **Scopes also record their own files onto the exception passing through them** (`_remember_related_files`), since the ContextVar is reset before any enclosing `except` runs; `capture_errors` / `_stamp_worker_error` carry those over when they wrap (`_inherit_related_files`), and `_stamp` merges them with the scopes still in force (item 9). |
+| `autowisp/miscellaneous.py` | **New** `collect_resource_snapshot()` — cross-OS memory snapshot via `psutil`, best-effort (items 6). |
+| run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) ✓ | Each passes its `related_files` classifier — a `FileKind` for item-only sites, or a `partial`/module function returning the item plus batch-constant auxiliaries (item 9, done). |
+| `calibrate.py` ✓ | Scopes `_calibration_related_files` (raw image + master bias/dark/flat) around each image (item 9, done). |
+| `lightcurve_processing.py` (`LightCurveProcessingManager.__call__`) ✓ | Scopes the step's config and the single photref for the whole LC step, covering `create_lightcurves` / `epd` / `tfa` / the statistics generators (items 8, 9). |
+| `image_processing.py` (`_process_batch`) ✓ | Its per-step `error_context` now also scopes `config` (item 8). |
+| `solve_astrometry.py` ✓ | Explicit DR scoping *removed*: the file attaches itself inside `solve_image`, and the queued error picks it up from the exception (item 9). |
+| `autowisp/hdf5_file.py` ✓ | **New behaviour.** `HDF5File.__enter__` / `__exit__` scope the product they open, so every DR / lightcurve names itself on errors raised while it is open; `DataReductionFile` / `LightCurveFile` declare `related_file_kind` (item 9). |
+| `collect_light_curves.py` ✓ | Split into `_prepare_lc_collection` (catalog, sources, destinations) and `_write_lightcurves` (the chunk loop), which also gives the writing pass a testable seam. No explicit related-files scoping: every DR and lightcurve it touches is opened through a `with`. |
+| `create_lightcurves.py`, `lc_detrending.py` ✓ | Scope what is *not* an HDF5 product: the lightcurve catalog (`MasterCatalog.as_related_file`), the Gaia catalog, the source-list filter, the detrending catalog and the statistics output (item 9). |
+| `autowisp/tests/test_related_files.py` ✓ | **New.** The per-step classifiers, the main-process dispatch scopes (asserted on the *stamped exception*), and HDF5 self-attachment -- including two steps run against a real but empty DR, so a later narrowing of the `with` is caught. |
+| `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
+| `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
+| `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
+| `autowisp/database/image_processing.py` | Drop the now-inherited `find_processing_outputs`; set `_progress_model = ImageProcessingProgress` and `_progress_image_type` → `progress.image_type.name` (item 2). |
+| `autowisp/database/lightcurve_processing.py` | Set `_progress_model = LightCurveProcessingProgress` and `_progress_image_type` deriving the type from the single photref (as `_current_image_type` is set at run time); skip `set_pending` when `pipeline_run_id is None` so a review-only manager is cheap (item 2). |
+| `autowisp/crash_report.py` | `find_error_progress` resolves against either progress table and `select_error_logs` instantiates the matching manager (item 2); `collect_provenance` records `resources` + reuses the shared `get_hostname`/`collect_environment` helpers (items 6, 7); sidecar gains the resolved step config + the progress timeline, and a `WorkerCrashedError` report bundles the whole batch (item 8). |
+| `autowisp/exceptions.py` | New leaf provenance helpers `get_hostname` / `collect_environment` / `collect_resource_snapshot`, imported cycle-free by every layer (items 6, 7). |
+| `autowisp/error_persistence.py` | `_write_sidecar` records `detail["environment"]` (crash-time, in the failing process) (item 7). |
+| `autowisp/run_pipeline.py` | `PipelineRun.host = get_hostname()` (was `getfqdn()`), so the run host matches the report host (item 7). |
+
+### Tests (Phase 9)
+
+- A synthesised `WorkerCrashedError` (via `_worker_crashed` with an
+  ambient step context) is a `step`-component error carrying `step_name`,
+  and the phase-4 write populates the `error.step_name` column —
+  regression test for the exact "no matching logs found" cause.
+  *(Implemented: `test_worker_crashed_carries_step_name` in
+  `test_error_context.py`; `test_worker_crashed_persists_step_name` in
+  `test_error_persistence.py`.)*
+- `find_error_progress` / `select_error_logs` resolve an **LC-step**
+  error (e.g. `tfa`) to its `light_curve_processing_progress` row and its
+  logs; an image-step error still resolves via `ImageProcessingProgress`;
+  a pipeline/BUI error still yields none. *(Implemented:
+  `test_resolves_lightcurve_step` in `test_crash_report.py`; image-step
+  and stepless cases already covered there.)*
+- `_WorkerEntry` writes the current item into the shared in-flight map
+  while the callable runs and clears it on return (and on error), so a
+  normal `run_pool` finishes with an empty map. *(Implemented:
+  `test_inflight_map_tracks_then_clears_item`,
+  `test_inflight_map_cleared_on_error`.)*
+- A worker that hard-exits (`os._exit`) mid-task → the parent's
+  `WorkerCrashedError` records the still-in-flight item(s) in
+  `details["crashed_inputs"]` (a set bounded by `num_processes`), not a
+  blind head sample. *(Implemented:
+  `test_worker_crashed_names_inflight_input`.)*
+- With `faulthandler` enabled in the worker bootstrap, a real `SIGSEGV` in
+  a test worker writes a native traceback to its redirected stderr file
+  (the log items 1–2 collect), so the faulted worker is distinguishable
+  from executor-terminated innocents. *(Implemented:
+  `test_faulthandler_dumps_native_traceback`.)*
+- `build_crash_report` for a `WorkerCrashedError` includes the resolved
+  step config, the progress timeline, the resource snapshot, and (when
+  present) `exit_signal` — and, for the batch, every sibling error, not
+  just the requested one.
+- Provenance distinguishes run host/versions from report host/versions
+  when they differ.
+- A `run_pool` worker that raises for a given item produces an error
+  carrying that item as a `related_file` of the call site's `FileKind`
+  (and `_resolve_artifact_fks` sets the FK for an image/master item); a
+  `WorkerCrashedError` likewise carries the in-flight item(s) as
+  `related_files` (item 9). *(Implemented for the lightcurve path:
+  `test_worker_error_carries_related_file`,
+  `test_worker_crashed_promotes_related_files`, plus
+  `_resolve_related_files` unit tests.)*
+
+### Suggested sequencing
+
+Items **1 + 2** are the highest-value, lowest-risk pair — together they
+are the difference between a report with logs and one without — and are
+**done**. **3** (in-flight map → candidate set) and **4** (native
+self-report → the one culprit within it) are **coupled** — Item 3 narrows,
+Item 4 isolates — and are now **done** together. **5–8** are enrichment
+that make the report self-explaining without a maintainer hand-querying
+the DB, and can follow independently; **5** (OS-level exit signal) and
+**6** (memory snapshot) are **done** — together with items 4 (native dump)
+they triangulate OOM vs. crash. **7** (crash-time provenance) is **done**
+at reduced scope (the "different machine" premise was a `getfqdn` vs.
+`gethostname` artifact, so the `PipelineRun` migration was dropped in
+favour of host-consistency + crash-time env in the sidecar). **8** is
+**done** at reduced scope too — only the resolved config is worth
+recording (the rest of the original framing just duplicated the bundled
+DB). **9** (populate `related_files`)
+stands somewhat apart — it improves *every* error, not just crashes — and
+is now **done for every step**, by two complementary routes: HDF5 products
+(DR files, lightcurves) attach themselves whenever they are open, and the
+steps explicitly scope what is not an HDF5 product (raw and calibrated
+frames, masters, catalogs, the source-list filter, output products). The
+`run_pool` classifiers stay regardless, since crash promotion has no open
+file to draw on.
+
+## Phase 10 — assertion messages
+
+*(Started. Seeded by the `browser_interface/configuration/views.py`
+edits, which gave two bare asserts messages naming the offending value.)*
+
+### Why this belongs in the error-handling plan
+
+A bare `assert` is not a private developer note once the capture layer is
+in place — it is a *user-facing error message*, and a uselessly bad one.
+`_wrap` builds its message as `str(exc) or exc.__class__.__name__`, and
+`str(AssertionError())` is empty, so the chain produces:
+
+```
+bare assert          -> StepError: user_message='AssertionError'
+assert with message  -> StepError: user_message='expected one source per frame, found 2'
+```
+
+That `user_message` is what the BUI shows, what the CLI prints, and what
+the `Error` row stores. So every bare assert that can fire in front of a
+user is a step that fails with the word "AssertionError" and nothing
+else — the exact outcome phases 1–9 exist to prevent.
+
+### Scale
+
+| area | bare | with message |
+| ---- | ---- | ------------ |
+| pipeline | 241 | 13 |
+| `browser_interface` | 19 | 4 |
+| tests | 4 | 0 |
+| **total** | **264** | **17** |
+
+Densest files: `light_curves/lc_data_io.py` (18),
+`database/user_interface.py` (12),
+`image_calibration/master_flat_maker.py` (12), `catalog.py` (11),
+`database/image_processing.py` (11), `hdf5_file.py` (10). The inventory
+is reproducible with a short `ast` walk over `autowisp/**/*.py` looking
+for `ast.Assert` with `msg=None`.
+
+### A triage, not a mechanical sweep
+
+Each site gets one of three outcomes, and choosing which is the real
+work:
+
+1. **Add a message.** For genuine internal invariants: say what the
+   failure *indicates*, not what the expression was (the reader can see
+   the expression), and interpolate the offending value — as the seeding
+   edits do: ``assert key in index, f"Parameter {key} not found
+   configuration!"``.
+2. **Convert to a raise.** An `assert` that can fire because of *user
+   input, configuration, or file contents* is not an invariant — it is
+   validation wearing the wrong clothes, and it vanishes entirely under
+   `python -O`. These become `ConfigurationError`, `BadImageError`,
+   `HDF5LayoutError` and friends, with a `user_message`. Several of the
+   phase-7/8 "deferred raise sites" already sit in this category.
+3. **Leave it bare.** Deep-library invariants no user action can provoke,
+   where a message would be noise. This should be the small minority, and
+   it is the outcome to justify rather than assume.
+
+The 1-versus-2 distinction matters more than the wording: a message
+improves a report, but conversion decides whether the check survives an
+optimised run at all.
+
+### Priority
+
+Outward from where users meet them, not alphabetically:
+
+1. **Orchestration and steps** — `database/image_processing.py`,
+   `database/processing.py`, `database/user_interface.py`,
+   `processing_steps/*`. These fire on real runs with real
+   configurations, so they are the ones producing "AssertionError" in the
+   BUI today.
+2. **Products and IO** — `hdf5_file.py`, `lc_data_io.py`, the DR/LC
+   layers, where a malformed or unexpected file trips an invariant. Many
+   of these are category 2.
+3. **Numerics and library internals** — `master_flat_maker.py`,
+   `tfa_correction.py`, the fitting code. Mostly category 1 or 3.
+
+### Keeping it fixed
+
+Optional follow-up once the sweep is done: a check that fails on *new*
+bare asserts, so this cannot silently regrow. Pylint has no such rule,
+but the same `ast` walk used for the inventory is a few lines as a test,
+seeded with an explicit allowlist of the category-3 sites.
+
+### Tests (Phase 10)
+
+The sweep needs no new machinery — the capture layer already carries
+whatever message an assert supplies. What is worth pinning is the
+motivating behaviour itself, so the incentive cannot quietly disappear: a
+test that a bare `AssertionError` surfaces with
+``user_message == "AssertionError"``, and one raised with text surfaces
+with that text. The converted sites (category 2) then get the same
+treatment as any other typed raise: assert the class and the
+`user_message`.

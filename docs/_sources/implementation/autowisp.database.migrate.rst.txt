@@ -1,0 +1,7 @@
+autowisp.database.migrate module
+================================
+
+.. automodule:: autowisp.database.migrate
+   :members:
+   :show-inheritance:
+   :undoc-members:

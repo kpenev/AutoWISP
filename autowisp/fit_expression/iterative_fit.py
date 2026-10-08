@@ -8,7 +8,7 @@ import scipy.linalg
 
 
 # pylint: disable=too-many-locals
-def iterative_fit_qr(
+def iterative_fit_qr( # pylint: disable=too-many-arguments
     weighted_predictors,
     weighted_qrp,
     weighted_target,
@@ -20,6 +20,7 @@ def iterative_fit_qr(
     max_rej_iter,
     fit_identifier,
     pre_reject=False,
+    reject_scale_floor=0.0,
 ):
     """
     Same as iterative_fit() but using the QR decomposition of predictors.
@@ -74,7 +75,10 @@ def iterative_fit_qr(
                 res2 /= numpy.mean(pow(weights, 2))
         else:
             res2 = getattr(numpy, error_avg)(fit_diff2)
-        max_diff2 = rej_level**2 * res2
+        # Floor the residual scale so a (near-)perfect fit (res2 ~ 0) does not
+        # collapse the rejection threshold to ~0 and reject points on
+        # floating-point noise (a platform-dependent way to fail the fit).
+        max_diff2 = rej_level**2 * max(res2, reject_scale_floor**2)
         logger.debug("max square difference: %s", repr(max_diff2))
         if res2 < 0:
             logger.debug(
@@ -197,7 +201,7 @@ def iterative_fit_qr(
 # pylint: enable=too-many-locals
 
 
-def iterative_fit(
+def iterative_fit(# pylint: disable=too-many-arguments
     predictors,
     target_values,
     *,
@@ -208,6 +212,7 @@ def iterative_fit(
     max_rej_iter,
     fit_identifier,
     pre_reject=False,
+    reject_scale_floor=0.0,
 ):
     """
     Find least squares coefficients reproducing target_values using predictors.
@@ -284,4 +289,5 @@ def iterative_fit(
         max_rej_iter=max_rej_iter,
         fit_identifier=fit_identifier,
         pre_reject=pre_reject,
+        reject_scale_floor=reject_scale_floor,
     )

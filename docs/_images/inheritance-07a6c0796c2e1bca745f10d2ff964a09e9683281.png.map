@@ -1,0 +1,5 @@
+<map id="inheritance82b4872088" name="inheritance82b4872088">
+<area shape="rect" id="node1" href="#autowisp.tests.test_exclusion_rules.TestExclusionRules" target="_top" title="What a rule excludes among observations fit together." alt="" coords="5,152,388,177"/>
+<area shape="rect" id="node2" href="autowisp.tests.test_series_references.html#autowisp.tests.test_series_references.ReferenceProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="5,79,388,104"/>
+<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="113,5,281,31"/>
+</map>

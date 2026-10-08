@@ -24,8 +24,13 @@ def parse_command_line(*args):
         mode="EPDstat",
         description=__doc__,
         add_reconstructive=False,
-        input_type=("" if args else "lc"),
+        pipeline=bool(args),
     ).parse_args(*args)
+
+
+#: Lightcurve steps do not resume: the manager hands them every LC to
+#: measure from the start.
+allowed_start_status_values = (0,)
 
 
 generate_epd_statistics = partial(
@@ -38,9 +43,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
 
     generate_epd_statistics(
         find_lc_fnames(cmdline_config.pop("lc_files")),

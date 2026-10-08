@@ -4,6 +4,7 @@
 
 """Fit for a transformation between sky and image coordinates."""
 import logging
+from contextlib import ExitStack
 from multiprocessing import Queue, Process, Lock
 from traceback import format_exc
 import os
@@ -18,12 +19,18 @@ from astropy import units
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     capture_for_queue,
+    decode_exit_signals,
+    error_context,
     reraise_from_worker,
     forbid_nested_workers,
 )
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
-from autowisp.exceptions import Component, WorkerCrashedError
+from autowisp.exceptions import (
+    Component,
+    FileKind,
+    RelatedFile,
+    WorkerCrashedError,
+)
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -56,6 +63,9 @@ from autowisp.database.data_model.provenance import Observatory
 _logger = logging.getLogger(__name__)
 
 input_type = "dr"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 fail_reasons = {
     "failed to converge": -2,
     "few matched": -3,
@@ -63,6 +73,7 @@ fail_reasons = {
     "solve-field failed": -5,
     "web solve failed": -6,
     "other": -7,
+    "failed to save": -8,
 }
 
 
@@ -72,6 +83,7 @@ def add_anet_cmdline_args(parser):
     parser.add_argument(
         "--anet-indices",
         nargs=2,
+        env_var="AUTOWISP_ANET_INDICES",
         default=(
             (
                 rf"C:\Users\{getpass.getuser()}"
@@ -401,7 +413,7 @@ def construct_transformation(transformation_info):
     return transformation
 
 
-def find_final_transformation(
+def find_final_transformation(  # pylint: disable=too-many-locals
     header, transformation_estimate, xy_extracted, web_lock, configuration
 ):
     """Find the final transformation for a given image."""
@@ -413,48 +425,66 @@ def find_final_transformation(
     frame_is_covered = False
     project_to_frame = construct_transformation(transformation_estimate)
     iteration = 0
-    while not frame_is_covered:
-        catalog, catalog_header = ensure_catalog(
-            transformation=project_to_frame,
-            header=header,
-            configuration=get_catalog_config(configuration, "astrometry"),
-            lock=web_lock,
-        )[0]
-
-        (
-            transformation_estimate["trans_x"],
-            transformation_estimate["trans_y"],
-            cat_extracted_corr,
-            res_rms,
-            ratio,
-            transformation_estimate["ra_cent"],
-            transformation_estimate["dec_cent"],
-            success,
-        ) = refine_transformation(
-            xy_extracted=xy_extracted,
-            catalog=catalog,
-            x_frame=header["NAXIS1"],
-            y_frame=header["NAXIS2"],
-            astrometry_order=configuration["astrometry_order"],
-            max_srcmatch_distance=configuration["max_srcmatch_distance"],
-            max_iterations=configuration["max_astrom_iter"],
-            trans_threshold=configuration["trans_threshold"],
-            min_source_safety_factor=configuration["min_source_safety_factor"],
-            **transformation_estimate,
-        )
-        project_to_frame = construct_transformation(transformation_estimate)
-        frame_is_covered = check_catalog_coverage(
-            header,
-            project_to_frame,
-            catalog_header,
-            configuration["astrometry_catalog_fov_safety_margin"],
-        )
-        iteration += 1
-        if iteration > 10:
-            raise RuntimeError(
-                "Attempting to ensure catalog coverage seems to be in an "
-                "infinite loop!"
+    # Each pass may resolve a *different* catalog as the transformation is
+    # refined, and the coverage failure below is precisely a question of
+    # which ones were tried -- so the scopes accumulate rather than
+    # replacing one another, and every catalog used is named on the error.
+    # Repeats (the same catalog resolved twice) are merged out when the
+    # error is stamped.
+    with ExitStack() as catalog_scopes:
+        while not frame_is_covered:
+            (catalog, catalog_header), _, catalog_fname = ensure_catalog(
+                transformation=project_to_frame,
+                header=header,
+                configuration=get_catalog_config(configuration, "astrometry"),
+                lock=web_lock,
             )
+            catalog_scopes.enter_context(
+                error_context(
+                    related_files=[
+                        RelatedFile(
+                            FileKind.CATALOG, catalog_fname, role="input"
+                        )
+                    ]
+                )
+            )
+
+            (
+                transformation_estimate["trans_x"],
+                transformation_estimate["trans_y"],
+                cat_extracted_corr,
+                res_rms,
+                ratio,
+                transformation_estimate["ra_cent"],
+                transformation_estimate["dec_cent"],
+                success,
+            ) = refine_transformation(
+                xy_extracted=xy_extracted,
+                catalog=catalog,
+                x_frame=header["NAXIS1"],
+                y_frame=header["NAXIS2"],
+                astrometry_order=configuration["astrometry_order"],
+                max_srcmatch_distance=configuration["max_srcmatch_distance"],
+                max_iterations=configuration["max_astrom_iter"],
+                trans_threshold=configuration["trans_threshold"],
+                min_source_safety_factor=configuration[
+                    "min_source_safety_factor"
+                ],
+                **transformation_estimate,
+            )
+            project_to_frame = construct_transformation(transformation_estimate)
+            frame_is_covered = check_catalog_coverage(
+                header,
+                project_to_frame,
+                catalog_header,
+                configuration["astrometry_catalog_fov_safety_margin"],
+            )
+            iteration += 1
+            if iteration > 10:
+                raise RuntimeError(
+                    "Attempting to ensure catalog coverage seems to be in an "
+                    "infinite loop!"
+                )
 
     return (
         transformation_estimate,
@@ -669,7 +699,6 @@ def solve_image(  # pylint: disable=too-many-locals
         result = {
             "dr_fname": dr_fname,
             "trans_key": dr_eval(configuration["reuse_transformation_key"]),
-            "saved": False,
         }
 
         fov_estimate = max(*configuration["frame_fov_estimate"]).to_value("deg")
@@ -755,7 +784,7 @@ def solve_image(  # pylint: disable=too-many-locals
                 result["fail_reason"] = fail_reasons["failed to converge"]
             else:
                 _logger.info(
-                    "Succesful astrometry solution found for %s:", dr_fname
+                    "Successful astrometry solution found for %s:", dr_fname
                 )
                 mark_start(dr_fname)
                 save_to_dr(
@@ -775,7 +804,6 @@ def solve_image(  # pylint: disable=too-many-locals
                         header,
                     ),
                 )
-                result["saved"] = True
 
                 transformation_to_raw(
                     transformation_estimate["trans_x"],
@@ -794,6 +822,7 @@ def solve_image(  # pylint: disable=too-many-locals
                 dr_fname,
                 format_exc(),
             )
+            result["fail_reason"] = fail_reasons["failed to save"]
             return result
         # pylint: enable=bare-except
 
@@ -819,6 +848,10 @@ def astrometry_process(  # pylint: disable=too-many-arguments
     setup_process(task="solve", **configuration)
     _logger.info("Starting astrometry solving process.")
     for dr_fname, transformation_estimate in iter(task_queue.get, "STOP"):
+        # No explicit related-files scope: ``solve_image`` opens the DR as
+        # its first action and does everything inside that block, so the
+        # file attaches itself and travels out on the exception for
+        # ``capture_for_queue`` to stamp.
         try:
             result = solve_image(
                 dr_fname,
@@ -888,19 +921,18 @@ def manage_astrometry(
                 break
             except Exception:  # queue.Empty
                 if workers and not any(p.is_alive() for p in workers):
-                    exitcodes = [p.exitcode for p in workers]
                     # The empty-queue timeout is control flow, not the
                     # cause; the cause is the workers dying -> ``from None``.
+                    # ``exit_signal`` matches the Scheme-A representation so a
+                    # crash report reads it the same way (SIGKILL/OOM vs. a
+                    # native crash, portably decoded).
                     raise WorkerCrashedError(
                         "All astrometry worker processes died unexpectedly "
                         f"with {num_queued} task(s) still in flight.",
                         details={
-                            "exitcodes": exitcodes,
-                            "killed_by_signals": [
-                                -code
-                                for code in exitcodes
-                                if code is not None and code < 0
-                            ],
+                            "exit_signal": decode_exit_signals(
+                                p.exitcode for p in workers
+                            ),
                             "num_in_flight": num_queued,
                         },
                     ) from None
@@ -910,12 +942,6 @@ def manage_astrometry(
             reraise_from_worker(result["error"])
 
         if "raw_transformation" in result:
-            if not result["saved"]:
-                _logger.critical(
-                    "Failed to save astrometry solution to DR file %s.",
-                    result["dr_fname"],
-                )
-                break
             if result["trans_key"] in failed:
                 if result["trans_key"] not in pending:
                     pending[result["trans_key"]] = []
@@ -965,8 +991,10 @@ def solve_astrometry(
     dr_collection, start_status, configuration, mark_start, mark_end
 ):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     _logger.debug(
         "Solving astrometry for %d DR files with configuration %s",
@@ -1032,9 +1060,7 @@ def solve_astrometry(
 def cleanup_interrupted(interrupted, configuration):
     """Delete any astrometry datasets left over from prior interrupted run."""
 
-    for dr_fname, status in interrupted:
-        assert status == 0
-
+    for dr_fname, _ in interrupted:
         path_substitutions = {
             substitution: configuration[substitution]
             for substitution in [

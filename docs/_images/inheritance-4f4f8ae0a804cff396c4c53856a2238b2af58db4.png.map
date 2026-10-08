@@ -1,0 +1,4 @@
+<map id="inheritanceb88bb0f603" name="inheritanceb88bb0f603">
+<area shape="rect" id="node1" href="#autowisp.tests.test_evaluator.TestErrorHandling" target="_top" title="A bad expression raises rather than evaluating to ``None``." alt="" coords="5,79,339,104"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="88,5,256,31"/>
+</map>

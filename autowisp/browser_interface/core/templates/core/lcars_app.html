@@ -44,13 +44,13 @@
                 {% endblock %}
 
                 {% block error_log_link %}
-                {% if error_count %}
+                {% if total_error_count %}
                 <a href="{% url 'processing:error_list' %}">
                     <div class="lcars-element
                                 button
-                                lcars-red-alert-bg
+                                {% if error_count %}lcars-red-alert-bg{% else %}lcars-chestnut-rose-bg{% endif %}
                                 lcars-u-1-1">
-                        Errors ({{ error_count }})
+                        {% if error_count %}Errors ({{ error_count }}){% else %}Errors{% endif %}
                     </div>
                 </a>
                 {% endif %}
@@ -133,7 +133,15 @@
                 {% if messages %}
                 <div id="bui-messages">
                     {% for message in messages %}
-                    <div class="bui-message {% if message.level_tag == 'error' %}lcars-red-alert-bg{% else %}lcars-golden-tanoi-bg{% endif %}">
+                    {% comment %} One colour per level, from the LCARS palette rather
+                       than invented: red for a failure, orange for a
+                       "this will probably not do what you meant", blue
+                       for something that worked, gold for the rest. {% endcomment %}
+                    <div class="bui-message
+                                {% if message.level_tag == 'error' %}lcars-red-alert-bg
+                                {% elif message.level_tag == 'warning' %}lcars-atomic-tangerine-bg
+                                {% elif message.level_tag == 'success' %}lcars-anakiwa-bg
+                                {% else %}lcars-golden-tanoi-bg{% endif %}">
                         <span class="bui-message-text">{{ message }}</span>
                         {% if message.extra_tags %}
                         <a class="bui-message-link"

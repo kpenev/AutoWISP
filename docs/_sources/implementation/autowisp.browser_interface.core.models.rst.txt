@@ -1,0 +1,7 @@
+autowisp.browser\_interface.core.models module
+==============================================
+
+.. automodule:: autowisp.browser_interface.core.models
+   :members:
+   :show-inheritance:
+   :undoc-members:

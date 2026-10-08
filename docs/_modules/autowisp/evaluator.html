@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.evaluator &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,53 @@
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-note-on-versions">A note on versions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -120,7 +167,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.evaluator</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;More convenient interface to estaver interpreters.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""More convenient interface to asteval interpreters."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 
@@ -130,22 +177,191 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_primary_header</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="k">pass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_primary_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.iterative_rejection_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">iterative_rejection_average</span><span class="p">,</span>
+    <span class="n">iterative_rej_polynomial_fit</span><span class="p">,</span>
+    <span class="n">iterative_rej_smoothing_spline</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="eval_iterative_rejection_average">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.eval_iterative_rejection_average">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">eval_iterative_rejection_average</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Allow using</span>
+<span class="sd">    :func:`~autowisp.iterative_rejection_util.iterative_rejection_average`</span>
+<span class="sd">    in evaluators.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="n">iterative_rejection_average</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="eval_iterative_rej_polynomial_fit">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.eval_iterative_rej_polynomial_fit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">eval_iterative_rej_polynomial_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Allow using</span>
+<span class="sd">    :func:`~autowisp.iterative_rejection_util.iterative_rej_polynomial_fit`</span>
+<span class="sd">    in evaluators.</span>
+<span class="sd">    """</span>
+
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">"return_predicted"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterative_rej_polynomial_fit</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="eval_iterative_rej_smoothing_spline">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.eval_iterative_rej_smoothing_spline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">eval_iterative_rej_smoothing_spline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Allow using</span>
+<span class="sd">    :func:`~autowisp.iterative_rejection_util.iterative_rej_smoothing_spline`</span>
+<span class="sd">    in evaluators.</span>
+<span class="sd">    """</span>
+
+    <span class="n">spline</span> <span class="o">=</span> <span class="n">iterative_rej_smoothing_spline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spline</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="nanrank">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.nanrank">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nanrank</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return each entry's rank as a fraction of the finite entries.</span>
+
+<span class="sd">    The smallest of *n* finite values ranks ``1/n`` and the largest ``1``;</span>
+<span class="sd">    ties share the average of the ranks they span, and NaN stays NaN</span>
+<span class="sd">    without counting towards *n*. This is pandas' ``rank(pct=True)``, which</span>
+<span class="sd">    is what the photometric reference merit's ``qnt_&lt;name&gt;`` columns used,</span>
+<span class="sd">    so a merit rewritten in terms of this ranks candidates the same way.</span>
+
+<span class="sd">    Unlike the aggregates in :attr:`EvaluatorBase.nan_aggregates`, the</span>
+<span class="sd">    result has one entry per input entry, so it composes element-wise with</span>
+<span class="sd">    the values it ranks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x(array-like):    The values to rank.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray:    The ranks, as floats in ``(0, 1]``, shaped like</span>
+<span class="sd">            *x*.</span>
+<span class="sd">    """</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">pct</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EvaluatorBase">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EvaluatorBase</span><span class="p">(</span><span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Asteval interpreter with the symbols all AutoWISP expressions share."""</span>
+
+    <span class="c1"># The NaN-ignoring aggregates available to every user expression. Listed</span>
+    <span class="c1"># explicitly rather than derived from ``dir(numpy)`` so that the names</span>
+    <span class="c1"># users can rely on are a property of AutoWISP and not of whichever numpy</span>
+    <span class="c1"># or asteval version happens to be installed. Asteval's default symtable</span>
+    <span class="c1"># supplies only some of these, and which ones has varied between releases.</span>
+    <span class="n">nan_aggregates</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"nanmean"</span><span class="p">,</span>
+        <span class="s2">"nanmedian"</span><span class="p">,</span>
+        <span class="s2">"nanstd"</span><span class="p">,</span>
+        <span class="s2">"nanvar"</span><span class="p">,</span>
+        <span class="s2">"nansum"</span><span class="p">,</span>
+        <span class="s2">"nanprod"</span><span class="p">,</span>
+        <span class="s2">"nanmin"</span><span class="p">,</span>
+        <span class="s2">"nanmax"</span><span class="p">,</span>
+        <span class="s2">"nanpercentile"</span><span class="p">,</span>
+        <span class="s2">"nanquantile"</span><span class="p">,</span>
+        <span class="s2">"nanargmin"</span><span class="p">,</span>
+        <span class="s2">"nanargmax"</span><span class="p">,</span>
+        <span class="s2">"nancumsum"</span><span class="p">,</span>
+        <span class="s2">"nancumprod"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Names asteval offers that an AutoWISP expression has no business</span>
+    <span class="c1"># using. Asteval is a genuine sandbox against code execution -- no</span>
+    <span class="c1"># imports, no eval/exec/getattr, no dunder traversal, and it refuses</span>
+    <span class="c1"># every file mode but reading -- but reading is enough: `open` lets an</span>
+    <span class="c1"># expression pull the contents of any file the user can read, and</span>
+    <span class="c1"># expressions now travel between installations in export files.</span>
+    <span class="c1"># `print` is a side effect rather than a value, so an expression using</span>
+    <span class="c1"># it was a mistake in any case.</span>
+    <span class="n">removed_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"open"</span><span class="p">,</span> <span class="s2">"print"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EvaluatorBase.__init__">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create an interpreter with AutoWISP's symbol table.</span>
+
+<span class="sd">        Sub-classes should add their data to the symbol table after invoking</span>
+<span class="sd">        this, so a variable named like one of the aggregates shadows the</span>
+<span class="sd">        function rather than the other way around.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        """</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">func_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">func_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">func_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"nanrank"</span><span class="p">]</span> <span class="o">=</span> <span class="n">nanrank</span>
+        <span class="k">for</span> <span class="n">func_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">removed_names</span><span class="p">:</span>
+            <span class="c1"># Absent rather than asserted, so that an asteval release which</span>
+            <span class="c1"># drops one of these on its own is not an error here.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">func_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">iter_rej_func</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">"iterative_rejection_average"</span><span class="p">,</span>
+            <span class="s2">"iterative_rej_polynomial_fit"</span><span class="p">,</span>
+            <span class="s2">"iterative_rej_smoothing_spline"</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">iter_rej_func</span><span class="p">]</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="sa">f</span><span class="s2">"eval_</span><span class="si">{</span><span class="n">iter_rej_func</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="EvaluatorBase.__call__">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Evaluate the expression, raising rather than returning None on error.</span>
+
+<span class="sd">        Asteval defaults to printing the error and returning ``None``, which</span>
+<span class="sd">        only relocates the failure: the ``None`` flows on and breaks somewhere</span>
+<span class="sd">        unrelated, long after the message about the offending expression has</span>
+<span class="sd">        scrolled away. Callers wanting the permissive behaviour can still pass</span>
+<span class="sd">        ``raise_errors=False`` explicitly.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="s2">"raise_errors"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"raise_errors"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="Evaluator">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.Evaluator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Evaluator</span><span class="p">(</span><span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluator for expressions involving fields of numpy array or headers.&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Evaluator</span><span class="p">(</span><span class="n">EvaluatorBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Evaluator for expressions involving fields of numpy array or headers."""</span>
 
 <div class="viewcode-block" id="Evaluator.__init__">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.Evaluator.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get ready to evaluate expressions given data.</span>
 
 <span class="sd">        Args:</span>
@@ -156,39 +372,29 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">data_entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="s2">"dtype"</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">data_entry</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_entry</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">data_entry</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_entry</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_entry</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">data_entry</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;.hdf5&quot;</span><span class="p">]:</span>
-                    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">data_entry</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">".h5"</span><span class="p">,</span> <span class="s2">".hdf5"</span><span class="p">]:</span>
+                    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">())</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">opened_fits</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">)</span> <span class="k">as</span> <span class="n">opened_fits</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">get_primary_header</span><span class="p">(</span><span class="n">opened_fits</span><span class="p">))</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_entry</span><span class="p">,</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">get_primary_header</span><span class="p">(</span><span class="n">data_entry</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">hdr_key</span><span class="p">,</span> <span class="n">hdr_val</span> <span class="ow">in</span> <span class="n">data_entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">hdr_key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hdr_val</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">units</span></div>
-
-
-<div class="viewcode-block" id="Evaluator.__call__">
-<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.Evaluator.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the expression enabling error.&quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="s2">&quot;raise_errors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;raise_errors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">hdr_key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hdr_val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="n">units</span></div>
 </div>
 
 
@@ -198,12 +404,12 @@
 <div class="viewcode-block" id="LightCurveLookUp">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveLookUp">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LightCurveLookUp</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Look up datasets under specific key prefix.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Look up datasets under specific key prefix."""</span>
 
 <div class="viewcode-block" id="LightCurveLookUp.__init__">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveLookUp.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_prefix</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up datasets with keys like &lt;key_prefix&gt;.&lt;something&gt;.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Look up datasets with keys like &lt;key_prefix&gt;.&lt;something&gt;."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span> <span class="o">=</span> <span class="n">key_prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span> <span class="o">=</span> <span class="n">evaluator</span></div>
@@ -212,10 +418,10 @@
 <div class="viewcode-block" id="LightCurveLookUp.__getattr__">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveLookUp.__getattr__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_suffix</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the given attribute, reading dataset if needed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the given attribute, reading dataset if needed."""</span>
 
-        <span class="n">dset_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">key_suffix</span>
-        <span class="k">if</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">lightcurve</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]:</span>
+        <span class="n">dset_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="n">key_suffix</span>
+        <span class="k">if</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">lightcurve</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">"dataset"</span><span class="p">]:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">lightcurve</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
                 <span class="n">dset_key</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span><span class="o">.</span><span class="n">lc_substitutions</span>
             <span class="p">)</span>
@@ -235,8 +441,8 @@
 
 <div class="viewcode-block" id="LightCurveEvaluator">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LightCurveEvaluator</span><span class="p">(</span><span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluator for expressions involving lightcurve datasets.&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LightCurveEvaluator</span><span class="p">(</span><span class="n">EvaluatorBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Evaluator for expressions involving lightcurve datasets."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_names</span><span class="p">:</span>
@@ -247,16 +453,14 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">lightcurve</span><span class="p">,</span> <span class="n">lc_points_selection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">lc_substitutions</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get ready to evaluate expressions against the given light curve.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get ready to evaluate expressions against the given light curve."""</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lightcurve</span> <span class="o">=</span> <span class="n">lightcurve</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lc_substitutions</span> <span class="o">=</span> <span class="n">lc_substitutions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lc_points_selection</span> <span class="o">=</span> <span class="n">lc_points_selection</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;nanmean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmean</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;nanmedian&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extra_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-            <span class="n">element</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">lightcurve</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+            <span class="n">element</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">lightcurve</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">"dataset"</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span></div>
 
@@ -264,7 +468,7 @@
 <div class="viewcode-block" id="LightCurveEvaluator.update_substitutions">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator.update_substitutions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_substitutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Like update for dict but resets previously read datasets.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Like update for dict but resets previously read datasets."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_lc_substitutions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_substitutions</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span></div>
@@ -272,29 +476,29 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">lc_substitutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Substitutions to apply to resolve lightcurve datasets.</span>
 
 <span class="sd">        These can be changed after creating the instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lc_substitutions</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">lc_points_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Getter for the poins selection property.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Getter for the poins selection property."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lc_points_selection</span>
 
     <span class="nd">@lc_points_selection</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">lc_points_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_selection</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Indexing applied to the LC poins to possible exclude some.</span>
 
 <span class="sd">        Anything that can be used an index into the numpy arrays that will be</span>
 <span class="sd">        read from the lightcurve to filter points to use. Just like</span>
 <span class="sd">        ``lc_substitutions`` the value can be changed post-construction.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_lc_points_selection</span> <span class="o">=</span> <span class="n">new_selection</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span></div>

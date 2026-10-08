@@ -1,27 +1,127 @@
 """Autowisp unit-test init."""
 
 from collections.abc import Sequence
-from os import path, makedirs
+from os import path, makedirs, environ
 from subprocess import run, PIPE, STDOUT
 from shutil import copytree, copy, move, rmtree
+from tempfile import TemporaryDirectory
 from glob import glob
+import atexit
 import logging
 
+import platformdirs
+import sqlalchemy
 from asteval import Interpreter
 from astrowisp.tests.utilities import FloatTestCase
 
+_user_data_dir = TemporaryDirectory(  # pylint: disable=consider-using-with
+    prefix="autowisp_tests_"
+)
+"""Throwaway stand-in for the real user data directory.
+
+Five call sites derive paths from ``platformdirs.user_data_dir("autowisp")``:
+the BUI database and ``bui.log`` (``django_project/settings.py``), the
+default project home when none is given (``database/interface.py``), and the
+``run_pipeline.out`` capture file (``run_pipeline.py`` and
+``processing/views.py``). Redirecting the lookup once, here, means no test
+can reach the developer's real data by forgetting to override something --
+the BUI database in particular holds their project list.
+
+This belongs in the package ``__init__`` rather than ``__main__`` because CI
+also runs modules directly (``python -m unittest autowisp.tests.…``), which
+never loads ``__main__``. Importing anything under ``autowisp.tests``
+executes this first, which matters because ``settings.py`` resolves the
+directory at *import* time.
+"""
+
+atexit.register(_user_data_dir.cleanup)
+
+
+def _redirected_user_data_dir(*args, **kwargs):
+    """Return the throwaway directory whatever application is asked for."""
+
+    # pylint: disable=unused-argument
+    return _user_data_dir.name
+
+
+platformdirs.user_data_dir = _redirected_user_data_dir
+
+# Redirecting the data directory moves the browser-interface database only
+# so long as nothing overrides it. AUTOWISP_BUI_DB_URL does exactly that,
+# and would point the suite at whatever server a developer happens to have
+# configured -- so drop it, the same way the directory itself is replaced
+# rather than merely defaulted.
+environ.pop("AUTOWISP_BUI_DB_URL", None)
+
+# Imported after the redirect above, so that anything resolving a user data
+# path at import time picks up the throwaway directory.
+# pylint: disable=wrong-import-position
 from autowisp.database.interface import (
     set_project_home,
     initialize_cmdline_database,
+    DB_URL_FNAME,
 )
 from autowisp.database.user_interface import import_json_to_survey
 from autowisp.database.initialize_database import initialize_database
+
+# pylint: enable=wrong-import-position
+
+SERVER_URL_ENV = "AUTOWISP_TEST_DB_URL"  # pylint: disable=invalid-name
+"""Environment variable naming a MySQL/MariaDB URL to test against.
+
+Unset -- the default, and what a developer gets locally -- puts every
+project database in a throwaway SQLite file, as before. Setting it runs the
+same tests against a centralised server, which is a supported deployment
+but one the suite has never exercised: SQLite compares strings
+case-sensitively, does not enforce foreign keys or column widths, and
+serialises writers instead of taking row locks.
+"""
+
+
+def server_test_url():
+    """Return the server URL to test against, or None for SQLite.
+
+    Empty counts as unset. A CI matrix that carries the URL as a per-cell
+    key gives every *other* cell the variable set to an empty string rather
+    than absent, and those cells must stay on SQLite.
+    """
+
+    return environ.get(SERVER_URL_ENV) or None
+
+
+def empty_server_database(url):
+    """Drop every table in *url*, including ``alembic_version``.
+
+    SQLite gets a fresh file per test simply by using a fresh directory. A
+    server has one database shared by the whole run, so it has to be
+    emptied between tests instead -- and completely, since a leftover
+    ``alembic_version`` would make the next project look migrated when its
+    tables are gone.
+    """
+
+    engine = sqlalchemy.create_engine(url, poolclass=sqlalchemy.pool.NullPool)
+    try:
+        with engine.begin() as connection:
+            connection.execute(sqlalchemy.text("SET FOREIGN_KEY_CHECKS=0"))
+            for table in sqlalchemy.inspect(engine).get_table_names():
+                connection.execute(
+                    sqlalchemy.text(f"DROP TABLE IF EXISTS `{table}`")
+                )
+            connection.execute(sqlalchemy.text("SET FOREIGN_KEY_CHECKS=1"))
+    finally:
+        engine.dispose()
 
 
 class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
 
-    successful_test = False
+    #: Set False by a test that does not want its processing directory
+    #: kept even when it fails (nothing does at present). Failure is
+    #: detected from the test result, so a passing test never has to say
+    #: anything -- the previous arrangement, where each test opted in by
+    #: setting ``successful_test``, silently preserved the directory of
+    #: every test that forgot to.
+    preserve_failed_processing = True
     _logger = logging.getLogger(__name__)
 
     # Stage the cached Gaia catalog FITS (``test_data/MASTERS/Gaia``) into the
@@ -197,6 +297,7 @@ class AutoWISPTestCase(FloatTestCase):
             path.join(self.test_directory, "test.cfg"),
             path.join(self.processing_directory, "test.cfg"),
         )
+        self._point_at_test_database()
         set_project_home(self.processing_directory)
         with open(
             path.join(self.test_directory, "survey_instruments.json"),
@@ -205,13 +306,62 @@ class AutoWISPTestCase(FloatTestCase):
         ) as survey_json:
             import_json_to_survey(survey_json)
 
-        self.successful_test = False
+    def _point_at_test_database(self):
+        """Send this test's project database to the configured server.
+
+        Nothing else in the suite -- and no pipeline or step code -- needs
+        to know. ``set_project_home`` already reads ``autowisp_db.url``
+        from the project home when it is there, and every step launched by
+        :meth:`run_step` runs with that directory as its cwd, so it
+        resolves the same file. Writing it here therefore redirects the
+        whole run, subprocesses included.
+
+        A no-op when the variable is unset, which is the default.
+        """
+
+        url = server_test_url()
+        if url is None:
+            return
+
+        # Before the project is opened: it is about to be created in a
+        # database the previous test left populated.
+        empty_server_database(url)
+        with open(
+            path.join(self.processing_directory, DB_URL_FNAME),
+            "w",
+            encoding="utf-8",
+        ) as url_file:
+            url_file.write(url)
+
+    def _test_failed(self):
+        """Whether *this* test has just failed or errored.
+
+        Read off the result rather than a flag the test sets, so nothing
+        has to be remembered at the end of every test method. Two things
+        make the obvious shortcuts wrong: ``_outcome.success`` is still
+        True here (it is reset per test *part*, and ``tearDown`` is its
+        own part), and ``result.errors`` / ``result.failures`` accumulate
+        over the whole run -- so the entries have to be matched against
+        this test rather than merely counted.
+
+        Returns:
+            bool:    True if this test recorded a failure or an error.
+        """
+
+        result = getattr(getattr(self, "_outcome", None), "result", None)
+        if result is None:
+            return False
+        return any(
+            test is self
+            for group in ("errors", "failures")
+            for test, _ in getattr(result, group, ())
+        )
 
     def tearDown(self):
         """Remove the processing directory."""
 
         print(f"Tearing down processing in {self.processing_directory!r}")
-        if not self.successful_test:
+        if self.preserve_failed_processing and self._test_failed():
             # Preserve every failed test in its own subdirectory (keyed by
             # class + method) so a run with several failures keeps all of them
             # for post-mortem, rather than each failure overwriting the last.

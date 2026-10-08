@@ -1,7 +1,6 @@
 import os
 import re
 import sys
-import difflib
 import subprocess
 import threading
 import time
@@ -19,7 +18,9 @@ def _find_compose_path():
 
     When running as a PyInstaller frozen executable, resolve the compose file
     from the executable directory.
-    Returns a Path object (may not exist).
+
+    Returns:
+        Path: The expected compose.yaml path. The path may not exist yet.
     """
 
     try:
@@ -41,12 +42,82 @@ def _find_compose_path():
 COMPOSE_PATH = _find_compose_path()
 PROJECT_ROOT = COMPOSE_PATH.resolve().parent
 
+
+def _launch_terminal(cmd_str, cwd):
+    if os.name == "nt":
+        subprocess.Popen(
+            ["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str],
+            cwd=cwd,
+        )
+    else:
+        subprocess.Popen(["bash", "-lc", cmd_str], cwd=cwd)
+
+
+MOUNT_TARGETS = {
+    "storage": "/storage",
+    "tmp": "/tmp",
+    "bui": "/app_data/autowisp",
+    "anet_narrow": "/anet_indices/narrow",
+    "anet_wide": "/anet_indices/wide",
+}
+DEFAULT_LABELS = {
+    "storage": "Storage folder:",
+    "tmp": "Tmp folder:",
+    "bui": "BUI folder:",
+    "anet_narrow": "Anet narrow indices:",
+    "anet_wide": "Anet wide indices:",
+}
+
+
 def read_compose_text():
+    """Read the current compose.yaml contents.
+
+    Returns:
+        str: The complete compose.yaml file contents as UTF-8 text.
+    """
     return COMPOSE_PATH.read_text(encoding="utf-8")
 
 
-def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_narrow=None, new_anet_wide=None):
-    # Work line-by-line to preserve formatting; find target: /storage and /tmp and replace the nearest source: above them
+def target_matches(target_path, expected):
+    """Check whether a compose target matches an expected container path.
+
+    Args:
+        target_path: Target path read from compose.yaml.
+        expected: Expected container mount path.
+
+    Returns:
+        bool: True if target_path equals expected or is below expected.
+    """
+    return target_path == expected or target_path.startswith(
+        expected.rstrip("/") + "/"
+    )
+
+
+def find_and_replace_sources(
+    text,
+    new_storage,
+    new_tmp,
+    new_bui=None,
+    new_anet_narrow=None,
+    new_anet_wide=None,
+):
+    """Replace source paths for known volume targets in compose YAML text.
+
+    The compose file is processed line-by-line to preserve formatting. For each
+    known target path, this finds the nearest preceding source line and replaces
+    it with the matching user-selected host path.
+
+    Args:
+        text: Original compose.yaml text.
+        new_storage: Host path to use for the /storage target.
+        new_tmp: Host path to use for the /tmp target.
+        new_bui: Optional host path to use for /app_data/autowisp.
+        new_anet_narrow: Optional host path for narrow astrometry indices.
+        new_anet_wide: Optional host path for wide astrometry indices.
+
+    Returns:
+        str: Updated compose.yaml text.
+    """
     lines = text.splitlines()
 
     def replace_for_target(target, new_path):
@@ -54,47 +125,64 @@ def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_
         nearest preceding `source:` line with new_path. This handles cases like
         `target: /storage/<container name>` by using prefix matching instead of
         exact equality.
+
+        Args:
+            target: Container target path to search for.
+            new_path: New host source path to write above the target.
+
+        Returns:
+            None
         """
-        # TODO: simplify this by proper usage of regular expressions
-        # find line index with target: {target} or target: {target}/...
+        target_re = re.compile(
+            rf"^\s*target:\s*{re.escape(target.rstrip('/'))}(?:/.*)?\s*$"
+        )
+        source_re = re.compile(r"^(\s*)source:")
         for i, line in enumerate(lines):
-            s = line.strip()
-            if s.startswith("target:"):
-                # extract the configured path after 'target:' and compare prefix
-                tgt_val = s.split("target:", 1)[1].strip()
-                if tgt_val == target or tgt_val.startswith(target.rstrip("/") + "/") or tgt_val.startswith(target + ""):
+            if target_re.match(line):
+                for j in range(i - 1, -1, -1):
+                    source_match = source_re.match(lines[j])
+                    if source_match:
+                        lines[j] = f"{source_match.group(1)}source: {new_path}"
+                        return
 
-                    # search backwards for a source: line and replace it
-                    for j in range(i - 1, -1, -1):
-                        if lines[j].lstrip().startswith("source:"):
-                            indent = lines[j][:len(lines[j]) - len(lines[j].lstrip())]
-                            # keep YAML style, don't escape backslashes
-                            lines[j] = f"{indent}source: {new_path}"
-                            return
-
-    replace_for_target("/storage", new_storage)
-    replace_for_target("/tmp", new_tmp)
-    # additional targets used in compose.yaml (only replace if value provided)
-    if new_bui:
-        replace_for_target("/app_data/autowisp", new_bui)
-    if new_anet_narrow:
-        replace_for_target("/anet_indices/narrow", new_anet_narrow)
-    if new_anet_wide:
-        replace_for_target("/anet_indices/wide", new_anet_wide)
+    replacements = {
+        "storage": new_storage,
+        "tmp": new_tmp,
+        "bui": new_bui,
+        "anet_narrow": new_anet_narrow,
+        "anet_wide": new_anet_wide,
+    }
+    for name, new_path in replacements.items():
+        if new_path:
+            replace_for_target(MOUNT_TARGETS[name], new_path)
     return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
 
 
 def find_free_port(hostname="localhost"):
-    """Find an available port by binding to port 0."""
+    """Find an available TCP port on the requested host.
+
+    Args:
+        hostname: Host interface to bind while asking the OS for a free port.
+
+    Returns:
+        str: Available port number as a string.
+    """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind((hostname, 0))
         return str(sock.getsockname()[1])
 
 
 def get_current_port():
+    """Read the first host/container port mapping from compose.yaml.
+
+    Returns:
+        tuple[str, str, str]: Host port, container port, and quote character.
+        If no mapping exists, returns a free host port, container port "8089",
+        and a double quote.
+    """
     text = read_compose_text()
     lines = text.splitlines()
-    # Find first port mapping like "8089:8089" and return (host_port, container_port, quote_char)
+    # Find first port mapping like "8089:8089" and return the host port.
     m = None
     for line in lines:
         # strip leading/trailing spaces
@@ -105,7 +193,9 @@ def get_current_port():
             host = m.group(1)
             container = m.group(2)
             # determine if mapping used quotes
-            quote = '"' if '"' in s or '"' in line else ('\'' if "'" in s else '')
+            quote = (
+                '"' if '"' in s or '"' in line else ("'" if "'" in s else "")
+            )
             return host, container, quote
     # default: find a free port on the host
     free_port = find_free_port()
@@ -120,28 +210,15 @@ def get_current_sources():
     a pipe (e.g. <IOdir| description>) the description (text after |) is
     extracted and returned as the label for that field in the GUI.
 
-    Returns a tuple:
-      (storage, tmp, bui, anet_narrow, anet_wide,
-       storage_label, tmp_label, bui_label, anet_narrow_label, anet_wide_label)
+    Returns:
+        SimpleNamespace: Object with storage, tmp, bui, anet_narrow,
+        anet_wide, and matching *_label attributes.
     """
     text = read_compose_text()
-    storage = tmp = bui = anet_narrow = anet_wide = ""
-    storage_label = "Storage folder:"
-    tmp_label = "Tmp folder:"
-    bui_label = "BUI folder:"
-    anet_narrow_label = "Anet narrow indices:"
-    anet_wide_label = "Anet wide indices:"
-
     lines = text.splitlines()
+    values = {name: "" for name in MOUNT_TARGETS}
+    labels = DEFAULT_LABELS.copy()
     placeholder_re = re.compile(r"<([^>|]+)\|([^>]+)>")
-
-    targets = {
-        "/storage": ("storage", "storage_label"),
-        "/tmp": ("tmp", "tmp_label"),
-        "/app_data/autowisp": ("bui", "bui_label"),
-        "/anet_indices/narrow": ("anet_narrow", "anet_narrow_label"),
-        "/anet_indices/wide": ("anet_wide", "anet_wide_label"),
-    }
 
     for i, line in enumerate(lines):
         s = line.strip()
@@ -151,59 +228,59 @@ def get_current_sources():
             if len(parts) < 2:
                 continue
             target_path = parts[1].strip()
-            # use prefix matching so targets like '/storage/<container name>' are matched
-            for key, (var_name, label_name) in targets.items():
-                if target_path == key or target_path.startswith(key.rstrip("/") + "/"):
+            # use prefix matching so targets like
+            # '/storage/<container name>' are matched
+            for name, expected_target in MOUNT_TARGETS.items():
+                if target_matches(target_path, expected_target):
                     # find source above
                     for j in range(i - 1, -1, -1):
                         if lines[j].lstrip().startswith("source:"):
                             val = lines[j].split("source:", 1)[1].strip()
-                            # set the variable
-                            if var_name == "storage":
-                                storage = val
-                            elif var_name == "tmp":
-                                tmp = val
-                            elif var_name == "bui":
-                                bui = val
-                            elif var_name == "anet_narrow":
-                                anet_narrow = val
-                            elif var_name == "anet_wide":
-                                anet_wide = val
+                            values[name] = val
 
                             # extract description for label if present
                             m = placeholder_re.search(val)
                             if m:
                                 desc = m.group(2).strip()
                                 if desc:
-                                    text_label = desc if desc.endswith(":") else desc + ":"
-                                    if label_name == "storage_label":
-                                        storage_label = text_label
-                                    elif label_name == "tmp_label":
-                                        tmp_label = text_label
-                                    elif label_name == "bui_label":
-                                        bui_label = text_label
-                                    elif label_name == "anet_narrow_label":
-                                        anet_narrow_label = text_label
-                                    elif label_name == "anet_wide_label":
-                                        anet_wide_label = text_label
+                                    labels[name] = (
+                                        desc
+                                        if desc.endswith(":")
+                                        else desc + ":"
+                                    )
                             break
 
     return SimpleNamespace(
-        storage=storage,
-        tmp=tmp,
-        bui=bui,
-        anet_narrow=anet_narrow,
-        anet_wide=anet_wide,
-        storage_label=storage_label,
-        tmp_label=tmp_label,
-        bui_label=bui_label,
-        anet_narrow_label=anet_narrow_label,
-        anet_wide_label=anet_wide_label,
+        **values,
+        **{f"{name}_label": label for name, label in labels.items()},
     )
 
 
 class MountPoint:
-    def __init__(self, root, row, label_text, initial_value, title, on_select=None, width=60):
+    def __init__(
+        self,
+        root,
+        row,
+        label_text,
+        initial_value,
+        title,
+        on_select=None,
+        width=60,
+    ):
+        """Create a labeled path entry with a Browse button.
+
+        Args:
+            root: Tkinter parent widget.
+            row: Grid row where the mount point widgets should be placed.
+            label_text: Text shown beside the entry.
+            initial_value: Initial filesystem path shown in the entry.
+            title: Directory-picker dialog title.
+            on_select: Optional callback called with the selected path.
+            width: Entry width in characters.
+
+        Returns:
+            None
+        """
         self.title = title
         self.on_select = on_select
         self.label = tk.Label(root, text=label_text)
@@ -215,17 +292,45 @@ class MountPoint:
         self.browse_btn.grid(row=row, column=2, padx=6)
 
     def get(self):
+        """Return the path currently shown in the entry.
+
+        Returns:
+            str: Current entry value.
+        """
         return self.var.get()
 
     def set(self, value):
+        """Set the path shown in the entry.
+
+        Args:
+            value: New path string to display.
+
+        Returns:
+            None
+        """
         self.var.set(value)
 
     def set_state(self, state):
+        """Enable or disable the entry and Browse button together.
+
+        Args:
+            state: Tkinter widget state, such as "normal" or "disabled".
+
+        Returns:
+            None
+        """
         self.entry.configure(state=state)
         self.browse_btn.configure(state=state)
 
     def browse(self):
-        p = filedialog.askdirectory(initialdir=self.get() or os.getcwd(), title=self.title)
+        """Open a folder picker and store or pass on the selected directory.
+
+        Returns:
+            None
+        """
+        p = filedialog.askdirectory(
+            initialdir=self.get() or os.getcwd(), title=self.title
+        )
         if p:
             if self.on_select:
                 self.on_select(p)
@@ -235,66 +340,122 @@ class MountPoint:
 
 class ComposeEditorApp:
     def __init__(self, root):
+        """Build the AutoWISP compose editor window and initialize its state.
+
+        Args:
+            root: Tkinter root window for the application.
+
+        Returns:
+            None
+        """
         self.root = root
         root.title("AutoWISP Compose Editor")
 
         sources = get_current_sources()
-        storage = sources.storage
-        tmp = sources.tmp
-        bui = sources.bui
-        anet_narrow = sources.anet_narrow
-        anet_wide = sources.anet_wide
-        storage_label = sources.storage_label
-        tmp_label = sources.tmp_label
-        bui_label = sources.bui_label
-        anet_narrow_label = sources.anet_narrow_label
-        anet_wide_label = sources.anet_wide_label
-        host_port, container_port, quote = get_current_port()
+        host_port, _, _ = get_current_port()
 
         # Use labels extracted from the compose YAML placeholders when available
         mount_defs = [
-            ("storage", storage_label, storage, "Select storage folder", self.handle_storage_selected),
-            ("tmp", tmp_label, tmp, "Select tmp folder", None),
-            ("bui", bui_label, bui, "Select BUI folder", None),
-            ("anet_narrow", anet_narrow_label, anet_narrow, "Select anet narrow indices folder", None),
-            ("anet_wide", anet_wide_label, anet_wide, "Select anet wide indices folder", None),
+            (
+                "storage",
+                sources.storage_label,
+                sources.storage,
+                "Select storage folder",
+                self.handle_storage_selected,
+            ),
+            (
+                "tmp",
+                sources.tmp_label,
+                sources.tmp,
+                "Select tmp folder",
+                None,
+            ),
+            (
+                "bui",
+                sources.bui_label,
+                sources.bui,
+                "Select BUI folder",
+                None,
+            ),
+            (
+                "anet_narrow",
+                sources.anet_narrow_label,
+                sources.anet_narrow,
+                "Select anet narrow indices folder",
+                None,
+            ),
+            (
+                "anet_wide",
+                sources.anet_wide_label,
+                sources.anet_wide,
+                "Select anet wide indices folder",
+                None,
+            ),
         ]
         self.mounts = {}
-        for row, (name, label_text, value, title, on_select) in enumerate(mount_defs):
-            callback = None
+        for row, (name, label_text, value, title, on_select) in enumerate(
+            mount_defs
+        ):
             if on_select:
                 callback = lambda p, fn=on_select: fn(p, show_info=True)
-            mount = MountPoint(root, row, label_text, value, title, on_select=callback)
+            else:
+                callback = (
+                    lambda p, mount_name=name: self.handle_mount_selected(
+                        mount_name, p
+                    )
+                )
+            mount = MountPoint(
+                root, row, label_text, value, title, on_select=callback
+            )
+            mount.entry.bind("<FocusOut>", self.handle_form_field_saved)
+            mount.entry.bind("<Return>", self.handle_form_field_saved)
             self.mounts[name] = mount
-            setattr(self, f"{name}_var", mount.var)
-            setattr(self, f"{name}_entry", mount.entry)
-            setattr(self, f"{name}_browse_btn", mount.browse_btn)
 
-        tk.Label(root, text="Port (host:container)").grid(row=5, column=0, sticky="w")
+        tk.Label(root, text="Port (host:container)").grid(
+            row=5, column=0, sticky="w"
+        )
         self.port_var = tk.StringVar(value=host_port)
         self.port_entry = tk.Entry(root, textvariable=self.port_var, width=20)
         self.port_entry.grid(row=5, column=1, sticky="w", padx=6, pady=6)
+        self.port_entry.bind("<FocusOut>", self.handle_form_field_saved)
+        self.port_entry.bind("<Return>", self.handle_form_field_saved)
 
-        # Buttons: place inside a frame so layout is stable and won't disappear if window is resized
+        # Buttons: place inside a frame so layout is stable and
+        # won't disappear if window is resized
         button_frame = tk.Frame(root)
         button_frame.grid(row=6, column=0, columnspan=3, pady=8)
 
-        self.run_btn = tk.Button(button_frame, text="Run 'docker compose up'", command=self.run_docker)
+        self.run_btn = tk.Button(
+            button_frame, text="Start AutoWISP", command=self.run_docker
+        )
         self.run_btn.grid(row=0, column=1, padx=6)
 
-        # Enforce storage selection at startup (Option A): disable everything except storage
-        # and force the user to pick a storage folder before proceeding.
+        self.update_image_btn = tk.Button(
+            button_frame, text="Check for Update", command=self.update_image
+        )
+        self.update_image_btn.grid(row=0, column=2, padx=6)
+
+        # Enforce storage selection at startup (Option A):
+        # disable everything except storage and force the user to
+        # pick a storage folder before proceeding.
         self.disable_all_except_storage()
         self.enforce_storage_at_startup()
 
     def handle_storage_selected(self, p, show_info=False):
         """Common handler when a storage folder is selected.
 
-        - set storage_var
+        - set storage path
         - auto-fill tmp, bui, astrometry paths under storage
         - create those folders if they do not exist
         - enable the previously-disabled widgets
         - optionally show an informational popup
+
+        Args:
+            p: Selected storage folder path.
+            show_info: Whether to show a confirmation message box.
+
+        Returns:
+            None
         """
         # normalize path
         p = os.path.abspath(p)
@@ -320,7 +481,9 @@ class ComposeEditorApp:
             os.makedirs(anet_narrow, exist_ok=True)
             os.makedirs(anet_wide, exist_ok=True)
         except Exception as e:
-            messagebox.showwarning("Warning", f"Failed to create some directories: {e}")
+            messagebox.showwarning(
+                "Warning", f"Failed to create some directories: {e}"
+            )
 
         # enable UI now that storage is provided
         self.enable_all_widgets()
@@ -328,26 +491,74 @@ class ComposeEditorApp:
         # Inform the user and immediately persist the chosen paths to compose.yaml.
         # This writes changes as soon as the user selects folders.
         if show_info:
-            messagebox.showinfo("Storage selected", "Paths updated in the form and will be saved to compose.yaml.")
+            messagebox.showinfo(
+                "Storage selected",
+                "Paths updated in the form and will be saved to compose.yaml.",
+            )
 
+        self.save_compose_settings()
+
+    def handle_mount_selected(self, name, path):
+        """Store a selected non-storage mount path and persist compose.yaml.
+
+        Args:
+            name: Mount name in self.mounts.
+            path: Selected host folder path.
+
+        Returns:
+            None
+        """
+        self.mounts[name].set(os.path.abspath(path))
+        self.save_compose_settings()
+
+    def handle_form_field_saved(self, _event=None):
+        """Persist compose.yaml when a form field loses focus or Return is used.
+
+        Args:
+            _event: Optional Tkinter event supplied by widget bindings.
+
+        Returns:
+            None
+        """
+        self.save_compose_settings()
+
+    def mount_values(self):
+        """Collect the current path values from every mount entry.
+
+        Returns:
+            dict[str, str]: Mapping of mount names to path entry values.
+        """
+        return {name: mount.get() for name, mount in self.mounts.items()}
+
+    def save_compose_settings(self):
+        """Write the current GUI path and port settings back to compose.yaml.
+
+        Returns:
+            bool: True when compose.yaml was saved, otherwise False.
+        """
         try:
+            values = self.mount_values()
             new_text = find_and_replace_sources(
                 read_compose_text(),
-                self.storage_var.get(),
-                self.tmp_var.get(),
-                new_bui=self.bui_var.get() if hasattr(self, 'bui_var') else None,
-                new_anet_narrow=self.anet_narrow_var.get() if hasattr(self, 'anet_narrow_var') else None,
-                new_anet_wide=self.anet_wide_var.get() if hasattr(self, 'anet_wide_var') else None,
+                values["storage"],
+                values["tmp"],
+                new_bui=values["bui"],
+                new_anet_narrow=values["anet_narrow"],
+                new_anet_wide=values["anet_wide"],
             )
-            # preserve port mappings as-is
             new_text = find_and_replace_port(new_text, self.port_var.get())
             COMPOSE_PATH.write_text(new_text, encoding="utf-8")
-
+            return True
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save compose.yaml: {e}")
+            return False
 
     def disable_all_except_storage(self):
-        """Disable all entries/browse buttons and action buttons except the storage row."""
+        """Disable all controls except the storage folder selector.
+
+        Returns:
+            None
+        """
         for name, mount in self.mounts.items():
             if name == "storage":
                 continue
@@ -360,51 +571,46 @@ class ComposeEditorApp:
         self.mounts["storage"].set_state("normal")
 
     def enable_all_widgets(self):
-        """Enable all previously-disabled widgets after storage selection."""
+        """Enable all previously-disabled widgets after storage selection.
+
+        Returns:
+            None
+        """
         for mount in self.mounts.values():
             mount.set_state("normal")
 
         self.run_btn.configure(state="normal")
 
+    def update_image(self):
+        """Launch Docker commands in a terminal to refresh the wisp image.
 
-    def apply(self):
-        s = self.storage_var.get()
-        t = self.tmp_var.get()
-        p = self.port_var.get()
-        if not Path(s).exists():
-            messagebox.showerror("Error", f"Storage path does not exist: {s}")
-            return
-        if not Path(t).exists():
-            messagebox.showerror("Error", f"Tmp path does not exist: {t}")
-            return
-        # Defensive check: ensure BUI path exists too (should have been created at storage selection)
-        if hasattr(self, 'bui_var'):
-            bpath = self.bui_var.get()
-            if bpath and not Path(bpath).exists():
-                messagebox.showerror("Error", f"BUI path does not exist: {bpath}")
-                return
-        # show a final preview
-        new_text = find_and_replace_sources(
-            read_compose_text(),
-            s,
-            t,
-            new_bui=self.bui_var.get() if hasattr(self, 'bui_var') else None,
-            new_anet_narrow=self.anet_narrow_var.get() if hasattr(self, 'anet_narrow_var') else None,
-            new_anet_wide=self.anet_wide_var.get() if hasattr(self, 'anet_wide_var') else None,
-        )
-        new_text = find_and_replace_port(new_text, p)
-        diff = list(difflib.unified_diff(read_compose_text().splitlines(keepends=True), new_text.splitlines(keepends=True), fromfile=str(COMPOSE_PATH), tofile=str(COMPOSE_PATH) + " (new)"))
-        if not diff:
-            messagebox.showinfo("No changes", "No changes to apply")
-            return
-        if not messagebox.askyesno("Confirm", "Apply changes to compose file?"):
-            return
+        Returns:
+            None
+        """
         try:
-            # write directly; user can use Reset to restore from git if needed
-            COMPOSE_PATH.write_text(new_text, encoding="utf-8")
-            messagebox.showinfo("Success", "compose.yaml updated")
+            if not COMPOSE_PATH.exists():
+                messagebox.showerror(
+                    "Error", f"compose file not found: {COMPOSE_PATH}"
+                )
+                return
+
+            if not messagebox.askyesno(
+                "Update image",
+                (
+                    "Stop and remove the wisp container,"
+                    "then pull the latest kpenev/wisp image?"
+                ),
+            ):
+                return
+
+            cmd_str = (
+                "docker compose stop wisp &&"
+                "docker compose rm -f wisp &&"
+                "docker pull kpenev/wisp & exit"
+            )
+            _launch_terminal(cmd_str, PROJECT_ROOT)
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to apply changes: {e}")
+            messagebox.showerror("Error", f"Failed to update Docker image: {e}")
 
     def enforce_storage_at_startup(self):
         """Decide startup behaviour based on whether compose.yaml still contains
@@ -412,6 +618,9 @@ class ComposeEditorApp:
         unmodified (contains placeholders like <IOdir|...), only the Storage
         selector remains enabled. If the compose file appears modified, enable
         all controls so the user can edit freely.
+
+        Returns:
+            None
         """
         text = ""
         try:
@@ -427,7 +636,11 @@ class ComposeEditorApp:
             # compose.yaml looks unmodified -> keep only storage enabled
             messagebox.showinfo(
                 "Welcome!",
-                "This compose.yaml looks uninitialized. Please select a storage folder first using the Storage Browse... button."
+                (
+                "This compose.yaml looks uninitialized."
+                "Please select a storage folder first using the"
+                "Storage Browse... button.",
+                )
             )
             # leave other widgets disabled (they were disabled already)
             return
@@ -436,7 +649,7 @@ class ComposeEditorApp:
             try:
                 messagebox.showinfo(
                     "Welcome",
-                    "compose.yaml already configured — you may change any paths now."
+                    "compose.yaml already configured — you may change any paths now.",
                 )
             except Exception:
                 pass
@@ -444,33 +657,25 @@ class ComposeEditorApp:
             return
 
     def run_docker(self):
-        # Run docker compose up. Previously this always ran in the AutoWISP/docker
-        # directory which prevented running the GUI + compose.yaml from arbitrary
-        # locations. Use the compose file path directly so the command can be
-        # executed from anywhere.
+        """Save settings, start docker compose, and open AutoWISP when ready.
+
+        Returns:
+            None
+        """
         try:
             if not COMPOSE_PATH.exists():
-                messagebox.showerror("Error", f"compose file not found: {COMPOSE_PATH}")
+                messagebox.showerror(
+                    "Error", f"compose file not found: {COMPOSE_PATH}"
+                )
                 return
-            
-            # Save the port configuration to compose.yaml before running docker
-            try:
-                current_text = read_compose_text()
-                new_text = find_and_replace_port(current_text, self.port_var.get())
-                COMPOSE_PATH.write_text(new_text, encoding="utf-8")
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to save port configuration: {e}")
+
+            # Save the current form values to compose.yaml before running docker.
+            if not self.save_compose_settings():
                 return
-            
-            # Open a new cmd window in the current working directory and run
-            # 'docker compose up'. This is intentionally simple: it behaves
-            # like the user opened a terminal and ran 'docker compose up' in
-            # the folder where the GUI was started. Avoids fiddling with
-            # compose paths or -f arguments which previously caused quoting
-            # issues when using Windows 'start'.
+
             cwd = os.getcwd()
-            cmd_str = 'docker compose up'
-            subprocess.Popen(["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str], cwd=cwd)
+            cmd_str = "docker compose up"
+            _launch_terminal(cmd_str, cwd)
             # Poll the service URL and open the browser only when it responds
             try:
                 port = int(self.port_var.get())
@@ -478,43 +683,68 @@ class ComposeEditorApp:
                 port = 8089
 
             url = f"http://localhost:{port}/"
-            timeout = 180  # seconds
+            timeout = 600  # seconds
             poll_interval = 2  # seconds
 
             def _poll_and_open():
+                """Wait for the local AutoWISP URL to respond, then open it.
+
+                Returns:
+                    None
+                """
                 end_time = time.time() + timeout
-                first_wait = True
                 while time.time() < end_time:
                     try:
                         with urllib.request.urlopen(url, timeout=3) as resp:
                             # getcode() works across Python versions
-                            code = getattr(resp, 'status', None) or resp.getcode()
+                            code = (
+                                getattr(resp, "status", None) or resp.getcode()
+                            )
                             if code and code < 400:
                                 try:
-                                    webbrowser.open(url)
+                                    os.startfile(url)
                                 except Exception:
-                                    pass
+                                    webbrowser.open(url)
                                 return
                     except Exception:
                         # keep waiting
                         pass
 
-                    # Waiting status is intentionally not shown in the UI.
-                    if first_wait:
-                        first_wait = False
                     time.sleep(poll_interval)
 
                 # timed out
-                self.root.after(0, lambda u=url: messagebox.showwarning("Timeout", f"Timed out waiting for {u} to respond ({timeout}s)."))
+                self.root.after(
+                    0,
+                    lambda u=url: messagebox.showwarning(
+                        "Still starting",
+                        (
+                            f"Timed out waiting for {u} to respond ({timeout}s).\n"
+                            "Docker may still be starting;"
+                            "open the URL manually when it is ready."
+                        )
+                    ),
+                )
 
             threading.Thread(target=_poll_and_open, daemon=True).start()
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to start docker compose: {e}")
+            messagebox.showerror(
+                "Error", f"Failed to start docker compose: {e}"
+            )
 
 
 def find_and_replace_port(text, new_host_port):
-    # Replace or add port mapping (e.g., "8089:8089") with new_host_port:8089
-    # If no port mapping exists, add a ports section after the shm_size line
+    """Replace or add the host port mapping in compose YAML text.
+
+    Existing mappings such as "8089:8089" keep their container port and quote
+    style. If no mapping exists, a ports section is added after shm_size.
+
+    Args:
+        text: Original compose.yaml text.
+        new_host_port: Host port to expose for the existing container port.
+
+    Returns:
+        str: Updated compose.yaml text.
+    """
     lines = text.splitlines()
     for i, line in enumerate(lines):
         s = line.strip()
@@ -524,20 +754,22 @@ def find_and_replace_port(text, new_host_port):
             container = m.group(3)
             quote2 = m.group(4)
             q = quote1 or quote2 or '"'
-            lines[i] = line.replace(m.group(0), f'{q}{new_host_port}:{container}{q}')
+            lines[i] = line.replace(
+                m.group(0), f"{q}{new_host_port}:{container}{q}"
+            )
             return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
-    
+
     # No port mapping found; add ports section after shm_size line
     for i, line in enumerate(lines):
-        if 'shm_size:' in line:
+        if "shm_size:" in line:
             indent = len(line) - len(line.lstrip())
             port_lines = [
-                ' ' * indent + 'ports:',
-                ' ' * (indent + 2) + f'- "{new_host_port}:8089"'
+                " " * indent + "ports:",
+                " " * (indent + 2) + f'- "{new_host_port}:8089"',
             ]
-            lines = lines[:i+1] + port_lines + lines[i+1:]
+            lines = lines[: i + 1] + port_lines + lines[i + 1 :]
             return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
-    
+
     return text
 
 
@@ -550,7 +782,7 @@ def main():
     # If the compose editor closed itself because the user cancelled storage
     # selection at startup, exit the program
     try:
-        if not getattr(app, 'root', None):
+        if not getattr(app, "root", None):
             return
     except Exception:
         pass
@@ -559,4 +791,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

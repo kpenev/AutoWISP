@@ -174,31 +174,33 @@ def error_list_rows(db_session=None, *, pipeline_run_id=None, step_name=None):
     ]
 
 
-def error_count(db_session=None):
-    """Return the number of open (unresolved) errors.
+def open_and_total_error_count(db_session=None):
+    """Return ``(open_count, total_count)`` in a single query.
 
-    This is what the error badge shows -- resolved errors are kept as
-    history but no longer counted.
+    The error badge needs both on every page render -- the open count to
+    display, and the total to decide whether the (possibly all-resolved)
+    history is worth linking to at all. Resolved errors are kept as
+    history, so the two differ once anything has been resolved.
 
     Args:
         db_session:    Optional active session; one is opened if omitted.
 
     Returns:
-        int:    The open-error count (0 if none).
+        (int, int):    The open-error count and the count including
+            resolved errors.
     """
 
     if db_session is None:
         with start_db_session() as own_session:
-            return error_count(own_session)
+            return open_and_total_error_count(own_session)
+    # ``count(resolved)`` skips the NULLs, so it counts exactly the
+    # resolved errors -- avoiding a second query or a FILTER clause.
     # pylint: disable=not-callable,no-member
-    return (
-        db_session.scalar(
-            select(func.count())
-            .select_from(Error)
-            .where(Error.resolved.is_(None))
-        )
-        or 0
-    )
+    total_count, resolved_count = db_session.execute(
+        select(func.count(), func.count(Error.resolved)).select_from(Error)
+    ).one()
+    # pylint: enable=not-callable,no-member
+    return total_count - resolved_count, total_count
 
 
 def error_counts_by_step(db_session=None):

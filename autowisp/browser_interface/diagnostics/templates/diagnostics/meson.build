@@ -1,5 +1,11 @@
 src = [
+  '_series_row.html',
+  '_series_section.html',
+  '_slot_cell.html',
+  '_slot_cells.html',
+  'confirm_import.html',
   'detrending_diagnostics.html',
+  'diagnostic_expressions.html',
   'diagnostics_app.html',
   'preview_calibrated_image.html',
 ]

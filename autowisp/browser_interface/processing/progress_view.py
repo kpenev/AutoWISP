@@ -1,9 +1,8 @@
 """Define the view displaying the current processing progress."""
 
 import logging
-from socket import getfqdn
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, sql
 from psutil import pid_exists
@@ -11,7 +10,7 @@ from django.shortcuts import render
 
 from autowisp.database.interface import start_db_session
 from autowisp.database.user_interface import (
-    LIGHT_CURVE_STEPS,
+    get_progress_model,
     get_processing_sequence,
     get_progress,
     list_channels,
@@ -20,17 +19,22 @@ from autowisp.error_render import (
     error_counts_by_step,
     open_error_count_for_steps,
 )
+from autowisp.exceptions import get_hostname
 
 # False positive
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     ImageProcessingProgress,
     LightCurveProcessingProgress,
+    MasterFile,
     PipelineRun,
 )
 
 # pylint: enable=no-name-in-module
 
+from autowisp.browser_interface.diagnostics.quantities import (
+    get_quantile_names,
+)
 from .log_views import datetime_fmt
 
 logger = logging.getLogger(__name__)
@@ -92,11 +96,7 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
                 destination[2][channel_index[channel]][3].append(
                     (status, (count or 0))
                 )
-            progress_class = (
-                LightCurveProcessingProgress
-                if step.name in LIGHT_CURVE_STEPS
-                else ImageProcessingProgress
-            )
+            progress_class = get_progress_model(step)
             run_query = select(
                 progress_class.id,
                 progress_class.started,
@@ -105,6 +105,19 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
             if progress_class is ImageProcessingProgress:
                 run_query = run_query.where(
                     ImageProcessingProgress.image_type_id == imtype.id
+                )
+            else:
+                run_query = (
+                    run_query.join(
+                        MasterFile,
+                        MasterFile.id
+                        == LightCurveProcessingProgress.single_photref_id,
+                    )
+                    .join(
+                        ImageProcessingProgress,
+                        ImageProcessingProgress.id == MasterFile.progress_id,
+                    )
+                    .where(ImageProcessingProgress.image_type_id == imtype.id)
                 )
 
             destination[3] = [
@@ -122,13 +135,25 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
             ]
 
         for check_running in db_session.scalars(
-            select(PipelineRun).filter_by(finished=None, host=getfqdn())
+            select(PipelineRun).filter_by(finished=None, host=get_hostname())
         ).all():
-            elapsed_time = datetime.now() - check_running.started
+            # ``started`` is written by ``sql.func.now()``, which SQLite
+            # evaluates as CURRENT_TIMESTAMP -- naive **UTC** -- so it has
+            # to be compared against UTC, not local ``datetime.now()``.
+            elapsed_time = (
+                datetime.now(timezone.utc).replace(tzinfo=None)
+                - check_running.started
+            )
+            # A run that has only just been recorded may not have got as
+            # far as spawning the process we look for, so trust it for the
+            # first minute regardless of the PID check.
+            recently_started = (
+                timedelta(0) <= elapsed_time <= timedelta(seconds=60)
+            )
             if (
                 pid_exists(check_running.process_id)
                 and check_running.process_id != os.getpid()
-                or (elapsed_time.days < 0 and elapsed_time.seconds <= 60)
+                or recently_started
             ):
                 logger.info(
                     "Calibration process with ID %s still exists.",
@@ -149,5 +174,16 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
         selected_tokens = set(request.session["selected_step_tokens"])
 
     context["selected_tokens"] = selected_tokens
+
+    # The calibration bar links to every quantile recorded, each its own
+    # section of one plot, there being no longer a single name standing
+    # for the family. Empty until one is recorded, since the URL converter
+    # cannot build a section list out of nothing -- which is the same as
+    # the other bars, whose links lead nowhere until there is something to
+    # show.
+    with start_db_session() as db_session:
+        context["quantile_quantities"] = ",".join(
+            get_quantile_names(db_session)
+        )
 
     return render(request, "processing/progress.html", context)

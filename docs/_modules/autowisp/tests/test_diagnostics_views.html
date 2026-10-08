@@ -1,0 +1,1225 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_diagnostics_views &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_diagnostics_views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.test_diagnostics_views</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Tests for what the BUI diagnostics views ask of a project.</span>
+
+<span class="sd">What the series table offers for a pair of axes -- the (session, image</span>
+<span class="sd">type) pairs a row may be drawn for, and the one row the table starts with</span>
+<span class="sd">-- what a row reads once the client posts it back, and how the figure</span>
+<span class="sd">below offsets what those rows draw.  Every one of them is a question</span>
+<span class="sd">about an observing project, so each needs the throwaway database this</span>
+<span class="sd">builds, following ``test_error_render``.</span>
+
+<span class="sd">The rules that need no project -- ids, channel columns, section headers</span>
+<span class="sd">and markers -- are in ``test_diagnostics_rules``.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+
+<span class="c1"># The backend has to be selected before anything imports pyplot, which the</span>
+<span class="c1"># view module under test does at import time.</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">"Agg"</span><span class="p">)</span>
+
+<span class="c1"># pylint: disable=wrong-import-position</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_project_home</span><span class="p">,</span> <span class="n">start_db_session</span>
+
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DiagnosticType</span><span class="p">,</span>
+    <span class="n">Image</span><span class="p">,</span>
+    <span class="n">ImageDiagnostics</span><span class="p">,</span>
+    <span class="n">ImageType</span><span class="p">,</span>
+    <span class="n">ObservingSession</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+
+<span class="c1"># Imported after set_project_home is available; these only touch the DB</span>
+<span class="c1"># through start_db_session, so no Django configuration is needed.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_series</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SeriesKey</span><span class="p">,</span>
+    <span class="n">get_canonical_images</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.image_diagnostics_views</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">create_diagnostics_figure</span><span class="p">,</span>
+    <span class="n">get_series_data</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.quantities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_available_diagnostics</span><span class="p">,</span>
+    <span class="n">get_available_expressions</span><span class="p">,</span>
+    <span class="n">get_recorded_diagnostics</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.series_table</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_available_series</span><span class="p">,</span>
+    <span class="n">make_id</span><span class="p">,</span>
+    <span class="n">split_pair_id</span><span class="p">,</span>
+    <span class="n">split_row_id</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint: enable=wrong-import-position</span>
+
+
+<span class="c1">#: JD of the first image of the first night.</span>
+<span class="n">_first_jd</span> <span class="o">=</span> <span class="mf">2460000.5</span>
+
+<span class="c1">#: Nights are one day apart, so their JD ranges cannot overlap.</span>
+<span class="n">_night_separation</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="c1">#: Recorded for object frames alone, which is what makes them the case of</span>
+<span class="c1">#: a diagnostic that is not drawable for every image type.</span>
+<span class="n">_quantile_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"pixel_q99"</span><span class="p">,</span> <span class="s2">"pixel_q999"</span><span class="p">)</span>
+
+<span class="c1">#: Every diagnostic the fixture records.  All are created explicitly: the</span>
+<span class="c1">#: lazy database initialization behind ``set_project_home`` creates the</span>
+<span class="c1">#: schema but seeds no ``diagnostic_type`` rows, and depending on that would</span>
+<span class="c1">#: couple these tests to project-creation behaviour they are not about.</span>
+<span class="n">_diagnostic_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,)</span> <span class="o">+</span> <span class="n">_quantile_names</span>
+
+<span class="c1">#: Frames of each type per night.  Only the second night is mixed, which is</span>
+<span class="c1">#: what lets these tests tell a per-type series from one that lumps a whole</span>
+<span class="c1">#: session together; leaving the first night single-type keeps the plain</span>
+<span class="c1">#: one-series-per-night cases readable.</span>
+<span class="n">_frames_per_night</span> <span class="o">=</span> <span class="p">({</span><span class="s2">"object"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="p">{</span><span class="s2">"object"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+
+<span class="c1">#: ``bg_center`` of the first frame of each type.  Far enough apart that a</span>
+<span class="c1">#: median over one type cannot be confused with a median over the mixture.</span>
+<span class="n">_first_bg_center</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"object"</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">:</span> <span class="mf">500.0</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="DiagnosticsViewTestCase">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiagnosticsViewTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Base creating one throwaway project database holding two nights."""</span>
+
+<div class="viewcode-block" id="DiagnosticsViewTestCase.setUpClass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.setUpClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># Closed in tearDownClass rather than by a context manager, which a</span>
+        <span class="c1"># fixture spanning every test of the class cannot use.</span>
+        <span class="c1"># pylint: disable=consider-using-with</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="c1"># pylint: enable=consider-using-with</span>
+        <span class="n">set_project_home</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_fill_database</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DiagnosticsViewTestCase.tearDownClass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.tearDownClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+
+
+    <span class="c1">#: ``{(night, image_type): [image_id, ...]}``, in JD order, so a test can</span>
+    <span class="c1">#: say which images a series is supposed to be built from.</span>
+    <span class="n">images_of</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="DiagnosticsViewTestCase.table_for">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.table_for">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">table_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return what one section's table offers for an axis pair."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_available_series</span><span class="p">(</span>
+                <span class="n">x_quantity</span><span class="p">,</span>
+                <span class="n">y_quantity</span><span class="p">,</span>
+                <span class="n">expressions</span> <span class="ow">or</span> <span class="p">{},</span>
+                <span class="n">db_session</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DiagnosticsViewTestCase.pairs_for">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.pairs_for">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pairs_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the ``(session_id, image_type)`` pairs a row may name.</span>
+
+<span class="sd">        What the table used to answer with a row each, and now answers</span>
+<span class="sd">        with the options of one dropdown.</span>
+<span class="sd">        """</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">split_pair_id</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)[</span>
+                <span class="s2">"pair_options"</span>
+            <span class="p">]</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DiagnosticsViewTestCase.first_row">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.first_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">first_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the row the table starts with, on the earliest session."""</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)[</span>
+            <span class="s2">"diagnostics_list"</span>
+        <span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DiagnosticsViewTestCase.bind">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.bind">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="o">*</span><span class="n">channels</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the row as the client posts it with its dropdowns set.</span>
+
+<span class="sd">        A test asks for a particular series the way the table does -- by</span>
+<span class="sd">        choosing a pair and a channel per column -- rather than by picking</span>
+<span class="sd">        a row out of a list, there being one row to start from.</span>
+<span class="sd">        """</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">row</span><span class="p">,</span>
+            <span class="s2">"pair"</span><span class="p">:</span> <span class="n">make_id</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">),</span>
+            <span class="s2">"channels"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="DiagnosticsViewTestCase._fill_database">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase._fill_database">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fill_database</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Create two observing sessions, the second holding two image types.</span>
+
+<span class="sd">        Every frame records ``bg_center`` in channel ``R``; only object</span>
+<span class="sd">        frames record the quantiles, which is the ordinary case of a</span>
+<span class="sd">        diagnostic that is not defined for every type.  Provenance foreign</span>
+<span class="sd">        keys are left dangling, as SQLite does not enforce them and the</span>
+<span class="sd">        diagnostics queries only ever join back to ``observing_session`` and</span>
+<span class="sd">        ``image_type``.</span>
+<span class="sd">        """</span>
+
+        <span class="c1"># False positive: the declarative models are callable.</span>
+        <span class="c1"># pylint: disable=not-callable</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_diagnostic_names</span><span class="p">:</span>
+                <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                    <span class="n">DiagnosticType</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Test diagnostic </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"object"</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">):</span>
+                <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ImageType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">s"</span><span class="p">))</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+            <span class="n">diagnostic_ids</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">_diagnostic_names</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">image_type_ids</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">night</span><span class="p">,</span> <span class="n">frame_counts</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_frames_per_night</span><span class="p">):</span>
+                <span class="n">session</span> <span class="o">=</span> <span class="n">ObservingSession</span><span class="p">(</span>
+                    <span class="n">observer_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">camera_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">telescope_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">mount_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">observatory_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">target_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"night_</span><span class="si">{</span><span class="n">night</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="n">start_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">night</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="n">end_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">night</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+                <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+                <span class="n">jd</span> <span class="o">=</span> <span class="n">_first_jd</span> <span class="o">+</span> <span class="n">night</span> <span class="o">*</span> <span class="n">_night_separation</span>
+                <span class="k">for</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">frame_counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="n">night</span><span class="p">,</span> <span class="n">image_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
+                            <span class="n">raw_fname</span><span class="o">=</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">"/data/raw/n</span><span class="si">{</span><span class="n">night</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">image_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">.fits"</span>
+                            <span class="p">),</span>
+                            <span class="n">image_type_id</span><span class="o">=</span><span class="n">image_type_ids</span><span class="p">[</span><span class="n">image_type</span><span class="p">],</span>
+                            <span class="n">observing_session_id</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                            <span class="n">jd</span><span class="o">=</span><span class="n">jd</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+                        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                        <span class="bp">cls</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="n">night</span><span class="p">,</span> <span class="n">image_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                        <span class="n">jd</span> <span class="o">+=</span> <span class="mf">0.05</span>
+
+                        <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s2">"bg_center"</span><span class="p">:</span> <span class="n">_first_bg_center</span><span class="p">[</span><span class="n">image_type</span><span class="p">]</span> <span class="o">+</span> <span class="n">index</span>
+                        <span class="p">}</span>
+                        <span class="k">if</span> <span class="n">image_type</span> <span class="o">==</span> <span class="s2">"object"</span><span class="p">:</span>
+                            <span class="n">values</span><span class="p">[</span><span class="s2">"pixel_q99"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">200.0</span> <span class="o">+</span> <span class="n">index</span>
+                            <span class="n">values</span><span class="p">[</span><span class="s2">"pixel_q999"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">300.0</span> <span class="o">+</span> <span class="n">index</span>
+
+                        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                                <span class="n">ImageDiagnostics</span><span class="p">(</span>
+                                    <span class="n">image_id</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                                    <span class="n">channel</span><span class="o">=</span><span class="s2">"R"</span><span class="p">,</span>
+                                    <span class="n">diagnostic_id</span><span class="o">=</span><span class="n">diagnostic_ids</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                                    <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span></div>
+</div>
+
+        <span class="c1"># pylint: enable=not-callable</span>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAvailableQuantities</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""What the two axis selectors offer, given what this project holds.</span>
+
+<span class="sd">    Availability rather than validity: every stored expression is valid in</span>
+<span class="sd">    every project, so the only question a selector can usefully ask is</span>
+<span class="sd">    whether the diagnostics an expression reaches have actually been</span>
+<span class="sd">    recorded here.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="TestAvailableQuantities._recorded">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities._recorded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_recorded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the raw in-use diagnostic names."""</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_every_recorded_name_is_offered">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_every_recorded_name_is_offered">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_recorded_name_is_offered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Including each quantile, which is what an expression is judged</span>
+<span class="sd">        against and what a section may now draw."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">()),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_diagnostic_names</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_the_selector_offers_each_quantile_and_no_family">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_the_selector_offers_each_quantile_and_no_family">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_selector_offers_each_quantile_and_no_family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A ``pixel_q*`` is an ordinary quantity with a section of its own.</span>
+
+<span class="sd">        The family name stood for all of them on one plot, which is what</span>
+<span class="sd">        sections do for any quantity -- so it earned its keep no longer,</span>
+<span class="sd">        and drawing one quantile against another needed an expression</span>
+<span class="sd">        while it existed.</span>
+<span class="sd">        """</span>
+
+        <span class="n">available</span> <span class="o">=</span> <span class="n">get_available_diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">(),</span> <span class="p">{})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">available</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"jd"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="n">available</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"pixel_quantiles"</span><span class="p">,</span> <span class="n">available</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_quantile_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">available</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_expressions_join_the_same_flat_list">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_expressions_join_the_same_flat_list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_expressions_join_the_same_flat_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Not a second list beside it.</span>
+
+<span class="sd">        An axis reads one name, and a recorded diagnostic is an expression</span>
+<span class="sd">        of itself as far as everything downstream is concerned -- which is</span>
+<span class="sd">        the same flat name space that stops an expression taking a</span>
+<span class="sd">        diagnostic's name.</span>
+<span class="sd">        """</span>
+
+        <span class="n">available</span> <span class="o">=</span> <span class="n">get_available_diagnostics</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">(),</span> <span class="p">{</span><span class="s2">"rel_bg"</span><span class="p">:</span> <span class="s2">"bg_center * 2"</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"rel_bg"</span><span class="p">,</span> <span class="n">available</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="n">available</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_expression_offered_where_its_inputs_are_recorded">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_expression_offered_where_its_inputs_are_recorded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_expression_offered_where_its_inputs_are_recorded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The ordinary case, and the composed one behind it."""</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"rel_bg"</span><span class="p">:</span> <span class="s2">"bg_center - nanmedian(bg_center)"</span><span class="p">,</span>
+            <span class="s2">"twice_rel_bg"</span><span class="p">:</span> <span class="s2">"rel_bg * 2"</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">()),</span>
+            <span class="p">[</span><span class="s2">"rel_bg"</span><span class="p">,</span> <span class="s2">"twice_rel_bg"</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_expression_hidden_where_an_input_is_not_recorded">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_expression_hidden_where_an_input_is_not_recorded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_expression_hidden_where_an_input_is_not_recorded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Not an error -- ``astrom_residual`` is real, merely unrecorded.</span>
+
+<span class="sd">        The distinction the whole design rests on: this expression is valid</span>
+<span class="sd">        here and would be offered in a project that had run plate solving.</span>
+<span class="sd">        """</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"rel"</span><span class="p">:</span> <span class="s2">"astrom_residual / diagonal_fov"</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">()),</span> <span class="p">[]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_a_dependency_makes_its_dependents_unavailable">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_a_dependency_makes_its_dependents_unavailable">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_dependency_makes_its_dependents_unavailable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Availability follows the whole subtree, not the direct names."""</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"rel"</span><span class="p">:</span> <span class="s2">"astrom_residual / diagonal_fov"</span><span class="p">,</span>
+            <span class="s2">"scaled"</span><span class="p">:</span> <span class="s2">"rel * 2"</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">()),</span> <span class="p">[]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_a_concrete_quantile_is_judged_against_the_raw_names">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_a_concrete_quantile_is_judged_against_the_raw_names">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_concrete_quantile_is_judged_against_the_raw_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Which is why the family collapse happens after this check.</span>
+
+<span class="sd">        Against the collapsed list ``pixel_q999`` would look unrecorded and</span>
+<span class="sd">        a perfectly drawable expression would go missing from the selector.</span>
+<span class="sd">        """</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"contrast"</span><span class="p">:</span> <span class="s2">"pixel_q999 / pixel_q99"</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">()),</span> <span class="p">[</span><span class="s2">"contrast"</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_a_jd_only_expression_is_always_available">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_a_jd_only_expression_is_always_available">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_jd_only_expression_is_always_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``jd`` exists for every image of the canonical list."""</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"night_time"</span><span class="p">:</span> <span class="s2">"jd - nanmin(jd)"</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">()),</span> <span class="p">[</span><span class="s2">"night_time"</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_a_broken_expression_is_hidden_rather_than_raised">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_a_broken_expression_is_hidden_rather_than_raised">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_broken_expression_is_hidden_rather_than_raised</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A stored cycle must not stop the plot page rendering.</span>
+
+<span class="sd">        Saying what is wrong with it belongs to the management page; here</span>
+<span class="sd">        the only sane answer is not to offer it.</span>
+<span class="sd">        """</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"a"</span><span class="p">:</span> <span class="s2">"b + 1"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="s2">"a + 1"</span><span class="p">,</span> <span class="s2">"rel_bg"</span><span class="p">:</span> <span class="s2">"bg_center * 2"</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">()),</span> <span class="p">[</span><span class="s2">"rel_bg"</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestAvailableQuantities.test_an_unknown_name_is_hidden_too">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_an_unknown_name_is_hidden_too">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_an_unknown_name_is_hidden_too</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A typo no version of AutoWISP defines, rather than a cycle."""</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"typo"</span><span class="p">:</span> <span class="s2">"bg_centre * 2"</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorded</span><span class="p">()),</span> <span class="p">[]</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestQuantileSection">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestQuantileSection</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A ``pixel_q*`` draws like any other recorded diagnostic.</span>
+
+<span class="sd">    Which is the whole of what replaced the family: a quantile is named,</span>
+<span class="sd">    bound, counted and read exactly as ``bg_center`` is, and several of</span>
+<span class="sd">    them share a plot by being several sections rather than by one name</span>
+<span class="sd">    expanding into them.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="TestQuantileSection.test_a_quantile_section_starts_with_a_row">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSection.test_a_quantile_section_starts_with_a_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quantile_section_starts_with_a_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Built from the same pairs, since only object frames record it."""</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">split_row_id</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]),</span> <span class="p">(</span><span class="s2">"pixel_q99"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"count"</span><span class="p">],</span> <span class="n">_frames_per_night</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"object"</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestQuantileSection.test_a_quantile_reads_its_own_values">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSection.test_a_quantile_reads_its_own_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quantile_reads_its_own_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""No family stands between the name and the numbers."""</span>
+
+        <span class="n">series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"pixel_q999"</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_series_data</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="s2">"jd"</span><span class="p">,</span> <span class="p">{},</span> <span class="n">db_session</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">y_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="p">[</span><span class="mf">300.0</span> <span class="o">+</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_frames_per_night</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">"object"</span><span class="p">])],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestQuantileSection.test_one_quantile_against_another">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSection.test_one_quantile_against_another">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_one_quantile_against_another</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""What the family made impossible without an expression."""</span>
+
+        <span class="n">series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"pixel_q99"</span><span class="p">,</span> <span class="s2">"pixel_q999"</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"R"</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_series_data</span><span class="p">(</span>
+                <span class="n">series</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">,</span> <span class="p">{},</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">_frames_per_night</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">"object"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">x_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="p">[</span><span class="mf">200.0</span> <span class="o">+</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">frames</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">y_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="p">[</span><span class="mf">300.0</span> <span class="o">+</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">frames</span><span class="p">)]</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestPairOptions">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestPairOptions">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPairOptions</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The (session, image type) pairs a row may be drawn for.</span>
+
+<span class="sd">    What the table answered with a row each when it listed them, and now</span>
+<span class="sd">    answers with the options of one dropdown.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="TestPairOptions.test_a_pair_needs_every_column_to_have_a_channel">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestPairOptions.test_a_pair_needs_every_column_to_have_a_channel">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_pair_needs_every_column_to_have_a_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Only object frames record the quantiles, so only they are offered."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">image_type</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">)},</span>
+            <span class="p">{</span><span class="s2">"object"</span><span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPairOptions.test_listed_by_session_start_time">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestPairOptions.test_listed_by_session_start_time">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_listed_by_session_start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Labels are free-form, so the times are what orders them."""</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)[</span><span class="s2">"pair_options"</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">option</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span><span class="p">],</span>
+            <span class="nb">sorted</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"text"</span><span class="p">],</span> <span class="s2">"night_0 object"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPairOptions.test_an_option_names_its_session_and_type">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestPairOptions.test_an_option_names_its_session_and_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_an_option_names_its_session_and_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Otherwise the two rows of the mixed night would read alike."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">option</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)[</span><span class="s2">"pair_options"</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="p">{</span><span class="s2">"night_0 object"</span><span class="p">,</span> <span class="s2">"night_1 object"</span><span class="p">,</span> <span class="s2">"night_1 flat"</span><span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPairOptions.test_the_times_sort_as_text">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestPairOptions.test_the_times_sort_as_text">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_times_sort_as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Which is why they are formatted rather than left as datetimes."""</span>
+
+        <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)[</span><span class="s2">"pair_options"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">first</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="s2">"2023-03-01 20:00"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">first</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span> <span class="s2">"2023-03-01 23:00"</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestInitialRow">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestInitialRow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestInitialRow</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The one row a table starts with, so the page draws without a click."""</span>
+
+<div class="viewcode-block" id="TestInitialRow.test_exactly_one_row">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestInitialRow.test_exactly_one_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_exactly_one_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The table lists nothing; the rest are built by the user."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)[</span><span class="s2">"diagnostics_list"</span><span class="p">]),</span> <span class="mi">1</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestInitialRow.test_on_the_first_pair_offered">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestInitialRow.test_on_the_first_pair_offered">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_on_the_first_pair_offered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The earliest session, that being how the options are ordered."""</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">"diagnostics_list"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"pair"</span><span class="p">],</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">"pair_options"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">"diagnostics_list"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"pair_sort"</span><span class="p">],</span> <span class="s2">"night_0 object"</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestInitialRow.test_it_names_the_quantity_it_draws">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestInitialRow.test_it_names_the_quantity_it_draws">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_it_names_the_quantity_it_draws</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Which is what lets the figure read a y per row rather than a page."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">split_row_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)[</span><span class="s2">"id"</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestInitialRow.test_one_channel_recorded_arrives_bound">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestInitialRow.test_one_channel_recorded_arrives_bound">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_one_channel_recorded_arrives_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A column with one channel to offer is no choice at all.</span>
+
+<span class="sd">        The fixture records ``R`` alone, so the row is bound and counted</span>
+<span class="sd">        at render and draws the moment the page loads.</span>
+<span class="sd">        """</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"channels"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"R"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"count"</span><span class="p">],</span> <span class="n">_frames_per_night</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"object"</span><span class="p">])</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestSeparateYAxes">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeparateYAxes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSeparateYAxes</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Quantities in different units sharing an x but not a y scale.</span>
+
+<span class="sd">    Only ``reverse`` is mocked, so the artists, the labels and the legend</span>
+<span class="sd">    are the real ones: the per-point click-through URL needs Django</span>
+<span class="sd">    settings and is not what any of this is about.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="TestSeparateYAxes.figure_for">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeparateYAxes.figure_for">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">figure_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_axes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Draw ``bg_center`` and ``pixel_q99`` with the given assignment."""</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="n">quantity</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"autowisp.browser_interface.diagnostics"</span>
+            <span class="s2">".image_diagnostics_views.reverse"</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="s2">"/preview"</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">create_diagnostics_figure</span><span class="p">(</span>
+                    <span class="n">rows</span><span class="p">,</span>
+                    <span class="n">x_quantity</span><span class="o">=</span><span class="s2">"jd"</span><span class="p">,</span>
+                    <span class="n">expressions</span><span class="o">=</span><span class="p">{},</span>
+                    <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
+                    <span class="n">figure_config</span><span class="o">=</span><span class="p">{</span><span class="s2">"y_axes"</span><span class="p">:</span> <span class="n">y_axes</span><span class="p">},</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TestSeparateYAxes.test_sharing_one_axis_draws_one">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeparateYAxes.test_sharing_one_axis_draws_one">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_sharing_one_axis_draws_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Both quantities on the same scale, named on the same label."""</span>
+
+        <span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_for</span><span class="p">({})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">(),</span> <span class="s2">"bg_center, pixel_q99"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSeparateYAxes.test_separate_numbers_draw_an_axis_each">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeparateYAxes.test_separate_numbers_draw_an_axis_each">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_separate_numbers_draw_an_axis_each</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A twin per further axis, each labelled for what it carries."""</span>
+
+        <span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_for</span><span class="p">({</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">axes</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span> <span class="k">for</span> <span class="n">axes</span> <span class="ow">in</span> <span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSeparateYAxes.test_the_legend_sits_on_the_topmost_axis">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeparateYAxes.test_the_legend_sits_on_the_topmost_axis">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_legend_sits_on_the_topmost_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Naming every series, wherever it was drawn.</span>
+
+<span class="sd">        On the host it would be painted under the twin's points, and each</span>
+<span class="sd">        axis on its own would name only what it drew.</span>
+<span class="sd">        """</span>
+
+        <span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_for</span><span class="p">({</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_legend</span><span class="p">())</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">legend</span><span class="o">.</span><span class="n">get_texts</span><span class="p">()],</span>
+            <span class="p">[</span><span class="n">series</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span> <span class="k">for</span> <span class="n">series</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawn_labels</span><span class="p">()],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSeparateYAxes.drawn_labels">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeparateYAxes.drawn_labels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drawn_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the rows the figure draws, in the order it draws them."""</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="n">quantity</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">)</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TestSeparateYAxes.test_the_x_axis_and_grid_stay_on_the_host">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeparateYAxes.test_the_x_axis_and_grid_stay_on_the_host">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_x_axis_and_grid_stay_on_the_host</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Twin grids interleave into a mesh saying nothing about either."""</span>
+
+        <span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_for</span><span class="p">({</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">())</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestSharedTimeOffset">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSharedTimeOffset</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The x-offset is one value for the whole figure, not per series."""</span>
+
+<div class="viewcode-block" id="TestSharedTimeOffset._plotted_x_values">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset._plotted_x_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plotted_x_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the x arrays that reach the per-series plotting call.</span>
+
+<span class="sd">        ``plot_image_diagnostic_series`` is mocked out, which both captures</span>
+<span class="sd">        the offset values and avoids ``reverse()`` needing Django settings.</span>
+<span class="sd">        """</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)</span>
+        <span class="c1"># A row per (session, image type), built the way the user builds</span>
+        <span class="c1"># them: the table starts with one row, and the rest are that row on</span>
+        <span class="c1"># the other pairs its dropdown offers, each with an id of its own.</span>
+        <span class="n">series_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+                    <span class="n">table</span><span class="p">[</span><span class="s2">"diagnostics_list"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="o">*</span><span class="n">split_pair_id</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]),</span>
+                    <span class="s2">"R"</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="s2">"id"</span><span class="p">:</span> <span class="n">make_id</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">ordinal</span><span class="p">,</span> <span class="n">option</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"pair_options"</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="c1"># Night 0 object, night 1 object, night 1 flat.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">series_list</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"autowisp.browser_interface.diagnostics"</span>
+                <span class="s2">".image_diagnostics_views.plot_image_diagnostic_series"</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">target</span><span class="p">)</span> <span class="k">as</span> <span class="n">plot_series</span><span class="p">:</span>
+                <span class="n">create_diagnostics_figure</span><span class="p">(</span>
+                    <span class="n">series_list</span><span class="p">,</span>
+                    <span class="n">x_quantity</span><span class="o">=</span><span class="s2">"jd"</span><span class="p">,</span>
+                    <span class="n">expressions</span><span class="o">=</span><span class="p">{},</span>
+                    <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
+                    <span class="c1"># Nothing is drawn once plotting is mocked, so asking</span>
+                    <span class="c1"># for a legend only produces a warning.</span>
+                    <span class="n">figure_config</span><span class="o">=</span><span class="p">{</span><span class="s2">"show_legend"</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">call</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">plot_series</span><span class="o">.</span><span class="n">call_args_list</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TestSharedTimeOffset._series_starts">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset._series_starts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_series_starts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return where each plotted series begins on the shared x axis."""</span>
+
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">values</span><span class="p">))</span> <span class="k">for</span> <span class="n">values</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plotted_x_values</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestSharedTimeOffset.test_only_the_earliest_series_starts_at_zero">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset.test_only_the_earliest_series_starts_at_zero">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_only_the_earliest_series_starts_at_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One offset for the figure, so exactly one series lands on 0."""</span>
+
+        <span class="n">starts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_starts</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">starts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestSharedTimeOffset.test_offset_is_not_per_series">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset.test_offset_is_not_per_series">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_offset_is_not_per_series</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Guard the exact regression the merge could introduce.</span>
+
+<span class="sd">        Zeroing each series on its own would start every one of them at 0,</span>
+<span class="sd">        collapsing the day between the two nights.  The second night's</span>
+<span class="sd">        series keep that day, wherever in the night each one begins.</span>
+<span class="sd">        """</span>
+
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_starts</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertGreaterEqual</span><span class="p">(</span>
+                <span class="n">start</span><span class="p">,</span>
+                <span class="n">_night_separation</span><span class="p">,</span>
+                <span class="n">msg</span><span class="o">=</span><span class="s2">"a second-night series was zeroed on its own -- the "</span>
+                <span class="s2">"offset became per-series instead of shared"</span><span class="p">,</span>
+            <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestImageTypeSplit">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestImageTypeSplit</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A session holding several image types yields a series per type."""</span>
+
+<div class="viewcode-block" id="TestImageTypeSplit.test_each_type_is_offered_separately">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_each_type_is_offered_separately">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_each_type_is_offered_separately</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The mixed night offers object and flat as two pairs, not one."""</span>
+
+        <span class="n">mixed</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">image_type</span>
+            <span class="k">for</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">session_id</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">mixed</span><span class="p">,</span> <span class="p">{</span><span class="s2">"object"</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="TestImageTypeSplit.test_a_type_without_the_diagnostic_is_absent">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_a_type_without_the_diagnostic_is_absent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_type_without_the_diagnostic_is_absent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Only object frames record the quantiles, so only they appear."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">image_type</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"pixel_q999"</span><span class="p">)</span>
+            <span class="p">},</span>
+            <span class="p">{</span><span class="s2">"object"</span><span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestImageTypeSplit.test_the_type_is_shown_in_the_table">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_the_type_is_shown_in_the_table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_type_is_shown_in_the_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Otherwise two pairs of the mixed night would read identically."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span>
+            <span class="s2">"Session and Type"</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)[</span><span class="s2">"diagnostics_fields"</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestImageTypeSplit.test_canonical_list_holds_only_its_own_type">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_canonical_list_holds_only_its_own_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_canonical_list_holds_only_its_own_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The alignment the whole design rests on is per type.</span>
+
+<span class="sd">        Every array is padded onto this list, so if it mixed types then so</span>
+<span class="sd">        would every quantity built against it.</span>
+<span class="sd">        """</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"object"</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">):</span>
+                <span class="n">image_ids</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span>
+                    <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,)),</span> <span class="n">db_session</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">image_ids</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">image_type</span><span class="p">]</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestImageTypeSplit.test_values_are_not_taken_across_types">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_values_are_not_taken_across_types">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_values_are_not_taken_across_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The point of the split: an aggregate sees one population.</span>
+
+<span class="sd">        A series covering the whole night would hand ``nanmedian`` all five</span>
+<span class="sd">        frames and return the object median, since the objects outnumber the</span>
+<span class="sd">        flats -- silently, and wrongly.</span>
+<span class="sd">        """</span>
+
+        <span class="n">series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_series_data</span><span class="p">(</span>
+                <span class="n">series</span><span class="p">,</span> <span class="s2">"jd"</span><span class="p">,</span> <span class="p">{},</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+
+        <span class="n">flat_values</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_first_bg_center</span><span class="p">[</span><span class="s2">"flat"</span><span class="p">]</span> <span class="o">+</span> <span class="n">index</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_frames_per_night</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">"flat"</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">y_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">flat_values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">image_ids</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">y_values</span><span class="p">)),</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">flat_values</span><span class="p">),</span>
+            <span class="n">places</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestExpressionAxis">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestExpressionAxis</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An expression selected for an axis, as a diagnostic would be.</span>
+
+<span class="sd">    The library is passed in rather than stored, which is the arrangement</span>
+<span class="sd">    that lets these run against a project database alone: what the view does</span>
+<span class="sd">    with an expression does not depend on where it was kept.</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: Referenced by every test here; ``bg_center`` is recorded for both</span>
+    <span class="c1">#: image types, so the availability answer is interesting.</span>
+    <span class="n">library</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"rel_bg"</span><span class="p">:</span> <span class="s2">"bg_center[1] - nanmedian(bg_center[1])"</span><span class="p">,</span>
+        <span class="s2">"scaled_bg"</span><span class="p">:</span> <span class="s2">"rel_bg[1] * 10"</span><span class="p">,</span>
+        <span class="s2">"q_ratio"</span><span class="p">:</span> <span class="s2">"pixel_q999[1] / pixel_q99[1]"</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="TestExpressionAxis.test_offered_wherever_its_diagnostics_are">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_offered_wherever_its_diagnostics_are">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_offered_wherever_its_diagnostics_are</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Availability follows what the expression reaches, not its name.</span>
+
+<span class="sd">        Nothing records a diagnostic called ``rel_bg``; the series it can be</span>
+<span class="sd">        drawn for are those recording the ``bg_center`` it is built from.</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"rel_bg"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestExpressionAxis.test_a_composed_expression_reaches_through">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_a_composed_expression_reaches_through">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_composed_expression_reaches_through</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``scaled_bg`` needs what ``rel_bg`` needs, transitively."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"scaled_bg"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestExpressionAxis.test_restricted_to_the_types_recording_its_inputs">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_restricted_to_the_types_recording_its_inputs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_restricted_to_the_types_recording_its_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Only object frames record the quantiles, so only they are offered."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">image_type</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span>
+                    <span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"q_ratio"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span>
+                <span class="p">)</span>
+            <span class="p">},</span>
+            <span class="p">{</span><span class="s2">"object"</span><span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestExpressionAxis.test_the_values_are_the_expression_evaluated">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_the_values_are_the_expression_evaluated">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_values_are_the_expression_evaluated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""End to end: an expression axis produces its own numbers."""</span>
+
+        <span class="n">series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"rel_bg"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="s2">"R"</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_series_data</span><span class="p">(</span>
+                <span class="n">series</span><span class="p">,</span> <span class="s2">"jd"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">,</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+
+        <span class="c1"># bg_center is 100, 101, 102 for these frames.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">y_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestExpressionAxis.test_an_expression_against_a_diagnostic">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_an_expression_against_a_diagnostic">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_an_expression_against_a_diagnostic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Both axes at once, one of each kind, sharing a query."""</span>
+
+        <span class="n">series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_row</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"rel_bg"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span>
+            <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">"object"</span><span class="p">,</span>
+            <span class="s2">"R"</span><span class="p">,</span>
+            <span class="s2">"R"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_series_data</span><span class="p">(</span>
+                <span class="n">series</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">,</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">x_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">101.0</span><span class="p">,</span> <span class="mf">102.0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">y_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestExpressionAxis.test_an_unknown_name_is_refused">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_an_unknown_name_is_refused">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_an_unknown_name_is_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Neither a diagnostic nor an expression, so nothing to plot."""</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pairs_for</span><span class="p">(</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"no_such_thing"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

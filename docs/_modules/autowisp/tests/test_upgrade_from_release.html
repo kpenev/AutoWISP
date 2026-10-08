@@ -1,0 +1,897 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_upgrade_from_release &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_upgrade_from_release</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.test_upgrade_from_release</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Tests that projects created by released versions upgrade to today's.</span>
+
+<span class="sd">Unlike the rest of the migration tests, these start from what a release</span>
+<span class="sd">itself creates, exported from its tag and run in a subprocess, so they need</span>
+<span class="sd">the repository's history and are skipped outside a checkout.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">alembic</span><span class="w"> </span><span class="kn">import</span> <span class="n">command</span> <span class="k">as</span> <span class="n">alembic_command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">alembic.runtime.migration</span><span class="w"> </span><span class="kn">import</span> <span class="n">MigrationContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaData</span><span class="p">,</span> <span class="n">Table</span><span class="p">,</span> <span class="n">select</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.migrate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BASELINE_REVISION</span><span class="p">,</span>
+    <span class="n">_alembic_config</span><span class="p">,</span>
+    <span class="n">_locked_connection</span><span class="p">,</span>
+    <span class="n">_apply_additive_migrations</span> <span class="k">as</span> <span class="n">apply_additive_migrations</span><span class="p">,</span>
+    <span class="n">get_head_revision</span><span class="p">,</span>
+    <span class="n">get_project_revision</span><span class="p">,</span>
+    <span class="n">get_schema_drift</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabaseError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests.test_database_migration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BackendMixin</span><span class="p">,</span>
+    <span class="n">expected_timestamp_triggers</span><span class="p">,</span>
+    <span class="n">on_server</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="_repo_root">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release._repo_root">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_repo_root</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Return the repository's top level, or None outside a checkout."""</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">"git"</span><span class="p">,</span>
+                <span class="s2">"-C"</span><span class="p">,</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+                <span class="s2">"rev-parse"</span><span class="p">,</span>
+                <span class="s2">"--show-toplevel"</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="_git">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release._git">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_git</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Run git at the repository root; return output, or None if it fails.</span>
+
+<span class="sd">    The root, not this file's directory: ``git archive`` refuses a pathspec</span>
+<span class="sd">    reaching outside the current directory, so it has to be invoked from</span>
+<span class="sd">    the top level.</span>
+<span class="sd">    """</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">_repo_root</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"-C"</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="ow">not</span> <span class="n">binary</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span> <span class="k">if</span> <span class="n">binary</span> <span class="k">else</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_project_contents">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.get_project_contents">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_project_contents</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">own_values</span><span class="o">=</span><span class="p">()):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return every row of a project database, comparable between projects.</span>
+
+<span class="sd">    Two projects holding the same definitions number their rows differently:</span>
+<span class="sd">    a project that has been migrated keeps the ids it was created with, and</span>
+<span class="sd">    the revisions append what a new project creates in place. So each row is</span>
+<span class="sd">    given without its own id and timestamp, and each foreign key is replaced</span>
+<span class="sd">    by the row it points to, which makes "this step depends on that one"</span>
+<span class="sd">    read the same whatever the two are numbered.</span>
+
+<span class="sd">    Every table the database has is included, so one added later is covered</span>
+<span class="sd">    without being listed here.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        engine:    The SQLAlchemy engine for the project database.</span>
+
+<span class="sd">        own_values([str]):    The names of the parameters whose configured</span>
+<span class="sd">            value belongs to the project, and so is not to be compared. It is</span>
+<span class="sd">            replaced by a placeholder.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:</span>
+<span class="sd">            The rows of each table by its name, each a tuple of (column,</span>
+<span class="sd">            value) pairs. Sorted, except those of ``processing_sequence``,</span>
+<span class="sd">            which stay in the order of their ids: that order is what the</span>
+<span class="sd">            table records.</span>
+<span class="sd">    """</span>
+
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="p">()</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">table</span>
+        <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"alembic_version"</span>
+    <span class="p">]</span>
+    <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="o">*</span><span class="n">table</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">mappings</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span>
+        <span class="p">}</span>
+    <span class="n">own_value_ids</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[</span><span class="s2">"parameter"</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">own_values</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the row with each reference replaced by what it names."""</span>
+
+        <span class="n">resolved</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="c1"># A condition's id is not a row id: it names the group of</span>
+            <span class="c1"># expressions the condition consists of, and is how the</span>
+            <span class="c1"># configuration refers to it.</span>
+            <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"timestamp"</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">column</span><span class="o">.</span><span class="n">primary_key</span> <span class="ow">and</span> <span class="n">table</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"condition"</span>
+            <span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">column</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">foreign_key</span> <span class="ow">in</span> <span class="n">column</span><span class="o">.</span><span class="n">foreign_keys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">referred</span> <span class="o">=</span> <span class="n">foreign_key</span><span class="o">.</span><span class="n">column</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span>
+                        <span class="n">referred</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+                        <span class="nb">next</span><span class="p">(</span>
+                            <span class="n">candidate</span>
+                            <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[</span><span class="n">referred</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">candidate</span><span class="p">[</span><span class="n">referred</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"configuration"</span>
+                <span class="ow">and</span> <span class="n">column</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"value"</span>
+                <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">"parameter_id"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">own_value_ids</span>
+            <span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="s2">"&lt;the project's own&gt;"</span>
+            <span class="n">resolved</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">column</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+        <span class="n">resolved_rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">resolve</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">]]</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">resolved_rows</span>
+            <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"processing_sequence"</span>
+            <span class="k">else</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">resolved_rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">repr</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestUpgradeFromRelease</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A project created by a *released* AutoWISP becomes one of today's.</span>
+
+<span class="sd">    In its schema, and in the rows creating a project fills it with: the</span>
+<span class="sd">    steps, their parameters, the layout of its products.</span>
+
+<span class="sd">    This is the test that catches a model, or what a new project is given,</span>
+<span class="sd">    changed without a revision to match. The other migration tests build</span>
+<span class="sd">    their "before" state from today's metadata, so a missing revision moves</span>
+<span class="sd">    both sides together and goes unnoticed. Here the starting point is</span>
+<span class="sd">    built by the released code itself, checked out from its tag, so the</span>
+<span class="sd">    revision chain is the only thing that can close the gap.</span>
+
+<span class="sd">    That released package is loaded in a **subprocess**: it defines the</span>
+<span class="sd">    same module names as the code under test, so importing both into one</span>
+<span class="sd">    interpreter would have whichever came first shadow the other.</span>
+<span class="sd">    """</span>
+
+    <span class="n">release_baselines</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"1.8.1"</span><span class="p">,</span> <span class="s2">"2.0.0"</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Released versions a project database may be upgraded from.</span>
+
+<span class="sd">    Add each new release tag as it ships; every entry gets its own</span>
+<span class="sd">    upgrade-to-current check.</span>
+<span class="sd">    """</span>
+
+    <span class="n">stored_values_kept</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="c1"># Existing projects go on identifying observations as they did.</span>
+        <span class="s2">"tfa-observation-id"</span><span class="p">,</span>
+        <span class="c1"># The default became a list; the single number means the same.</span>
+        <span class="s2">"stamp-pixel-outlier-threshold"</span><span class="p">,</span>
+        <span class="s2">"stamp-smoothing-outlier-threshold"</span><span class="p">,</span>
+        <span class="c1"># The iteration of an existing master is recovered by matching its</span>
+        <span class="c1"># file name against the format, so a project's masters stay</span>
+        <span class="c1"># parseable only under the format they were named by.</span>
+        <span class="s2">"master-photref-fname-format"</span><span class="p">,</span>
+        <span class="s2">"magfit-stat-fname-format"</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Parameters whose default has changed since one of the releases.</span>
+
+<span class="sd">    An upgraded project keeps the value it stores, so it is the one thing</span>
+<span class="sd">    such a project may hold that a new one does not. Each entry is a</span>
+<span class="sd">    decision that the stored value is to be kept rather than migrated: a</span>
+<span class="sd">    default changed without one fails the comparison with a new project.</span>
+<span class="sd">    """</span>
+
+    <span class="n">last_schema_revision</span> <span class="o">=</span> <span class="s2">"0011_diagnostic_expression"</span>
+<span class="w">    </span><span class="sd">"""The revision the ones that change a project's rows come after."""</span>
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">_git</span><span class="p">(</span><span class="s2">"rev-parse"</span><span class="p">,</span> <span class="s2">"--git-dir"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span><span class="s2">"not a git checkout, so releases cannot be exported"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._export_release">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease._export_release">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_export_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Extract the ``autowisp`` package as of *ref* into a temp dir."""</span>
+
+        <span class="k">if</span> <span class="n">_git</span><span class="p">(</span><span class="s2">"rev-parse"</span><span class="p">,</span> <span class="s2">"--verify"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">^</span><span class="se">{{</span><span class="s2">commit</span><span class="se">}}</span><span class="s2">"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"tag </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> unavailable -- CI needs fetch-depth: 0 for tags"</span>
+            <span class="p">)</span>
+        <span class="n">archive</span> <span class="o">=</span> <span class="n">_git</span><span class="p">(</span><span class="s2">"archive"</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="s2">"autowisp"</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"could not export </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">target</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># tarfile rather than the tar binary: no external command, and no</span>
+        <span class="c1"># assumption about which tar the platform ships.</span>
+        <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">archive</span><span class="p">))</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
+            <span class="n">tar</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s2">"data"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">target</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._build_release_schema">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease._build_release_schema">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Create the release's schema, running that release's own code."""</span>
+
+        <span class="c1"># hide_password=False: str(URL) masks the password, which would</span>
+        <span class="c1"># make the subprocess fail to connect to a server.</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">render_as_string</span><span class="p">(</span><span class="n">hide_password</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
+                <span class="s2">"-c"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"import sys; sys.path.insert(0, </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"from sqlalchemy import create_engine</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"from autowisp.database.data_model.base import DataModelBase</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"import autowisp.database.data_model</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="sa">f</span><span class="s2">"DataModelBase.metadata.create_all(create_engine(</span><span class="si">{</span><span class="n">url</span><span class="si">!r}</span><span class="s2">))</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="p">:</span>
+            <span class="c1"># The release cannot create its own schema here, so there is no</span>
+            <span class="c1"># upgrade to check -- not a failure of the revisions. Reachable:</span>
+            <span class="c1"># 1.8.1 cannot be created on MySQL 8.4 under utf8mb4 at all,</span>
+            <span class="c1"># because its VARCHAR(1000) unique keys exceed InnoDB's index</span>
+            <span class="c1"># limit. That is precisely what these revisions fix, and why</span>
+            <span class="c1"># real deployments run a narrower charset.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span>
+                <span class="s2">"the release cannot build its schema on this backend, so "</span>
+                <span class="sa">f</span><span class="s2">"there is no upgrade path to check:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">[</span><span class="o">-</span><span class="mi">300</span><span class="p">:]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._initialize_project">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease._initialize_project">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">released</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create a project and fill it, running the code found in *source*.</span>
+
+<span class="sd">        Filled the way creating a project fills it: the steps, their</span>
+<span class="sd">        parameters and default configuration, the processing sequence, the</span>
+<span class="sd">        master types, the layout of the HDF5 products, the diagnostic types</span>
+<span class="sd">        and the expression library.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            source(str):    The directory holding the ``autowisp`` package</span>
+<span class="sd">                to create the project with.</span>
+
+<span class="sd">            label(str):    Tells the project apart from the others a test</span>
+<span class="sd">                creates.</span>
+
+<span class="sd">            released(bool):    Is *source* a release rather than the code</span>
+<span class="sd">                under test? A release that cannot create its project on this</span>
+<span class="sd">                backend leaves nothing to check; the code under test must.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The SQLAlchemy engine for the project's database.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="n">on_server</span><span class="p">():</span>
+            <span class="n">project_home</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">,</span> <span class="n">project_home</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">project_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">"autowisp.db"</span><span class="p">))</span>
+        <span class="c1"># hide_password=False: see _build_release_schema().</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">", db_url="</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">render_as_string</span><span class="p">(</span><span class="n">hide_password</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">on_server</span><span class="p">()</span>
+            <span class="k">else</span> <span class="s2">""</span>
+        <span class="p">)</span>
+        <span class="c1"># Releases up to 2.0.0 hand drop_all a one-shot iterator, which</span>
+        <span class="c1"># SQLAlchemy 2.1 fails on, so no release could create its project and</span>
+        <span class="c1"># every upgrade check was skipped. They get the fixed function</span>
+        <span class="c1"># (af166787), which changes nothing about what they write. The code</span>
+        <span class="c1"># under test runs its own.</span>
+        <span class="n">fixed_drop</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"import autowisp.database.initialize_database as creation</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"creation.drop_tables_matching = lambda pattern: (</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"    creation.DataModelBase.metadata.drop_all(</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"        creation.get_db_engine(),</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"        [</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"            table</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"            for table in reversed(</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"                creation.DataModelBase.metadata.sorted_tables</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"            )</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"            if pattern.fullmatch(table.name)</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"        ],</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"    )</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">")</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="k">if</span> <span class="n">released</span>
+            <span class="k">else</span> <span class="s2">""</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
+                <span class="s2">"-c"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"import sys; sys.path.insert(0, </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"from argparse import Namespace</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"from autowisp.database.interface import set_project_home</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"from autowisp.database.initialize_database import (</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"    initialize_database</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">")</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="o">+</span> <span class="n">fixed_drop</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">"set_project_home(</span><span class="si">{</span><span class="n">project_home</span><span class="si">!r}{</span><span class="n">url</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="c1"># As the browser interface creates a project.</span>
+                <span class="s2">"initialize_database(</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"    Namespace(</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"        drop_hdf5_structure_tables=False,</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"        drop_all_tables=True,</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"    )</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">")</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">project_home</span><span class="p">,</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="ow">and</span> <span class="n">released</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span>
+                <span class="s2">"the release cannot create its project on this backend, so "</span>
+                <span class="sa">f</span><span class="s2">"there is no upgrade path to check:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">[</span><span class="o">-</span><span class="mi">300</span><span class="p">:]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">[</span><span class="o">-</span><span class="mi">2000</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">engine</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._run_alembic">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease._run_alembic">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_alembic</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">revision</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Run one Alembic command on a project, as ``migrate_project`` would.</span>
+
+<span class="sd">        ``migrate_project`` only ever goes to the head, so stopping at an</span>
+<span class="sd">        earlier revision, downgrading or re-stamping go through here.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            engine:    The SQLAlchemy engine for the project database.</span>
+
+<span class="sd">            command(callable):    The function of ``alembic.command`` to run,</span>
+<span class="sd">                e.g. ``alembic.command.downgrade``.</span>
+
+<span class="sd">            revision(str):    The revision to run it to.</span>
+<span class="sd">        """</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">_alembic_config</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">_locked_connection</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">"connection"</span><span class="p">]</span> <span class="o">=</span> <span class="n">connection</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">MigrationContext</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span><span class="o">.</span><span class="n">get_current_revision</span><span class="p">()</span>
+                <span class="ow">is</span> <span class="kc">None</span>
+            <span class="p">):</span>
+                <span class="c1"># Predates Alembic: see migrate_project().</span>
+                <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
+                <span class="n">alembic_command</span><span class="o">.</span><span class="n">stamp</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">BASELINE_REVISION</span><span class="p">)</span>
+            <span class="n">command</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">revision</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._get_stored_values">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease._get_stored_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_stored_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return (parameter, value) for each of ``stored_values_kept``."""</span>
+
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">parameter</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="s2">"parameter"</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span><span class="p">)</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+                <span class="s2">"configuration"</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">select</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">configuration</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">configuration</span><span class="p">,</span>
+                        <span class="n">configuration</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">parameter_id</span> <span class="o">==</span> <span class="n">parameter</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stored_values_kept</span><span class="p">))</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._add_user_rule">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease._add_user_rule">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_user_rule</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Set an exclusion rule under a condition, as a user would."""</span>
+
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">parameter</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="s2">"parameter"</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span><span class="p">)</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+                <span class="s2">"configuration"</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span>
+            <span class="p">)</span>
+            <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">(</span>
+                    <span class="n">parameter_id</span><span class="o">=</span><span class="n">connection</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                        <span class="n">select</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="n">parameter</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"epd-exclusion-rule"</span>
+                        <span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">condition_id</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">value</span><span class="o">=</span><span class="s2">"cloud[0] &gt; 0.3"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_release_upgrades_to_the_current_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Each released schema, once migrated, agrees with today's models."""</span>
+
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="n">ref</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_backend</span><span class="p">()</span>
+                <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"from_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
+
+                <span class="c1"># Predates Alembic, so this covers the whole path: reach the</span>
+                <span class="c1"># baseline, stamp it, then apply every revision.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">get_head_revision</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">get_schema_drift</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span>
+                    <span class="p">[],</span>
+                    <span class="sa">f</span><span class="s2">"a database from </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> does not reach the current "</span>
+                    <span class="s2">"schema; the differences above each need a revision"</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_release_keeps_its_timestamp_triggers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Upgrading does not cost the database its triggers.</span>
+
+<span class="sd">        SQLite cannot alter a column in place, so ``batch_alter_table``</span>
+<span class="sd">        rebuilds the table and the drop takes its triggers with it. The</span>
+<span class="sd">        rebuilt table is created by the revision rather than from the</span>
+<span class="sd">        models, so nothing puts them back -- a 1.8.1 database used to lose</span>
+<span class="sd">        seven this way, and the check above could not see it.</span>
+<span class="sd">        """</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">expected_timestamp_triggers</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="n">ref</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_backend</span><span class="p">()</span>
+                <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"triggers_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_triggers</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_value_too_long_to_keep_stops_the_migration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Narrowing a column refuses rather than truncating.</span>
+
+<span class="sd">        Refusing is the point: on a server not running in strict mode the</span>
+<span class="sd">        ALTER would truncate the value silently.</span>
+
+<span class="sd">        Uses ``condition_expression.expression`` (1000 -&gt; 768 in ``0005``)</span>
+<span class="sd">        rather than ``image.raw_fname``, which narrows identically in</span>
+<span class="sd">        ``0004``. The guard lives in the shared ``resize_varchar_column``,</span>
+<span class="sd">        so either exercises it -- but condition_expression has no foreign</span>
+<span class="sd">        keys, whereas an image row needs an image_type and an observing</span>
+<span class="sd">        session, and that in turn needs an observer, camera, telescope,</span>
+<span class="sd">        mount, observatory and target. A server enforces every one of</span>
+<span class="sd">        those, so the alternative was either a dozen rows of fixture or</span>
+<span class="sd">        switching the checks off, and neither has anything to do with</span>
+<span class="sd">        column widths.</span>
+<span class="sd">        """</span>
+
+        <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"toolong_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">long_expression</span> <span class="o">=</span> <span class="s2">"x"</span> <span class="o">*</span> <span class="mi">800</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+                <span class="s2">"condition_expression"</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span>
+            <span class="p">)</span>
+            <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">expression</span><span class="o">=</span><span class="n">long_expression</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">DatabaseError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"expression"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">long_expression</span><span class="p">)),</span> <span class="n">message</span><span class="p">)</span>
+
+        <span class="c1"># The value is still intact, and the schema was left alone.</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+                <span class="s2">"condition_expression"</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span>
+            <span class="p">)</span>
+            <span class="n">kept</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">expression</span><span class="p">))</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span> <span class="n">long_expression</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._assert_holds">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease._assert_holds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_holds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">own_values</span><span class="o">=</span><span class="p">(),</span> <span class="n">reason</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check that a project holds exactly the given contents.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            engine:    The SQLAlchemy engine for the project database.</span>
+
+<span class="sd">            expected(dict):    What it should hold, as returned by</span>
+<span class="sd">                get_project_contents().</span>
+
+<span class="sd">            own_values([str]):    See get_project_contents().</span>
+
+<span class="sd">            reason(str):    Why it should, to report with the rows that</span>
+<span class="sd">                differ.</span>
+<span class="sd">        """</span>
+
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">get_project_contents</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">own_values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">contents</span><span class="p">),</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">expected</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Only the rows on one side: the tables are too long to read a</span>
+            <span class="c1"># difference of the whole of them.</span>
+            <span class="n">unexpected</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="n">table</span><span class="p">])</span> <span class="o">-</span> <span class="n">Counter</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+            <span class="n">missing</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">-</span> <span class="n">Counter</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="n">table</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span>
+                <span class="n">unexpected</span> <span class="ow">or</span> <span class="n">missing</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">, but its </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> rows differ.</span><span class="se">\n</span><span class="s2">It has:</span><span class="se">\n\t</span><span class="s2">"</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">unexpected</span><span class="o">.</span><span class="n">elements</span><span class="p">())</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">It lacks:</span><span class="se">\n\t</span><span class="s2">"</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">missing</span><span class="o">.</span><span class="n">elements</span><span class="p">()),</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="n">contents</span><span class="p">[</span><span class="n">table</span><span class="p">],</span>
+                <span class="n">rows</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">, but its </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> rows are in another order"</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.test_every_release_ends_up_holding_what_a_new_project_does">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_upgrade_from_release.html#autowisp.tests.test_upgrade_from_release.TestUpgradeFromRelease.test_every_release_ends_up_holding_what_a_new_project_does">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_release_ends_up_holding_what_a_new_project_does</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Each released project, once migrated, holds a new one's rows.</span>
+
+<span class="sd">        The schema reaching today's is not enough: creating a project also</span>
+<span class="sd">        fills it with the steps, their parameters, the processing sequence</span>
+<span class="sd">        and the layout of its products, all of which change between</span>
+<span class="sd">        releases. A project created by a release must end up with the same</span>
+<span class="sd">        rows as one created today, whichever table they are in, except for</span>
+<span class="sd">        the values it stores for ``stored_values_kept``, which must be</span>
+<span class="sd">        exactly the ones it had.</span>
+
+<span class="sd">        The revisions that change rows are then put through what else can</span>
+<span class="sd">        happen to them, on the same project, since creating one is what</span>
+<span class="sd">        takes the time:</span>
+
+<span class="sd">        * run a second time, as after an upgrade interrupted before it was</span>
+<span class="sd">          recorded, they add nothing;</span>
+
+<span class="sd">        * downgraded, they leave what the project held before them, even</span>
+<span class="sd">          of an exclusion rule a user has since set under a condition, which</span>
+<span class="sd">          goes with the parameter it was a value of.</span>
+<span class="sd">        """</span>
+
+        <span class="n">new_project</span> <span class="o">=</span> <span class="n">get_project_contents</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_project</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+                <span class="p">),</span>
+                <span class="s2">"new"</span><span class="p">,</span>
+                <span class="n">released</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stored_values_kept</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="n">ref</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_backend</span><span class="p">()</span>
+                <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_project</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"from_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+                <span class="n">stored_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_stored_values</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_alembic</span><span class="p">(</span>
+                    <span class="n">engine</span><span class="p">,</span> <span class="n">alembic_command</span><span class="o">.</span><span class="n">upgrade</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_schema_revision</span>
+                <span class="p">)</span>
+                <span class="n">before_data_revisions</span> <span class="o">=</span> <span class="n">get_project_contents</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_assert_holds</span><span class="p">(</span>
+                    <span class="n">engine</span><span class="p">,</span>
+                    <span class="n">new_project</span><span class="p">,</span>
+                    <span class="n">own_values</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stored_values_kept</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">"A migrated project from </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> should hold what "</span>
+                    <span class="s2">"a new one does, by a revision for each difference or, "</span>
+                    <span class="s2">"for a stored value to keep, an entry in "</span>
+                    <span class="s2">"stored_values_kept"</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_stored_values</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">stored_values</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_alembic</span><span class="p">(</span>
+                    <span class="n">engine</span><span class="p">,</span> <span class="n">alembic_command</span><span class="o">.</span><span class="n">stamp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_schema_revision</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_assert_holds</span><span class="p">(</span>
+                    <span class="n">engine</span><span class="p">,</span>
+                    <span class="n">new_project</span><span class="p">,</span>
+                    <span class="n">own_values</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stored_values_kept</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">"Repeating the revisions that change rows should "</span>
+                    <span class="s2">"change nothing"</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_user_rule</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_alembic</span><span class="p">(</span>
+                    <span class="n">engine</span><span class="p">,</span> <span class="n">alembic_command</span><span class="o">.</span><span class="n">downgrade</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_schema_revision</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_assert_holds</span><span class="p">(</span>
+                    <span class="n">engine</span><span class="p">,</span>
+                    <span class="n">before_data_revisions</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">"Downgrading the revisions that change rows "</span>
+                    <span class="s2">"should leave what the project held before them"</span><span class="p">,</span>
+                <span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

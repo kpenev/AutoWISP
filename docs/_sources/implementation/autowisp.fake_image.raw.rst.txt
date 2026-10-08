@@ -1,7 +1,0 @@
-autowisp.fake\_image.raw module
-===============================
-
-.. automodule:: autowisp.fake_image.raw
-   :members:
-   :show-inheritance:
-   :undoc-members:

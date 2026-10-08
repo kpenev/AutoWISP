@@ -1,0 +1,13 @@
+<map id="inheritance3a98bbee8f" name="inheritance3a98bbee8f">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="273,299,641,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="5,372,455,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="479,372,890,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="32,225,452,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="477,225,869,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="525,152,820,177"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" target="_top" title="Everything initialization inserts must fit its column." alt="" coords="819,79,1382,104"/>
+<area shape="rect" id="node8" title="A class whose instances are single test cases." alt="" coords="1017,5,1185,31"/>
+<area shape="rect" id="node9" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="59,152,425,177"/>
+<area shape="rect" id="node10" title="define a class as inspectable." alt="" coords="550,79,795,104"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="614,5,731,31"/>
+</map>

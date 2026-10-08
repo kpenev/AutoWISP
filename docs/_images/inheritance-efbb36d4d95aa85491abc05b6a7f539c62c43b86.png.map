@@ -1,0 +1,5 @@
+<map id="inheritance4f8d6e2002" name="inheritance4f8d6e2002">
+<area shape="rect" id="node1" href="#autowisp.tests.test_photref_binding.PhotrefBindingProject" target="_top" title="A project with one registered single photref, holding no tests itself." alt="" coords="7,79,407,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_photref_binding.TestSeparationBinding" target="_top" title="A finite ``max_photref_separation``: bound by distance to the photref." alt="" coords="5,152,409,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="123,5,291,31"/>
+</map>

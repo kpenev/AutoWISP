@@ -15,9 +15,9 @@ from autowisp.fit_expression import (
     iterative_fit,
 )
 from autowisp.multiprocessing_util import setup_process
-from autowisp.error_context import run_pool
+from autowisp.error_context import error_context, run_pool
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
@@ -37,6 +37,9 @@ from autowisp.data_reduction.utils import delete_star_shape_fit
 _logger = logging.getLogger(__name__)
 
 input_type = "calibrated + dr"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 
 
 def parse_grid_arg(grid_str):
@@ -540,9 +543,7 @@ class SourceListCreator:
             len(in_frame),
         )
         fit_sources = self._sources[in_frame]
-        _logger.debug(
-            "Fit source columns: %s", repr(self._sources.columns)
-        )
+        _logger.debug("Fit source columns: %s", repr(self._sources.columns))
         grouping = grouping[in_frame]
 
         number_fit_groups = grouping.max() + 1
@@ -550,18 +551,14 @@ class SourceListCreator:
         if self.remove_group_id is not None:
             number_fit_groups = sorted(range(number_fit_groups))
             for remove_group_id in self.remove_group_id:
-                _logger.debug(
-                    "Removing group_id: %s", repr(remove_group_id)
-                )
+                _logger.debug("Removing group_id: %s", repr(remove_group_id))
                 del number_fit_groups[remove_group_id]
             result = [
                 pandas.DataFrame(fit_sources, copy=True)
                 for group_id in number_fit_groups
             ]
             for group_id in number_fit_groups:
-                _logger.debug(
-                    "Group %s:\n%s", group_id, repr(result[group_id])
-                )
+                _logger.debug("Group %s:\n%s", group_id, repr(result[group_id]))
                 # This is more readable
                 # pylint:disable=superfluous-parens
                 result[group_id]["enabled"] = grouping == group_id
@@ -573,9 +570,7 @@ class SourceListCreator:
                 for group_id in range(number_fit_groups)
             ]
             for group_id in range(number_fit_groups):
-                _logger.debug(
-                    "Group %s:\n%s", group_id, repr(result[group_id])
-                )
+                _logger.debug("Group %s:\n%s", group_id, repr(result[group_id]))
 
                 # This is more readable
                 # pylint:disable=superfluous-parens
@@ -591,37 +586,51 @@ class SourceListCreator:
 
 
 def create_source_list_creator(dr_fnames, configuration, catalog_lock):
-    """Return a fully configured instance of SourceListCreator."""
+    """Return a configured SourceListCreator and the catalog behind it.
 
-    catalog_sources, outliers = ensure_catalog(
+    The catalog filename is handed back rather than scoped here: this
+    function only *resolves* it, while the caller uses it for the whole
+    fit, so that is where it belongs on an error.
+
+    Returns:
+        (SourceListCreator, str):    The configured creator, and the
+            resolved filename of the catalog it draws its sources from.
+    """
+
+    catalog_sources, outliers, catalog_fname = ensure_catalog(
         dr_files=dr_fnames,
         configuration=get_catalog_config(configuration, "photometry"),
         return_metadata=False,
         skytoframe_version=configuration["skytoframe_version"],
         lock=catalog_lock,
-    )[:2]
+    )
     if outliers.size:
         raise RuntimeError(
             "Not all images in multi-image fit have consistent pointing!"
         )
 
-    return SourceListCreator(
-        catalog_sources=catalog_sources,
-        fit_variables=configuration["map_variables"],
-        grouping=SplitSources(
-            magnitude_column=configuration["split_magnitude_column"],
-            radius_splits=configuration["radius_splits"],
-            mag_split_by_source_count=configuration["mag_split_source_count"],
+    return (
+        SourceListCreator(
+            catalog_sources=catalog_sources,
+            fit_variables=configuration["map_variables"],
+            grouping=SplitSources(
+                magnitude_column=configuration["split_magnitude_column"],
+                radius_splits=configuration["radius_splits"],
+                mag_split_by_source_count=configuration[
+                    "mag_split_source_count"
+                ],
+            ),
+            **{
+                option: configuration[option]
+                for option in [
+                    "grouping_frame",
+                    "discard_faint",
+                    "remove_group_id",
+                    "skytoframe_version",
+                ]
+            },
         ),
-        **{
-            option: configuration[option]
-            for option in [
-                "grouping_frame",
-                "discard_faint",
-                "remove_group_id",
-                "skytoframe_version",
-            ]
-        },
+        catalog_fname,
     )
 
 
@@ -674,6 +683,7 @@ def get_shape_fitter_config(configuration):
         result[option] = configuration["shapefit_" + option]
 
     return result
+
 
 def get_center_background(  # pylint: disable=too-many-arguments
     dr_file,
@@ -731,7 +741,18 @@ def get_center_background(  # pylint: disable=too-many-arguments
     return coef[0], numpy.sqrt(square_residual)
 
 
+def _frame_set_related_files(frame_filenames):
+    """``related_files`` classifier for a simultaneous-fit frame set.
 
+    The work item is a *list* of calibrated frames fit together, so an
+    error scopes every frame in the set (module-level so it is picklable
+    to the workers).
+    """
+
+    return [
+        RelatedFile(FileKind.CALIBRATED_IMAGE, fname, role="input")
+        for fname in frame_filenames
+    ]
 
 
 def fit_frame_set(
@@ -775,77 +796,93 @@ def fit_frame_set(
     _logger.debug("Fitting configuration: %s", repr(configuration))
 
     dr_fnames = [get_dr_fname(f) for f in frame_filenames]
-    get_sources = create_source_list_creator(
+    get_sources, catalog_fname = create_source_list_creator(
         dr_fnames, configuration, catalog_lock
     )
-    _logger.debug("Created source getter")
+    # Everything below draws on the catalog, so name it on any error
+    # raised while it does.
+    with error_context(
+        related_files=[
+            RelatedFile(FileKind.CATALOG, catalog_fname, role="input")
+        ]
+    ):
+        _logger.debug("Created source getter")
 
-    shape_fitter_config = get_shape_fitter_config(configuration)
-    star_shape_fitter = PiecewiseBicubicPSFMap()
-    _logger.debug("Created star shape fitter.")
+        shape_fitter_config = get_shape_fitter_config(configuration)
+        star_shape_fitter = PiecewiseBicubicPSFMap()
+        _logger.debug("Created star shape fitter.")
 
-    fit_sources = [get_sources(frame) for frame in frame_filenames]
-    _logger.debug("Fit sources: %s", repr(fit_sources))
+        fit_sources = [get_sources(frame) for frame in frame_filenames]
+        _logger.debug("Fit sources: %s", repr(fit_sources))
 
-    num_fit_groups = max(len(frame_sources) for frame_sources in fit_sources)
-    _logger.debug("Fitting %s group", repr(num_fit_groups))
-
-    for fname in frame_filenames:
-        mark_start(fname)
-    for fit_group in range(num_fit_groups):
-        shape_fitter_config["dr_path_substitutions"]["fit_group"] = fit_group
-        _logger.debug(
-            "Fitting:\n"
-            "\tframe_filenames: %s\n"
-            "\tsources: %s\n"
-            "\tdr_fnames: %s\n",
-            repr(frame_filenames),
-            repr([sources[fit_group] for sources in fit_sources]),
-            repr([get_dr_fname(f) for f in frame_filenames]),
+        num_fit_groups = max(
+            len(frame_sources) for frame_sources in fit_sources
         )
-        star_shape_fitter.fit(
-            fits_fnames=frame_filenames,
-            sources=[
-                sources[fit_group].to_records() for sources in fit_sources
-            ],
-            output_dr_fnames=dr_fnames,
-            **shape_fitter_config,
-        )
-        _logger.debug("Done fitting")
+        _logger.debug("Fitting %s group", repr(num_fit_groups))
 
-    dr_path_substitutions = get_dr_substitutions(configuration)
-    bg_fit_config = {
-        argname[len("bg_map_") :]: value
-        for argname, value in configuration.items()
-        if argname.startswith("bg_map_")
-    }
-    for fname in frame_filenames:
-        diagnostics = []
-        try:
-            with DataReductionFile(
-                header=get_primary_header(fname), mode="r"
-            ) as dr_file:
-                header = dr_file.get_frame_header()
-                bg_center, bg_residual = get_center_background(
-                    dr_file, header, **bg_fit_config, **dr_path_substitutions
-                )
-                diagnostics.append(("bg_center", bg_center))
-                diagnostics.append(("bg_map_residual", bg_residual))
-        except Exception:
-            _logger.error(
-                "Failed to compute background diagnostics for %s",
-                fname,
-                exc_info=True,
+        for fname in frame_filenames:
+            mark_start(fname)
+        for fit_group in range(num_fit_groups):
+            shape_fitter_config["dr_path_substitutions"][
+                "fit_group"
+            ] = fit_group
+            _logger.debug(
+                "Fitting:\n"
+                "\tframe_filenames: %s\n"
+                "\tsources: %s\n"
+                "\tdr_fnames: %s\n",
+                repr(frame_filenames),
+                repr([sources[fit_group] for sources in fit_sources]),
+                repr([get_dr_fname(f) for f in frame_filenames]),
             )
-        mark_end(fname, diagnostics=diagnostics or None)
+            star_shape_fitter.fit(
+                fits_fnames=frame_filenames,
+                sources=[
+                    sources[fit_group].to_records() for sources in fit_sources
+                ],
+                output_dr_fnames=dr_fnames,
+                **shape_fitter_config,
+            )
+            _logger.debug("Done fitting")
+
+        dr_path_substitutions = get_dr_substitutions(configuration)
+        bg_fit_config = {
+            argname[len("bg_map_") :]: value
+            for argname, value in configuration.items()
+            if argname.startswith("bg_map_")
+        }
+        for fname in frame_filenames:
+            diagnostics = []
+            try:
+                with DataReductionFile(
+                    header=get_primary_header(fname), mode="r"
+                ) as dr_file:
+                    header = dr_file.get_frame_header()
+                    bg_center, bg_residual = get_center_background(
+                        dr_file,
+                        header,
+                        **bg_fit_config,
+                        **dr_path_substitutions,
+                    )
+                    diagnostics.append(("bg_center", bg_center))
+                    diagnostics.append(("bg_map_residual", bg_residual))
+            except Exception:
+                _logger.error(
+                    "Failed to compute background diagnostics for %s",
+                    fname,
+                    exc_info=True,
+                )
+            mark_end(fname, diagnostics=diagnostics or None)
 
 
 def fit_star_shape(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Find the best-fit model for the PSF/PRF in the given images."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     image_collection = sorted(image_collection)
@@ -891,6 +928,7 @@ def fit_star_shape(
                 config=configuration,
                 num_processes=configuration["num_parallel_processes"],
                 max_tasks_per_child=1,
+                related_files=_frame_set_related_files,
             )
 
 
@@ -899,9 +937,7 @@ def cleanup_interrupted(interrupted, configuration):
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     dr_path_substitutions = get_dr_substitutions(configuration)
-    for image_fname, status in interrupted:
-        assert status == 0
-
+    for image_fname, _ in interrupted:
         fits_header = get_primary_header(image_fname)
         with DataReductionFile(header=fits_header, mode="r+") as dr_file:
             dr_file.delete_sources(

@@ -1,0 +1,12 @@
+<map id="inheritance6e51725668" name="inheritance6e51725668">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" target="_top" title="Simple object for storing attributes." alt="" coords="5,5,165,31"/>
+<area shape="rect" id="node2" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="119,152,502,177"/>
+<area shape="rect" id="node8" href="autowisp.browser_interface.home.models.html#autowisp.browser_interface.home.models.Project" target="_top" title="Model to represent a project." alt="" coords="139,225,483,251"/>
+<area shape="rect" id="node4" href="autowisp.browser_interface.core.walk_fs_view.html#autowisp.browser_interface.core.walk_fs_view.WalkFSView" target="_top" title="Base class allowing user to walk through the file system." alt="" coords="573,79,981,104"/>
+<area shape="rect" id="node6" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView" target="_top" title="View to create a new AutoWISP project." alt="" coords="527,152,1028,177"/>
+<area shape="rect" id="node5" title="Intentionally simple parent class for all views. Only implements" alt="" coords="662,5,893,31"/>
+<area shape="rect" id="node7" href="#autowisp.browser_interface.home.create_project_view.MasterConfigView" target="_top" title="Handle master configuration part of the project creation view." alt="" coords="528,225,1027,251"/>
+<area shape="rect" id="node9" title="Make subclasses preserve the alters_data attribute on overridden methods." alt="" coords="189,5,432,31"/>
+<area shape="rect" id="node10" title="An HTTP response class with a string as content." alt="" coords="1095,79,1350,104"/>
+<area shape="rect" id="node11" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="1079,5,1366,31"/>
+</map>

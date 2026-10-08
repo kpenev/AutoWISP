@@ -1,0 +1,7 @@
+autowisp.exceptions module
+==========================
+
+.. automodule:: autowisp.exceptions
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,6 +1,6 @@
 """Define the target table for the pipeline"""
 
-from sqlalchemy import Column, String, Float
+from sqlalchemy import Column, String, Double
 
 from sqlalchemy.orm import relationship
 
@@ -20,8 +20,8 @@ class Target(DataModelBase):
 
     __tablename__ = "target"
 
-    ra = Column(Float, nullable=True, doc="The ra of the target")
-    dec = Column(Float, nullable=True, doc="The dec of the target")
+    ra = Column(Double, nullable=True, doc="The ra of the target")
+    dec = Column(Double, nullable=True, doc="The dec of the target")
     name = Column(
         String(100), nullable=False, unique=True, doc="The name of the target"
     )

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.astrometry.map_projections &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,53 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -120,7 +167,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.astrometry.map_projections</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define projections from a sphere onto a plane.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define projections from a sphere onto a plane."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
@@ -128,40 +175,40 @@
 <div class="viewcode-block" id="gnomonic_projection">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.map_projections.html#autowisp.astrometry.map_projections.gnomonic_projection">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">gnomonic_projection</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">projected</span><span class="p">,</span> <span class="o">**</span><span class="n">center</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Project the given sky position to a tangent plane (gnomonic projection).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        sources(structured array-like):    The sky position to project</span>
-<span class="sd">            (should have `&#39;RA&#39;` and `&#39;Dec&#39;` keys coordinates in degrees).</span>
+<span class="sd">            (should have `'RA'` and `'Dec'` keys coordinates in degrees).</span>
 
-<span class="sd">        projected:    A numpy array with `&#39;xi&#39;` and `&#39;eta&#39;` fields to fill</span>
+<span class="sd">        projected:    A numpy array with `'xi'` and `'eta'` fields to fill</span>
 <span class="sd">            with the projected coordinates (in degrees).</span>
 
-<span class="sd">        center(dict):    Should define the central `&#39;RA&#39;` and `&#39;Dec&#39;` around</span>
+<span class="sd">        center(dict):    Should define the central `'RA'` and `'Dec'` around</span>
 <span class="sd">            which to project.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">degree_to_rad</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
-    <span class="n">center</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
-    <span class="n">center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
-    <span class="n">ra_diff</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">degree_to_rad</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span>
+    <span class="n">center</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
+    <span class="n">center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
+    <span class="n">ra_diff</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">*</span> <span class="n">degree_to_rad</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span>
     <span class="n">cos_ra_diff</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ra_diff</span><span class="p">)</span>
-    <span class="n">cos_source_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">degree_to_rad</span><span class="p">)</span>
-    <span class="n">cos_center_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">])</span>
-    <span class="n">sin_source_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">degree_to_rad</span><span class="p">)</span>
-    <span class="n">sin_center_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">])</span>
+    <span class="n">cos_source_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span> <span class="o">*</span> <span class="n">degree_to_rad</span><span class="p">)</span>
+    <span class="n">cos_center_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">])</span>
+    <span class="n">sin_source_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span> <span class="o">*</span> <span class="n">degree_to_rad</span><span class="p">)</span>
+    <span class="n">sin_center_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">])</span>
     <span class="n">denominator</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">sin_center_dec</span> <span class="o">*</span> <span class="n">sin_source_dec</span>
         <span class="o">+</span> <span class="n">cos_center_dec</span> <span class="o">*</span> <span class="n">cos_source_dec</span> <span class="o">*</span> <span class="n">cos_ra_diff</span>
     <span class="p">)</span> <span class="o">*</span> <span class="n">degree_to_rad</span>
 
-    <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cos_source_dec</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ra_diff</span><span class="p">))</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="n">projected</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cos_source_dec</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ra_diff</span><span class="p">))</span> <span class="o">/</span> <span class="n">denominator</span>
 
-    <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">projected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">cos_center_dec</span> <span class="o">*</span> <span class="n">sin_source_dec</span>
         <span class="o">-</span> <span class="n">sin_center_dec</span> <span class="o">*</span> <span class="n">cos_source_dec</span> <span class="o">*</span> <span class="n">cos_ra_diff</span>
     <span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span></div>
@@ -171,55 +218,55 @@
 <div class="viewcode-block" id="inverse_gnomonic_projection">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.map_projections.html#autowisp.astrometry.map_projections.inverse_gnomonic_projection">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">inverse_gnomonic_projection</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">projected</span><span class="p">,</span> <span class="o">**</span><span class="n">center</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Inverse projection from tangent plane (xi, eta) to sky position (RA, Dec)</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        sources: An empty numpy array with &quot;RA&quot; and &quot;Dec&quot; fields to fill</span>
+<span class="sd">        sources: An empty numpy array with "RA" and "Dec" fields to fill</span>
 <span class="sd">                 with the inverse projected of tangent plane coordinates.</span>
 <span class="sd">                 (in degrees)</span>
 
-<span class="sd">        projected: numpy array with &quot;xi&quot; and &quot;eta&quot; fields (in degrees)</span>
+<span class="sd">        projected: numpy array with "xi" and "eta" fields (in degrees)</span>
 
-<span class="sd">        center(dict): Should define the central &quot;RA&quot; and &quot;Dec&quot; in degree</span>
+<span class="sd">        center(dict): Should define the central "RA" and "Dec" in degree</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">degree_to_rad</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
     <span class="n">rad_to_degree</span> <span class="o">=</span> <span class="mf">180.0</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
 
-    <span class="n">center</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
-    <span class="n">center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
+    <span class="n">center</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
+    <span class="n">center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
 
-    <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
-    <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
+    <span class="n">projected</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
+    <span class="n">projected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">degree_to_rad</span>
 
-    <span class="n">rho</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">projected</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">projected</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">projected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">rho_angle</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
-    <span class="n">denominator</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">])</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
         <span class="n">rho_angle</span>
-    <span class="p">)</span> <span class="o">-</span> <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rho_angle</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">-</span> <span class="n">projected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">])</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rho_angle</span><span class="p">)</span>
 
-    <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">projected</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rho_angle</span><span class="p">)),</span> <span class="n">denominator</span>
+    <span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">projected</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rho_angle</span><span class="p">)),</span> <span class="n">denominator</span>
     <span class="p">)</span>
 
-    <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span>
-        <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rho_angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">])</span>
-        <span class="o">+</span> <span class="p">(</span><span class="n">projected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rho_angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]))</span>
+    <span class="n">sources</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rho_angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">])</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">projected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rho_angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]))</span>
         <span class="o">/</span> <span class="n">rho</span>
     <span class="p">)</span>
 
-    <span class="k">while</span> <span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">][</span><span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">][</span><span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
 
-    <span class="k">while</span> <span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">][</span><span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">][</span><span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
 
-    <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rad_to_degree</span>
-    <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rad_to_degree</span></div>
+    <span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rad_to_degree</span>
+    <span class="n">sources</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rad_to_degree</span></div>
 
 
 

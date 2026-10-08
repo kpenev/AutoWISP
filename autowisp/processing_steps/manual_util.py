@@ -261,6 +261,16 @@ class ManualStepArgumentParser(ArgumentParser):
             "catalog is used for that channel.",
         )
         self.add_argument(
+            f"--{prefix}-catalog-source-list",
+            f"--{prefix}-catalogue-source-list",
+            "--cat-source-list",
+            default=catalog_config.get("source_list"),
+            help="Path to a file listing the GAIA source IDs (one per line) to "
+            "keep in the catalog. When given, the catalog is restricted to "
+            "these sources at read time, so the full cached catalog query is "
+            "reused. If not specified, all sources in the catalog are kept.",
+        )
+        self.add_argument(
             f"--{prefix}-catalog-epoch",
             f"--{prefix}-catalogue-epoch",
             "--cat-epoch",
@@ -705,10 +715,19 @@ class ManualStepArgumentParser(ArgumentParser):
                 self.argument_defaults[argument_name] = kwargs["default"]
             else:
                 if kwargs.get("action", None) == "store_true":
-                    assert kwargs.get("default", False) is False
+                    assert kwargs.get("default", False) is False, (
+                        f"--{argument_name} switches something on when given, "
+                        f"so it cannot default to {kwargs['default']!r}; only "
+                        "False leaves the switch meaningful!"
+                    )
                     self.argument_defaults[argument_name] = "False"
                 elif kwargs.get("action", None) == "store_false":
-                    assert kwargs.get("default", True) is True
+                    assert kwargs.get("default", True) is True, (
+                        f"--{argument_name} switches something off when "
+                        f"given, so it cannot default to "
+                        f"{kwargs['default']!r}; only True leaves the switch "
+                        "meaningful!"
+                    )
                     self.argument_defaults[argument_name] = repr(
                         kwargs["dest"] == argument_name
                     )
@@ -773,9 +792,7 @@ class ManualStepArgumentParser(ArgumentParser):
             # ``coverage`` or ``__main__``. ``processing_step`` is used only
             # to template log filenames, so falling back to the basename
             # keeps things working without crashing the test.
-            result.processing_step = result.processing_step.replace(
-                "-", "_"
-            )
+            result.processing_step = result.processing_step.replace("-", "_")
 
         try:
             logging_level = getattr(logging, result.verbose.upper())

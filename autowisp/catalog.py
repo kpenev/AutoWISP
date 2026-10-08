@@ -7,16 +7,19 @@ from os import path, makedirs, environ
 import logging
 from hashlib import md5
 from contextlib import nullcontext
+from tempfile import TemporaryDirectory
 import time
 
 import numpy
 import pandas
 from astropy import units
 from astropy.io import fits
+from astropy.io.votable import parse as parse_votable
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import GaiaClass, conf
 
 from autowisp.evaluator import Evaluator
+from autowisp.exceptions import CatalogError
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.astrometry import Transformation
 from autowisp.astrometry.map_projections import (
@@ -28,6 +31,17 @@ _logger = logging.getLogger(__name__)
 
 # Set timeout for Gaia TAP queries (includes result downloads)
 conf.timeout = 180
+
+
+class TruncatedQuery(Exception):
+    """A Gaia result the server itself reported as incomplete.
+
+    Separate from :class:`autowisp.exceptions.CatalogError` because it is
+    raised to be caught: it means *ask again*, where a ``CatalogError``
+    means the query is not going to work.  It only escapes
+    :meth:`WISPGaia.get_result` as the cause of one, once the retries are
+    spent.
+    """
 
 
 class WISPGaia(GaiaClass):
@@ -95,6 +109,64 @@ class WISPGaia(GaiaClass):
 
         cls._credentials = credentials
 
+    @staticmethod
+    def _check_query_status(votable_fname):
+        """
+        Raise unless the server called the result it just sent complete.
+
+        A TAP result carries ``<INFO name="QUERY_STATUS">`` elements saying
+        how the stream ended, and a stream cut short by trouble at the
+        server ends with one reading ``ERROR`` -- after a perfectly
+        well-formed table holding however many rows made it out.  Nothing
+        else distinguishes that table from a complete one, so a query that
+        half succeeded otherwise passes for a sky with fewer stars in it.
+
+        The last status is the one that counts: the first says the query
+        parsed and began returning rows, and is ``OK`` on a truncated
+        result too.
+
+        ``OVERFLOW`` is not an error but is worth saying out loud: the
+        service stopped at its own row limit, so the catalog is capped by
+        the server rather than by what was asked for.
+
+        Args:
+            votable_fname(str):    The VOTable as it arrived, before
+                anything parsed the table out of it.
+
+        Raises:
+            TruncatedQuery:    If the server reported the result
+                incomplete, which is worth asking again for.
+        """
+
+        statuses = [
+            info
+            for resource in parse_votable(votable_fname).resources
+            for info in resource.infos
+            if info.name == "QUERY_STATUS"
+        ]
+        if not statuses:
+            # Not every service sends one, and a missing status is no
+            # evidence of trouble. Logged because this check is worth
+            # nothing without it, and silence would look like success.
+            _logger.warning(
+                "Gaia result carried no QUERY_STATUS; "
+                "cannot tell a complete result from a truncated one."
+            )
+            return
+
+        final = statuses[-1]
+        _logger.debug("Gaia QUERY_STATUS: %s", final.value)
+        if final.value == "ERROR":
+            raise TruncatedQuery(
+                "Gaia reported the result incomplete: "
+                f"{final.content or 'no message given'}"
+            )
+        if final.value == "OVERFLOW":
+            _logger.warning(
+                "Gaia stopped at its own row limit, so this catalog is "
+                "capped by the service rather than by the query."
+            )
+
     def get_result(self, query, add_propagated, verbose=False):
         """Get and format the result as specified by user."""
 
@@ -112,16 +184,36 @@ class WISPGaia(GaiaClass):
                     _logger.debug(
                         "Gaia credentials undefined. Using anonymous access."
                     )
-                job = self.launch_job_async(query, verbose=verbose)
-                _logger.debug(
-                    "Retrieving async job results with timeout=%d seconds...",
-                    conf.timeout,
-                )
-                result = job.get_results()
+                # Downloaded to a file rather than straight to a table,
+                # because the table is all that survives the parse: the
+                # statuses saying whether it is the whole result live
+                # outside it and are dropped. The file is what arrived, so
+                # both questions can be asked of it, and asked of one
+                # download rather than two.
+                with TemporaryDirectory() as raw_dir:
+                    raw_fname = path.join(raw_dir, "gaia_result.vot.gz")
+                    job = self.launch_job_async(
+                        query,
+                        output_file=raw_fname,
+                        dump_to_file=True,
+                        verbose=verbose,
+                    )
+                    _logger.debug(
+                        "Retrieving async job results with "
+                        "timeout=%d seconds...",
+                        conf.timeout,
+                    )
+                    self._check_query_status(job.outputFile)
+                    # Reads the file just downloaded; the server is not
+                    # asked a second time.
+                    result = job.get_results()
                 break
             except Exception as error:  # pylint: disable=broad-except
                 if attempt + 1 == max_retries:
-                    raise
+                    raise CatalogError(
+                        f"Gaia catalog query failed after {max_retries} "
+                        f"attempts: {error}"
+                    ) from error
                 _logger.warning(
                     "Gaia query attempt %d/%d failed: %s. "
                     "Retrying in %d seconds.",
@@ -235,7 +327,8 @@ class WISPGaia(GaiaClass):
             count_only(bool):    If ``True``, only the number of objects is
                 returned without actually fetching the data.
 
-            fov: Forwarded directly to `estimate_fov_corners()`_
+            fov: Forwarded directly to
+                :meth:`~autowisp.catalog.WISPGaia.estimate_fov_corners`
 
         Returns:
             astropy Table:
@@ -389,7 +482,7 @@ def write_query_to_file(query, fname, overwrite, **query_kwargs):
     Create a catalog file given the results of a Gaia query.
 
     Args:
-        See `create_catalog_file()`_
+        See :func:`create_catalog_file`
     """
 
     if query_kwargs.get("count_only", False):
@@ -420,7 +513,7 @@ def write_query_to_file(query, fname, overwrite, **query_kwargs):
     query.meta["MAGEXPR"] = query_kwargs["magnitude_expression"]
     if query_kwargs.get("magnitude_limit") is not None:
         try:
-            (query.meta["MAGMIN"], query.meta["MAGMAX"]) = query_kwargs[
+            query.meta["MAGMIN"], query.meta["MAGMAX"] = query_kwargs[
                 "magnitude_limit"
             ]
         except ValueError:
@@ -447,7 +540,7 @@ def create_catalog_file(fname, overwrite=False, **query_kwargs):
     """
 
     if environ.get("AUTOWISP_NO_LIVE_CATALOG"):
-        raise RuntimeError(
+        raise CatalogError(
             "Live Gaia query disabled via AUTOWISP_NO_LIVE_CATALOG, but catalog "
             f"{fname!r} is missing and would require a query. Its cached FITS "
             "fixture is absent or its checksum did not match."
@@ -461,18 +554,35 @@ def create_catalog_file(fname, overwrite=False, **query_kwargs):
     )
 
 
+def read_source_id_list(fname):
+    """Read a file of catalog source IDs (one per line) into a set of strings.
+
+    Blank lines are ignored. IDs are kept as strings so matching is independent
+    of the (possibly platform dependent) integer dtype of the catalog index.
+    """
+
+    with open(fname, "r", encoding="utf-8") as id_file:
+        return {line.strip() for line in id_file if line.strip()}
+
+
 def read_catalog_file(
     cat_fits,
     filter_expr=None,
     sort_expr=None,
     return_metadata=False,
     add_gnomonic_projection=False,
+    source_id_filter=None,
 ):
     """
     Read a catalog FITS file.
 
     Args:
         cat_fits(str, or opened FITS file):    The file to read.
+
+        source_id_filter(iterable of str or None):    If not None, only sources
+            whose ``source_id`` (compared as a string) is in this collection are
+            returned. Applied before any ``filter_expr``/``sort_expr`` so a
+            single cached catalog can be reused for arbitrary source subsets.
 
     Returns:
         pandas.DataFrame:
@@ -487,12 +597,20 @@ def read_catalog_file(
                 sort_expr,
                 return_metadata,
                 add_gnomonic_projection,
+                source_id_filter,
             )
 
     fixed_dtype = cat_fits[1].data.dtype.newbyteorder("=")
     result = pandas.DataFrame.from_records(
         cat_fits[1].data.astype(fixed_dtype), index="source_id"
     )
+    if source_id_filter is not None:
+        result = result[
+            numpy.isin(
+                result.index.to_numpy().astype(str),
+                numpy.asarray(sorted(source_id_filter), dtype=str),
+            )
+        ]
     metadata = None
     if return_metadata or add_gnomonic_projection:
         metadata = cat_fits[1].header
@@ -807,7 +925,7 @@ def find_outliers(center_ra_dec, max_allowed_offset):
         points, max_allowed_offset
     )
     if num_inside < 2 <= center_ra_dec.size:
-        raise ValueError(
+        raise CatalogError(
             "Attempting to determine field of view to cover frames with no "
             "conssistent pointing."
         )
@@ -944,7 +1062,7 @@ def get_max_abs_corner_xi_eta(  # pylint: disable=too-many-locals, too-many-bran
     )
 
     if max(result) > 40.0:
-        raise RuntimeError(
+        raise CatalogError(
             "Observations with field of view exceeding 40 degrees are not "
             "supported."
         )
@@ -1072,7 +1190,7 @@ def get_catalog_info(  # pylint: disable=too-many-branches
                         )
                         != catalog_info["epoch"]
                     ):
-                        raise RuntimeError(
+                        raise CatalogError(
                             "Not all data reduction files to "
                             "be covered by a single catalog "
                             "have the same epoch"
@@ -1116,6 +1234,13 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
         configuration=configuration,
         **dr_path_substitutions,
     )
+
+    # Restrict the (possibly cached) catalog to an explicit list of source IDs
+    # at read time. The list does not affect the query or the cache key, so the
+    # full catalog can be queried once and reused for any subset.
+    source_id_filter = configuration.get("source_list")
+    if source_id_filter is not None:
+        source_id_filter = read_source_id_list(source_id_filter)
     with lock if lock is not None else nullcontext():
         if path.exists(catalog_info["fname"]):
             with fits.open(catalog_info["fname"]) as cat_fits:
@@ -1128,7 +1253,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     )
                     > 0.25
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} '
                         f'has epoch {catalog_header["EPOCH"]!r}, '
                         f'but {catalog_info["epoch"]!r} is needed'
@@ -1138,7 +1263,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     catalog_header["MAGEXPR"]
                     != catalog_info["magnitude_expression"]
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} has '
                         f'magnitude expression {catalog_header["MAGEXPR"]!r} '
                         f'instead of {catalog_info["magnitude_expression"]!r}'
@@ -1152,7 +1277,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                         > catalog_info["magnitude_limit"][0]
                     )
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} excludes '
                         f'sources brighter than {catalog_header["MAGMIN"]!r} '
                         f'but {catalog_info["magnitude_limit"][0]!r} are '
@@ -1163,7 +1288,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     catalog_header["MAGMAX"]
                     < catalog_info["magnitude_limit"][-1]
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} excludes '
                         f'sources fainter than {catalog_header["MAGMAX"]!r} but'
                         f' {catalog_info["magnitude_limit"][-1]!r} are '
@@ -1173,7 +1298,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                 if catalog_header["WIDTH"] < catalog_info["width"].to_value(
                     units.deg
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} width '
                         f'{catalog_header["WIDTH"]!r} is less than the required'
                         f' {catalog_info["width"]!r}'
@@ -1181,7 +1306,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                 if catalog_header["HEIGHT"] < catalog_info["height"].to_value(
                     units.deg
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} height '
                         f'{catalog_header["HEIGHT"]!r} is less than the '
                         f'required {catalog_info["height"]!r}'
@@ -1194,7 +1319,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                 ) > configuration[
                     "pointing_precision"
                 ] * units.deg:
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} center RA '
                         f'{catalog_header["RA"]!r} is too far from the '
                         f'required RA={query_center["RA"]!r}'
@@ -1203,7 +1328,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                 if (
                     catalog_header["DEC"] - query_center["Dec"]
                 ) * units.deg > configuration["pointing_precision"] * units.deg:
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} center Dec '
                         f'{catalog_header["DEC"]!r} is too far from the '
                         f'required Dec={query_center["Dec"]!r}'
@@ -1228,7 +1353,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     > catalog_info["magnitude_limit"][-1]
                 ):
                     filter_expr.append(
-                        '(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
+                        f'(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
                     )
                 # pylint: enable=too-many-boolean-expressions
 
@@ -1239,6 +1364,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                             " and ".join(filter_expr) if filter_expr else None
                         ),
                         return_metadata=return_metadata,
+                        source_id_filter=source_id_filter,
                     ),
                     outliers,
                     catalog_info["fname"],
@@ -1250,7 +1376,9 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
         create_catalog_file(**catalog_info, verbose=True)
         return (
             read_catalog_file(
-                catalog_info["fname"], return_metadata=return_metadata
+                catalog_info["fname"],
+                return_metadata=return_metadata,
+                source_id_filter=source_id_filter,
             ),
             outliers,
             catalog_info["fname"],
@@ -1300,7 +1428,7 @@ def check_catalog_coverage(
     return width < catalog_header["WIDTH"] and height < catalog_header["HEIGHT"]
 
 
-def show_stars(catalog_fname): # pragma: no cover
+def show_stars(catalog_fname):  # pragma: no cover
     """Show the stars in the catalog on a 3-D plot of the sky."""
 
     from matplotlib import pyplot  # pylint: disable=import-outside-toplevel
@@ -1340,7 +1468,7 @@ def show_stars(catalog_fname): # pragma: no cover
     pyplot.show()
 
 
-def main(config): # pragma: no cover
+def main(config):  # pragma: no cover
     """Avoid polluting global namespace."""
 
     import doctest  # pylint: disable=import-outside-toplevel

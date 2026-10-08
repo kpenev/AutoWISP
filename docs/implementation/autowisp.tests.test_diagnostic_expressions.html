@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_diagnostic_expressions module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.tests.test_diagnostic_types module" href="autowisp.tests.test_diagnostic_types.html" />
+    <link rel="prev" title="autowisp.tests.test_detrending_stat module" href="autowisp.tests.test_detrending_stat.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.tests.html">autowisp.tests package</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_diagnostic_expressions module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.tests.test_diagnostic_expressions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.tests.test_diagnostic_expressions">
+<span id="autowisp-tests-test-diagnostic-expressions-module"></span><h1>autowisp.tests.test_diagnostic_expressions module<a class="headerlink" href="#module-autowisp.tests.test_diagnostic_expressions" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-14efd00f608fabd2053033bcf2e374ba869ad3e5.png" alt="Inheritance diagram of DiagnosticExpressionForm, ExpressionLibraryTestCase, IntegrityError, TestDeleteAndWrite, TestExpressionForm, TestLibraryAccess, TestNameSpace, TestStoreExpression, TestStoredFields" usemap="#inheritance525b5c9aea" class="inheritance graphviz" /></div>
+<map id="inheritance525b5c9aea" name="inheritance525b5c9aea">
+<area shape="rect" id="node1" href="autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" target="_top" title="Validate one proposed expression against the library it would join." alt="" coords="5,299,504,324"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="1267,79,1749,104"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite" target="_top" title="Deleting several, and writing an import&#39;s worth at once." alt="" coords="389,152,827,177"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess" target="_top" title="What reading hands to the expression layer and to an export." alt="" coords="851,152,1277,177"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostic_expressions.TestNameSpace" target="_top" title="Names have to behave like the diagnostic names they sit beside." alt="" coords="1301,152,1715,177"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_diagnostic_expressions.TestStoreExpression" target="_top" title="Adding, replacing and renaming one expression." alt="" coords="1739,152,2179,177"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_diagnostic_expressions.TestStoredFields" target="_top" title="What the library keeps, and what it deliberately does not check." alt="" coords="2203,152,2618,177"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm" target="_top" title="The name checks the management form makes itself." alt="" coords="1774,79,2213,104"/>
+<area shape="rect" id="node14" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DBAPIError" target="_top" title="Raised when the execution of a database operation fails." alt="" coords="2656,225,2853,251"/>
+<area shape="rect" id="node16" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DatabaseError" target="_top" title="Wraps a DB&#45;API DatabaseError." alt="" coords="2645,299,2864,324"/>
+<area shape="rect" id="node15" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.StatementError" target="_top" title="An error occurred during execution of a SQL statement." alt="" coords="2642,152,2867,177"/>
+<area shape="rect" id="node18" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.IntegrityError" target="_top" title="Wraps a DB&#45;API IntegrityError." alt="" coords="2649,372,2861,397"/>
+<area shape="rect" id="node17" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.HasDescriptionCode" target="_top" title="helper which adds &#39;code&#39; as an attribute and &#39;_code_str&#39; as a method" alt="" coords="2625,5,2884,31"/>
+<area shape="rect" id="node19" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.SQLAlchemyError" target="_top" title="Generic error class." alt="" coords="2635,79,2875,104"/>
+</map><p>Tests for the diagnostic expression library stored in a project.</p>
+<p>The library is read and written through
+<a class="reference internal" href="autowisp.diagnostics.expression_library.html#module-autowisp.diagnostics.expression_library" title="autowisp.diagnostics.expression_library"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.expression_library</span></code></a>, against a throwaway project
+database. What an expression <em>means</em> is tested where those rules live, in
+the expression layer’s own tests; here it is only what gets stored, and
+that references survive a rename.</p>
+<p>The management form is tested here too, for the one check it makes itself
+rather than delegating: that a name is a slug and is not already taken.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_expressions.</span></span><span class="sig-name descname"><span class="pre">ExpressionLibraryTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#ExpressionLibraryTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-9e19dc5b8e2aed0b19e452cef9b7b6f565770c73.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" usemap="#inheritance61a13ccd6d" class="inheritance graphviz" /></div>
+<map id="inheritance61a13ccd6d" name="inheritance61a13ccd6d">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="5,79,488,104"/>
+</map><p>Base creating one throwaway project, emptied before every test.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.library">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">library</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#ExpressionLibraryTestCase.library"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.library" title="Link to this definition"></a></dt>
+<dd><p>The stored library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.make">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'astrom_residual[0]</span> <span class="pre">/</span> <span class="pre">diagonal_fov[0]'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#ExpressionLibraryTestCase.make"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.make" title="Link to this definition"></a></dt>
+<dd><p>Store one expression, returning what the store reported.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#ExpressionLibraryTestCase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.setUpClass">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#ExpressionLibraryTestCase.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.setUpClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.tearDownClass">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#ExpressionLibraryTestCase.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase.tearDownClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_expressions.</span></span><span class="sig-name descname"><span class="pre">TestDeleteAndWrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestDeleteAndWrite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" title="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpressionLibraryTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-668f9539733eaf6d74bd5ab8453d9d877cd6d32f.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite" usemap="#inheritanceee6973cd8d" class="inheritance graphviz" /></div>
+<map id="inheritanceee6973cd8d" name="inheritanceee6973cd8d">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="5,79,488,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite" target="_top" title="Deleting several, and writing an import&#39;s worth at once." alt="" coords="27,152,466,177"/>
+</map><p>Deleting several, and writing an import’s worth at once.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite.test_delete_only_the_named">
+<span class="sig-name descname"><span class="pre">test_delete_only_the_named</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestDeleteAndWrite.test_delete_only_the_named"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite.test_delete_only_the_named" title="Link to this definition"></a></dt>
+<dd><p>Other expressions, and names not stored, are left alone.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite.test_write_counts_added_and_replaced">
+<span class="sig-name descname"><span class="pre">test_write_counts_added_and_replaced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestDeleteAndWrite.test_write_counts_added_and_replaced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestDeleteAndWrite.test_write_counts_added_and_replaced" title="Link to this definition"></a></dt>
+<dd><p>New names are added, existing ones overwritten, and counted.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestExpressionForm">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_expressions.</span></span><span class="sig-name descname"><span class="pre">TestExpressionForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestExpressionForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-8a49b1e1fc4f08ee5d828f1b9a0f32a3caac31c9.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_expressions.TestExpressionForm" usemap="#inheritance2811e5b7fd" class="inheritance graphviz" /></div>
+<map id="inheritance2811e5b7fd" name="inheritance2811e5b7fd">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm" target="_top" title="The name checks the management form makes itself." alt="" coords="5,79,444,104"/>
+</map><p>The name checks the management form makes itself.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestExpressionForm.form">
+<span class="sig-name descname"><span class="pre">form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestExpressionForm.form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm.form" title="Link to this definition"></a></dt>
+<dd><p>Bind the form to one proposed expression.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestExpressionForm.library">
+<span class="sig-name descname"><span class="pre">library</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'rel_bg':</span> <span class="pre">'bg_center[0]</span> <span class="pre">-</span> <span class="pre">nanmedian(bg_center[0])'}</span></span><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm.library" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_a_slug_name_is_accepted">
+<span class="sig-name descname"><span class="pre">test_a_slug_name_is_accepted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestExpressionForm.test_a_slug_name_is_accepted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_a_slug_name_is_accepted" title="Link to this definition"></a></dt>
+<dd><p>The names the documentation suggests actually validate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_a_taken_name_is_refused">
+<span class="sig-name descname"><span class="pre">test_a_taken_name_is_refused</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestExpressionForm.test_a_taken_name_is_refused"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_a_taken_name_is_refused" title="Link to this definition"></a></dt>
+<dd><p>Adding under a stored name would replace it without asking.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_editing_keeps_its_own_name">
+<span class="sig-name descname"><span class="pre">test_editing_keeps_its_own_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestExpressionForm.test_editing_keeps_its_own_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_editing_keeps_its_own_name" title="Link to this definition"></a></dt>
+<dd><p>The expression being edited does not clash with itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_name_must_survive_a_url">
+<span class="sig-name descname"><span class="pre">test_name_must_survive_a_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestExpressionForm.test_name_must_survive_a_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_name_must_survive_a_url" title="Link to this definition"></a></dt>
+<dd><p>Rejected unless it is a slug.</p>
+<p>Expressions are selected through <code class="docutils literal notranslate"><span class="pre">image/&lt;slug:x&gt;/vs/&lt;slug:y&gt;</span></code>, so
+a name outside the slug charset could be stored but never plotted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_renaming_onto_another_is_refused">
+<span class="sig-name descname"><span class="pre">test_renaming_onto_another_is_refused</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestExpressionForm.test_renaming_onto_another_is_refused"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestExpressionForm.test_renaming_onto_another_is_refused" title="Link to this definition"></a></dt>
+<dd><p>A rename may not take a name some other expression has.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestLibraryAccess">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_expressions.</span></span><span class="sig-name descname"><span class="pre">TestLibraryAccess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestLibraryAccess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" title="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpressionLibraryTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-78d3010b20a2607aaa1b1420586c33f037d635df.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_expressions.TestLibraryAccess" usemap="#inheritance5581787511" class="inheritance graphviz" /></div>
+<map id="inheritance5581787511" name="inheritance5581787511">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="5,79,488,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess" target="_top" title="What reading hands to the expression layer and to an export." alt="" coords="34,152,459,177"/>
+</map><p>What reading hands to the expression layer and to an export.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_empty_library_is_a_dictionary">
+<span class="sig-name descname"><span class="pre">test_empty_library_is_a_dictionary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestLibraryAccess.test_empty_library_is_a_dictionary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_empty_library_is_a_dictionary" title="Link to this definition"></a></dt>
+<dd><p>Not <code class="docutils literal notranslate"><span class="pre">None</span></code>: the layers below iterate it without checking.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_entries_for_export">
+<span class="sig-name descname"><span class="pre">test_entries_for_export</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestLibraryAccess.test_entries_for_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_entries_for_export" title="Link to this definition"></a></dt>
+<dd><p>Every stored field, by name, skipping names not stored.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_names_map_to_their_text">
+<span class="sig-name descname"><span class="pre">test_names_map_to_their_text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestLibraryAccess.test_names_map_to_their_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_names_map_to_their_text" title="Link to this definition"></a></dt>
+<dd><p>The shape the expression layer expects, and nothing more.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestNameSpace">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_expressions.</span></span><span class="sig-name descname"><span class="pre">TestNameSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestNameSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestNameSpace" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" title="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpressionLibraryTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-89fca96e5a5ea3c7c44d510b996a2b37696e5b4f.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_expressions.TestNameSpace" usemap="#inheritanceb7e64647f2" class="inheritance graphviz" /></div>
+<map id="inheritanceb7e64647f2" name="inheritanceb7e64647f2">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="5,79,488,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostic_expressions.TestNameSpace" target="_top" title="Names have to behave like the diagnostic names they sit beside." alt="" coords="40,152,453,177"/>
+</map><p>Names have to behave like the diagnostic names they sit beside.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestNameSpace.test_name_is_unique">
+<span class="sig-name descname"><span class="pre">test_name_is_unique</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestNameSpace.test_name_is_unique"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestNameSpace.test_name_is_unique" title="Link to this definition"></a></dt>
+<dd><p>Two expressions cannot share a name.</p>
+<p>The name is what a selector and a URL carry, and what other
+expressions and exclusion rules reference, so a duplicate would be
+ambiguous everywhere at once. The form refuses one first; this is
+the database guaranteeing it regardless.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestStoreExpression">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_expressions.</span></span><span class="sig-name descname"><span class="pre">TestStoreExpression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestStoreExpression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestStoreExpression" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" title="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpressionLibraryTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-cb745e89dae69263af253f5dde0c27455576cbb7.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_expressions.TestStoreExpression" usemap="#inheritance6de1713a3c" class="inheritance graphviz" /></div>
+<map id="inheritance6de1713a3c" name="inheritance6de1713a3c">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="5,79,488,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostic_expressions.TestStoreExpression" target="_top" title="Adding, replacing and renaming one expression." alt="" coords="27,152,467,177"/>
+</map><p>Adding, replacing and renaming one expression.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestStoreExpression.test_rename_carries_the_dependents">
+<span class="sig-name descname"><span class="pre">test_rename_carries_the_dependents</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestStoreExpression.test_rename_carries_the_dependents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestStoreExpression.test_rename_carries_the_dependents" title="Link to this definition"></a></dt>
+<dd><p>What referenced the old name references the new one.</p>
+<p>Leaving them naming something that no longer exists would break
+them, and refusing the rename would not help: a dependent cannot be
+pointed at the new name before it exists.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestStoreExpression.test_replacing_a_name_not_stored_adds">
+<span class="sig-name descname"><span class="pre">test_replacing_a_name_not_stored_adds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestStoreExpression.test_replacing_a_name_not_stored_adds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestStoreExpression.test_replacing_a_name_not_stored_adds" title="Link to this definition"></a></dt>
+<dd><p>A stale edit link adds the expression rather than losing it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestStoreExpression.test_replacing_keeps_the_name">
+<span class="sig-name descname"><span class="pre">test_replacing_keeps_the_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestStoreExpression.test_replacing_keeps_the_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestStoreExpression.test_replacing_keeps_the_name" title="Link to this definition"></a></dt>
+<dd><p>An edit that keeps the name changes the text in place.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestStoredFields">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_expressions.</span></span><span class="sig-name descname"><span class="pre">TestStoredFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestStoredFields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestStoredFields" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" title="autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpressionLibraryTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-480d3eabb169b3c0b09dc86a62f5d04aae857b40.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_expressions.TestStoredFields" usemap="#inheritance77102a5254" class="inheritance graphviz" /></div>
+<map id="inheritance77102a5254" name="inheritance77102a5254">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_expressions.ExpressionLibraryTestCase" target="_top" title="Base creating one throwaway project, emptied before every test." alt="" coords="5,79,488,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostic_expressions.TestStoredFields" target="_top" title="What the library keeps, and what it deliberately does not check." alt="" coords="39,152,454,177"/>
+</map><p>What the library keeps, and what it deliberately does not check.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_description_is_optional">
+<span class="sig-name descname"><span class="pre">test_description_is_optional</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestStoredFields.test_description_is_optional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_description_is_optional" title="Link to this definition"></a></dt>
+<dd><p>Most expressions are self-explanatory from their text.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_unknown_names_are_not_rejected_here">
+<span class="sig-name descname"><span class="pre">test_unknown_names_are_not_rejected_here</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_expressions.html#TestStoredFields.test_unknown_names_are_not_rejected_here"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_unknown_names_are_not_rejected_here" title="Link to this definition"></a></dt>
+<dd><p>The library stores text; resolving names is not its job.</p>
+<p>An expression may legitimately reference diagnostics the project has
+never recorded – it is then simply not offered – so refusing it
+here would be wrong.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.tests.test_detrending_stat.html" class="btn btn-neutral float-left" title="autowisp.tests.test_detrending_stat module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.test_diagnostic_types.html" class="btn btn-neutral float-right" title="autowisp.tests.test_diagnostic_types module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

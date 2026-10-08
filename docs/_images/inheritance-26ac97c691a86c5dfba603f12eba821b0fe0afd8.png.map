@@ -1,0 +1,10 @@
+<map id="inheritance2399258ed0" name="inheritance2399258ed0">
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="5,5,260,31"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="23,79,243,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="267,79,479,104"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="323,5,423,31"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="7,152,258,177"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="447,5,680,31"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="719,79,818,104"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="705,5,833,31"/>
+</map>

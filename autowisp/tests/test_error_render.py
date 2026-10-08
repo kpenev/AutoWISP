@@ -19,12 +19,12 @@ from autowisp.database.data_model import Image
 from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.error_persistence import persist_error
 from autowisp.error_render import (
-    error_count,
     error_counts_by_step,
     error_detail,
     error_list_rows,
     error_summary,
     format_detail_text,
+    open_and_total_error_count,
     open_error_count_for_steps,
 )
 from autowisp.exceptions import PipelineError, StackToMasterError, ViewError
@@ -206,7 +206,7 @@ class TestErrorListRows(_RenderTestCase):
 
 
 class TestErrorCounts(unittest.TestCase):
-    """error_count / error_counts_by_step / the step filter.
+    """The badge counts / error_counts_by_step / the step filter.
 
     Fresh project per test, since these assert exact counts.
     """
@@ -217,12 +217,12 @@ class TestErrorCounts(unittest.TestCase):
         set_project_home(self._tmp.name)
 
     def test_total_count(self):
-        """error_count totals every recorded error, any component."""
+        """The counts total every recorded error, any component."""
 
         persist_error(make_find_stars_error())
         persist_error(make_find_stars_error())
         persist_error(PipelineError("orchestration broke"))
-        self.assertEqual(error_count(), 3)
+        self.assertEqual(open_and_total_error_count(), (3, 3))
 
     def test_counts_by_step_excludes_stepless(self):
         """Per-step counts group step errors and skip pipeline/BUI ones."""
@@ -262,9 +262,19 @@ class TestErrorCounts(unittest.TestCase):
         resolved_id = persist_error(make_find_stars_error())
         self._resolve(resolved_id)
 
-        self.assertEqual(error_count(), 1)
+        # The total still counts the resolved one, so the badge stays.
+        self.assertEqual(open_and_total_error_count(), (1, 2))
         self.assertEqual(error_counts_by_step(), {"find_stars": 1})
         self.assertIsNotNone(open_id)
+
+    def test_all_resolved_keeps_total(self):
+        """With everything resolved the history is still reachable."""
+
+        self._resolve(persist_error(make_find_stars_error()))
+        self._resolve(persist_error(make_find_stars_error()))
+
+        self.assertEqual(open_and_total_error_count(), (0, 2))
+        self.assertEqual(error_counts_by_step(), {})
 
     def test_list_shows_resolved_open_first(self):
         """The list keeps resolved errors (annotated), open ones first."""

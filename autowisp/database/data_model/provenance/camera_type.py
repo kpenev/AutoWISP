@@ -1,6 +1,6 @@
 """Define the camera type dataset table for the pipeline"""
 
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Double
 
 from sqlalchemy.orm import relationship
 
@@ -34,7 +34,7 @@ class CameraType(DataModelBase):
         Integer, nullable=False, doc="The y_resolution of the camera"
     )
     pixel_size = Column(
-        Float, nullable=False, doc="The pixel size of the camera in microns"
+        Double, nullable=False, doc="The pixel size of the camera in microns"
     )
     notes = Column(
         String(1000),

@@ -102,7 +102,6 @@ class PhotometryDiagnostics(ImageDiagnosticBase):
 
     type_ = relationship("DiagnosticType")
 
-
     __table_args__ = (
         Index(
             "img_chnl_phot_diagnostic",

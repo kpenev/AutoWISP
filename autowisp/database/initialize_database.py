@@ -17,6 +17,11 @@ from autowisp.database.data_model.base import DataModelBase
 from autowisp.database import defaults
 
 from autowisp import processing_steps
+from autowisp.diagnostics.diagnostic_types import standard_diagnostic_types
+from autowisp.diagnostics.expression_library import (
+    default_expressions,
+    write_expressions,
+)
 
 # false positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -38,6 +43,18 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 
 _logger = logging.getLogger(__name__)
+
+#: The step options the engine sets for each batch: the masters it selects
+#: and the exclusion list it writes. Never configured, so a project does not
+#: store them, but a step run by hand takes them like any other option.
+engine_set_options = (
+    "qc-exclude-file",
+    "master-bias",
+    "master-dark",
+    "master-flat",
+    "single-photref-dr-fname",
+    "master-photref-fname",
+)
 
 
 def get_command_line_parser():
@@ -138,6 +155,7 @@ class StepCreator:
                     "extra-config-file",
                     "split-channels",
                     "project-home",
+                    *engine_set_options,
                 ]
                 and not param.endswith("-only-if")
                 and not param.endswith("-version")
@@ -298,7 +316,7 @@ def init_processing(step_dependencies, master_info):
         ):
             if step_name not in db_steps:
                 db_steps[step_name] = add_processing_step(step_name, db_session)
-            if step_name not in ["add_images_to_db", "calculate_photref_merit"]:
+            if step_name != "add_images_to_db":
                 db_session.add(
                     ProcessingSequence(
                         id=processing_id,
@@ -340,12 +358,15 @@ def drop_tables_matching(pattern):
         metadata.reflect(get_db_engine())
         metadata.drop_all(get_db_engine())
     else:
+        # A list, not an iterator: drop_all reads it more than once, which a
+        # one-shot iterator survives only under SQLAlchemy 2.0.
         DataModelBase.metadata.drop_all(
             get_db_engine(),
-            filter(
-                lambda table: pattern.fullmatch(table.name),
-                reversed(DataModelBase.metadata.sorted_tables),
-            ),
+            [
+                table
+                for table in reversed(DataModelBase.metadata.sorted_tables)
+                if pattern.fullmatch(table.name)
+            ],
         )
 
 
@@ -446,101 +467,24 @@ def _overwrite_default_config(new_default_config):
 
 
 def _init_diagnostic_types():
-    """Pre-populate the diagnostic_names table with known diagnostics."""
+    """Pre-populate the diagnostic_names table with known diagnostics.
+
+    The catalogue itself lives in
+    :mod:`autowisp.diagnostics.diagnostic_types`, because validating a
+    diagnostic expression needs to know the names without opening any
+    project. This function's job is only to write the rows.
+    """
 
     with start_db_session() as db_session:
-        for name, description in (
-            [
-                (
-                    "num_extracted_src",
-                    "The number of extracted stars in the image",
-                )
-            ]
-            + [
-                (
-                    f"{param}_center",
-                    f"The smoothed source extraction {param.upper()} parameter "
-                    "at the center of the image",
-                )
-                for param in ["s", "d", "k"]
-            ]
-            + [
-                (
-                    f"{param}_map_residual",
-                    f"RMS difference between source extraction {param.upper()} "
-                    "and smoothed {param.upper()} map",
-                )
-                for param in ["s", "d", "k"]
-            ]
-            + [
-                (
-                    "bg_center",
-                    "The smoothed background level at the center of the image",
-                ),
-                (
-                    "bg_map_residual",
-                    "RMS difference between background and smoothed background "
-                    "map",
-                ),
-            ]
-            + [
-                (
-                    f"{param}_center",
-                    f"The {descr} the center of the image according "
-                    "to the astrometric solution",
-                )
-                for param, descr in [
-                    ("ra", "right ascension of"),
-                    ("dec", "declination of"),
-                    ("z", "zenith distance of"),
-                ]
-            ]
-            + [
-                (
-                    "diagonal_fov",
-                    "The mean angular distance from the image center to its "
-                    "four corners on the sky, used as a scale-independent "
-                    "measure of the field of view",
-                ),
-                (
-                    "pointing_offset",
-                    "The angular distance between the target and the center of "
-                    "the image according to the astrometric solution",
-                ),
-                (
-                    "matched_fraction",
-                    "The fraction of extracted sources that were matched to "
-                    "the reference catalog",
-                ),
-                (
-                    "astrom_residual",
-                    "The RMS distance between matched extracted sources and "
-                    "their projected positions",
-                ),
-                (
-                    "srcextract_mag_zeropt",
-                    "The zeropoint of the transformation between source "
-                    "extraction flux and catalog magnitude (the magnitude "
-                    "corresponding to a flux of 1 ADU)",
-                ),
-                (
-                    "magfit_residual",
-                    "The RMS difference between best fit correction using the "
-                    "final master photometric reference.",
-                ),
-                (
-                    "photometry_mag_offset",
-                    "The best-fit offset between the image magnitude and "
-                    "the reference magnitude in magnitude fit.",
-                ),
-                (
-                    "mag_fit_num_stars",
-                    "The number of stars used in the last magnitude fit "
-                    "iteration for this image",
-                ),
-            ]
-        ):
+        for name, description in standard_diagnostic_types().items():
             db_session.add(DiagnosticType(name=name, description=description))
+
+
+def _init_diagnostic_expressions():
+    """Start the project's expression library with the default expressions."""
+
+    with start_db_session() as db_session:
+        write_expressions(default_expressions, db_session)
 
 
 def initialize_database(
@@ -577,6 +521,7 @@ def initialize_database(
         }
     _overwrite_default_config(overwrite_default_config)
     _init_diagnostic_types()
+    _init_diagnostic_expressions()
 
 
 if __name__ == "__main__":

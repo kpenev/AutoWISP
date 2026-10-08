@@ -58,13 +58,7 @@ urlpatterns = [
         name="select_photref_image",
     ),
     path(
-        "/".join(["select_photref_image", "recalc", "<int:target_index>"]),
-        views.select_photref_image,
-        {"recalculate": True},
-        name="select_photref_image_recalc",
-    ),
-    path(
-        "record_photref_selection/<int:target_index>/<int:image_index>",
+        "record_photref_selection",
         views.record_photref_selection,
         name="record_photref_selection",
     ),

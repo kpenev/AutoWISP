@@ -4,6 +4,7 @@ import re
 
 from asteval import Interpreter
 
+from autowisp.exceptions import ConfigurationError
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
 
 
@@ -54,13 +55,16 @@ def _parse_substitutions(substitutions_str_iter):
         r"^(?P<key>\w+)\s*(?P<type>(=|in))\s*(?P<value>\S.*)$"
     )
     try:
-        parsed_substitution = substitution_rex.match(
-            next(substitutions_str_iter)
-        )
+        substitution_str = next(substitutions_str_iter)
     except StopIteration:
         yield {}
         return
-    assert parsed_substitution
+    parsed_substitution = substitution_rex.match(substitution_str)
+    if parsed_substitution is None:
+        raise ConfigurationError(
+            f"Cannot make sense of {substitution_str!r} as a substitution: "
+            "expected ``<name> = <value>`` or ``<name> in <expression>``!"
+        )
     if parsed_substitution["type"] == "in":
         values = Interpreter()(parsed_substitution["value"])
     else:
@@ -71,7 +75,7 @@ def _parse_substitutions(substitutions_str_iter):
             yield dict(result)
 
 
-def _parse_fit_datasets(argument):
+def parse_fit_datasets(argument):
     """Parse the fit datasets argument (see help for details)."""
 
     dset_specfication_rex = re.compile(
@@ -86,7 +90,13 @@ def _parse_fit_datasets(argument):
     result = []
     for specification in _split_delimited_string(argument, ";"):
         parsed_dset = dset_specfication_rex.match(specification)
-        assert parsed_dset
+        if parsed_dset is None:
+            raise ConfigurationError(
+                f"Cannot make sense of {specification!r} as a dataset to "
+                "detrend: expected ``<input key> -> <output key>`` optionally "
+                "followed by ``: <name> = <value>`` substitutions joined by "
+                "``&``!"
+            )
         result.extend(
             [
                 (
@@ -117,13 +127,24 @@ def _parse_lc_variables(argument):
     for specification in _split_delimited_string(argument, ";"):
         print(f"Parsing: {specification!r}.")
         parsed_var = var_specfication_rex.match(specification)
-        assert parsed_var
+        if parsed_var is None:
+            raise ConfigurationError(
+                f"Cannot make sense of {specification!r} as a lightcurve "
+                "variable: expected ``<name> = <dataset key>`` optionally "
+                "followed by ``: <name> = <value>`` substitutions joined by "
+                "``&``!"
+            )
         substitutions = list(
             _parse_substitutions(
                 _split_delimited_string(parsed_var["substitutions"], "&")
             )
         )
-        assert len(substitutions) == 1
+        if len(substitutions) != 1:
+            raise ConfigurationError(
+                f"The substitutions in {specification!r} select "
+                f"{len(substitutions)} datasets, but a lightcurve variable "
+                "must name exactly one; use ``=`` rather than ``in``!"
+            )
         result.append(
             (parsed_var["varname"], (parsed_var["dset"], substitutions[0]))
         )
@@ -170,7 +191,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             None
         """
 
-        assert (not geometry) or (geometry in ["circular", "eccentric"])
+        assert (not geometry) or (geometry in ["circular", "eccentric"]), (
+            f"Transit parameters requested for unknown geometry {geometry!r}; "
+            "only 'circular' and 'eccentric' orbits are described!"
+        )
 
         if timing:
             parser.add_argument(
@@ -379,15 +403,6 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "Default: %(default)s.",
         )
         parser.add_argument(
-            "--tfa-observation-id",
-            type=str,
-            nargs="+",
-            default=("fitsheader.fnum",),
-            help="The datasets to use for matching observations across light "
-            "curves. For example, the following works for HAT: "
-            "fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.",
-        )
-        parser.add_argument(
             "--tfa-selected-plots",
             type=str,
             default="tfa_template_selection_%(plot_id)s_phot%(phot_index)s.eps",
@@ -420,6 +435,52 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "magnitude is done.",
         )
 
+    def _add_exclusion_arguments(self, pipeline):
+        """Add parameters selecting the observations to leave out of fits."""
+
+        mode = self._mode.upper()
+        self.add_argument(
+            "--tfa-observation-id",
+            type=str,
+            nargs="+",
+            default=("fitsheader.fnum", "fitsheader.cfg.clrchnl"),
+            help="The datasets whose values identify an observation, used to "
+            "match observations across light curves and to list them in "
+            "--qc-exclude-file. Shared by EPD and TFA. The default suits a "
+            "single camera; for example, the following works for HAT: "
+            "fitsheader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.",
+        )
+        self.add_argument(
+            "--qc-exclude-file",
+            default=None,
+            help=f"A file listing the observations to leave out of the {mode} "
+            "fit, one per line, each given by the values of the "
+            "--tfa-observation-id datasets separated by white space, "
+            "optionally followed by the photometry it applies to: shapefit, "
+            "or ap followed by an aperture index, e.g. ap3. A line naming no "
+            "photometry applies to every one. Excluded "
+            "observations are still corrected. The pipeline writes this file "
+            "from the step's exclusion rule; a stand-alone run may supply one "
+            "written by hand. If unspecified, nothing is excluded.",
+        )
+        if pipeline:
+            self.add_argument(
+                f"--{self._mode}-exclusion-rule",
+                default=None,
+                help="A boolean expression over the image diagnostics and the "
+                "project's diagnostic expressions, true for the observations "
+                f"to leave out of the {mode} fit, e.g. ``(cloud[0] > 0.3) | "
+                "(srcextract_mag_zeropt['G0'] < 19.5)``. A slot subscript "
+                "stands for the channel being decided for, a quoted channel "
+                "name for that channel. Best written as a read of a "
+                "diagnostic expression, e.g. ``cloudy[0]``, which the "
+                "diagnostics page can preview; the expressions page shows the "
+                "read for each expression usable as a rule. The pipeline "
+                "evaluates it to produce the exclusion list. Excluded "
+                "observations are still corrected. If unset, nothing is "
+                "excluded.",
+            )
+
     def __init__(  # pylint: disable=too-many-arguments
         self,
         mode,
@@ -427,13 +488,19 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         *,
         add_reconstructive=True,
         convert_to_dict=True,
-        input_type="lc",
+        pipeline=False,
     ):
         """
         Initialize the parser with options common to all LC detrending steps.
 
         Args:
-            See ManualStepArgumentParser.__init__().
+            pipeline(bool):    Is the step being configured by the pipeline
+                rather than run stand-alone? The pipeline supplies the
+                lightcurves itself and evaluates exclusion rules, so only a
+                stand-alone run takes lightcurve files and only the pipeline
+                has exclusion rules.
+
+            See ManualStepArgumentParser.__init__() for the rest.
 
         Returns:
             None
@@ -441,20 +508,20 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
 
         self._mode = mode.lower()
         super().__init__(
-            input_type=input_type,
+            input_type=("" if pipeline else "lc"),
             description=description,
             allow_parallel_processing=self._mode in ["epd", "tfa"],
             convert_to_dict=convert_to_dict,
             add_lc_fname_arg=(self._mode == "tfa"),
         )
 
-        if self._mode != "epd":
-            self.add_argument(
-                "--single-photref-dr-fname",
-                default=None,
-                help="The filename of the single photometric reference DR file."
-                " Used for string substitutions of command line arguments.",
-            )
+        self.add_argument(
+            "--single-photref-dr-fname",
+            default=None,
+            help="The filename of the single photometric reference DR file."
+            " Used for string substitutions of command line arguments and to "
+            "determine the default set of datasets to detrend.",
+        )
         self.add_argument(
             "--variables",
             type=_parse_lc_variables,
@@ -493,24 +560,26 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         self.add_argument(
             f"--{self._mode[:3]!s}-datasets",
-            type=_parse_fit_datasets,
+            type=parse_fit_datasets,
             default=None,
-            help="A ``;`` separated list of the datasets to detrend. Each entry"
-            " should be formatted as: ``<input-key> -> <output-key> "
-            "[: <substitution> (= <value>| in <expression>) "
-            "[& <substitution> (= <value> | in <expression>) ...]]``. "
-            'For example: ``"apphot.magfit.magnitude -> '
-            "apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in "
-            'range(39)"``. White space is ignored. Literal ``;`` and ``&`` can '
-            "be used in the specification of a dataset as ``;;`` and ``&&`` "
-            "respectively. Configurations of how the fitting was done and the "
-            "resulting residual and non-rejected points are added to "
-            "configuration datasets generated by removing the tail of the "
-            'destination and adding ``".cfg." + <parameter name>`` for '
-            "configurations and just `` + <parameter name>`` for "
-            "fitting statistics. For example, if the output dataset key is"
-            '``"shapefit.epd.magnitude"``, the configuration datasets will look'
-            'like ``"shapefit.epd.cfg.fit_terms"``, and '
+            # Kept under 1000 characters: this help is what gets stored in
+            # the description column of the parameter table.
+            help="A ``;`` separated list of the datasets to detrend. If "
+            "unspecified, every aperture in the single photometric reference "
+            "is detrended, plus the shape fitted magnitudes if the PSF/PRF "
+            "grid used for :option:`shape-grid` has internal splits (i.e. the "
+            "shape was actually fit, not assumed constant). Each entry is "
+            "formatted as ``<input-key> -> <output-key> [: <substitution> "
+            "(= <value> | in <expression>) [& ...]]``, e.g. "
+            '``"apphot.magfit.magnitude -> apphot.epd.magnitude : '
+            'magfit_iteration = 5 & aperture_index in range(39)"``. White '
+            "space is ignored. Literal ``;`` and ``&`` are escaped as ``;;`` "
+            "and ``&&``. The fit configuration, residuals and non-rejected "
+            "points are stored under the output key with its last component "
+            'replaced by ``".cfg." + <parameter name>`` (configuration) or '
+            "``<parameter name>`` (fitting statistics), so "
+            '``"shapefit.epd.magnitude"`` also generates '
+            '``"shapefit.epd.cfg.fit_terms"`` and '
             '``"shapefit.epd.residual"``.',
         )
         self.add_argument(
@@ -540,6 +609,18 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             help="The maximum number of rejection/re-fitting iterations to "
             "perform. If the fit has not converged by then, the latest "
             "iteration is accepted. Default: %(default)s",
+        )
+        self.add_argument(
+            "--detrend-reject-scale-floor",
+            type=float,
+            default=1e-5,
+            help="Floor on the residual scale (in the units of the fitted "
+            "quantity) used for outlier rejection. Without it, a "
+            "(near-)perfect fit has a residual ~0, collapsing the rejection "
+            "threshold to ~0 so that points get rejected on floating-point "
+            "noise -- which can, "
+            "platform-dependently, reject enough points to fail the fit. "
+            "Default: %(default)s",
         )
         if add_reconstructive:
             self.add_argument(
@@ -584,4 +665,5 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
 
         if self._mode in ["epd", "tfa"]:
+            self._add_exclusion_arguments(pipeline)
             getattr(self, f"_add_{self._mode}_arguments")(self)

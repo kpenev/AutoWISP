@@ -37,6 +37,7 @@ class WalkFSView(View):
         """Add filesystem entries and breadcrumb navigation to result context.
 
         Populates result with:
+
         - ``file_list``: sorted list of filenames in search_dir matching
           filename_check.
         - ``dir_list``: sorted list of subdirectory names in search_dir

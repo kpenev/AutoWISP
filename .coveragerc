@@ -8,9 +8,7 @@ sigterm = True
 omit =
     autowisp/browser_interface/*
     autowisp/anmatch_transformation.py
-    autowisp/astrometry/healpix_utilities.py
     autowisp/astrometry/anmatch_transformation.py
-    autowisp/database/manually_fill_tables.py
     autowisp/fake_image/*
     autowisp/fit_expression/FitTermsParserListener.py
     autowisp/magnitude_fitting/master_photref_collector_grcollect.py
@@ -18,5 +16,3 @@ omit =
     autowisp/tests/generate_catalog_test_data.py
     autowisp/tests/update_hdf5_contents.py
     autowisp/bui_util.py
-    autowisp/Dump2hdf5.py
-    autowisp/tess_interface.py

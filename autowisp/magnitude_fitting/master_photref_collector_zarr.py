@@ -11,6 +11,7 @@ from astropy.io import fits
 import zarr
 from rechunker import rechunk
 
+from autowisp.exceptions import FitMagnitudesError
 from autowisp.fit_expression import Interface as FitTermsInterface
 from autowisp.fit_expression import iterative_fit
 from autowisp.iterative_rejection_util import iterative_rejection_average
@@ -328,6 +329,7 @@ class MasterPhotrefCollector:
         outlier_threshold,
         reference_fname,
         primary_header,
+        extra_hdus,
     ):
         """
         Create the master photometric reference.
@@ -352,6 +354,9 @@ class MasterPhotrefCollector:
 
             primary_header(fits.Header):    The header to use for the primary
                 (non-table) HDU of the resulting master FITS file.
+
+            extra_hdus([fits HDU]):    HDUs to append after the photometry
+                tables, which are named ``MPHOTREF``.
 
         Returns:
             None
@@ -439,10 +444,16 @@ class MasterPhotrefCollector:
 
         primary_hdu = fits.PrimaryHDU(header=primary_header)
         master_hdus = [
-            fits.BinTableHDU(get_phot_reference_data(phot_ind))
+            fits.BinTableHDU(
+                get_phot_reference_data(phot_ind),
+                name="MPHOTREF",
+                ver=phot_ind + 1,
+            )
             for phot_ind in range(self._dimensions["photometries"])
         ]
-        fits.HDUList([primary_hdu] + master_hdus).writeto(reference_fname)
+        fits.HDUList([primary_hdu] + master_hdus + list(extra_hdus)).writeto(
+            reference_fname
+        )
 
     def _init_data(self, num_sources):
         """Create the file-based array for holding magfit data."""
@@ -622,6 +633,7 @@ class MasterPhotrefCollector:
         fit_outlier_threshold=3.0,
         fit_max_rej_iter=20,
         extra_header=None,
+        extra_hdus=(),
     ):
         """
         Finish the work of the object and generate a master.
@@ -660,6 +672,9 @@ class MasterPhotrefCollector:
                 generated FITS header in addition to the ones describing the
                 master fit.
 
+            extra_hdus([fits HDU]):    HDUs to append to the generated file
+                after the photometry tables.
+
         Returns:
             None
         """
@@ -686,7 +701,7 @@ class MasterPhotrefCollector:
             max_rej_iter=fit_max_rej_iter,
         )
         if residual_scatter is None:
-            raise RuntimeError(
+            raise FitMagnitudesError(
                 "Failed to generate master photometric reference: "
                 + repr(master_reference_fname)
             )
@@ -706,4 +721,5 @@ class MasterPhotrefCollector:
             outlier_threshold=fit_outlier_threshold,
             reference_fname=master_reference_fname,
             primary_header=primary_header,
+            extra_hdus=extra_hdus,
         )

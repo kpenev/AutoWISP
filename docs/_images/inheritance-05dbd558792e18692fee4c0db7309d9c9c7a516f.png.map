@@ -1,0 +1,7 @@
+<map id="inheritance40dcd77bba" name="inheritance40dcd77bba">
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="5,5,260,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="11,79,254,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.DatabaseError" target="_top" title="Failure interacting with the pipeline database." alt="" coords="6,152,259,177"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_project_creation_guard.TestNewProjectGuard" target="_top" title="``new_project=True`` refuses a non&#45;empty AutoWISP database." alt="" coords="278,79,723,104"/>
+<area shape="rect" id="node5" title="A class whose instances are single test cases." alt="" coords="417,5,585,31"/>
+</map>

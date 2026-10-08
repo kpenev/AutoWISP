@@ -42,9 +42,8 @@ class StepDependencies(DataModelBase):
         "same the blocked step can proceed for any images for which the "
         "blocking step is complete. Otherwise the presence of any images of "
         "the blocking type for which the blocking step is not complete prevents"
-        " the blocked step from proceeding for the blocked image type."
+        " the blocked step from proceeding for the blocked image type.",
     )
-
 
     __table_args__ = (
         Index(

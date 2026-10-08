@@ -19,7 +19,14 @@ from autowisp.tests.get_test_data import get_test_data
 # pylint: disable=unused-import
 from autowisp.tests.test_calibrate import TestCalibrate
 from autowisp.tests.test_stack_to_master import TestStackToMaster
-from autowisp.tests.test_find_stars import TestFindStars
+from autowisp.tests.test_find_stars import (
+    TestFindStars,
+    TestStarlessFrameHandling,
+)
+from autowisp.tests.test_source_finder import (
+    TestExtremeSourceCounts,
+    TestQuantileBrightnessThreshold,
+)
 from autowisp.tests.test_solve_astrometry import TestSolveAstrometry
 from autowisp.tests.test_fit_star_shape import TestFitStarShape
 from autowisp.tests.test_measure_aperture_photometry import (
@@ -32,13 +39,39 @@ from autowisp.tests.test_fit_magnitudes import TestFitMagnitudes
 from autowisp.tests.test_create_lightcurves import TestCreateLightcurves
 from autowisp.tests.test_epd import TestEPD
 from autowisp.tests.test_tfa import TestTFA
+from autowisp.tests.test_tfa_multi_channel import TestTFAMultiChannel
+from autowisp.tests.test_detrending_exclusions import TestDetrendingExclusions
+from autowisp.tests.test_tfa_num_templates import (
+    TestTemplateSourceIdsVlen,
+    TestTemplateSelectionDiagnostics,
+)
 from autowisp.tests.test_detrending_stat import TestDetrendingStat
 from autowisp.tests.test_catalog import TestCatalog
+from autowisp.tests.test_lc_filter import (
+    TestCatalogSourceListFilter,
+    TestLCFilter,
+)
 from autowisp.tests.test_provenance_resolver import TestProvenanceResolver
 from autowisp.tests.test_parse_config_overwrites import (
     TestParseConfigOverwrites,
 )
-from autowisp.tests.test_database_migration import TestAdditiveMigrations
+from autowisp.tests.test_parameter_description_length import (
+    TestParameterDescriptionLength,
+)
+from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
+from autowisp.tests.test_suite_registration import TestSuiteRegistration
+from autowisp.tests.test_database_migration import (
+    TestAdditiveMigrations,
+    TestRevisionChain,
+    TestMigrateProject,
+    TestCheckProjectSchema,
+    TestSqliteMigrationLock,
+    TestConcurrentMigration,
+    TestSchemaDrift,
+    TestTimestampTriggers,
+)
+from autowisp.tests.test_upgrade_from_release import TestUpgradeFromRelease
+from autowisp.tests.test_project_creation_guard import TestNewProjectGuard
 from autowisp.tests.test_error_persistence import (
     TestPersistError,
     TestRunPipelineHandler,
@@ -56,9 +89,18 @@ from autowisp.tests.test_error_cli import (
     TestExitCodeFor,
     TestReportError,
     TestCliEntryPoint,
+    TestConfigParseErrors,
+    TestStepEntryBoundaries,
+    TestStepEntryEndToEnd,
 )
 from autowisp.tests.test_error_capture_middleware import (
     TestErrorCaptureMiddleware,
+)
+from autowisp.tests.test_related_files import (
+    TestMainProcessScopes,
+    TestHDF5ProductsAttachThemselves,
+    TestCatalogScopes,
+    TestWorkerPoolClassifiers,
 )
 from autowisp.tests.test_crash_report import (
     TestScrubText,
@@ -68,14 +110,32 @@ from autowisp.tests.test_crash_report import (
     TestCollectProvenance,
     TestBuildCrashReport,
     TestCrashReportCli,
+    TestCollectEnvironment,
 )
 from autowisp.tests.test_full_pipeline import TestFullPipeline
+from autowisp.tests.test_photref_binding import (
+    TestSeparationBinding,
+    TestConditionBinding,
+)
+from autowisp.tests.test_photref_candidates import (
+    TestUnboundEntries,
+    TestRecordedBindings,
+    TestFindRawImage,
+    TestPhotrefRanking,
+    TestMeritExpressions,
+)
+from autowisp.tests.test_engine_exclusions import TestEngineExclusions
+from autowisp.tests.test_master_photref_lookup import (
+    TestBuiltMaster,
+    TestPhotrefNameClash,
+)
 from autowisp.tests.test_exception_hierarchy import (
     TestExceptionHierarchy,
     TestMigratedExceptions,
     TestFrozenRow,
     TestSnapshotRow,
     TestToDetailDict,
+    TestCatalogRetryExhaustion,
 )
 from autowisp.tests.test_error_context import (
     TestErrorContextDataclass,
@@ -87,6 +147,106 @@ from autowisp.tests.test_error_context import (
     TestPoolPropagation,
     TestProcessQueuePropagation,
     TestNestingGuard,
+    TestExitSignalDecode,
+    TestResourceSnapshot,
+)
+from autowisp.tests.test_diagnostics_views import (
+    TestAvailableQuantities,
+    TestQuantileSection,
+    TestPairOptions,
+    TestInitialRow,
+    TestSeparateYAxes,
+    TestSharedTimeOffset,
+    TestImageTypeSplit,
+    TestExpressionAxis,
+)
+from autowisp.tests.test_diagnostics_rules import (
+    TestRowId,
+    TestQuantityDescription,
+    TestSectionMarkers,
+    TestChannelCells,
+    TestYAxisAssignment,
+    TestSeriesGrouping,
+)
+from autowisp.tests.test_channel_binding import (
+    TestChannelColumns,
+    TestRebinding,
+    TestAddedRow,
+    TestFixedChannelReads,
+    TestTwoChannelSeriesValues,
+)
+from autowisp.tests.test_reference_columns import TestReferenceColumns
+from autowisp.tests.test_expression_series import (
+    TestCanonicalImages,
+    TestDiagnosticValues,
+    TestSeriesValues,
+    TestCrossChannelValues,
+    TestCrossChannelCounts,
+    TestTiedJulianDates,
+)
+from autowisp.tests.test_series_references import (
+    TestSeriesKeyReferences,
+    TestReferenceRestriction,
+    TestPhotometryReads,
+    TestSplitSeries,
+    TestCountUnboundImages,
+    TestReferenceCounts,
+)
+from autowisp.tests.test_exclusion_rules import TestExclusionRules
+from autowisp.tests.test_custom_group_values import TestCustomGroupValues
+from autowisp.tests.test_evaluator import (
+    TestNanAggregates,
+    TestNanRank,
+    TestRemovedNames,
+    TestIterativeRejection,
+    TestErrorHandling,
+)
+from autowisp.tests.test_expressions import (
+    TestReferencedNames,
+    TestBareAggregates,
+    TestLogicalKeywords,
+    TestDependents,
+    TestRenamingReferences,
+    TestOrdering,
+    TestChecking,
+    TestReachableNames,
+    TestQuantileNames,
+    TestNoProjectNeeded,
+    TestSlotSyntax,
+    TestNeededValues,
+    TestSlotEvaluation,
+    TestQuotedChannels,
+    TestRules,
+)
+from autowisp.tests.test_photometry_slots import TestPhotometrySlots
+from autowisp.tests.test_diagnostic_types import (
+    TestCatalogue,
+    TestRuntimePatterns,
+    TestVocabulary,
+    TestPhotometryId,
+    TestSeeding,
+)
+from autowisp.tests.test_diagnostic_expressions import (
+    TestNameSpace,
+    TestStoredFields,
+    TestLibraryAccess,
+    TestStoreExpression,
+    TestDeleteAndWrite,
+    TestExpressionForm,
+)
+from autowisp.tests.test_bui_db_config import (
+    TestDiscovery,
+    TestDefaultDatabase,
+    TestUrlTranslation,
+    TestMysqlDriver,
+)
+from autowisp.tests.test_templates import (
+    TestTemplateComments,
+)
+from autowisp.tests.test_bui_models import (
+    TestModelBase,
+    TestModifiedIsMaintained,
+    TestMigrationCarriesExistingRows,
 )
 
 # pylint: enable=unused-import
@@ -281,6 +441,15 @@ def main():
     try:
         with data_dir_cm as test_dir:
             get_test_data(test_dir, local_source=args.test_data)
+            # Point solve_astrometry at the astrometry.net indices bundled in
+            # the test data (env overrides the config path). Environments with
+            # no local solve-field (e.g. Windows without ANSVR) fall back to the
+            # web solver via astrometry.local_solver_available().
+            anet_indices = path.join(test_dir, "anet_indices")
+            if path.isdir(anet_indices):
+                os.environ["AUTOWISP_ANET_INDICES"] = (
+                    f"[{anet_indices}, {anet_indices}]"
+                )
             processing_dir = path.join(test_dir, "processing")
             print(f"Test data directory: {test_dir!r}")
             print(f"Test data contents: {glob(test_dir + '/*')}")

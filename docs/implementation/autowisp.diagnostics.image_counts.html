@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.diagnostics.image_counts module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.fit_expression package" href="autowisp.fit_expression.html" />
+    <link rel="prev" title="autowisp.diagnostics.get_from_lc module" href="autowisp.diagnostics.get_from_lc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wisp_options.html#options-the-pipeline-sets">Options the Pipeline Sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.diagnostics.html">autowisp.diagnostics package</a></li>
+      <li class="breadcrumb-item active">autowisp.diagnostics.image_counts module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.diagnostics.image_counts.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.diagnostics.image_counts">
+<span id="autowisp-diagnostics-image-counts-module"></span><h1>autowisp.diagnostics.image_counts module<a class="headerlink" href="#module-autowisp.diagnostics.image_counts" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-f77238b440183a7e33f0bad65245564fbdf3100e.png" alt="Inheritance diagram of DiagnosticType, Image, ImageDiagnostics, ImageMasterSelection, ImageType, ObservingSession, PhotometryDiagnostics" usemap="#inheritanceee120fe948" class="inheritance graphviz" /></div>
+<map id="inheritanceee120fe948" name="inheritanceee120fe948">
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="345,372,800,397"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1755,372,2225,397"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="1283,299,1823,324"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="580,445,1053,471"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="1077,445,1585,471"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1470,5,1587,31"/>
+</map><p>How many images each series would draw, read from the project database.</p>
+<p>The series table’s question, asked before anything is read or evaluated:
+which sessions, image types, channels and photometries a quantity could be
+bound to, and how many images a binding would draw. Answered by counting
+diagnostic rows alone – in <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code>, or in
+<code class="docutils literal notranslate"><span class="pre">photometry_diagnostics</span></code> for a diagnostic recorded per photometry –
+never by evaluating an expression, since there is a table row per observing
+session and image type and evaluating per row would be work proportional to
+the whole image collection. Reading the values of a series is
+<a class="reference internal" href="autowisp.diagnostics.expression_series.html#module-autowisp.diagnostics.expression_series" title="autowisp.diagnostics.expression_series"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.expression_series</span></code></a>.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.image_counts._count_images">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.image_counts.</span></span><span class="sig-name descname"><span class="pre">_count_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_by</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/image_counts.html#_count_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.image_counts._count_images" title="Link to this definition"></a></dt>
+<dd><p>Count images with <em>required</em> of <em>rows</em> each, per series.</p>
+<p>The shared half of the three counting questions below, which differ in
+which rows count, how many of them an image owes, and what the result
+varies over besides the session and the type: the channel – and with
+it, possibly, a photometric reference – the photometry, or neither.</p>
+<p>Counting rows rather than distinct diagnostics is sound for all three,
+because each makes a row stand for one requirement: the unique index of
+each table admits no duplicate, and rows of several photometries that
+stand for one are merged by <a class="reference internal" href="#autowisp.diagnostics.image_counts._recorded" title="autowisp.diagnostics.image_counts._recorded"><code class="xref py py-func docutils literal notranslate"><span class="pre">_recorded()</span></code></a>. An image satisfying <em>n</em>
+of what was asked for contributes exactly <em>n</em> rows to its group. Joining
+the image’s binding in a row’s channel keeps that so, there being at
+most one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rows</strong> – What <a class="reference internal" href="#autowisp.diagnostics.image_counts._recorded" title="autowisp.diagnostics.image_counts._recorded"><code class="xref py py-func docutils literal notranslate"><span class="pre">_recorded()</span></code></a> returned: the rows that count.</p></li>
+<li><p><strong>required</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – How many rows an image must have.</p></li>
+<li><p><strong>split_by</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The columns of <em>rows</em> the result varies over,
+which an image then has to satisfy the requirement within:
+<code class="docutils literal notranslate"><span class="pre">()</span></code>, <code class="docutils literal notranslate"><span class="pre">(&quot;channel&quot;,)</span></code> or <code class="docutils literal notranslate"><span class="pre">(&quot;photometry_id&quot;,)</span></code>.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+<li><p><strong>by_reference</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether the result varies over the
+photometric reference as well: the one each image is bound to
+in the channel of its rows, so only when split by channel. An
+image bound to none there is not counted.</p></li>
+<li><p><strong>references</strong> – <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code> pairs an image must also be
+bound to, as <a class="reference internal" href="#autowisp.diagnostics.image_counts.count_images_with_channels" title="autowisp.diagnostics.image_counts.count_images_with_channels"><code class="xref py py-func docutils literal notranslate"><span class="pre">count_images_with_channels()</span></code></a> takes them.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>One tuple per series, holding the session label, the</dt><dd><p>session id, the image type, the <em>split_by</em> columns, the
+photref’s <code class="docutils literal notranslate"><span class="pre">MasterFile</span></code> id where <em>by_reference</em>, and the count.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.image_counts._recorded">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.image_counts.</span></span><span class="sig-name descname"><span class="pre">_recorded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">per_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_photometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">distinct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/image_counts.html#_recorded"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.image_counts._recorded" title="Link to this definition"></a></dt>
+<dd><p>Return the diagnostic rows the counts are made of, as one subquery.</p>
+<p>The rows of <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code> <em>per_image</em> keeps, and those of
+<code class="docutils literal notranslate"><span class="pre">photometry_diagnostics</span></code> <em>per_photometry</em> keeps, side by side. Each
+table is filtered before the union rather than after it, so each branch
+is a probe of its own table’s indexes, whatever a database makes of a
+filter over a union.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>per_image</strong> – The condition, over <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code> and the
+<code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> it is joined to, keeping the rows that
+count; <code class="docutils literal notranslate"><span class="pre">None</span></code> where none does. At least one of the two
+conditions must be given.</p></li>
+<li><p><strong>per_photometry</strong> – The same, over <code class="docutils literal notranslate"><span class="pre">photometry_diagnostics</span></code>.</p></li>
+<li><p><strong>columns</strong> – The columns carried besides <code class="docutils literal notranslate"><span class="pre">image_id</span></code> and
+<code class="docutils literal notranslate"><span class="pre">diagnostic_id</span></code>: those the count varies over, and no others,
+since which columns a row has decides which rows are alike.</p></li>
+<li><p><strong>distinct</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether rows alike in every column carried are
+one row: those of one diagnostic in several photometries, where
+the photometry is not carried and any of them will do.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The subquery, with <code class="docutils literal notranslate"><span class="pre">image_id</span></code>, <code class="docutils literal notranslate"><span class="pre">diagnostic_id</span></code> and <em>columns</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.image_counts.count_images_per_photometry">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.image_counts.</span></span><span class="sig-name descname"><span class="pre">count_images_per_photometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/image_counts.html#count_images_per_photometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.image_counts.count_images_per_photometry" title="Link to this definition"></a></dt>
+<dd><p>Count images holding all of <em>needed</em>, per (session, type, photometry).</p>
+<p>What a photometry column <strong>may</strong> be bound to: the photometries a
+quantity could be read in, and how many images each would draw – the
+photometry’s counterpart of <a class="reference internal" href="#autowisp.diagnostics.image_counts.count_images_with_all" title="autowisp.diagnostics.image_counts.count_images_with_all"><code class="xref py py-func docutils literal notranslate"><span class="pre">count_images_with_all()</span></code></a>. Which
+channels the reads are in is for the channel columns to choose, so an
+image counts in a photometry where it records every one of <em>needed</em>,
+in whichever channels. Only the names of
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names" title="autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">photometry_diagnostic_names()</span></code></a>
+are recorded per photometry, so no other can be among them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>needed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)"><em>set</em></a>) – Diagnostic names that must all be recorded in the
+same photometry for an image to count. Empty means nothing is
+read per photometry, and there is nothing to count.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>One tuple per photometry of each session and image type,</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(session_label,</span> <span class="pre">session_id,</span> <span class="pre">image_type,</span> <span class="pre">photometry,</span> <span class="pre">count)</span></code>,
+the photometry an id as <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code> records it.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.image_counts.count_images_with_all">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.image_counts.</span></span><span class="sig-name descname"><span class="pre">count_images_with_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/image_counts.html#count_images_with_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.image_counts.count_images_with_all" title="Link to this definition"></a></dt>
+<dd><p>Count images holding all of <em>needed</em>, per (session, type, channel).</p>
+<p>What a slot <strong>may</strong> be bound to: the channels a quantity could be read
+in, and how many images each would draw. Deliberately spans every
+observing session, that being what the series table lists – so there
+is no one session to anchor it to, and its cost is proportional to the
+images carrying the diagnostic. That is a standing limit rather than
+something an index could remove: enumerating the sessions <em>is</em> the
+question being asked.</p>
+<p>The photometry is not among what the result varies over: it is chosen
+apart from the channel, and <a class="reference internal" href="#autowisp.diagnostics.image_counts.count_images_per_photometry" title="autowisp.diagnostics.image_counts.count_images_per_photometry"><code class="xref py py-func docutils literal notranslate"><span class="pre">count_images_per_photometry()</span></code></a> counts
+its options. So a diagnostic recorded per photometry is there when it
+is there in any photometry of the channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>needed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)"><em>set</em></a>) – <code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> names that must all be recorded
+for an image to count, <strong>in the same channel</strong>. An empty set
+means no quantity constrains the result, which only happens
+when every quantity is
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.time_quantity" title="autowisp.diagnostics.diagnostic_types.time_quantity"><code class="xref py py-data docutils literal notranslate"><span class="pre">time_quantity</span></code></a>;
+nothing is plottable then.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+<li><p><strong>by_reference</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to count per photometric reference
+too, for a slot reading a diagnostic <code class="docutils literal notranslate"><span class="pre">fit_magnitudes</span></code>
+produces, whose values mean something only within one
+reference: the one each image is bound to in the channel. An
+image bound to none there is not counted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">(session_label,</span> <span class="pre">session_id,</span> <span class="pre">image_type,</span> <span class="pre">channel,</span> <span class="pre">count)</span></code></dt><dd><p>tuples, with the photref’s <code class="docutils literal notranslate"><span class="pre">MasterFile</span></code> id before the count
+where <em>by_reference</em>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.image_counts.count_images_with_channels">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.image_counts.</span></span><span class="sig-name descname"><span class="pre">count_images_with_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">requirements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/image_counts.html#count_images_with_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.image_counts.count_images_with_channels" title="Link to this definition"></a></dt>
+<dd><p>Count images holding every diagnostic read, per series.</p>
+<p>What a <em>binding</em> actually draws, once the channels and photometries are
+chosen – the exact question, where <a class="reference internal" href="#autowisp.diagnostics.image_counts.count_images_with_all" title="autowisp.diagnostics.image_counts.count_images_with_all"><code class="xref py py-func docutils literal notranslate"><span class="pre">count_images_with_all()</span></code></a> and
+<a class="reference internal" href="#autowisp.diagnostics.image_counts.count_images_per_photometry" title="autowisp.diagnostics.image_counts.count_images_per_photometry"><code class="xref py py-func docutils literal notranslate"><span class="pre">count_images_per_photometry()</span></code></a> answer the looser ones that fill
+the dropdowns. The difference is a line of SQL and the whole of the
+meaning: an image counts when its rows cover every read <em>between them</em>,
+so one requirement may be met in R and another in B, or one in aperture
+0 and another in aperture 2, which is what a quantity comparing
+channels or photometries needs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>requirements</strong> – <code class="docutils literal notranslate"><span class="pre">(diagnostic_name,</span> <span class="pre">channel,</span> <span class="pre">photometry)</span></code> reads
+that must all be recorded for an image to count, the photometry
+an id for a diagnostic recorded per photometry and <code class="docutils literal notranslate"><span class="pre">None</span></code> for
+one recorded per image. Deduplicated here, since the two axes of
+one plot may read the same diagnostic in the same channel and
+photometry. Empty means nothing constrains the result.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+<li><p><strong>references</strong> – <code class="docutils literal notranslate"><span class="pre">(channel,</span> <span class="pre">photref)</span></code> pairs an image must also be
+bound to, the photref a <code class="docutils literal notranslate"><span class="pre">MasterFile</span></code> id, as a series key’s
+<code class="docutils literal notranslate"><span class="pre">reference_pairs</span></code> gives them. What restricts a series to the
+images fit against its references restricts its count the same
+way.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">(session_label,</span> <span class="pre">session_id,</span> <span class="pre">image_type,</span> <span class="pre">count)</span></code> tuples.</dt><dd><p>No channel or photometry among them: the binding names those,
+so they are not what the rows vary over.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.diagnostics.get_from_lc.html" class="btn btn-neutral float-left" title="autowisp.diagnostics.get_from_lc module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.fit_expression.html" class="btn btn-neutral float-right" title="autowisp.fit_expression package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -16,7 +16,11 @@ from autowisp.image_calibration.fits_util import (
     create_result,
 )
 
-from autowisp.exceptions import OutsideImageError, ImageMismatchError
+from autowisp.exceptions import (
+    CalibrationError,
+    OutsideImageError,
+    ImageMismatchError,
+)
 from autowisp.processor import Processor
 
 from autowisp.image_calibration.mask_utilities import (
@@ -188,8 +192,7 @@ class Calibrator(Processor):
         "allow_overwrite": False,
     }
 
-    extra_header_expressions = {
-    }
+    extra_header_expressions = {}
 
     @staticmethod
     def check_calib_params(raw_image, calib_params):
@@ -241,7 +244,7 @@ class Calibrator(Processor):
                 area_max = area[direction + "max"]
 
                 if area_min > area_max:
-                    raise ValueError(
+                    raise CalibrationError(
                         area_name
                         + " area has "
                         + direction
@@ -338,7 +341,7 @@ class Calibrator(Processor):
         if calib_params["gain"] <= 0 or not numpy.isfinite(
             calib_params["gain"]
         ):
-            raise ValueError(
+            raise CalibrationError(
                 "Invalid gain specified during calibration: "
                 + repr(calib_params["gain"])
             )
@@ -348,11 +351,11 @@ class Calibrator(Processor):
                 if not isinstance(x_offset, int) or not isinstance(
                     y_offset, int
                 ):
-                    raise ValueError(
+                    raise CalibrationError(
                         f"Invalid leak direction: ({x_offset:s}, {y_offset:s})"
                     )
         except Exception as leak_problem:
-            raise ValueError(
+            raise CalibrationError(
                 "Malformatted list of leak directions: "
                 + repr(calib_params["leak_directions"])
             ) from leak_problem

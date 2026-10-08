@@ -206,6 +206,39 @@ class TestMigratedExceptions(unittest.TestCase):
 
         self.assertTrue(issubclass(OutsideImageError, CalibrationError))
 
+    def test_catalog_error_is_cross_cutting_step_error(self):
+        """``CatalogError`` is a component-``step`` error, not per-stage."""
+
+        from autowisp.exceptions import CatalogError, StepError
+
+        exc = CatalogError("catalog does not cover the frame")
+        self.assertIsInstance(exc, StepError)
+        self.assertEqual(exc.component, Component.STEP)
+
+
+class TestCatalogRetryExhaustion(unittest.TestCase):
+    """A Gaia query that exhausts its retries surfaces as CatalogError."""
+
+    def test_get_result_raises_catalog_error_after_retries(self):
+        """The final failed attempt raises CatalogError, chaining the cause."""
+
+        from unittest import mock
+        from autowisp.catalog import WISPGaia
+        from autowisp.exceptions import CatalogError
+
+        gaia = WISPGaia()
+        cause = ConnectionError("gaia unreachable")
+        # Every attempt fails; skip the real 60s back-offs.
+        with (
+            mock.patch.object(gaia, "launch_job_async", side_effect=cause),
+            mock.patch("autowisp.catalog.time.sleep"),
+        ):
+            with self.assertRaises(CatalogError) as ctx:
+                gaia.get_result("SELECT 1", add_propagated=None)
+
+        self.assertIn("after 10 attempts", str(ctx.exception))
+        self.assertIs(ctx.exception.__cause__, cause)
+
 
 class TestFrozenRow(unittest.TestCase):
     """FrozenRow attribute access, immutability, and pickling."""

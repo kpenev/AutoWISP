@@ -1,0 +1,18 @@
+<map id="inheritanced4aeca73b2" name="inheritanced4aeca73b2">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="246,299,614,324"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,225,425,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="450,225,842,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="499,152,793,177"/>
+<area shape="rect" id="node5" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="847,5,1141,31"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1205,5,1460,31"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1211,79,1454,104"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.DatabaseError" target="_top" title="Failure interacting with the pipeline database." alt="" coords="1206,152,1459,177"/>
+<area shape="rect" id="node9" title="represents an event target, that is, something we can listen on" alt="" coords="1485,5,1754,31"/>
+<area shape="rect" id="node15" title="Abstract base class for connection pools." alt="" coords="1647,79,1842,104"/>
+<area shape="rect" id="node10" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="32,152,399,177"/>
+<area shape="rect" id="node11" title="define a class as inspectable." alt="" coords="523,79,769,104"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="627,5,745,31"/>
+<area shape="rect" id="node14" title="A configurable :class:`.Session` factory." alt="" coords="793,79,1065,104"/>
+<area shape="rect" id="node13" href="https://docs.sqlalchemy.org/en/20/core/internals.html#sqlalchemy.log.Identified" target="_top" title="sqlalchemy.log.Identified" alt="" coords="1778,5,1962,31"/>
+<area shape="rect" id="node16" title="A Pool which does not pool connections." alt="" coords="1635,152,1854,177"/>
+</map>
