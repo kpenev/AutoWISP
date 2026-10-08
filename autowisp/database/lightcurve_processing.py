@@ -29,6 +29,7 @@ from autowisp.database.processing import (
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
 from autowisp import processing_steps
+from autowisp.project_paths import fill_path_template, resolve_path
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -548,8 +549,10 @@ class LightCurveProcessingManager(ProcessingManager):
             matched_expressions, db_session, step_name="create_lightcurves"
         )[0]
 
-        catalog = create_lc_cofig["lightcurve_catalog_fname"].format_map(
-            sphotref_header
+        catalog = resolve_path(
+            fill_path_template(
+                create_lc_cofig["lightcurve_catalog_fname"], sphotref_header
+            )
         )
         if not path.exists(catalog):
             raise MasterSelectionError(

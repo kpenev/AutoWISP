@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 """Stack a collection of images to a master frame."""
+
 from functools import partial
 from os.path import exists
 from os import remove
 import logging
 
 import numpy
-from astropy.io import fits
 
 from configargparse import Action
 
@@ -23,6 +23,7 @@ from autowisp.processing_steps.manual_util import (
 )
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
+from autowisp.project_paths import fill_path_template, resolve_path
 
 input_type = "calibrated"
 #: Frames are marked as started and nothing else until the master is
@@ -162,12 +163,11 @@ def get_master_fname(
 ):
     """Return the name of the master the given image should contribute to."""
 
-    with fits.open(image_fname, "readonly") as first_image:
-        substitutions = dict(get_primary_header(first_image))
+    substitutions = dict(get_primary_header(image_fname))
     for arg in configuration:
         if arg.upper() not in substitutions:
             substitutions[arg.upper()] = configuration[arg]
-    return configuration[fname_key].format_map(substitutions)
+    return fill_path_template(configuration[fname_key], substitutions)
 
 
 def stacking_related_files(image_collection, master_fnames):
@@ -209,6 +209,7 @@ def stack_to_master(
     # pylint: disable=unused-argument
 
     master_fname = get_master_fname(image_collection[0], configuration)
+    master_path = resolve_path(master_fname)
     with error_context(
         related_files=stacking_related_files(image_collection, [master_fname])
     ):
@@ -228,7 +229,7 @@ def stack_to_master(
                     "add_averaged_keywords",
                 ]
             }
-        )(image_collection, master_fname)
+        )(image_collection, master_path)
         for image_fname in image_collection:
             mark_end(
                 image_fname,
@@ -241,9 +242,9 @@ def stack_to_master(
 
     if success:
         assert exists(
-            master_fname
-        ), f"Stacking reported success but {master_fname} was not created!"
-        header = get_primary_header(master_fname)
+            master_path
+        ), f"Stacking reported success but {master_path} was not created!"
+        header = get_primary_header(master_path)
         return {
             "filename": master_fname,
             "preference_order": f'JD_OBS - {header["JD-OBS"]}',
@@ -270,8 +271,9 @@ def cleanup_interrupted(interrupted, configuration):
             "span several masters!"
         )
 
-    if exists(master_fname):
-        remove(master_fname)
+    master_path = resolve_path(master_fname)
+    if exists(master_path):
+        remove(master_path)
 
     return -1
 

@@ -25,6 +25,7 @@ from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp import processing_steps
 from autowisp.processing_steps.manual_util import raise_config_parse_errors
+from autowisp.project_paths import fill_path_template
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -389,8 +390,8 @@ class ProcessingManager:
                 expr_id: evaluate(expression)
                 for expr_id, expression in self.condition_expressions.items()
             },
-            "calibrated": calib_config["calibrated_fname"].format_map(
-                evaluate.symtable
+            "calibrated": fill_path_template(
+                calib_config["calibrated_fname"], evaluate.symtable
             ),
             "masters": {},
         }
@@ -404,8 +405,8 @@ class ProcessingManager:
             "data-reduction-fname"
         ]["value"].items():
             if required_expressions <= evaluated_expressions["matched"]:
-                evaluated_expressions["dr"] = value.format_map(
-                    evaluate.symtable
+                evaluated_expressions["dr"] = fill_path_template(
+                    value, evaluate.symtable
                 )
                 break
         if "dr" not in evaluated_expressions:

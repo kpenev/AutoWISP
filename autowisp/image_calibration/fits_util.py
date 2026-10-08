@@ -12,6 +12,7 @@ import numpy
 from autowisp.fits_utilities import read_image_components, get_primary_header
 from autowisp.evaluator import Evaluator
 from autowisp.image_calibration.mask_utilities import combine_masks
+from autowisp.project_paths import fill_path_template, resolve_path
 
 
 class TimeISOTNoSep(TimeISO):
@@ -79,6 +80,14 @@ def assemble_channels(
     """
 
     logger = getLogger(__name__)
+
+    if isinstance(filename, dict):
+        filename = {
+            channel_name: resolve_path(channel_fname)
+            for channel_name, channel_fname in filename.items()
+        }
+    else:
+        filename = resolve_path(filename)
 
     if (isinstance(filename, str) and isinstance(hdu, int)) or len(
         split_channels
@@ -341,7 +350,9 @@ def create_result(  # pylint: disable=too-many-arguments, too-many-locals
             )
 
         fname_substitutions.update(header_list[0])
-        output_fname = result_fname.format_map(fname_substitutions)
+        output_fname = resolve_path(
+            fill_path_template(result_fname, fname_substitutions)
+        )
         if not path.exists(path.dirname(output_fname)):
             makedirs(path.dirname(output_fname))
         logger.debug("Creating %s", repr(output_fname))
@@ -356,7 +367,7 @@ def create_result(  # pylint: disable=too-many-arguments, too-many-locals
                     "Failed to write output file %s: %s\n%s",
                     output_fname,
                     str(e),
-                    'Retrying...' if retry < 9 else 'Giving up.',
+                    "Retrying..." if retry < 9 else "Giving up.",
                 )
                 if retry == 9:
                     raise

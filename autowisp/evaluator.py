@@ -10,6 +10,7 @@ import pandas
 
 from autowisp.fits_utilities import get_primary_header
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.project_paths import resolve_path
 from autowisp.iterative_rejection_util import (
     iterative_rejection_average,
     iterative_rej_polynomial_fit,
@@ -188,12 +189,13 @@ class Evaluator(EvaluatorBase):
             elif isinstance(data_entry, pandas.DataFrame):
                 for varname in data_entry:
                     self.symtable[varname] = data_entry[varname].to_numpy()
-            elif isinstance(data_entry, str) and path.exists(data_entry):
-                if path.splitext(data_entry)[-1] in [".h5", ".hdf5"]:
-                    with DataReductionFile(data_entry, "r") as dr_file:
+            elif isinstance(data_entry, str):
+                fname = resolve_path(data_entry)
+                if path.splitext(fname)[-1] in [".h5", ".hdf5"]:
+                    with DataReductionFile(fname, "r") as dr_file:
                         self.__init__(dr_file.get_frame_header())
                 else:
-                    with fits.open(data_entry, "readonly") as opened_fits:
+                    with fits.open(fname, "readonly") as opened_fits:
                         self.__init__(get_primary_header(opened_fits))
             elif isinstance(data_entry, fits.HDUList):
                 self.__init__(get_primary_header(data_entry))

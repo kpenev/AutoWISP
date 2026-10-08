@@ -21,6 +21,7 @@ from astroquery.gaia import GaiaClass, conf
 from autowisp.evaluator import Evaluator
 from autowisp.exceptions import CatalogError
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.project_paths import fill_path_template, resolve_path
 from autowisp.astrometry import Transformation
 from autowisp.astrometry.map_projections import (
     gnomonic_projection,
@@ -521,6 +522,7 @@ def write_query_to_file(query, fname, overwrite, **query_kwargs):
         except TypeError:
             query.meta["MAGMAX"] = query_kwargs["magnitude_limit"]
 
+    fname = resolve_path(fname)
     if path.dirname(fname) and not path.exists(path.dirname(fname)):
         makedirs(path.dirname(fname))
     query.write(fname, format="fits", overwrite=overwrite)
@@ -590,7 +592,7 @@ def read_catalog_file(
     """
 
     if isinstance(cat_fits, str):
-        with fits.open(cat_fits) as opened_cat_fits:
+        with fits.open(resolve_path(cat_fits)) as opened_cat_fits:
             return read_catalog_file(
                 opened_cat_fits,
                 filter_expr,
@@ -1204,8 +1206,9 @@ def get_catalog_info(  # pylint: disable=too-many-branches
     for cfg in sorted(catalog_info.items()):
         get_checksum.update(repr(cfg).encode("ascii"))
 
-    catalog_info["fname"] = configuration["fname"].format(
-        **dict(header), **catalog_info, checksum=get_checksum.hexdigest()
+    catalog_info["fname"] = fill_path_template(
+        configuration["fname"],
+        dict(dict(header), **catalog_info, checksum=get_checksum.hexdigest()),
     )
     _logger.debug("Created catalog info: %s", repr(catalog_info))
 
@@ -1241,9 +1244,10 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
     source_id_filter = configuration.get("source_list")
     if source_id_filter is not None:
         source_id_filter = read_source_id_list(source_id_filter)
+    catalog_fname = resolve_path(catalog_info["fname"])
     with lock if lock is not None else nullcontext():
-        if path.exists(catalog_info["fname"]):
-            with fits.open(catalog_info["fname"]) as cat_fits:
+        if path.exists(catalog_fname):
+            with fits.open(catalog_fname) as cat_fits:
                 catalog_header = cat_fits[1].header
                 # pylint: disable=too-many-boolean-expressions
                 if (
@@ -1254,7 +1258,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     > 0.25
                 ):
                     raise CatalogError(
-                        f'Catalog {catalog_info["fname"]} '
+                        f"Catalog {catalog_fname} "
                         f'has epoch {catalog_header["EPOCH"]!r}, '
                         f'but {catalog_info["epoch"]!r} is needed'
                     )
@@ -1264,7 +1268,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     != catalog_info["magnitude_expression"]
                 ):
                     raise CatalogError(
-                        f'Catalog {catalog_info["fname"]} has '
+                        f"Catalog {catalog_fname} has "
                         f'magnitude expression {catalog_header["MAGEXPR"]!r} '
                         f'instead of {catalog_info["magnitude_expression"]!r}'
                     )
@@ -1278,7 +1282,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     )
                 ):
                     raise CatalogError(
-                        f'Catalog {catalog_info["fname"]} excludes '
+                        f"Catalog {catalog_fname} excludes "
                         f'sources brighter than {catalog_header["MAGMIN"]!r} '
                         f'but {catalog_info["magnitude_limit"][0]!r} are '
                         "required."
@@ -1289,7 +1293,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     < catalog_info["magnitude_limit"][-1]
                 ):
                     raise CatalogError(
-                        f'Catalog {catalog_info["fname"]} excludes '
+                        f"Catalog {catalog_fname} excludes "
                         f'sources fainter than {catalog_header["MAGMAX"]!r} but'
                         f' {catalog_info["magnitude_limit"][-1]!r} are '
                         "required."
@@ -1299,7 +1303,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     units.deg
                 ):
                     raise CatalogError(
-                        f'Catalog {catalog_info["fname"]} width '
+                        f"Catalog {catalog_fname} width "
                         f'{catalog_header["WIDTH"]!r} is less than the required'
                         f' {catalog_info["width"]!r}'
                     )
@@ -1307,7 +1311,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     units.deg
                 ):
                     raise CatalogError(
-                        f'Catalog {catalog_info["fname"]} height '
+                        f"Catalog {catalog_fname} height "
                         f'{catalog_header["HEIGHT"]!r} is less than the '
                         f'required {catalog_info["height"]!r}'
                     )
@@ -1320,7 +1324,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     "pointing_precision"
                 ] * units.deg:
                     raise CatalogError(
-                        f'Catalog {catalog_info["fname"]} center RA '
+                        f"Catalog {catalog_fname} center RA "
                         f'{catalog_header["RA"]!r} is too far from the '
                         f'required RA={query_center["RA"]!r}'
                     )
@@ -1329,7 +1333,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     catalog_header["DEC"] - query_center["Dec"]
                 ) * units.deg > configuration["pointing_precision"] * units.deg:
                     raise CatalogError(
-                        f'Catalog {catalog_info["fname"]} center Dec '
+                        f"Catalog {catalog_fname} center Dec "
                         f'{catalog_header["DEC"]!r} is too far from the '
                         f'required Dec={query_center["Dec"]!r}'
                     )
@@ -1376,7 +1380,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
         create_catalog_file(**catalog_info, verbose=True)
         return (
             read_catalog_file(
-                catalog_info["fname"],
+                catalog_fname,
                 return_metadata=return_metadata,
                 source_id_filter=source_id_filter,
             ),
