@@ -8,6 +8,7 @@ from astropy.io import fits
 
 from autowisp.exceptions import BadImageError, ImageMismatchError
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.project_paths import resolve_path
 
 _logger = logging.getLogger(__name__)
 
@@ -24,8 +25,10 @@ def read_image_components(
     Read image, its error estimate, mask and header from pipeline FITS file.
 
     Args:
-        fits_fname:    The filename of the FITS file to read the componets of.
-            Must have been produced by the pipeline.
+        fits_fname:    The filename of the FITS file to read the components
+            of. The file must have the layout the pipeline produces (image,
+            error and mask extensions). The name may be any path, or a path
+            inside the project in ``{PROJHOME}/...`` form.
 
         read_image:    Should the pixel values of the primary image be read.
 
@@ -57,7 +60,7 @@ def read_image_components(
                 the output if ``read_header == False``."""
 
     image = error = mask = header = None
-    with fits.open(fits_fname, mode="readonly") as input_file:
+    with fits.open(resolve_path(fits_fname), mode="readonly") as input_file:
         for hdu_index, hdu in enumerate(input_file):
             if hdu.header["NAXIS"] == 0:
                 continue
@@ -107,7 +110,7 @@ def get_primary_header(fits_image, add_filename_keywords=False):
 
     if not isinstance(fits_image, fits.HDUList):
         try:
-            with fits.open(fits_image, "readonly") as opened_fits:
+            with fits.open(resolve_path(fits_image), "readonly") as opened_fits:
                 return get_primary_header(opened_fits, add_filename_keywords)
         except OSError:
             with DataReductionFile(fits_image, "r") as dr_file:

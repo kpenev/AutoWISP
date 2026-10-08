@@ -22,6 +22,7 @@ from astropy.io import fits
 
 from autowisp.error_context import error_context
 from autowisp.exceptions import HDF5LayoutError, RelatedFile
+from autowisp.project_paths import resolve_path
 
 git_id = "$Id$"
 
@@ -1228,7 +1229,8 @@ class HDF5File(ABC, h5py.File):
         Opens the given HDF5 file in the given mode.
 
         Args:
-            fname:    The name of the file to open.
+            fname:    The name of the file to open, possibly starting with
+                ``{PROJHOME}``.
 
             mode:    The mode to open the file in (see hdf5.File).
 
@@ -1249,6 +1251,7 @@ class HDF5File(ABC, h5py.File):
                 "memory_only", mode="w", driver="core", backing_store=False
             )
         else:
+            fname = resolve_path(fname)
             old_file = os.path.exists(fname)
             if mode[0] != "r":
                 path = os.path.dirname(fname)
