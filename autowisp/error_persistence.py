@@ -38,6 +38,7 @@ from autowisp.exceptions import (
     collect_environment,
     sanitize_for_json,
 )
+from autowisp.project_paths import to_stored_path
 
 git_id = "$Id$"
 
@@ -65,10 +66,10 @@ def _resolve_artifact_fks(related_files, db_session):
             related file maps to such a row.
     """
 
-    # as_posix() so matching against the DB's forward-slash paths works on
-    # Windows too (str() would emit backslashes). RelatedFile coerces path to
-    # a Path in its constructor, so this is safe.
-    paths = [related.path.as_posix() for related in related_files]
+    # Paths are stored in the form to_stored_path gives them, while a related
+    # file usually names the file that was opened, so it is converted the
+    # same way.
+    paths = [to_stored_path(related.path) for related in related_files]
     if not paths:
         return None, None
     # pylint: disable=no-member

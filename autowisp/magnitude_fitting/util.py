@@ -7,6 +7,8 @@ import numpy
 from numpy.lib import recfunctions
 from astropy.io import fits
 
+from autowisp.project_paths import resolve_path
+
 _PHOT_QUANTITIES = ("mag", "mag_err", "phot_flag")
 
 
@@ -242,7 +244,8 @@ def read_exclusions(exclusion_fname):
 
     Args:
         exclusion_fname(str or None):    The exclusion list: one DR file per
-            line, blank lines ignored. None excludes nothing.
+            line, possibly starting with ``{PROJHOME}``, blank lines ignored.
+            None excludes nothing.
 
     Returns:
         set:
@@ -254,7 +257,7 @@ def read_exclusions(exclusion_fname):
         return set()
     with open(exclusion_fname, encoding="utf-8") as exclusion_list:
         return {
-            os.path.realpath(line.strip())
+            os.path.realpath(resolve_path(line.strip()))
             for line in exclusion_list
             if line.strip()
         }
