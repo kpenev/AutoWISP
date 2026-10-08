@@ -19,6 +19,7 @@ py_src = [
   'multiprocessing_util.py',
   'piecewise_bicubic_psf_map.py',
   'processor.py',
+  'project_paths.py',
   'run_pipeline.py',
   'source_finder.py',
   'source_finder_util.py',

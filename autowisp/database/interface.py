@@ -22,6 +22,13 @@ from autowisp.database.initialize_data_reduction_structure import (
 from autowisp.database.initialize_light_curve_structure import (
     get_default_light_curve_structure,
 )
+
+# get_project_home is re-exported: the project home is kept in project_paths
+# so that the file classes can resolve paths without importing the database.
+from autowisp.project_paths import (  # pylint: disable=unused-import
+    get_project_home,
+    set_project_home_path,
+)
 from autowisp.exceptions import DatabaseError
 
 _db_engine = None
@@ -30,8 +37,6 @@ _db_engine = None
 # pylint: disable=invalid-name
 _Session = None  # sessionmaker(db_engine, expire_on_commit=False)
 # pylint: enable=invalid-name
-
-_project_home = None
 
 DB_URL_FNAME = "autowisp_db.url"  # pylint: disable=invalid-name
 """
@@ -57,12 +62,6 @@ def start_db_session():
 
     with _Session.begin() as db_session:  # pylint: disable=no-member
         yield db_session
-
-
-def get_project_home():
-    """Return the project home directory currently being used."""
-
-    return _project_home
 
 
 def snapshot_row(orm_obj, *, exclude=()):
@@ -175,7 +174,7 @@ def set_project_home(
             this check passes.
     """
 
-    global _db_engine, _Session, _project_home  # pylint: disable=global-statement
+    global _db_engine, _Session  # pylint: disable=global-statement
     # print(f"Setting project home to {project_home!r}")
     if _db_engine is not None:
         _db_engine.dispose()
@@ -189,14 +188,14 @@ def set_project_home(
 
     # Ensure directory exists
     makedirs(project_home, exist_ok=True)
-    _project_home = path.abspath(project_home)
+    project_home = path.abspath(project_home)
 
-    url_file = path.join(_project_home, DB_URL_FNAME)
+    url_file = path.join(project_home, DB_URL_FNAME)
 
     persist_db_url = None
     if db_url is not None:
         assert not path.exists(url_file), (
-            f"Attempting to set a new db_url in {_project_home!r} which already"
+            f"Attempting to set a new db_url in {project_home!r} which already"
             f" contains {url_file!r}"
         )
         # Persisted (further down) only once the target database has been
@@ -214,7 +213,7 @@ def set_project_home(
     }
 
     if db_url is None:
-        db_path = path.join(_project_home, "autowisp.db")
+        db_path = path.join(project_home, "autowisp.db")
         db_url = f"sqlite:///{path.abspath(db_path)}?timeout=600&uri=true"
     if db_url.startswith("sqlite"):
         engine_kwargs["poolclass"] = NullPool
@@ -231,7 +230,7 @@ def set_project_home(
         target = engine.url.render_as_string(hide_password=True)
         engine.dispose()
         raise DatabaseError(
-            f"Refusing to create a new project in {_project_home!r}: its "
+            f"Refusing to create a new project in {project_home!r}: its "
             f"database ({target}) already contains "
             f"{len(already_present)} AutoWISP table(s), including "
             f"{', '.join(sorted(already_present)[:5])}. Creating the "
@@ -242,6 +241,7 @@ def set_project_home(
 
     _db_engine = engine
     _Session = sessionmaker(_db_engine, expire_on_commit=False)
+    set_project_home_path(project_home)
 
     if persist_db_url is not None:
         # Lets future calls with only project_home reconnect here.
