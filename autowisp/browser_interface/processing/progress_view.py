@@ -10,6 +10,7 @@ from django.shortcuts import render
 
 from autowisp.database.interface import start_db_session
 from autowisp.database.user_interface import (
+    get_progress_model,
     get_processing_sequence,
     get_progress,
     list_channels,
@@ -22,7 +23,12 @@ from autowisp.exceptions import get_hostname
 
 # False positive
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import ImageProcessingProgress, PipelineRun
+from autowisp.database.data_model import (
+    ImageProcessingProgress,
+    LightCurveProcessingProgress,
+    MasterFile,
+    PipelineRun,
+)
 
 # pylint: enable=no-name-in-module
 
@@ -90,22 +96,42 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
                 destination[2][channel_index[channel]][3].append(
                     (status, (count or 0))
                 )
+            progress_class = get_progress_model(step)
+            run_query = select(
+                progress_class.id,
+                progress_class.started,
+                progress_class.finished,
+            ).where(progress_class.step_id == step.id)
+            if progress_class is ImageProcessingProgress:
+                run_query = run_query.where(
+                    ImageProcessingProgress.image_type_id == imtype.id
+                )
+            else:
+                run_query = (
+                    run_query.join(
+                        MasterFile,
+                        MasterFile.id
+                        == LightCurveProcessingProgress.single_photref_id,
+                    )
+                    .join(
+                        ImageProcessingProgress,
+                        ImageProcessingProgress.id == MasterFile.progress_id,
+                    )
+                    .where(ImageProcessingProgress.image_type_id == imtype.id)
+                )
+
             destination[3] = [
                 (
                     record[0],
                     record[1].strftime(datetime_fmt) if record[1] else "-",
                     record[2].strftime(datetime_fmt) if record[2] else "-",
+                    (
+                        "lightcurve"
+                        if progress_class is LightCurveProcessingProgress
+                        else "image"
+                    ),
                 )
-                for record in db_session.execute(
-                    select(
-                        ImageProcessingProgress.id,
-                        ImageProcessingProgress.started,
-                        ImageProcessingProgress.finished,
-                    ).where(
-                        ImageProcessingProgress.step_id == step.id,
-                        ImageProcessingProgress.image_type_id == imtype.id,
-                    )
-                ).all()
+                for record in db_session.execute(run_query).all()
             ]
 
         for check_running in db_session.scalars(

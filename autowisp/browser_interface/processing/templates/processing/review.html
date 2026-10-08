@@ -5,6 +5,8 @@
         <meta charset="utf-8">
         <title>Review Processing</title>
         <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
+        <link rel="stylesheet"
+              href="{% static 'processing/css/logs.css' %}">
         <style>
             html, body, container {
                 margin: 0px;
@@ -27,11 +29,15 @@
                 <!-- ELBOW -->
                 <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
                 <div class="lcars-bar horizontal spacer"></div>
+                <div class="processing-step-scroll"
+                     id="processing-step-scroll">
                 {% for step in pipeline_steps %}
-                <a href="{% url 'processing:review' selected_processing_id=step.2 min_log_level='warning' %}">
+                {% url 'processing:review' selected_processing_id=step.2 min_log_level='warning' as step_url %}
+                <a href="{{ step_url }}{% if step.3 == 'lightcurve' %}?processing_type=lightcurve{% endif %}">
                     <div class="lcars-bar
                                 button
                                 horizontal
+                                processing-step-button
                                 {% if step.0 == selected_info.1 %}
                                 lcars-neon-carrot-bg
                                 {% else %}
@@ -44,7 +50,8 @@
                     </div>
                 </a>
                 {% endfor %}
-                <div class="lcars-bar horizontal">
+                </div>
+                <div class="lcars-bar horizontal processing-started-title">
                     <div class="lcars-title right">
                         Processing started {{selected_info.3}}
                     </div>
@@ -84,8 +91,9 @@
                     </div>
                 </a>
                 {% for processing in reviewable %}
+                {% url 'processing:review' selected_processing_id=processing.0 min_log_level=min_log_level as processing_url %}
                 <a class="lcars-u-1-1"
-                   href="{% url 'processing:review' selected_processing_id=processing.0 min_log_level=min_log_level %}">
+                   href="{{ processing_url }}{% if processing_type == 'lightcurve' %}?processing_type=lightcurve{% endif %}">
                     <div class="lcars-element 
                                 button 
                                 {% if processing.0 == selected_info.0 %}
@@ -115,7 +123,7 @@
                 {% endif %}
                 <a class="lcars-bar horizontal bottom" 
                    style="width: auto"
-                   href="{{change_imtype_url}}">
+                   href="{{change_imtype_url}}{% if imtype.3 == 'lightcurve' %}?processing_type=lightcurve{% endif %}">
                     <div class="lcars-bar
                                 horizontal
                                 bottom
@@ -141,15 +149,18 @@
             </div>
 
             <div id="container"> 
-                <iframe src="{% url 'processing:review' what='log' selected_processing_id=selected_processing_id min_log_level=min_log_level %}" 
+                {% url 'processing:review' what='log' selected_processing_id=selected_processing_id min_log_level=min_log_level as log_url %}
+                <iframe src="{{ log_url }}{% if processing_type == 'lightcurve' %}?processing_type=lightcurve{% endif %}"
                         style="height: 50%;"
                         title="Logs for precessing ID {{selected_processing_id}}"> 
                 </iframe>
-                <iframe src="{% url 'processing:review' what='out' min_log_level='critical' selected_processing_id=selected_processing_id %}" 
+                {% url 'processing:review' what='out' min_log_level='critical' selected_processing_id=selected_processing_id as output_url %}
+                <iframe src="{{ output_url }}{% if processing_type == 'lightcurve' %}?processing_type=lightcurve{% endif %}"
                         style="height: 50%;"
                         title="Standard output and error for precessing ID {{selected_processing_id}}"> 
                 </iframe>
             </div>
+            <script src="{% static 'processing/js/review_steps.js' %}"></script>
     </body>
 </html>
 

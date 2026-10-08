@@ -34,6 +34,7 @@ from autowisp import processing_steps
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     Image,
+    ImageProcessingProgress,
     ImageMasterSelection,
     ImageType,
     InputMasterTypes,
@@ -425,27 +426,22 @@ class LightCurveProcessingManager(ProcessingManager):
                 self.set_pending(db_session)
 
     def _progress_image_type(self, processing_progress, db_session):
-        """Derive the image type from the row's single photref.
+        """Return the image type of the progress that built the photref."""
 
-        A lightcurve progress row has no image type of its own; when the
-        step ran, its logs were keyed on the image type of the single
-        photometric reference's source frame (``_current_image_type``).
-        Reproduce that here so the log names match: the photref DR's
-        ``RAWFNAME`` -> the ``Image`` -> its type.
-        """
-
-        with DataReductionFile(
-            processing_progress.sphotref.filename, "r"
-        ) as sphotref_dr:
-            raw_fname = sphotref_dr.get_frame_header()["RAWFNAME"]
-        image = db_session.scalar(
-            select(Image).where(
-                # pylint: disable=no-member
-                Image.raw_fname.contains(raw_fname + ".fits")
-                # pylint: enable=no-member
+        return db_session.execute(
+            select(ImageType.name)
+            .select_from(LightCurveProcessingProgress)
+            .join(
+                MasterFile,
+                MasterFile.id == LightCurveProcessingProgress.single_photref_id,
             )
-        )
-        return image.image_type.name
+            .join(
+                ImageProcessingProgress,
+                ImageProcessingProgress.id == MasterFile.progress_id,
+            )
+            .join(ImageType)
+            .where(LightCurveProcessingProgress.id == processing_progress.id)
+        ).scalar_one()
 
     @staticmethod
     def select_step_sphotref(db_session, pending=True, full_objects=False):

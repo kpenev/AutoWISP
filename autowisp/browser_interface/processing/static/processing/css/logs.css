@@ -41,3 +41,42 @@
 .CRITICAL-bg {
     background-color: #e10;
 }
+
+.processing-step-scroll {
+    display: inline-flex;
+    align-self: flex-start;
+    flex: 1 1 auto;
+    height: 2.15rem;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    white-space: nowrap;
+}
+
+.processing-step-scroll::-webkit-scrollbar {
+    height: 0.45rem;
+}
+
+.processing-step-scroll a {
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin-right: 0.25rem;
+    text-decoration: none;
+}
+
+.processing-step-scroll a:last-child {
+    margin-right: 0;
+}
+
+.processing-step-button {
+    min-width: max-content;
+    width: auto;
+}
+
+.processing-started-title {
+    flex: 0 0 auto;
+    max-width: 40%;
+    min-width: 12rem;
+    width: auto;
+}

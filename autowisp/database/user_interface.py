@@ -376,15 +376,24 @@ def get_progress_lightcurves(
     )
 
 
-def get_progress(step, *args, **kwargs):
-    """Return info about completed work ona given step."""
+def get_progress_model(step):
+    """Return the progress table used by a processing step."""
 
-    if step.name in [
+    if step.name in {
         "epd",
         "tfa",
         "generate_epd_statistics",
         "generate_tfa_statistics",
-    ]:
+    }:
+        return LightCurveProcessingProgress
+
+    return ImageProcessingProgress
+
+
+def get_progress(step, *args, **kwargs):
+    """Return info about completed work on a given step."""
+
+    if get_progress_model(step) is LightCurveProcessingProgress:
         return get_progress_lightcurves(step.id, *args, **kwargs)
 
     return get_progress_images(step.id, *args, **kwargs)
