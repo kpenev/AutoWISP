@@ -7,6 +7,7 @@ from logging import getLogger
 
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
+from autowisp.project_paths import fill_path_template, resolve_path
 
 _logger = getLogger(__name__)
 
@@ -94,10 +95,9 @@ def find_fits_with_dr_fnames(
         """Check if a FITS file has a corresponding DR file."""
 
         header = get_primary_header(fits_fname)
-        _logger.debug(
-            "looking for: %s", repr(dr_fname_format.format_map(header))
-        )
-        return os.path.exists(dr_fname_format.format_map(header))
+        dr_fname = resolve_path(fill_path_template(dr_fname_format, header))
+        _logger.debug("looking for: %s", repr(dr_fname))
+        return os.path.exists(dr_fname)
 
     return filter(
         has_dr, find_data_fnames(image_collection, include_condition, **kwargs)

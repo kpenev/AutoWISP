@@ -22,6 +22,7 @@ from autowisp.evaluator import Evaluator
 from autowisp.processing_steps.lc_detrending_argument_parser import (
     parse_fit_datasets,
 )
+from autowisp.project_paths import fill_path_template, resolve_path
 
 _logger = logging.getLogger(__name__)
 
@@ -85,9 +86,7 @@ def _get_default_fit_datasets(
     # EPD corrects the magnitude fitted magnitudes, TFA the EPD corrected ones.
     source_mode = "magfit" if detrending_mode == "epd" else "epd"
 
-    num_apertures = sphotref_dr.get_num_apertures(
-        apphot_version=apphot_version
-    )
+    num_apertures = sphotref_dr.get_num_apertures(apphot_version=apphot_version)
     if not num_apertures:
         raise ConfigurationError(
             f"The single photometric reference {sphotref_dr.filename!r} "
@@ -365,12 +364,12 @@ def calculate_detrending_performance(
     ) as sphotref_dr:
         sphotref_header = sphotref_dr.get_frame_header()
 
-    detrending_catalog_fname = configuration["detrending_catalog"].format_map(
-        sphotref_header
+    detrending_catalog_fname = resolve_path(
+        fill_path_template(configuration["detrending_catalog"], sphotref_header)
     )
-    output_statistics_fname = configuration[
-        f"{detrending_mode}_statistics_fname"
-    ].format_map(sphotref_header)
+    output_statistics_fname = fill_path_template(
+        configuration[f"{detrending_mode}_statistics_fname"], sphotref_header
+    )
 
     # Both are known only after header substitution. The single photref is
     # already scoped for the whole step by the LC manager; each lightcurve
@@ -397,8 +396,8 @@ def calculate_detrending_performance(
         )
 
 
-# The caller resolves the two filenames (header substitution) to build the
-# error scope, so they arrive here rather than being re-derived.
+# The caller fills in the two filenames from the header to build the error
+# scope, so they arrive here rather than being re-derived.
 # pylint: disable=too-many-arguments
 def _generate_statistics(
     lc_fnames,
@@ -437,9 +436,10 @@ def _generate_statistics(
         statistics,
     )
 
-    if not path.exists(path.dirname(output_fname)):
-        makedirs(path.dirname(output_fname))
-    save_correction_statistics(statistics, output_fname)
+    output_path = resolve_path(output_fname)
+    if not path.exists(path.dirname(output_path)):
+        makedirs(path.dirname(output_path))
+    save_correction_statistics(statistics, output_path)
     mark_progress(lc_fnames)
     return {"filename": output_fname, "preference_order": None}
 

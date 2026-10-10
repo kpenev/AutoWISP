@@ -3,6 +3,7 @@
 # pylint: disable=too-many-lines
 
 """Fit for a transformation between sky and image coordinates."""
+
 import logging
 from contextlib import ExitStack
 from multiprocessing import Queue, Process, Lock
@@ -52,6 +53,7 @@ from sqlalchemy import select
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
 from autowisp.database.interface import start_db_session
+from autowisp.project_paths import fill_path_template, resolve_path
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -718,7 +720,7 @@ def solve_image(  # pylint: disable=too-many-locals
                         fov_estimate * configuration["image_scale_factor"],
                     ),
                     "anet_indices": [
-                        fname.format_map(header)
+                        resolve_path(fill_path_template(fname, header))
                         for fname in configuration["anet_indices"]
                     ],
                     "anet_api_key": configuration["anet_api_key"],

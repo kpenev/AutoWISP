@@ -34,6 +34,7 @@ from autowisp.catalog import (
 )
 from autowisp.processing_steps import create_lightcurves
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.project_paths import resolve_path
 from autowisp.tests import AutoWISPTestCase
 from autowisp.tests.h5_test_case import H5TestCase
 
@@ -281,12 +282,14 @@ class TestLCFilter(H5TestCase):
                 config["single_photref_dr_fname"], "r"
             ) as sphotref:
                 header = sphotref.get_frame_header()
-            return get_catalog_info(
-                dr_files=self._astrometried_dr_files(),
-                header=header,
-                configuration=get_catalog_config(config, "lc"),
-                skytoframe_version=config["skytoframe_version"],
-            )[0]["fname"]
+            return resolve_path(
+                get_catalog_info(
+                    dr_files=self._astrometried_dr_files(),
+                    header=header,
+                    configuration=get_catalog_config(config, "lc"),
+                    skytoframe_version=config["skytoframe_version"],
+                )[0]["fname"]
+            )
 
         old_cwd = os.getcwd()
         os.chdir(self.processing_directory)

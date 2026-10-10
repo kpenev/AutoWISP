@@ -29,6 +29,7 @@ from autowisp.magnitude_fitting.util import (
     get_path_substitutions,
     read_exclusions,
 )
+from autowisp.project_paths import fill_path_template, resolve_path
 
 
 def _get_common_header(fit_dr_filenames):
@@ -347,8 +348,9 @@ class MagnitudeFitting:
         """Return the given file name format expanded for the current pass."""
 
         # dict() first: a header may repeat a keyword.
-        return fname_format.format_map(
-            {**dict(self.sphotref_header), **self._path_substitutions}
+        return fill_path_template(
+            fname_format,
+            {**dict(self.sphotref_header), **self._path_substitutions},
         )
 
     def _refuse_clash(self):
@@ -366,7 +368,9 @@ class MagnitudeFitting:
             "master_photref_fname_format",
             "magfit_stat_fname_format",
         ):
-            fname = self._expand(getattr(self._configuration, option))
+            fname = resolve_path(
+                self._expand(getattr(self._configuration, option))
+            )
             if os.path.exists(fname):
                 raise ConfigurationError(
                     f"Magnitude fitting against single photometric reference "
@@ -528,8 +532,9 @@ class MagnitudeFitting:
         master_fname = self._expand(
             self._configuration.master_photref_fname_format
         )
+        master_path = resolve_path(master_fname)
         with TemporaryDirectory(
-            dir=os.path.dirname(os.path.abspath(master_fname))
+            dir=os.path.dirname(os.path.abspath(master_path))
         ) as candidate_dir:
             candidate_fname = os.path.join(
                 candidate_dir, os.path.basename(master_fname)
@@ -556,7 +561,7 @@ class MagnitudeFitting:
                 return None, None
             if iteration > 0 and self._converged(old_reference, new_reference):
                 return None, None
-            os.replace(candidate_fname, master_fname)
+            os.replace(candidate_fname, master_path)
         return new_reference, master_fname
 
     def _converged(self, old_reference, new_reference):

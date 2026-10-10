@@ -15,6 +15,7 @@ from autowisp.exceptions import FitMagnitudesError
 from autowisp.fit_expression import Interface as FitTermsInterface
 from autowisp.fit_expression import iterative_fit
 from autowisp.iterative_rejection_util import iterative_rejection_average
+from autowisp.project_paths import resolve_path
 
 
 class MasterPhotrefCollector:
@@ -551,7 +552,7 @@ class MasterPhotrefCollector:
             "images": num_frames,
         }
         self._added_frames = 0
-        self._statistics_fname = statistics_fname
+        self._statistics_fname = resolve_path(statistics_fname)
 
     def add_input(self, fit_results):
         """Ingest a fitted frame's photometry into the statistics."""

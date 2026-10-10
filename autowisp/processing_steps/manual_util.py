@@ -14,7 +14,7 @@ from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.catalog import WISPGaia
 from autowisp.exceptions import ConfigurationError
-
+from autowisp.project_paths import resolve_path
 
 # When active (set via ``raise_config_parse_errors``),
 # ``ManualStepArgumentParser`` reports a bad value by raising
@@ -865,7 +865,7 @@ def read_subpixmap(fits_fname):
 
     if fits_fname is None:
         return numpy.ones((1, 1), dtype=float)
-    with fits.open(fits_fname, "readonly") as subpixmap_file:
+    with fits.open(resolve_path(fits_fname), "readonly") as subpixmap_file:
         # False positive, pylint does not see data member.
         # pylint: disable=no-member
         return numpy.copy(subpixmap_file[0].data).astype("float64")

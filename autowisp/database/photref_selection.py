@@ -56,6 +56,7 @@ from autowisp.diagnostics.expressions import (
 from autowisp.evaluator import Evaluator
 from autowisp.exceptions import ConfigurationError
 from autowisp.magnitude_fitting.util import get_path_substitutions
+from autowisp.project_paths import fill_path_template, to_stored_path
 
 # false positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -387,8 +388,8 @@ def _get_magfit_fnames(processing, photref_fname, db_session):
     # keyword.
     substitutions = {**dict(header), **get_path_substitutions(config, header)}
     return {
-        config[option].format_map(
-            dict(substitutions, magfit_iteration=iteration)
+        fill_path_template(
+            config[option], dict(substitutions, magfit_iteration=iteration)
         ): option
         for option in (
             "master_photref_fname_format",
@@ -758,7 +759,8 @@ def record_single_photref(dr_fname, batch):
     Register a single photref and bind to it the batch images near it.
 
     Args:
-        dr_fname(str):    The DR file to register as the reference.
+        dr_fname(str):    The DR file to register as the reference, in stored
+            form or as a path to it.
 
         batch:    The candidate images, as for :func:`bind_images_to_photref`.
 
@@ -766,6 +768,7 @@ def record_single_photref(dr_fname, batch):
         list:    The ``(image_id, channel)`` entries of *batch* bound to it.
     """
 
+    dr_fname = to_stored_path(dr_fname)
     processing = ImageProcessingManager(pipeline_run_id=None)
     check_photref_fnames(processing, dr_fname)
     processing.add_masters(

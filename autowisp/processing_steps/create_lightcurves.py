@@ -29,6 +29,7 @@ from autowisp.light_curves.collect_light_curves import (
 from autowisp.catalog import read_catalog_file, get_catalog_config
 from autowisp.error_context import error_context
 from autowisp.exceptions import FileKind, RelatedFile
+from autowisp.project_paths import fill_path_template, resolve_path
 
 input_type = "dr"
 #: On top of the always-allowed "nothing done yet": ``1`` means a previous
@@ -226,10 +227,11 @@ class MasterCatalog:
             configuration["single_photref_dr_fname"], "r"
         ) as sphotref_dr:
             sphotref_header = sphotref_dr.get_frame_header()
-            self._master_cat_fname = configuration[
-                "lightcurve_catalog_fname"
-            ].format_map(sphotref_header)
-            if path.exists(self._master_cat_fname):
+            self._master_cat_fname = fill_path_template(
+                configuration["lightcurve_catalog_fname"], sphotref_header
+            )
+            self._master_cat_path = resolve_path(self._master_cat_fname)
+            if path.exists(self._master_cat_path):
                 self._sources, self._header = read_catalog_file(
                     self._master_cat_fname, return_metadata=True
                 )
@@ -267,11 +269,11 @@ class MasterCatalog:
             for coord in ["RA", "Dec"]:
                 table_hdu.header[coord] = numpy.median(self._centers[coord])
 
-        cat_dir = path.dirname(self._master_cat_fname)
+        cat_dir = path.dirname(self._master_cat_path)
         if not path.exists(cat_dir):
             makedirs(cat_dir)
         fits.HDUList([fits.PrimaryHDU(), table_hdu]).writeto(
-            self._master_cat_fname, overwrite=True
+            self._master_cat_path, overwrite=True
         )
         return self._master_cat_fname
 

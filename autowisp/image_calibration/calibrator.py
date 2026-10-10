@@ -30,6 +30,7 @@ from autowisp.image_calibration.overscan_methods import (
     git_id as overscan_methods_git_id,
 )
 from autowisp.image_calibration.fits_util import get_raw_header
+from autowisp.project_paths import resolve_path
 
 git_id = "$Id$"
 
@@ -452,7 +453,7 @@ class Calibrator(Processor):
                         master_fname,
                         "Master " + master_type + " frame applied",
                     )
-                    with open(master_fname, "rb") as master:
+                    with open(resolve_path(master_fname), "rb") as master:
                         hasher = sha1()
                         hasher.update(master.read())
                         channel_header["M" + master_type.upper() + "SHA"] = (
@@ -664,6 +665,8 @@ class Calibrator(Processor):
         Returns:
             None
         """
+
+        raw = resolve_path(raw)
 
         def apply_subtractive_correction(correction, calibrated_images):
             """

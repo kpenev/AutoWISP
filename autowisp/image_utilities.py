@@ -15,6 +15,7 @@ from astrowisp.utils.file_utilities import (
     get_fname_pattern_substitutions,
 )
 from autowisp.exceptions import BadImageError
+from autowisp.project_paths import resolve_path
 
 _logger = logging.getLogger(__name__)
 
@@ -189,8 +190,9 @@ def get_pointing_from_header(frame):
     """
 
     try:
-        if os.path.exists(frame):
-            with fits.open(frame) as hdulist:
+        frame_path = resolve_path(frame)
+        if os.path.exists(frame_path):
+            with fits.open(frame_path) as hdulist:
                 return get_pointing_from_header(hdulist)
     except TypeError:
         pass
@@ -233,7 +235,7 @@ def zscale_image(image_data):
     )
 
 
-def create_snapshot( # pylint: disable=too-many-arguments
+def create_snapshot(  # pylint: disable=too-many-arguments
     fits_fname,
     snapshot_fname_pattern,
     *,

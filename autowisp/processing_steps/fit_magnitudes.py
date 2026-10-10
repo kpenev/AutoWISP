@@ -29,6 +29,7 @@ from autowisp.processing_steps.manual_util import (
     ignore_progress,
 )
 from autowisp.database.interface import start_db_session
+from autowisp.project_paths import fill_path_template, resolve_path
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -325,21 +326,23 @@ def delete_master(filename, master_type):
             # pylint: enable=not-callable
         ), f"Master {filename} already registered in the database."
 
-    if os.path.exists(filename):
+    master_path = resolve_path(filename)
+    if os.path.exists(master_path):
         _logger.warning(
             "Removing potentially partial %s file '%s'!",
             master_type,
-            filename,
+            master_path,
         )
-        os.remove(filename)
+        os.remove(master_path)
 
 
 def check_no_master(filename, master_type):
     """Raise an exception if the given master exists."""
 
-    if os.path.exists(filename):
+    master_path = resolve_path(filename)
+    if os.path.exists(master_path):
         raise RuntimeError(
-            f"{master_type} file {filename!r} should not exist!"
+            f"{master_type} file {master_path!r} should not exist!"
             "Cleaning up interrupted magnitude fitting failed!"
         )
 
@@ -436,17 +439,21 @@ def cleanup_interrupted(interrupted, configuration):
         for master_type in ["master_photref", "magfit_stat"]:
             fname_substitutions["magfit_iteration"] = max_status // 2
             delete_master(
-                configuration[master_type + "_fname_format"].format_map(
-                    fname_substitutions
+                fill_path_template(
+                    configuration[master_type + "_fname_format"],
+                    fname_substitutions,
                 ),
                 master_type,
             )
 
             for iteration in range(0, max_status // 2):
                 fname_substitutions["magfit_iteration"] = iteration
-                check_fname = configuration[
-                    master_type + "_fname_format"
-                ].format_map(fname_substitutions)
+                check_fname = resolve_path(
+                    fill_path_template(
+                        configuration[master_type + "_fname_format"],
+                        fname_substitutions,
+                    )
+                )
                 _logger.debug("Checking existence of %s", repr(check_fname))
                 assert os.path.exists(check_fname), (
                     f"Magnitude fitting recorded reaching iteration "
@@ -456,8 +463,9 @@ def cleanup_interrupted(interrupted, configuration):
                 )
             fname_substitutions["magfit_iteration"] = max_status // 2 + 1
             check_no_master(
-                configuration[master_type + "_fname_format"].format_map(
-                    fname_substitutions
+                fill_path_template(
+                    configuration[master_type + "_fname_format"],
+                    fname_substitutions,
                 ),
                 master_type,
             )

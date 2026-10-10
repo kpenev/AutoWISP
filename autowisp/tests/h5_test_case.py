@@ -9,6 +9,7 @@ from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.project_paths import PROJHOME_MARKER
 
 
 from autowisp.tests import AutoWISPTestCase
@@ -30,12 +31,15 @@ class H5TestCase(AutoWISPTestCase):
         ``dr_fname`` lives in (``test_directory`` or ``processing_directory``).
 
         ``value`` may be ``bytes`` (h5py string attrs) or ``str``; the
-        result is returned as ``str``. If ``dr_fname`` does not lie
-        under either project_home the value is returned unchanged.
+        result is returned as ``str``. A value in ``{PROJHOME}/...`` form is
+        returned relative to the project home it names. If ``dr_fname`` does
+        not lie under either project_home the value is returned unchanged.
         """
 
         if isinstance(value, bytes):
             value = value.decode()
+        if value.startswith(PROJHOME_MARKER + "/"):
+            return value[len(PROJHOME_MARKER) + 1 :]
         if not path.isabs(value):
             return value
         dr_norm = path.normpath(dr_fname)

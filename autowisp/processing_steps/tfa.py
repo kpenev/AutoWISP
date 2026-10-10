@@ -17,6 +17,7 @@ from autowisp.processing_steps.lc_detrending import (
 )
 from autowisp.light_curves.apply_correction import load_correction_statistics
 from autowisp.processing_steps.manual_util import ignore_progress
+from autowisp.project_paths import fill_path_template
 
 
 def parse_command_line(*args):
@@ -57,7 +58,9 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
     )
 
     epd_statistics = load_correction_statistics(
-        configuration["epd_statistics_fname"].format_map(sphotref_header)
+        fill_path_template(
+            configuration["epd_statistics_fname"], sphotref_header
+        )
     )
 
     if configuration["target_id"] is not None:

@@ -14,6 +14,7 @@ from astrowisp.utils.file_utilities import (
 from autowisp import source_finder_util
 from autowisp.evaluator import Evaluator
 from autowisp.exceptions import NoSourcesFoundError
+from autowisp.project_paths import resolve_path
 
 
 # This still makes sense as a class
@@ -137,6 +138,7 @@ class SourceFinder:
         """
 
         logger = logging.getLogger(__name__)
+        fits_fname = resolve_path(fits_fname)
         configuration = {**self.configuration, **configuration}
         if configuration["tool"] == "mock":
             return self._create_mock_source_list(fits_fname, configuration)

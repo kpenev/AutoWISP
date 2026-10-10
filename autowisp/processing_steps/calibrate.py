@@ -23,6 +23,7 @@ from autowisp.image_calibration.fits_util import (
     get_raw_header,
     add_channel_keywords,
 )
+from autowisp.project_paths import fill_path_template, resolve_path
 
 input_type = "raw"
 #: This step records only "started" before it finishes, so that is
@@ -353,8 +354,8 @@ def cleanup_interrupted(interrupted, configuration):
         ].items():
             add_channel_keywords(header, channel_name, channel_slice)
 
-            calibrated_fname = configuration["calibrated_fname"].format_map(
-                header
+            calibrated_fname = resolve_path(
+                fill_path_template(configuration["calibrated_fname"], header)
             )
             _logger.debug(
                 "Checking for and removing %s", repr(calibrated_fname)

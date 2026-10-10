@@ -563,7 +563,7 @@ def read_source_id_list(fname):
     of the (possibly platform dependent) integer dtype of the catalog index.
     """
 
-    with open(fname, "r", encoding="utf-8") as id_file:
+    with open(resolve_path(fname), "r", encoding="utf-8") as id_file:
         return {line.strip() for line in id_file if line.strip()}
 
 

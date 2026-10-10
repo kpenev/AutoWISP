@@ -36,6 +36,7 @@ from autowisp.database.data_model.provenance.camera_channel import (
 )
 from autowisp.fits_utilities import get_primary_header
 from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
+from autowisp.project_paths import resolve_path
 
 from .create_project_view import (  # pylint: disable=unused-import
     CreateProjectView,
@@ -206,11 +207,12 @@ def delete_lightcurves(project_home):
         ).all()
 
     for catalog_fname in catalog_fnames:
-        if not os.path.exists(catalog_fname):
-            logger.warning("Catalog file missing: %s", catalog_fname)
+        catalog_path = resolve_path(catalog_fname)
+        if not os.path.exists(catalog_path):
+            logger.warning("Catalog file missing: %s", catalog_path)
             continue
 
-        catalog = read_catalog_file(catalog_fname)
+        catalog = read_catalog_file(catalog_path)
         for source_id in catalog.index:
             lc_fname = srcid_formatter.format(
                 lc_fname_pattern,
@@ -221,8 +223,8 @@ def delete_lightcurves(project_home):
                 _safe_remove(lc_fname, project_home)
                 logger.info("Deleted lightcurve file: %s", lc_fname)
 
-        _safe_remove(catalog_fname, project_home)
-        logger.info("Deleted lightcurve catalog: %s", catalog_fname)
+        _safe_remove(catalog_path, project_home)
+        logger.info("Deleted lightcurve catalog: %s", catalog_path)
 
 
 def delete_image_products(
@@ -279,13 +281,14 @@ def delete_image_products(
         ).all()
 
     for raw_fname in raw_fnames:
-        if not os.path.exists(raw_fname):
-            logger.warning("Raw FITS file missing, skipping: %s", raw_fname)
+        raw_path = resolve_path(raw_fname)
+        if not os.path.exists(raw_path):
+            logger.warning("Raw FITS file missing, skipping: %s", raw_path)
             continue
 
-        header = get_primary_header(raw_fname)
+        header = get_primary_header(raw_path)
         header["PROJHOME"] = project_home
-        base_fname = os.path.basename(raw_fname)
+        base_fname = os.path.basename(raw_path)
         for ext in [".fz", ".fits"]:
             if base_fname.endswith(ext):
                 base_fname = base_fname[: -len(ext)]
@@ -301,7 +304,7 @@ def delete_image_products(
                         "Raw FITS header missing keyword required to "
                         "find %s, skipping %s channel %s",
                         kind,
-                        raw_fname,
+                        raw_path,
                         channel_name,
                     )
                     continue
@@ -380,9 +383,10 @@ def delete_master_files(project_home):
                 logger.info("Deleted master file: %s", fpath)
 
     for master_fname, master_type in masters:
-        if os.path.exists(master_fname):
-            _safe_remove(master_fname, project_home)
-            logger.info("Deleted %s master file: %s", master_type, master_fname)
+        master_path = resolve_path(master_fname)
+        if os.path.exists(master_path):
+            _safe_remove(master_path, project_home)
+            logger.info("Deleted %s master file: %s", master_type, master_path)
 
 
 def delete_logs(project_home):

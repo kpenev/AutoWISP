@@ -7,7 +7,7 @@ import numpy
 from numpy.lib import recfunctions
 from astropy.io import fits
 
-from autowisp.project_paths import resolve_path
+from autowisp.project_paths import fill_path_template, resolve_path
 
 _PHOT_QUANTITIES = ("mag", "mag_err", "phot_flag")
 
@@ -150,7 +150,7 @@ def get_master_photref(photref_fname):
     """Read a FITS photometric reference created by MasterPhotrefCollector."""
 
     result = {}
-    with fits.open(photref_fname, "readonly") as photref_fits:
+    with fits.open(resolve_path(photref_fname), "readonly") as photref_fits:
         # Masters written before the tables were named have them unnamed.
         phot_references = [
             hdu for hdu in photref_fits[1:] if hdu.name in ("MPHOTREF", "")
@@ -216,13 +216,23 @@ def get_path_substitutions(configuration, sphotref_header):
         # to format() once per copy.
         fname_substitutions = dict(sphotref_header)
         fname_substitutions.update(result)
+        # Compared as files: the master may be given in stored form or as a
+        # path spelled any way, e.g. on the command line.
+        master_photref_path = os.path.realpath(
+            resolve_path(configuration["master_photref_fname"])
+        )
         for iteration in count():
             fname_substitutions["magfit_iteration"] = iteration
             if (
-                configuration["master_photref_fname_format"].format_map(
-                    fname_substitutions
+                os.path.realpath(
+                    resolve_path(
+                        fill_path_template(
+                            configuration["master_photref_fname_format"],
+                            fname_substitutions,
+                        )
+                    )
                 )
-                == configuration["master_photref_fname"]
+                == master_photref_path
             ):
                 # Master iterNNN is built after pass NNN and fit against in
                 # pass NNN + 1, so a fit against it belongs at that index.

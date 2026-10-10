@@ -11,6 +11,7 @@ from autowisp.evaluator import Evaluator
 from autowisp.database.interface import start_db_session
 from autowisp.catalog import read_catalog_file
 from autowisp.light_curves.apply_correction import load_correction_statistics
+from autowisp.project_paths import resolve_path
 
 # False positive
 # pylint: disable=no-name-in-module
@@ -77,7 +78,9 @@ def read_stat_data(catalog_fname, stat_fname):
 
     num_cat_columns = len(data.columns)
     data = data.join(
-        pandas.read_csv(stat_fname, sep=r"\s+", header=None, index_col=0),
+        pandas.read_csv(
+            resolve_path(stat_fname), sep=r"\s+", header=None, index_col=0
+        ),
         how="inner",
     )
     return data, num_cat_columns

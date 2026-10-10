@@ -13,6 +13,7 @@ from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import get_db_engine
+from autowisp.project_paths import resolve_path
 from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import ReconstructiveCorrectionTransit
 
@@ -60,7 +61,7 @@ def load_correction_statistics(filename, add_catalog=False):
 
     with DataReductionFile() as mem_dr:
         dframe = pandas.read_csv(
-            filename, sep=r"\s+", index_col="ID"
+            resolve_path(filename), sep=r"\s+", index_col="ID"
         ).sort_index()
 
         num_sources, num_photometries = dframe.shape

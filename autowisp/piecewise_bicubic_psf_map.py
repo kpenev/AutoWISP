@@ -11,6 +11,7 @@ from autowisp.data_reduction.utils import (
     get_aperture_photometry_inputs,
     add_star_shape_fit,
 )
+from autowisp.project_paths import resolve_path
 
 
 class PiecewiseBicubicPSFMap:
@@ -100,7 +101,9 @@ class PiecewiseBicubicPSFMap:
             fits_fnames
         )
 
-        opened_frames = [fits.open(fname, "readonly") for fname in fits_fnames]
+        opened_frames = [
+            fits.open(resolve_path(fname), "readonly") for fname in fits_fnames
+        ]
         try:
             value_index = 1 if opened_frames[0][0].header["NAXIS"] == 0 else 0
             error_index, mask_index = value_index + 1, value_index + 2
@@ -185,7 +188,7 @@ class PiecewiseBicubicPSFMap:
         self.configuration = {}
 
         with DataReductionFile(dr_fname, "r") as dr_file:
-            (apphot_data, self.configuration["shape_terms_expression"]) = (
+            apphot_data, self.configuration["shape_terms_expression"] = (
                 get_aperture_photometry_inputs(dr_file, **dr_path_substitutions)
             )
             sources = apphot_data["source_data"]

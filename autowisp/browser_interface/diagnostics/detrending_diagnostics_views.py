@@ -22,6 +22,7 @@ from autowisp.bui_util import hex_color
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.database.interface import start_db_session
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
+from autowisp.project_paths import fill_path_template, resolve_path
 from autowisp.diagnostics.detrending import (
     find_magfit_stat_catalog,
     get_detrending_performance_data,
@@ -155,9 +156,12 @@ def _init_lc_detrending_session(request):
                 db_session=db_session,
             )[:2]
             detrending_name = db_step.name.split("_")[1]
-            stat_fname = step_config[
-                detrending_name + "_statistics_fname"
-            ].format_map(sphotref_header)
+            stat_fname = resolve_path(
+                fill_path_template(
+                    step_config[detrending_name + "_statistics_fname"],
+                    sphotref_header,
+                )
+            )
             photref_entries.append(
                 {
                     "id": f"{detrending_name}_{db_sphotref.id!s}",

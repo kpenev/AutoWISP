@@ -11,6 +11,7 @@ from autowisp.evaluator import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
 from autowisp.database.interface import start_db_session
+from autowisp.project_paths import to_stored_path
 from autowisp.database.provenance_resolver import (
     get_or_create_observing_session,
 )
@@ -86,7 +87,12 @@ def create_image(image_fname, header_eval, configuration, db_session):
 
     # False positive
     # pylint: disable=not-callable
-    return Image(raw_fname=image_fname, image_type_id=image_type_id), image_type
+    return (
+        Image(
+            raw_fname=to_stored_path(image_fname), image_type_id=image_type_id
+        ),
+        image_type,
+    )
     # pylint: enable=not-callable
 
 

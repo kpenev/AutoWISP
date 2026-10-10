@@ -23,13 +23,13 @@ from autowisp.processing_steps.stack_to_master import (
 from autowisp.image_calibration import MasterMaker, MasterFlatMaker
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
+from autowisp.project_paths import resolve_path
 from autowisp.image_smoothing import (
     PolynomialImageSmoother,
     SplineImageSmoother,
     ChainSmoother,
     WrapFilterAsSmoother,
 )
-
 
 input_type = "calibrated"
 #: Frames are marked as started and nothing else until the masters are
@@ -445,6 +445,10 @@ def stack_to_master_flat(
     )
 
     fnames = get_master_fnames(image_collection[0], configuration)
+    master_paths = {
+        illumination: resolve_path(fname)
+        for illumination, fname in fnames.items()
+    }
 
     with error_context(
         related_files=stacking_related_files(
@@ -461,8 +465,8 @@ def stack_to_master_flat(
 
         success, classified_images = create_master(
             image_collection,
-            high_master_fname=fnames["high"],
-            low_master_fname=fnames["low"],
+            high_master_fname=master_paths["high"],
+            low_master_fname=master_paths["low"],
         )
 
         for classification, images in classified_images.items():
@@ -486,11 +490,11 @@ def stack_to_master_flat(
     result = {}
     for illumination in ["high", "low"]:
         if success[illumination]:
-            assert exists(fnames[illumination]), (
+            assert exists(master_paths[illumination]), (
                 f"Stacking reported a successful {illumination} flat but "
-                f"{fnames[illumination]} was not created!"
+                f"{master_paths[illumination]} was not created!"
             )
-            header = get_primary_header(fnames[illumination])
+            header = get_primary_header(master_paths[illumination])
             result[illumination] = {
                 "filename": fnames[illumination],
                 "preference_order": f'JD_OBS - {header["JD-OBS"]}',
@@ -521,8 +525,9 @@ def cleanup_interrupted(interrupted, configuration):
                 f" vs {interrupted[0][0]!r} -> {master_fnames!r}"
             )
         for fname in master_fnames.values():
-            if exists(fname):
-                remove(fname)
+            master_path = resolve_path(fname)
+            if exists(master_path):
+                remove(master_path)
 
     return -1
 

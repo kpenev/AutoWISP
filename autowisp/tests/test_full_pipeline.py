@@ -21,6 +21,7 @@ from autowisp import run_pipeline
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.initialize_database import initialize_database
 from autowisp.processing_steps import stack_to_master, stack_to_master_flat
+from autowisp.project_paths import to_stored_path
 from autowisp.database.interface import start_db_session
 from autowisp.database.photref_selection import (
     compute_photref_candidates,
@@ -180,10 +181,12 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
         with start_db_session() as db_session:
             result = compute_photref_candidates(processing, db_session)
 
+        # The batches name DR files in stored form, as the BUI shows them.
+        photref_fname = to_stored_path(self._photref_dr_path)
         photref_batch = None
         for candidate in result["candidates"]:
             for _, batch in candidate["groups"]:
-                if any(entry[1] == self._photref_dr_path for entry in batch):
+                if any(entry[1] == photref_fname for entry in batch):
                     photref_batch = batch
                     break
             if photref_batch is not None:
@@ -194,7 +197,7 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
             f"{self._photref_dr_path!r}.",
         )
 
-        record_single_photref(self._photref_dr_path, photref_batch)
+        record_single_photref(photref_fname, photref_batch)
 
     def _assert_dir_fits_match(self, relative_dir):
         """Assert every ``*.fits*`` in ``relative_dir`` matches expected."""

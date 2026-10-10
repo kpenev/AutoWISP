@@ -15,6 +15,7 @@ from autowisp.miscellaneous import RECOGNIZED_HAT_ID_PREFIXES
 
 from autowisp.database.hdf5_file_structure import HDF5FileDatabaseStructure
 from autowisp.exceptions import FileKind
+from autowisp.project_paths import fill_path_template, resolve_path
 
 git_id = "$Id$"
 
@@ -109,7 +110,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         # TODO: implement filename template from DB ofter DB has been designed.
         # pylint: disable=no-member
-        return cls.fname_template.format_map(header)
+        return resolve_path(fill_path_template(cls.fname_template, header))
         # pylint: enable=no-member
 
     def get_dataset_creation_args(self, dataset_key, **path_substitutions):

@@ -29,6 +29,7 @@ from autowisp.data_reduction.utils import (
     add_aperture_photometry,
     delete_aperture_photometry,
 )
+from autowisp.project_paths import fill_path_template
 
 input_type = "calibrated + dr"
 #: This step records only "started" before it finishes, so that is
@@ -120,7 +121,7 @@ def photometer_frame(frame_fname, configuration, mark_start, mark_end):
     header["FITGROUP"] = configuration["shapefit_group"]
 
     with DataReductionFile(
-        configuration["data_reduction_fname"].format_map(header), "a"
+        fill_path_template(configuration["data_reduction_fname"], header), "a"
     ) as dr_file:
         _logger.debug("Creating input tree for %s", frame_fname)
         io_tree = IOTree(photometer)
@@ -206,7 +207,8 @@ def cleanup_interrupted(interrupted, configuration):
         header = get_primary_header(frame_fname)
 
         with DataReductionFile(
-            configuration["data_reduction_fname"].format_map(header), "a"
+            fill_path_template(configuration["data_reduction_fname"], header),
+            "a",
         ) as dr_file:
             dr_path_substitutions = {
                 version_name
