@@ -384,8 +384,19 @@ class AutoWISPTestCase(FloatTestCase):
             rmtree(self.processing_directory)
 
     def run_step(self, command):
-        """Run a calibration step and check the return code."""
+        """
+        Run a step from the command line and check the return code.
 
+        Args:
+            command([str]):    The step's command and its arguments, without
+                the project home, which is inserted as the first positional:
+                the processing directory.
+
+        Returns:
+            None
+        """
+
+        command = [command[0], self.processing_directory] + list(command[1:])
         calib_process = run(
             command,
             cwd=self.processing_directory,

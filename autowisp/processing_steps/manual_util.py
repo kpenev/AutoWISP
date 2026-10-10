@@ -544,16 +544,6 @@ class ManualStepArgumentParser(ArgumentParser):
             help="Hack around limitation of configargparse to allow for "
             "setting a second config file.",
         )
-        self.add_argument(
-            "--project-home",
-            default=None,
-            help="The name of the project home directory to "
-            "attach processing to. Should at least define HDF5 "
-            "structure for DR files and lightcurves"
-            " for BUI a lot more is needed but that is automatically managed "
-            "by the BUI.",
-        )
-
         if input_type == "raw":
             input_name = "raw_images"
         elif input_type.startswith("calibrated"):
@@ -566,6 +556,14 @@ class ManualStepArgumentParser(ArgumentParser):
             input_name = None
 
         if input_name is not None:
+            # Only on the command line: run from code, the step has no
+            # positionals and the caller sets project_home.
+            self.add_argument(
+                "project_home",
+                type=path.abspath,
+                help="The project's home directory: where its database is "
+                "kept, and what {PROJHOME} in file names stands for.",
+            )
             self.add_argument(
                 input_name,
                 nargs="+",

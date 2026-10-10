@@ -154,7 +154,6 @@ class StepCreator:
                     "config-file",
                     "extra-config-file",
                     "split-channels",
-                    "project-home",
                     *engine_set_options,
                 ]
                 and not param.endswith("-only-if")
