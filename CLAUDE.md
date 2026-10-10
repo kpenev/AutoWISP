@@ -247,6 +247,11 @@ does the same to existing projects.
   texts and row definitions it writes, reflects tables from the database
   instead of importing the models, looks before each insert so that it can
   be run twice, and has a downgrade. `0012`–`0014` are the examples.
+- *Except where a project cannot be taken back*, as when a revision's
+  change reaches the project's files and those are not converted back
+  (`0018`). Its downgrade then raises instead, and it ships with a new major
+  version: the upgrade test checks downgrades only for releases of the same
+  major version as the code under test, read from `meson.build`.
 - *List the revision in `versions/meson.build`.* `TestRevisionChain` checks
   that from a checkout; an installed package that lacks the newest revision
   looks valid and stamps projects at the wrong head.
@@ -444,9 +449,26 @@ work being abandoned.
   `max_tasks_per_child` (used by `run_pool`); no upper ceiling. CI runs a grid
   of numpy 1/2 × {Linux, Windows, macOS-arm, macOS-intel} × Python 3.11–3.14
   (numpy 1 excluded on 3.13/3.14, which have no numpy-1.26 wheels).
-- Cross-platform: Linux, macOS, Windows. Windows-specific gotchas: `numpy.uint`/
-  `numpy.int_` are 32-bit there (use `numpy.uint64` for source IDs), and
-  serialize paths with `Path.as_posix()`.
+- Cross-platform: Linux, macOS, Windows. **Every change must work on all
+  three**, and only the CI grid runs Windows, so check by reading as well as
+  by testing. Windows-specific gotchas: `numpy.uint`/`numpy.int_` are 32-bit
+  there (use `numpy.uint64` for source IDs), and serialize paths with
+  `Path.as_posix()`. For paths:
+
+    - *Decide with `pathlib`, not `os.path` and string splitting:*
+      `PurePath.is_absolute()`, `is_relative_to()`, `relative_to()`.
+      `os.path.isabs` before Python 3.13 calls `\data\x` absolute on
+      Windows, though it is relative to the current drive; `pathlib` always
+      requires the drive, and compares Windows paths case-insensitively.
+    - *Never build separators by hand*, except the `/` of the stored form
+      `{PROJHOME}/...`, which is the same string on every system because
+      stored paths are compared as strings.
+    - *A Windows path contains `:`*, so a `<channel>:<path>` value splits at
+      the first colon only, and a value without its channel must not be read
+      as one (`C:\x` is not channel `C`).
+    - *Tests build absolute paths with `os.path.abspath`*, not as literal
+      `/x`, and an expected result that depends on the system says so
+      (`... if os.name == "nt" else ...`).
 
 ## Working Conventions
 
