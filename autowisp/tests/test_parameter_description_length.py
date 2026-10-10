@@ -16,7 +16,7 @@ from autowisp import processing_steps
 from autowisp.database.data_model.steps_and_parameters import Parameter, Step
 
 
-def _iter_step_modules():
+def iter_step_modules():
     """Yield ``(name, module)`` for each processing step of the pipeline."""
 
     for name in sorted(dir(processing_steps)):
@@ -36,7 +36,7 @@ class TestParameterDescriptionLength(unittest.TestCase):
 
         cls.step_docs = {}
         cls.descriptions = {}
-        for step_name, module in _iter_step_modules():
+        for step_name, module in iter_step_modules():
             cls.step_docs[step_name] = module.__doc__ or ""
             # The parsers report their defaults on stdout.
             with contextlib.redirect_stdout(io.StringIO()):

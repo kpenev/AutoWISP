@@ -342,7 +342,13 @@ class configTree {
     async save(saveURL)
     {
         hasUnsavedChanges = false;
-        postJson(saveURL, this.data).then(function() {location.reload();});
+        postJson(saveURL, this.data).then(async function(response) {
+            // A refused configuration keeps the edits, to be corrected.
+            if ( response.ok )
+                location.reload();
+            else
+                alert(await response.text());
+        });
     }
 
     async export()

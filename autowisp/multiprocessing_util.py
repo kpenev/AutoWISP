@@ -21,7 +21,6 @@ from autowisp.error_context import ErrorContext, set_error_context
 # ``autowisp.miscellaneous``.
 from autowisp.miscellaneous import get_code_version_str
 
-
 default_config = {
     "task": "calculate",
     "fname_datetime_format": "%Y%m%d%H%M%S",
@@ -58,17 +57,19 @@ def get_log_outerr_filenames(existing_pid=False, **config):
         def prepare(format_str):
             return format_str
 
+    def fill(format_str):
+        # Only opened, so filled with the home at once. Not from the process
+        # set-up, which computes these before it sets the project home.
+        return prepare(format_str).format_map(
+            dict(config, PROJHOME=config["project_home"])
+        )
+
     if config["std_out_err_fname"] is None:
         std_out_err_fname = None
     else:
-        std_out_err_fname = prepare(config["std_out_err_fname"]).format_map(
-            config
-        )
+        std_out_err_fname = fill(config["std_out_err_fname"])
 
-    result = (
-        prepare(config["logging_fname"]).format_map(config),
-        std_out_err_fname,
-    )
+    result = (fill(config["logging_fname"]), std_out_err_fname)
 
     if config.get("parent_pid"):
         result = tuple(

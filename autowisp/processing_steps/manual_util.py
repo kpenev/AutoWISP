@@ -2,6 +2,7 @@
 
 import logging
 import threading
+from argparse import ArgumentTypeError
 from contextlib import contextmanager
 from sys import argv
 from os import path
@@ -14,7 +15,7 @@ from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.catalog import WISPGaia
 from autowisp.exceptions import ConfigurationError
-from autowisp.project_paths import resolve_path
+from autowisp.project_paths import check_path_form, to_stored_path
 
 # When active (set via ``raise_config_parse_errors``),
 # ``ManualStepArgumentParser`` reports a bad value by raising
@@ -75,6 +76,96 @@ def raise_config_parse_errors():
         yield
     finally:
         _config_parse_mode.active = previous
+
+
+def _split_path_value(value, path_kind):
+    """
+    Return the prefix and the path a value of a path option consists of.
+
+    Args:
+        value(str):    One value of the option.
+
+        path_kind:    See ``path`` in ``ManualStepArgumentParser.add_argument``.
+
+    Returns:
+        (str, str):    The ``<channel>:`` prefix (empty unless ``path_kind`` is
+        ``"channel"``) and the path, checked by ``check_path_form``.
+
+    Raises:
+        ValueError:    If the value is not in a form allowed for the option.
+    """
+
+    prefix = ""
+    if path_kind == "channel":
+        if ":" not in value:
+            raise ValueError(f"{value!r} is not of the form <channel>:<path>.")
+        channel, value = value.split(":", 1)
+        prefix = channel + ":"
+    check_path_form(value, external=path_kind == "external")
+    return prefix, value
+
+
+def _checked_path_type(base_type, path_kind):
+    """
+    Return an option type that checks the form of the path it is given.
+
+    Args:
+        base_type(callable or None):    The option's own type, applied once
+            the path passes.
+
+        path_kind:    See ``path`` in ``ManualStepArgumentParser.add_argument``.
+
+    Returns:
+        callable:    The type to give argparse.
+    """
+
+    def checked(value):
+        """Raise unless ``value`` names its path in an allowed form."""
+
+        try:
+            _split_path_value(value, path_kind)
+        except ValueError as error:
+            raise ArgumentTypeError(str(error)) from error
+        return value if base_type is None else base_type(value)
+
+    return checked
+
+
+def stored_path_value(value, path_kind):
+    """
+    Return a configured value of a path option in the form to store.
+
+    Paths inside the project become ``{PROJHOME}/...``; external paths are kept
+    as given.
+
+    Args:
+        value(str or None):    The value as a configuration file gives it, a
+            multi-valued option's as ``[<value>, <value>, ...]``.
+
+        path_kind:    See ``path`` in ``ManualStepArgumentParser.add_argument``.
+
+    Returns:
+        str or None:    The value to store.
+
+    Raises:
+        ConfigurationError:    If a path is not in a form allowed for the
+            option.
+    """
+
+    if not value:
+        return value
+    is_list = value.startswith("[") and value.endswith("]")
+    result = []
+    for entry in value[1:-1].split(",") if is_list else [value]:
+        try:
+            prefix, fname = _split_path_value(entry.strip(), path_kind)
+        except ValueError as error:
+            raise ConfigurationError(str(error)) from error
+        result.append(
+            prefix
+            + (fname if path_kind == "external" else to_stored_path(fname))
+        )
+    return "[" + ", ".join(result) + "]" if is_list else result[0]
 
 
 class ManualStepArgumentParser(ArgumentParser):
@@ -159,6 +250,7 @@ class ManualStepArgumentParser(ArgumentParser):
             f"--{prefix}-catalog",
             f"--{prefix}-catalogue",
             "--cat",
+            path=True,
             default=catalog_config.get(
                 "fname", "{PROJHOME}/MASTERS/Gaia/{checksum:s}.fits"
             ),
@@ -264,6 +356,7 @@ class ManualStepArgumentParser(ArgumentParser):
             f"--{prefix}-catalog-source-list",
             f"--{prefix}-catalogue-source-list",
             "--cat-source-list",
+            path=True,
             default=catalog_config.get("source_list"),
             help="Path to a file listing the GAIA source IDs (one per line) to "
             "keep in the catalog. When given, the catalog is restricted to "
@@ -522,6 +615,7 @@ class ManualStepArgumentParser(ArgumentParser):
         self.argument_descriptions = {}
         self.argument_defaults = {}
         self.alternate_names = {}
+        self.path_arguments = {}
 
         self._convert_to_dict = convert_to_dict
         super().__init__(
@@ -581,6 +675,7 @@ class ManualStepArgumentParser(ArgumentParser):
         if "+" in input_type and input_type.split("+")[1].strip() == "dr":
             self.add_argument(
                 "--data-reduction-fname",
+                path=True,
                 default="{PROJHOME}/DR/{RAWFNAME}_{CLRCHNL}.h5",
                 help="Format string to generate the filename(s) of the data "
                 "reduction files where extracted sources are saved. Replacement"
@@ -600,6 +695,7 @@ class ManualStepArgumentParser(ArgumentParser):
         if add_lc_fname_arg:
             self.add_argument(
                 "--lc-fname",
+                path=True,
                 default="{PROJHOME}/LC/GDR3_{:d}.h5",
                 help="The light curve dumping filename pattern to use.",
             )
@@ -607,7 +703,8 @@ class ManualStepArgumentParser(ArgumentParser):
         if not skip_io:
             self.add_argument(
                 "--std-out-err-fname",
-                default="{project_home}/LOGS/"
+                path=True,
+                default="{PROJHOME}/LOGS/"
                 "{processing_step:s}_{task:s}_{now:s}_pid{pid:d}"
                 ".outerr",
                 help="The filename pattern to redirect stdout and stderr during"
@@ -624,7 +721,8 @@ class ManualStepArgumentParser(ArgumentParser):
             )
             self.add_argument(
                 "--logging-fname",
-                default="{project_home}/LOGS/"
+                path=True,
+                default="{PROJHOME}/LOGS/"
                 "{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log",
                 help="The filename pattern to use for log files. Should include"
                 " substitutions to distinguish logs from different "
@@ -674,7 +772,8 @@ class ManualStepArgumentParser(ArgumentParser):
         if add_photref:
             self.add_argument(
                 "--single-photref-dr-fname",
-                default="single_photref.hdf5.0",
+                path=True,
+                default=None,
                 help="The name of the data reduction file of the single "
                 "photometric reference to use or used to start the magnitude "
                 "fitting iterations.",
@@ -693,9 +792,23 @@ class ManualStepArgumentParser(ArgumentParser):
             )
 
     def add_argument(self, *args, **kwargs):
-        """Store each argument's description in self.argument_descriptions."""
+        """
+        Store each argument's description in self.argument_descriptions.
+
+        Takes one keyword argparse does not: ``path``, marking an option whose
+        value is a path. ``True`` for a path that must be absolute or start
+        with ``{PROJHOME}``, ``"external"`` for one that must be absolute
+        because it belongs outside any project, and ``"channel"`` for values
+        of the form ``<channel>:<path>``, the path as for ``True``. The value
+        is checked whenever it is parsed, and the option is recorded in
+        ``self.path_arguments``.
+        """
 
         argument_name = args[0].lstrip("-")
+        path_kind = kwargs.pop("path", None)
+        if path_kind:
+            self.path_arguments[argument_name] = path_kind
+            kwargs["type"] = _checked_path_type(kwargs.get("type"), path_kind)
         self.alternate_names[argument_name] = [
             entry.lstrip("-") for entry in args[1:]
         ]
@@ -819,6 +932,7 @@ class ManualStepArgumentParser(ArgumentParser):
             result["argument_descriptions"] = self.argument_descriptions
             result["argument_defaults"] = self.argument_defaults
             result["alternate_argument_names"] = self.alternate_names
+            result["path_arguments"] = self.path_arguments
 
         if result.get("gaia_user") and result.get("gaia_password"):
             WISPGaia.set_credentials(
@@ -836,11 +950,14 @@ def add_image_options(parser, include=("subpixmap", "gain", "magnitude-1adu")):
     if "subpixmap" in include:
         parser.add_argument(
             "--subpixmap",
+            path="external",
             default=None,
-            help="The sub-pixel sensitivity map to assume. If not specified "
-            "uniform sensitivy is assumed. This is especially important if "
-            "processing images from color cameras. For a standard Bayer array, "
-            "the built-in map called ``dslr_subpixmap.fits`` can be used.",
+            help="The sub-pixel sensitivity map to assume. This is especially "
+            "important if processing images from color cameras. If not "
+            "specified, images that are one channel of a 2x2 pattern (a "
+            "standard Bayer array) use the built-in map "
+            "``dslr_subpixmap.fits``, and other images assume uniform "
+            "sensitivity.",
         )
     if "gain" in include:
         parser.add_argument(
@@ -858,12 +975,31 @@ def add_image_options(parser, include=("subpixmap", "gain", "magnitude-1adu")):
         )
 
 
-def read_subpixmap(fits_fname):
-    """Read the sub-pixel sensitivity map from a FITS file."""
+def read_subpixmap(fits_fname, header):
+    """
+    Read the sub-pixel sensitivity map to assume for an image.
+
+    Args:
+        fits_fname(str or None):    The configured map. If None, an image
+            that is one channel of a 2x2 pattern (a standard Bayer array)
+            gets the built-in ``dslr_subpixmap.fits``, and any other image
+            uniform sensitivity.
+
+        header:    The header of the calibrated image the map is for.
+
+    Returns:
+        numpy.ndarray:    The map.
+    """
 
     if fits_fname is None:
-        return numpy.ones((1, 1), dtype=float)
-    with fits.open(resolve_path(fits_fname), "readonly") as subpixmap_file:
+        if header.get("CHNLXSTP") != 2 or header.get("CHNLYSTP") != 2:
+            return numpy.ones((1, 1), dtype=float)
+        fits_fname = path.join(
+            path.dirname(path.dirname(__file__)),
+            "resources",
+            "dslr_subpixmap.fits",
+        )
+    with fits.open(fits_fname, "readonly") as subpixmap_file:
         # False positive, pylint does not see data member.
         # pylint: disable=no-member
         return numpy.copy(subpixmap_file[0].data).astype("float64")

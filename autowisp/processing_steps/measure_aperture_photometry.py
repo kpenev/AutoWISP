@@ -88,13 +88,15 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
-def get_photometer(configuration):
+def get_photometer(configuration, header):
     """
     Create an instance of SubPixPhot ready to be applied.
 
     Args:
         configuration(dict):    The configuration specifying how to run
             photometry.
+
+        header:    The header of the frame to photometer.
 
     Returns:
         SubPixPhot:
@@ -103,7 +105,7 @@ def get_photometer(configuration):
     """
 
     return SubPixPhot(
-        subpixmap=read_subpixmap(configuration["subpixmap"]),
+        subpixmap=read_subpixmap(configuration["subpixmap"], header),
         apertures=numpy.array(configuration["apertures"]),
         gain=configuration["gain"],
         magnitude_1adu=configuration["magnitude_1adu"],
@@ -115,9 +117,9 @@ def photometer_frame(frame_fname, configuration, mark_start, mark_end):
     """Perform aperture photometry on a single frame."""
 
     _logger.debug("Photometering %s", frame_fname)
-    photometer = get_photometer(configuration)
-    _logger.debug("Created photometer.")
     header = get_primary_header(frame_fname)
+    photometer = get_photometer(configuration, header)
+    _logger.debug("Created photometer.")
     header["FITGROUP"] = configuration["shapefit_group"]
 
     with DataReductionFile(

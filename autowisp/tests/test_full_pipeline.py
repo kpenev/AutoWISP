@@ -62,11 +62,11 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
         # The DR file the test will register as the single photometric
         # reference comes from test.cfg, so adjusting the test or adding
         # new fixtures only requires editing the config file. The engine
-        # sets the option itself, so a project does not store it.
-        self._photref_dr_path = path.join(
-            self.processing_directory,
-            overwrite_default_config.pop("single-photref-dr-fname")[0][1],
-        )
+        # sets the option itself, so a project does not store it. In stored
+        # form, as the processing directory is the project home.
+        self._photref_dr_path = overwrite_default_config.pop(
+            "single-photref-dr-fname"
+        )[0][1]
         # The per-step CLI uses different ``--outlier-threshold``
         # defaults for ``wisp-stack-to-master`` and
         # ``wisp-stack-to-master-flat``, but the pipeline registers a

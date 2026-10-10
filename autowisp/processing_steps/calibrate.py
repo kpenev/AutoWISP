@@ -251,6 +251,7 @@ def parse_command_line(*args):
         parser.add_argument(
             "--master-" + master,
             nargs="+",
+            path="channel",
             default=None,
             action=ParseChannelDependentAction,
             help="The master "
@@ -266,6 +267,7 @@ def parse_command_line(*args):
         "--master-mask",
         default=None,
         nargs="+",
+        path="channel",
         action=ParseChannelDependentAction,
         help="Mask(s) to apply, indicating pixel quality. All pixels are "
         'considered "good" if no mask is specified. If multiple channel images '
@@ -276,6 +278,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--calibrated-fname",
+        path=True,
         default="{PROJHOME}/CAL/{RAWFNAME}_{CLRCHNL}.fits.fz",
         help="Format string to generate the filenames for saving the "
         "calibrated images. Replacement fields can be anything from the header "

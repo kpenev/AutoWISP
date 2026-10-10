@@ -643,8 +643,19 @@ def get_dr_substitutions(configuration):
     }
 
 
-def get_shape_fitter_config(configuration):
-    """Return a fully configured instance of FitStarShape."""
+def get_shape_fitter_config(configuration, header):
+    """
+    Return a fully configured instance of FitStarShape.
+
+    Args:
+        configuration(dict):    The configuration of the step.
+
+        header:    The header of a frame in the set being fit, all of which
+            must share their channel layout.
+
+    Returns:
+        dict:    The configuration for FitStarShape.
+    """
 
     result = {
         "require_convergence": False,
@@ -656,8 +667,7 @@ def get_shape_fitter_config(configuration):
         "dr_path_substitutions": get_dr_substitutions(configuration),
     }
 
-    if configuration["subpixmap"] is not None:
-        result["subpixmap"] = read_subpixmap(configuration["subpixmap"])
+    result["subpixmap"] = read_subpixmap(configuration["subpixmap"], header)
     for option in [
         "background_annulus",
         "gain",
@@ -808,7 +818,9 @@ def fit_frame_set(
     ):
         _logger.debug("Created source getter")
 
-        shape_fitter_config = get_shape_fitter_config(configuration)
+        shape_fitter_config = get_shape_fitter_config(
+            configuration, get_primary_header(frame_filenames[0])
+        )
         star_shape_fitter = PiecewiseBicubicPSFMap()
         _logger.debug("Created star shape fitter.")
 

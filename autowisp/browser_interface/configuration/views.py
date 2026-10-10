@@ -24,6 +24,7 @@ from autowisp.database.user_interface import (
 )
 from autowisp.database.interface import start_db_session
 from autowisp.diagnostics.expression_library import get_expressions
+from autowisp.exceptions import ConfigurationError
 from autowisp.diagnostics.expressions import check_rule
 
 # False positive
@@ -148,10 +149,15 @@ def save_config(request, version):
     Answered with no content rather than a redirect to the tree: the page
     reloads itself once the post is answered, and ``fetch`` would follow a
     redirect, rendering the tree and using up the warnings before the reload
-    could show them.
+    could show them. A configuration that cannot be saved, e.g. one with a
+    relative path, is answered with the reason as plain text, which the page
+    shows instead of reloading, so the edits are kept to be corrected.
     """
 
-    save_json_config(request.body, version)
+    try:
+        save_json_config(request.body, version)
+    except ConfigurationError as error:
+        return HttpResponse(str(error), status=400, content_type="text/plain")
     with start_db_session() as db_session:
         library = get_expressions(db_session)
         rules = {

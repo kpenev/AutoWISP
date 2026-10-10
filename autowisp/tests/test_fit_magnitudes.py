@@ -114,10 +114,8 @@ class TestFitMagnitudes(DRTestCase):
                 "wisp-fit-magnitudes",
                 "-c",
                 "test.cfg",
-                # Spelled as test.cfg's format expands it, which magfit
-                # checks: PROJHOME is "." in the test data headers.
                 "--master-photref-fname",
-                f"./MASTERS/{final_master}",
+                f"{{PROJHOME}}/MASTERS/{final_master}",
                 "--qc-exclude-file",
                 exclusion_fname,
             ]

@@ -413,6 +413,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         parser.add_argument(
             "--epd-statistics-fname",
+            path=True,
             default="{PROJHOME}/MASTERS/epd_statistics.txt",
             help="The statistics filename for the results of the EPD fit. "
             "Default: %(default)s",
@@ -452,6 +453,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         self.add_argument(
             "--qc-exclude-file",
+            path=True,
             default=None,
             help=f"A file listing the observations to leave out of the {mode} "
             "fit, one per line, each given by the values of the "
@@ -517,6 +519,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
 
         self.add_argument(
             "--single-photref-dr-fname",
+            path=True,
             default=None,
             help="The filename of the single photometric reference DR file."
             " Used for string substitutions of command line arguments and to "
@@ -645,6 +648,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "--detrending-catalog",
             "--detrending-catalogue",
             "--cat",
+            path=True,
             default=None,
             help="The name of a catalogue file containing the sources in the "
             "frame. Used only to generate performance statistics reports. If "
@@ -653,6 +657,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         if self._mode.endswith("stat"):
             self.add_argument(
                 f"--{self._mode[:3]}-statistics-fname",
+                path=True,
                 default=f"{{PROJHOME}}/MASTERS/{self._mode[:3]}_statistics.txt",
                 help="The statistics filename for the results of the "
                 f"{self._mode[:3].upper()} fit.",

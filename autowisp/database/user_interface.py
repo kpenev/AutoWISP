@@ -18,6 +18,8 @@ from autowisp.database.interface import start_db_session, set_project_home
 from autowisp.exceptions import ConfigurationError
 from autowisp.database.data_model import provenance
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp import processing_steps
+from autowisp.processing_steps.manual_util import stored_path_value
 
 # False positive
 # pylint: disable=no-name-in-module
@@ -702,11 +704,26 @@ def _save_conditions(configuration, expression_db_ids, db_session):
 
 
 def save_json_config(json_config, version):
-    """Save configuration provided in JSON format to the database."""
+    """
+    Save configuration provided in JSON format to the database.
+
+    Paths are stored as ``{PROJHOME}/...`` if they lie inside the project.
+
+    Raises:
+        ConfigurationError:    If a path is not in a form allowed for its
+            parameter, before anything is saved.
+    """
 
     configuration, expressions = _parse_json_config(
         json.loads(json_config.decode("ascii"))
     )
+    path_arguments = processing_steps.get_path_arguments()
+    for param_name, param_info in configuration.items():
+        if param_name in path_arguments:
+            for condition_info in param_info:
+                condition_info["value"] = stored_path_value(
+                    condition_info["value"], path_arguments[param_name]
+                )
     with start_db_session() as db_session:
         compare_config = get_db_configuration(version, db_session)
 

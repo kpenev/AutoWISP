@@ -85,6 +85,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--master-photref-fname",
+        path=True,
         default=None,
         help="The master photometric reference to fit against, in a single "
         "pass, instead of building one. It must have been built from the "
@@ -95,6 +96,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--master-photref-fname-format",
+        path=True,
         default=(
             "{PROJHOME}/MASTERS/mphotref_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_"
             "{FNUM}_iter{magfit_iteration:03d}.fits"
@@ -107,6 +109,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--magfit-stat-fname-format",
+        path=True,
         default=(
             "{PROJHOME}/MASTERS/"
             "mfit_stat_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_"
@@ -205,6 +208,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--tempstore-dir",
+        path="external",
         default=None,
         help="Directory under which to create temporary storage used when "
         "creating master photometric references.",
@@ -220,6 +224,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--qc-exclude-file",
+        path=True,
         default=None,
         help="A file listing the DR files to leave out of the master "
         "photometric reference, one per line. Excluded DR files are still "

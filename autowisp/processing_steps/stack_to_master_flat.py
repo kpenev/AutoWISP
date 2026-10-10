@@ -326,7 +326,8 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--high-flat-master-fname",
-        default="MASTERS/flat_{CAMSN}_{CLRCHNL}_{OBSSSNID}.fits.fz",
+        path=True,
+        default="{PROJHOME}/MASTERS/flat_{CAMSN}_{CLRCHNL}_{OBSSSNID}.fits.fz",
         help="Filename for the high illumination master flat to "
         "generate if successful. Can involve header "
         "substitutions, but should produce the same filename "
@@ -335,7 +336,9 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--low-flat-master-fname",
-        default="MASTERS/lowflat_{CAMSN}_{CLRCHNL}_{OBSSSNID}.fits.fz",
+        path=True,
+        default="{PROJHOME}/MASTERS/"
+        "lowflat_{CAMSN}_{CLRCHNL}_{OBSSSNID}.fits.fz",
         help="Filename for the low illumination master flat to "
         "generate if successful. Can involve header "
         "substitutions, but should produce the same filename "

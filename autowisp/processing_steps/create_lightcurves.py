@@ -139,6 +139,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--lightcurve-catalog-fname",
+        path=True,
         default="{PROJHOME}/MASTERS/"
         "lc_catalog_{TARGETID}_{CLRCHNL}_{EXPTIME}.fits",
         help="The filename of the master catalog to create, possibly with "

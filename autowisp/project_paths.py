@@ -113,6 +113,49 @@ def resolve_path(stored_path):
     return os.fspath(stored_path).format_map(_ProjhomeSubstitution())
 
 
+def check_path_form(fname, external=False):
+    """
+    Raise unless a configured path is absolute or starts with ``{PROJHOME}``.
+
+    A relative path would be taken relative to whatever the working directory
+    happens to be, so a configured path must say where it is.
+
+    Args:
+        fname(str):    The path, possibly a template.
+
+        external(bool):    Is this a file that belongs outside any project,
+            e.g. one used by another tool, which a copy of the project must
+            keep using? It must then be absolute.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError:    If ``fname`` is not in a form allowed for it.
+    """
+
+    if fname.startswith(PROJHOME_MARKER):
+        if external:
+            raise ValueError(
+                f"{fname!r} is outside any project, so it cannot start with "
+                f"{PROJHOME_MARKER}: give it absolute."
+            )
+    # On Windows before Python 3.13, isabs() accepts a path without a drive,
+    # which is relative to the current drive.
+    elif not os.path.isabs(fname) or (
+        os.name == "nt" and not os.path.splitdrive(fname)[0]
+    ):
+        raise ValueError(
+            f"{fname!r} is a relative path: give it absolute"
+            + (
+                "."
+                if external
+                else f", or start it with {PROJHOME_MARKER} for a path "
+                "inside the project."
+            )
+        )
+
+
 def to_stored_path(fname):
     """
     Return the stored form of a path entering from outside the code.

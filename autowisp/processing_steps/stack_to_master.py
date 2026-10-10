@@ -143,7 +143,9 @@ def get_command_line_parser(
         )
         parser.add_argument(
             "--stacked-master-fname",
-            default="MASTERS/{IMAGETYP}_{CAMSN}_{CLRCHNL}_{OBSSSNID}.fits.fz",
+            path=True,
+            default="{PROJHOME}/MASTERS/"
+            "{IMAGETYP}_{CAMSN}_{CLRCHNL}_{OBSSSNID}.fits.fz",
             help="Filename for the master to generate if successful. Can "
             "involve header substitutions, but should produce the same filename"
             " for all input frames. If not, the behavior is undefined.",

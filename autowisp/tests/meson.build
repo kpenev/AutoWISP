@@ -50,6 +50,7 @@ py_src = [
   'test_measure_aperture_photometry.py',
   'test_parameter_description_length.py',
   'test_parse_config_overwrites.py',
+  'test_path_options.py',
   'test_photometry_slots.py',
   'test_photref_binding.py',
   'test_photref_candidates.py',
