@@ -12,6 +12,7 @@ from autowisp.fits_utilities import read_image_components, update_stack_header
 from autowisp.iterative_rejection_util import iterative_rejection_average
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.image_calibration.fits_util import create_result
+from autowisp.project_paths import to_stored_path
 
 from autowisp.processor import Processor
 
@@ -110,7 +111,7 @@ class MasterMaker(Processor):
         return image
 
     # Re-factoring to reduce locals will make things less readable.
-    def stack( #pylint: disable=too-many-arguments,too-many-locals
+    def stack(  # pylint: disable=too-many-arguments,too-many-locals
         self,
         frame_list,
         *,
@@ -196,7 +197,8 @@ class MasterMaker(Processor):
 
                 NUMFCOMB: The number of frames combined in this master.
 
-                ORIGF%04d: The base filename of each original frame added. The
+                ORIGF%03d: The filename of each original frame added, as
+                    ``{PROJHOME}/...`` if it is inside the project. The
                     keyword will get %-substituted with the frame index.
 
                 OUTLTHRS: The threshold for marking pixel values as outliers in
@@ -227,7 +229,7 @@ class MasterMaker(Processor):
             )
             for index, fname in enumerate(frame_list):
                 header[f"ORIGF{index:03d}"] = (
-                    fname,
+                    to_stored_path(fname),
                     "Original frame contributing to master",
                 )
             header["OUTLTHRS"] = (
@@ -359,7 +361,7 @@ class MasterMaker(Processor):
             discarded_frames,
         )
 
-    def __call__( # pylint: disable=too-many-arguments
+    def __call__(  # pylint: disable=too-many-arguments
         self,
         frame_list,
         output_fname,

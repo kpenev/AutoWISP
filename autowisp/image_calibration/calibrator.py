@@ -30,7 +30,7 @@ from autowisp.image_calibration.overscan_methods import (
     git_id as overscan_methods_git_id,
 )
 from autowisp.image_calibration.fits_util import get_raw_header
-from autowisp.project_paths import resolve_path
+from autowisp.project_paths import resolve_path, to_stored_path
 
 git_id = "$Id$"
 
@@ -391,7 +391,8 @@ class Calibrator(Processor):
         r"""
         Return header(s) documenting how the calibration was done.
 
-        The following keywords are added or overwritten::
+        The following keywords are added or overwritten (filenames inside the
+        project as ``{PROJHOME}/...``)::
 
             MBIASFNM: Filename of the master bias used
 
@@ -450,7 +451,7 @@ class Calibrator(Processor):
                         channel_name
                     ]
                     channel_header["M" + master_type.upper() + "FNM"] = (
-                        master_fname,
+                        to_stored_path(master_fname),
                         "Master " + master_type + " frame applied",
                     )
                     with open(resolve_path(master_fname), "rb") as master:

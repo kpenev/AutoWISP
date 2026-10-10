@@ -59,7 +59,6 @@ class MasterPhotrefProject(PhotrefBindingProject):
                         "TARGETID": "field",
                         "EXPTIME": exposure,
                         "FNUM": fnum,
-                        "PROJHOME": cls._tmp.name,
                     }
                 )
             )

@@ -250,7 +250,6 @@ class PhotrefBindingProject(unittest.TestCase):
                         "EXPTIME": 30.0,
                         # Named by the default master file name formats.
                         "FNUM": 100,
-                        "PROJHOME": cls._tmp.name,
                     }
                 )
             )
