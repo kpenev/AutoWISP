@@ -21,6 +21,7 @@ py_src = [
   '0015_engine_set_masters.py',
   '0016_diagnostic_definitions.py',
   '0017_master_mask_description.py',
+  '0018_projhome_paths.py',
 ]
 
 py.install_sources(

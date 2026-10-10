@@ -419,7 +419,7 @@ def restore_timestamp_triggers(connection):
     return restored
 
 
-def migrate_project(engine, *, assume_backed_up=False):
+def migrate_project(engine, project_home, *, assume_backed_up=False):
     """Bring a project database up to the current head revision.
 
     The only function here that mutates. Handles three cases:
@@ -432,6 +432,10 @@ def migrate_project(engine, *, assume_backed_up=False):
 
     Args:
         engine:    The SQLAlchemy engine for the project database.
+
+        project_home(str):    The project's home directory, which revisions
+            that convert stored paths need. Passed to them as
+            ``config.attributes["project_home"]``.
 
         assume_backed_up(bool):    Required to migrate a server database.
             SQLite databases are copied aside automatically, but a
@@ -503,6 +507,7 @@ def migrate_project(engine, *, assume_backed_up=False):
             result["from"] = BASELINE_REVISION
 
         config.attributes["connection"] = connection
+        config.attributes["project_home"] = project_home
         alembic.command.upgrade(config, "head")
 
         # Whatever the revisions just did, leave the triggers correct. A

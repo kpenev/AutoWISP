@@ -253,7 +253,9 @@ def set_project_home(
         return None
 
     if migrate:
-        return migrate_project(_db_engine, assume_backed_up=assume_backed_up)
+        return migrate_project(
+            _db_engine, project_home, assume_backed_up=assume_backed_up
+        )
 
     # Read-only on purpose: every process opening a project runs this,
     # including every pipeline worker, so it must never issue DDL. Migrating

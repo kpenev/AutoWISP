@@ -6,6 +6,7 @@ subclass ``unittest.TestCase`` directly.
 
 import os
 import re
+import shutil
 import tempfile
 import threading
 import unittest
@@ -110,9 +111,21 @@ class BackendMixin:
         return engine
 
     def migrate(self, engine):
-        """Migrate, confirming the backup where the backend demands one."""
+        """
+        Migrate, confirming the backup where the backend demands one.
 
-        return migrate_project(engine, assume_backed_up=on_server())
+        The project home is the directory of an SQLite database, as for a
+        real project; a server database has none, so it gets an empty one.
+        """
+
+        if on_server():
+            project_home = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, project_home, True)
+        else:
+            project_home = os.path.dirname(engine.url.database)
+        return migrate_project(
+            engine, project_home, assume_backed_up=on_server()
+        )
 
     @staticmethod
     def create_legacy_schema(engine):
@@ -536,7 +549,8 @@ class TestMigrateProject(BackendMixin, unittest.TestCase):
         engine = self._legacy_engine()
 
         with self.assertRaises(DatabaseError) as caught:
-            migrate_project(engine)
+            # Refused before the project home is looked at.
+            migrate_project(engine, tempfile.gettempdir())
 
         self.assertIn("--assume-backed-up", str(caught.exception))
         self.assertIsNone(get_project_revision(engine))

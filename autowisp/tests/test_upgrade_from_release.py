@@ -7,6 +7,7 @@ the repository's history and are skipped outside a checkout.
 
 import io
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -77,6 +78,16 @@ def _git(*args, binary=False):
     except (OSError, subprocess.CalledProcessError):
         return None
     return result.stdout if binary else result.stdout.strip()
+
+
+def _current_major_version():
+    """Return the major version the code under test declares."""
+
+    with open(
+        os.path.join(_repo_root(), "meson.build"), encoding="utf-8"
+    ) as meson_build:
+        version = re.search(r"version:\s*'([^']+)'", meson_build.read())
+    return int(version.group(1).split(".")[0])
 
 
 def get_project_contents(engine, own_values=()):
@@ -590,8 +601,10 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
         * downgraded, they leave what the project held before them, even
           of an exclusion rule a user has since set under a condition, which
           goes with the parameter it was a value of. Checked only for a
-          release that predates them: one created with them applied never
-          held what downgrading leaves.
+          release that predates them, since one created with them applied
+          never held what downgrading leaves, and that shares the major
+          version of the code under test, since a new major version is where
+          a project may not be taken back.
         """
 
         new_project = get_project_contents(
@@ -645,6 +658,10 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                 if not predates_data_revisions:
                     # Created with them already applied, so it never held
                     # what downgrading them leaves.
+                    continue
+                if int(ref.split(".")[0]) != _current_major_version():
+                    # A new major version is where a project may not be
+                    # taken back.
                     continue
 
                 self._add_user_rule(engine)
