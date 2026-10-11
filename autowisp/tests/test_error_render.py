@@ -4,6 +4,7 @@ Renders persisted ``Error`` rows (written via ``persist_error``) through
 ``error_render``; uses a throwaway project database.
 """
 
+import os
 import tempfile
 import unittest
 from datetime import datetime, timezone
@@ -63,10 +64,11 @@ class TestErrorSummary(_RenderTestCase):
     def test_summary_with_artifact(self):
         """A resolved image FK appears in the summary."""
 
+        raw_fname = os.path.abspath("/data/raw/img042.fits")
         # pylint: disable=not-callable
         with start_db_session() as db_session:
             image = Image(
-                raw_fname="/data/raw/img042.fits",
+                raw_fname=raw_fname,
                 image_type_id=1,
                 observing_session_id=1,
             )
@@ -78,13 +80,13 @@ class TestErrorSummary(_RenderTestCase):
             related_files=[
                 RelatedFile(
                     FileKind.RAW_IMAGE,
-                    "/data/raw/img042.fits",
+                    raw_fname,
                     "input",
                 )
             ]
         )
         summary = error_summary(self._persist_and_get(exc))
-        self.assertIn("/data/raw/img042.fits", summary)
+        self.assertIn(raw_fname, summary)
 
 
 class TestErrorDetail(_RenderTestCase):

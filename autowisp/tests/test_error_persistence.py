@@ -115,6 +115,8 @@ class TestPersistError(_PersistenceTestCase):
     def test_artifact_fks_resolved_from_related_files(self):
         """A related file matching a known image/master sets the FK."""
 
+        raw_fname = os.path.abspath("/data/raw/img042.fits")
+        master_fname = os.path.abspath("/data/masters/mbias.fits")
         # pylint: disable=not-callable
         with start_db_session() as db_session:
             run = PipelineRun(
@@ -123,11 +125,11 @@ class TestPersistError(_PersistenceTestCase):
                 started=sql.func.now(),
             )
             image = Image(
-                raw_fname="/data/raw/img042.fits",
+                raw_fname=raw_fname,
                 image_type_id=1,
                 observing_session_id=1,
             )
-            master = MasterFile(type_id=1, filename="/data/masters/mbias.fits")
+            master = MasterFile(type_id=1, filename=master_fname)
             # pylint: enable=not-callable
             db_session.add_all([run, image, master])
             db_session.flush()
@@ -135,14 +137,8 @@ class TestPersistError(_PersistenceTestCase):
 
         exc = make_find_stars_error(
             related_files=[
-                RelatedFile(
-                    FileKind.RAW_IMAGE, Path("/data/raw/img042.fits"), "input"
-                ),
-                RelatedFile(
-                    FileKind.MASTER_BIAS,
-                    Path("/data/masters/mbias.fits"),
-                    "input",
-                ),
+                RelatedFile(FileKind.RAW_IMAGE, Path(raw_fname), "input"),
+                RelatedFile(FileKind.MASTER_BIAS, Path(master_fname), "input"),
             ]
         )
         row = self._get_error(persist_error(exc))
