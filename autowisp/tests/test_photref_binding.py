@@ -18,7 +18,6 @@ import logging
 import tempfile
 import unittest
 from argparse import Namespace
-from datetime import datetime
 from os import makedirs, path
 
 import numpy
@@ -39,20 +38,11 @@ from autowisp.database.data_model import (
     ImageType,
     MasterFile,
     MasterType,
-    ObservingSession,
     Step,
-    Target,
-)
-from autowisp.database.data_model.provenance import (
-    Camera,
-    CameraChannel,
-    CameraType,
-    Observer,
-    Telescope,
-    TelescopeType,
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 
 
 class PhotrefBindingProject(unittest.TestCase):
@@ -166,62 +156,9 @@ class PhotrefBindingProject(unittest.TestCase):
     def _add_session(cls, db_session):
         """Add the equipment and the observing session, return its id."""
 
-        # pylint: disable=not-callable
-        camera_type = CameraType(
-            make="Test",
-            model="2-channel",
-            version="1",
-            x_resolution=4,
-            y_resolution=4,
-            pixel_size=1.0,
-            notes="",
+        return add_observing_session(
+            db_session, "night", add_cameras(db_session, ("R", "G"))[0]
         )
-        telescope_type = TelescopeType(
-            make="Test", model="lens", version="1", f_ratio=2.0, focal_length=50
-        )
-        observer = Observer(name="observer")
-        target = Target(name="field")
-        db_session.add_all([camera_type, telescope_type, observer, target])
-        db_session.flush()
-        for offset, name in enumerate(("R", "G")):
-            db_session.add(
-                CameraChannel(
-                    camera_type_id=camera_type.id,
-                    name=name,
-                    x_offset=offset,
-                    y_offset=0,
-                    x_step=2,
-                    y_step=1,
-                )
-            )
-        camera = Camera(
-            camera_type_id=camera_type.id, serial_number="camera", notes=""
-        )
-        telescope = Telescope(
-            telescope_type_id=telescope_type.id,
-            serial_number="telescope",
-            notes="",
-        )
-        db_session.add_all([camera, telescope])
-        db_session.flush()
-
-        # Mount and observatory are never read, and SQLite does not enforce
-        # the foreign keys left dangling.
-        session = ObservingSession(
-            observer_id=observer.id,
-            camera_id=camera.id,
-            telescope_id=telescope.id,
-            mount_id=1,
-            observatory_id=1,
-            target_id=target.id,
-            label="night",
-            start_time_utc=datetime(2023, 3, 1, 20, 0, 0),
-            end_time_utc=datetime(2023, 3, 1, 23, 0, 0),
-        )
-        # pylint: enable=not-callable
-        db_session.add(session)
-        db_session.flush()
-        return session.id
 
     @classmethod
     def _add_photref(cls, db_session, session_id):

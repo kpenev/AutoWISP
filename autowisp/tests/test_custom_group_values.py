@@ -14,7 +14,6 @@ channel.
 
 import tempfile
 import unittest
-from datetime import datetime
 
 import numpy
 
@@ -26,12 +25,12 @@ from autowisp.database.data_model import (
     Image,
     ImageDiagnostics,
     ImageType,
-    ObservingSession,
 )
 
 # pylint: enable=no-name-in-module
 from autowisp.diagnostics.expression_series import get_custom_group_values
 from autowisp.exceptions import PipelineError
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 
 
 class TestCustomGroupValues(unittest.TestCase):
@@ -70,34 +69,17 @@ class TestCustomGroupValues(unittest.TestCase):
 
     @staticmethod
     def _add_sessions(db_session):
-        """Add the two nights, returning ``{label: ObservingSession}``."""
+        """Add the two nights, returning ``{label: session id}``."""
 
-        sessions = {}
-        for day, label in enumerate(("night1", "night2")):
-            # False positive: the declarative models are callable.
-            # pylint: disable-next=not-callable
-            sessions[label] = ObservingSession(
-                observer_id=1,
-                camera_id=1,
-                telescope_id=1,
-                mount_id=1,
-                observatory_id=1,
-                target_id=1,
-                label=label,
-                start_time_utc=datetime(2023, 3, 1 + day, 20, 0, 0),
-                end_time_utc=datetime(2023, 3, 1 + day, 23, 0, 0),
-            )
-            db_session.add(sessions[label])
-        db_session.flush()
-        return sessions
+        camera_id = add_cameras(db_session)[0]
+        return {
+            label: add_observing_session(db_session, label, camera_id, day=day)
+            for day, label in enumerate(("night1", "night2"))
+        }
 
     @classmethod
     def _fill_database(cls):
-        """Two nights of object frames, holding the group and one other.
-
-        Provenance foreign keys are left dangling, as SQLite does not
-        enforce them and nothing here reads them.
-        """
+        """Two nights of object frames, holding the group and one other."""
 
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
@@ -120,7 +102,7 @@ class TestCustomGroupValues(unittest.TestCase):
                 image = Image(
                     raw_fname=f"/data/raw/frame_{index}.fits",
                     image_type_id=image_type.id,
-                    observing_session_id=sessions[night].id,
+                    observing_session_id=sessions[night],
                     jd=2460005.5 + 0.3 * index,
                 )
                 db_session.add(image)

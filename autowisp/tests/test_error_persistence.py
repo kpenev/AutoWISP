@@ -18,7 +18,14 @@ from autowisp import run_pipeline
 from autowisp.database.interface import set_project_home, start_db_session
 
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import Error, Image, MasterFile, PipelineRun
+from autowisp.database.data_model import (
+    Error,
+    Image,
+    ImageType,
+    MasterFile,
+    MasterType,
+    PipelineRun,
+)
 
 # pylint: enable=no-name-in-module
 from autowisp.exceptions import FileKind, FindStarsError, RelatedFile
@@ -31,6 +38,7 @@ from autowisp.error_persistence import (
     parse_duration,
     persist_error,
 )
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 from autowisp.tests.error_fixtures import make_find_stars_error
 
 
@@ -124,12 +132,20 @@ class TestPersistError(_PersistenceTestCase):
                 process_id=1,
                 started=sql.func.now(),
             )
+            image_type = ImageType(name="object", description="objects")
+            master_type = MasterType(
+                name="zero", condition_id=1, description="bias"
+            )
+            db_session.add_all([image_type, master_type])
+            db_session.flush()
             image = Image(
                 raw_fname=raw_fname,
-                image_type_id=1,
-                observing_session_id=1,
+                image_type_id=image_type.id,
+                observing_session_id=add_observing_session(
+                    db_session, "night", add_cameras(db_session)[0]
+                ),
             )
-            master = MasterFile(type_id=1, filename=master_fname)
+            master = MasterFile(type_id=master_type.id, filename=master_fname)
             # pylint: enable=not-callable
             db_session.add_all([run, image, master])
             db_session.flush()

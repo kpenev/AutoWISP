@@ -15,6 +15,7 @@ from autowisp.database.interface import set_project_home, start_db_session
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import Error
 from autowisp.database.data_model import Image
+from autowisp.database.data_model import ImageType
 
 # pylint: enable=no-name-in-module
 from autowisp.exceptions import FileKind, RelatedFile
@@ -29,6 +30,7 @@ from autowisp.error_render import (
     open_error_count_for_steps,
 )
 from autowisp.exceptions import PipelineError, StackToMasterError, ViewError
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 from autowisp.tests.error_fixtures import make_find_stars_error
 
 
@@ -67,10 +69,15 @@ class TestErrorSummary(_RenderTestCase):
         raw_fname = os.path.abspath("/data/raw/img042.fits")
         # pylint: disable=not-callable
         with start_db_session() as db_session:
+            image_type = ImageType(name="object", description="objects")
+            db_session.add(image_type)
+            db_session.flush()
             image = Image(
                 raw_fname=raw_fname,
-                image_type_id=1,
-                observing_session_id=1,
+                image_type_id=image_type.id,
+                observing_session_id=add_observing_session(
+                    db_session, "night", add_cameras(db_session)[0]
+                ),
             )
             db_session.add(image)
             db_session.flush()

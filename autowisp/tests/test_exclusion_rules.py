@@ -2,8 +2,8 @@
 
 The fixture is the one of ``test_series_references``, a night fit against
 two references with a frame bound differently in its two channels and one
-bound to nothing, with what a rule needs added: the camera and its channels,
-a background in the second channel, a library, and a second night. The
+bound to nothing, with what a rule needs added: a background in the second
+channel, a library, and a second night. The
 second night is fit against ``ref1`` too, and is far brighter in everything,
 so a rule comparing to an aggregate decides differently if the nights are
 pooled.
@@ -11,7 +11,7 @@ pooled.
 
 import unittest
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 
 from autowisp.database.interface import start_db_session
 
@@ -20,12 +20,6 @@ from autowisp.database.data_model import (
     DiagnosticExpression,
     DiagnosticType,
     ImageDiagnostics,
-    ObservingSession,
-)
-from autowisp.database.data_model.provenance import (
-    Camera,
-    CameraChannel,
-    CameraType,
 )
 
 # pylint: enable=no-name-in-module
@@ -38,6 +32,7 @@ from autowisp.diagnostics.exclusion_rules import (
     summarize_excluded,
 )
 from autowisp.exceptions import ConfigurationError
+from autowisp.tests.database_fixtures import add_cameras
 from autowisp.tests.test_series_references import ReferenceProject
 
 
@@ -61,58 +56,8 @@ class TestExclusionRules(ReferenceProject):
         cls._extend_database()
 
     @classmethod
-    def _add_cameras(cls, db_session, channels, num_cameras):
-        """
-        Add a camera type with the given channels, and cameras of it.
-
-        Args:
-            db_session:    The session to add them in.
-
-            channels(iterable of str):    The names of the type's channels.
-
-            num_cameras(int):    How many cameras of the type to add.
-
-        Returns:
-            [int]:    The ids of the cameras.
-        """
-
-        # False positive: the declarative models are callable.
-        # pylint: disable=not-callable
-        camera_type = CameraType(
-            make="make",
-            model="model",
-            version="1",
-            x_resolution=100,
-            y_resolution=100,
-            pixel_size=5.0,
-        )
-        db_session.add(camera_type)
-        db_session.flush()
-        cameras = [
-            Camera(
-                camera_type_id=camera_type.id,
-                serial_number=f"{camera_type.id}-{index}",
-                notes="",
-            )
-            for index in range(num_cameras)
-        ]
-        db_session.add_all(cameras)
-        db_session.add_all(
-            CameraChannel(
-                camera_type_id=camera_type.id,
-                name=name,
-                x_offset=offset,
-                y_offset=offset,
-            )
-            for offset, name in enumerate(channels)
-        )
-        # pylint: enable=not-callable
-        db_session.flush()
-        return [camera.id for camera in cameras]
-
-    @classmethod
     def _extend_database(cls):
-        """Add a night, the camera, the ``B`` backgrounds and the library."""
+        """Add a night, the ``B`` backgrounds and the library."""
 
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
@@ -128,11 +73,6 @@ class TestExclusionRules(ReferenceProject):
                     "B": [400.0, 600.0, 500.0],
                 },
                 bound_to={"R": ["ref1"] * 3, "B": ["ref1"] * 3},
-            )
-            db_session.execute(
-                update(ObservingSession).values(
-                    camera_id=cls._add_cameras(db_session, "RB", 1)[0]
-                )
             )
 
             bg_center_id = db_session.scalar(
@@ -332,8 +272,8 @@ class TestExclusionRules(ReferenceProject):
         """
 
         with start_db_session() as db_session:
-            self._add_cameras(db_session, ["R", "G0"], 2)
-            self._add_cameras(db_session, ["X"], 0)
+            add_cameras(db_session, ["R", "G0"], 2)
+            add_cameras(db_session, ["X"], 0)
             self.assertEqual(
                 count_cameras_lacking(
                     ["R", "B", "G0", "X", "Y", "B"], db_session

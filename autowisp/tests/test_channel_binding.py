@@ -14,7 +14,6 @@ HTML, and rendering them needs the template engine.
 import os
 import tempfile
 import unittest
-from datetime import datetime
 
 import django
 import matplotlib
@@ -45,15 +44,10 @@ from autowisp.database.data_model import (
     Image,
     ImageDiagnostics,
     ImageType,
-    ObservingSession,
-)
-from autowisp.database.data_model.provenance import (
-    Camera,
-    CameraChannel,
-    CameraType,
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 from autowisp.browser_interface.core.plot_utils import channel_colors
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     collect_series_data,
@@ -114,79 +108,25 @@ class TwoChannelProject(unittest.TestCase):
         cls._tmp.cleanup()
 
     @classmethod
-    def _add_camera(cls, db_session, channels):
-        """Describe a camera defining *channels*, and return its id."""
-
-        # False positive: the declarative models are callable.
-        # pylint: disable=not-callable
-        camera_type = CameraType(
-            make="Test",
-            model=f"{len(channels)}-channel",
-            version="1",
-            x_resolution=16,
-            y_resolution=16,
-            pixel_size=1.0,
-            notes="",
-        )
-        db_session.add(camera_type)
-        db_session.flush()
-
-        for offset, name in enumerate(channels):
-            db_session.add(
-                CameraChannel(
-                    camera_type_id=camera_type.id,
-                    name=name,
-                    x_offset=offset,
-                    y_offset=0,
-                    x_step=len(channels),
-                    y_step=1,
-                )
-            )
-
-        camera = Camera(
-            camera_type_id=camera_type.id,
-            serial_number=f"serial-{camera_type.id}",
-            notes="",
-        )
-        db_session.add(camera)
-        db_session.flush()
-        # pylint: enable=not-callable
-
-        return camera.id
-
-    @classmethod
     def _add_session(cls, db_session, label, camera_id, jds):
         """Add one session of object frames and return its id."""
 
-        # pylint: disable=not-callable
-        session = ObservingSession(
-            observer_id=1,
-            camera_id=camera_id,
-            telescope_id=1,
-            mount_id=1,
-            observatory_id=1,
-            target_id=1,
-            label=label,
-            start_time_utc=datetime(2023, 3, 1, 20, 0, 0),
-            end_time_utc=datetime(2023, 3, 1, 23, 0, 0),
-        )
-        db_session.add(session)
-        db_session.flush()
+        session_id = add_observing_session(db_session, label, camera_id)
 
         image_type_id = db_session.execute(select(ImageType.id)).scalar()
         for index, jd in enumerate(jds):
             db_session.add(
+                # pylint: disable-next=not-callable
                 Image(
                     raw_fname=f"/data/raw/{label}_{index}.fits",
                     image_type_id=image_type_id,
-                    observing_session_id=session.id,
+                    observing_session_id=session_id,
                     jd=jd,
                 )
             )
         db_session.flush()
-        # pylint: enable=not-callable
 
-        return session.id
+        return session_id
 
     @classmethod
     def _fill_database(cls):
@@ -206,13 +146,13 @@ class TwoChannelProject(unittest.TestCase):
             cls.session_id = cls._add_session(
                 db_session,
                 "colour_night",
-                cls._add_camera(db_session, ("R", "B")),
+                add_cameras(db_session, ("R", "B"))[0],
                 cls.jd_values(),
             )
             cls.mono_session_id = cls._add_session(
                 db_session,
                 "mono_night",
-                cls._add_camera(db_session, ("R",)),
+                add_cameras(db_session, ("R",))[0],
                 [
                     _first_jd + _night_separation + 0.05 * index
                     for index in range(len(cls.mono_values))

@@ -8,6 +8,7 @@
 py_src = [
   '__init__.py',
   '__main__.py',
+  'database_fixtures.py',
   'error_fixtures.py',
   'fits_test_case.py',
   'get_test_data.py',

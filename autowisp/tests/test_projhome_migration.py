@@ -11,7 +11,6 @@ import tempfile
 import unittest
 import warnings
 from argparse import Namespace
-from datetime import datetime
 from functools import cache
 from pathlib import Path
 
@@ -43,24 +42,13 @@ from autowisp.database.data_model import (
     ImageType,
     MasterFile,
     MasterType,
-    ObservingSession,
     Parameter,
     ProcessedImages,
-    Target,
-)
-from autowisp.database.data_model.provenance import (
-    Camera,
-    CameraType,
-    Mount,
-    MountType,
-    Observatory,
-    Observer,
-    Telescope,
-    TelescopeType,
 )
 
 # pylint: enable=no-name-in-module
 from autowisp.tests import SERVER_URL_ENV, empty_server_database
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 from autowisp.tests.test_database_migration import on_server
 
 # Resources here are released via addCleanup rather than `with`, since they
@@ -650,64 +638,9 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
         with start_db_session() as db_session:
             # False positive: the declarative models are callable.
             # pylint: disable=not-callable
-            camera_type = CameraType(
-                make="Test",
-                model="camera",
-                version="1",
-                x_resolution=4,
-                y_resolution=4,
-                pixel_size=1.0,
+            session_id = add_observing_session(
+                db_session, "night", add_cameras(db_session)[0]
             )
-            telescope_type = TelescopeType(
-                make="Test",
-                model="lens",
-                version="1",
-                f_ratio=2.0,
-                focal_length=50,
-            )
-            mount_type = MountType(make="Test", model="mount", version="1")
-            observer = Observer(name="observer")
-            observatory = Observatory(
-                name="observatory", latitude=0.0, longitude=0.0, altitude=0.0
-            )
-            target = Target(name="field")
-            db_session.add_all(
-                [
-                    camera_type,
-                    telescope_type,
-                    mount_type,
-                    observer,
-                    observatory,
-                    target,
-                ]
-            )
-            db_session.flush()
-            camera = Camera(
-                camera_type_id=camera_type.id, serial_number="camera", notes=""
-            )
-            telescope = Telescope(
-                telescope_type_id=telescope_type.id,
-                serial_number="telescope",
-                notes="",
-            )
-            mount = Mount(
-                mount_type_id=mount_type.id, serial_number="mount", notes=""
-            )
-            db_session.add_all([camera, telescope, mount])
-            db_session.flush()
-            session = ObservingSession(
-                observer_id=observer.id,
-                camera_id=camera.id,
-                telescope_id=telescope.id,
-                mount_id=mount.id,
-                observatory_id=observatory.id,
-                target_id=target.id,
-                label="night",
-                start_time_utc=datetime(2023, 3, 1, 20, 0, 0),
-                end_time_utc=datetime(2023, 3, 1, 23, 0, 0),
-            )
-            db_session.add(session)
-            db_session.flush()
 
             object_type_id = db_session.scalar(
                 select(ImageType.id).filter_by(name="object")
@@ -720,7 +653,7 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
                 image = Image(
                     raw_fname=raw_fname,
                     image_type_id=object_type_id,
-                    observing_session_id=session.id,
+                    observing_session_id=session_id,
                 )
                 db_session.add(image)
                 db_session.flush()

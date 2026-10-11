@@ -11,7 +11,7 @@ import zipfile
 from types import SimpleNamespace
 from unittest import mock
 
-from sqlalchemy import select
+from sqlalchemy import select, sql
 
 from autowisp.database.interface import set_project_home, start_db_session
 
@@ -21,8 +21,10 @@ from autowisp.database.data_model import (
     Error,
     Image,
     ImageProcessingProgress,
+    ImageType,
     LightCurveProcessingProgress,
     Parameter,
+    PipelineRun,
     Step,
 )
 
@@ -41,6 +43,7 @@ from autowisp.crash_report import (
 )
 from autowisp.exceptions import collect_environment
 from autowisp.error_persistence import persist_error
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 from autowisp.tests.error_fixtures import make_find_stars_error
 
 
@@ -183,6 +186,24 @@ class TestFindErrorProgress(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         set_project_home(self._tmp.name)
 
+        # What the ids the tests name refer to: run 7, image types 3 and 5,
+        # and an observing session for the image one of them adds.
+        # pylint: disable=not-callable
+        with start_db_session() as db_session:
+            db_session.add(
+                PipelineRun(
+                    id=7, host="h", process_id=1, started=sql.func.now()
+                )
+            )
+            db_session.add_all(
+                ImageType(id=type_id, name=f"type{type_id}", description="")
+                for type_id in (3, 5)
+            )
+            self._session_id = add_observing_session(
+                db_session, "night", add_cameras(db_session)[0]
+            )
+        # pylint: enable=not-callable
+
     def _add_progress(self, step_name, run_id, image_type_id):
         # pylint: disable=not-callable
         with start_db_session() as db_session:
@@ -278,7 +299,7 @@ class TestFindErrorProgress(unittest.TestCase):
             image = Image(
                 raw_fname="/data/raw/x.fits",
                 image_type_id=5,
-                observing_session_id=1,
+                observing_session_id=self._session_id,
             )
             db_session.add(image)
             db_session.flush()

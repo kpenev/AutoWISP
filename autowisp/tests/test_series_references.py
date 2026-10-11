@@ -19,7 +19,6 @@ value missing in one of them only.
 
 import tempfile
 import unittest
-from datetime import datetime
 
 import numpy
 from sqlalchemy import select
@@ -35,11 +34,11 @@ from autowisp.database.data_model import (
     ImageType,
     MasterFile,
     MasterType,
-    ObservingSession,
     PhotometryDiagnostics,
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 from autowisp.diagnostics.expression_series import (
     SeriesKey,
     count_unbound_images,
@@ -192,14 +191,14 @@ class ReferenceProject(unittest.TestCase):
     def _fill_database(cls):
         """One night of seven object frames in two channels, two references.
 
-        Provenance foreign keys, and the master type's condition, are left
-        dangling, as SQLite does not enforce them and nothing here reads
-        them.
+        The master type's condition is left undefined, as nothing here reads
+        it (it is not a foreign key).
         """
 
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
         with start_db_session() as db_session:
+            cls._camera_id = add_cameras(db_session, ("R", "B"))[0]
             photref_type = MasterType(
                 name="single_photref", condition_id=1, description="photref"
             )
@@ -258,7 +257,7 @@ class ReferenceProject(unittest.TestCase):
         Add a night of object frames, with their diagnostics and bindings.
 
         The diagnostic, image and master types and the references must be in
-        the database already. Provenance foreign keys are left dangling.
+        the database already. Taken with the fixture's camera.
 
         Args:
             db_session:    An active SQLAlchemy database session.
@@ -289,19 +288,9 @@ class ReferenceProject(unittest.TestCase):
 
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
-        session = ObservingSession(
-            observer_id=1,
-            camera_id=1,
-            telescope_id=1,
-            mount_id=1,
-            observatory_id=1,
-            target_id=1,
-            label=label,
-            start_time_utc=datetime(2023, 3, 1 + day, 20, 0, 0),
-            end_time_utc=datetime(2023, 3, 1 + day, 23, 0, 0),
+        session_id = add_observing_session(
+            db_session, label, cls._camera_id, day=day
         )
-        db_session.add(session)
-        db_session.flush()
 
         diagnostic_ids = dict(
             db_session.execute(
@@ -320,7 +309,7 @@ class ReferenceProject(unittest.TestCase):
             image = Image(
                 raw_fname=f"/data/raw/{label}_{index}.fits",
                 image_type_id=image_type_id,
-                observing_session_id=session.id,
+                observing_session_id=session_id,
                 jd=2460005.5 + day + 0.05 * index,
             )
             db_session.add(image)
@@ -359,7 +348,7 @@ class ReferenceProject(unittest.TestCase):
                     )
         # pylint: enable=not-callable
 
-        return session.id, image_ids
+        return session_id, image_ids
 
     def key(self, channels, *references, photometries=()):
         """Return the night's series binding *channels* to *references*.

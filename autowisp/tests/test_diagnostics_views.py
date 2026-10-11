@@ -13,7 +13,6 @@ and markers -- are in ``test_diagnostics_rules``.
 
 import tempfile
 import unittest
-from datetime import datetime
 from unittest import mock
 
 import matplotlib
@@ -34,10 +33,10 @@ from autowisp.database.data_model import (
     Image,
     ImageDiagnostics,
     ImageType,
-    ObservingSession,
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 
 # Imported after set_project_home is available; these only touch the DB
 # through start_db_session, so no Django configuration is needed.
@@ -161,16 +160,15 @@ class DiagnosticsViewTestCase(unittest.TestCase):
             "channels": list(channels),
         }
 
+    # The locals are the rows the fixture is built from.
     @classmethod
+    # pylint: disable-next=too-many-locals
     def _fill_database(cls):
         """Create two observing sessions, the second holding two image types.
 
         Every frame records ``bg_center`` in channel ``R``; only object
         frames record the quantiles, which is the ordinary case of a
-        diagnostic that is not defined for every type.  Provenance foreign
-        keys are left dangling, as SQLite does not enforce them and the
-        diagnostics queries only ever join back to ``observing_session`` and
-        ``image_type``.
+        diagnostic that is not defined for every type.
         """
 
         # False positive: the declarative models are callable.
@@ -197,20 +195,11 @@ class DiagnosticsViewTestCase(unittest.TestCase):
                 db_session.execute(select(ImageType.name, ImageType.id)).all()
             )
 
+            camera_id = add_cameras(db_session)[0]
             for night, frame_counts in enumerate(_frames_per_night):
-                session = ObservingSession(
-                    observer_id=1,
-                    camera_id=1,
-                    telescope_id=1,
-                    mount_id=1,
-                    observatory_id=1,
-                    target_id=1,
-                    label=f"night_{night}",
-                    start_time_utc=datetime(2023, 3, 1 + night, 20, 0, 0),
-                    end_time_utc=datetime(2023, 3, 1 + night, 23, 0, 0),
+                session_id = add_observing_session(
+                    db_session, f"night_{night}", camera_id, day=night
                 )
-                db_session.add(session)
-                db_session.flush()
 
                 jd = _first_jd + night * _night_separation
                 for image_type, count in frame_counts.items():
@@ -221,7 +210,7 @@ class DiagnosticsViewTestCase(unittest.TestCase):
                                 f"/data/raw/n{night}_{image_type}_{index}.fits"
                             ),
                             image_type_id=image_type_ids[image_type],
-                            observing_session_id=session.id,
+                            observing_session_id=session_id,
                             jd=jd,
                         )
                         db_session.add(image)

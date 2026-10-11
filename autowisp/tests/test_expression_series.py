@@ -15,7 +15,6 @@ one, and the view tests and these want exactly the same rows.
 import re
 import tempfile
 import unittest
-from datetime import datetime
 
 import numpy
 from sqlalchemy import event, select
@@ -28,7 +27,6 @@ from autowisp.database.data_model import (
     Image,
     ImageDiagnostics,
     ImageType,
-    ObservingSession,
 )
 
 # pylint: enable=no-name-in-module
@@ -44,6 +42,7 @@ from autowisp.diagnostics.image_counts import (
     count_images_with_all,
     count_images_with_channels,
 )
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 from autowisp.tests.test_diagnostics_views import DiagnosticsViewTestCase
 
 
@@ -417,27 +416,17 @@ class TestCrossChannelValues(unittest.TestCase):
             ).scalar()
             image_type_id = db_session.execute(select(ImageType.id)).scalar()
 
+            camera_id = add_cameras(db_session)[0]
             for night, hole in enumerate(cls.hole_positions):
-                session = ObservingSession(
-                    observer_id=1,
-                    camera_id=1,
-                    telescope_id=1,
-                    mount_id=1,
-                    observatory_id=1,
-                    target_id=1,
-                    label=f"gap_at_{hole}",
-                    start_time_utc=datetime(2023, 3, 1 + night, 20, 0, 0),
-                    end_time_utc=datetime(2023, 3, 1 + night, 23, 0, 0),
+                cls.session_of[hole] = add_observing_session(
+                    db_session, f"gap_at_{hole}", camera_id, day=night
                 )
-                db_session.add(session)
-                db_session.flush()
-                cls.session_of[hole] = session.id
 
                 for index in range(len(cls.values_of["R"])):
                     image = Image(
                         raw_fname=f"/data/raw/gap{hole}_{index}.fits",
                         image_type_id=image_type_id,
-                        observing_session_id=session.id,
+                        observing_session_id=cls.session_of[hole],
                         jd=2460000.5 + night + 0.05 * index,
                     )
                     db_session.add(image)
@@ -794,19 +783,9 @@ class TestTiedJulianDates(unittest.TestCase):
             ).scalar()
             image_type_id = db_session.execute(select(ImageType.id)).scalar()
 
-            session = ObservingSession(
-                observer_id=1,
-                camera_id=1,
-                telescope_id=1,
-                mount_id=1,
-                observatory_id=1,
-                target_id=1,
-                label="tied",
-                start_time_utc=datetime(2023, 3, 1, 20, 0, 0),
-                end_time_utc=datetime(2023, 3, 1, 23, 0, 0),
+            cls.session_id = add_observing_session(
+                db_session, "tied", add_cameras(db_session)[0]
             )
-            db_session.add(session)
-            db_session.flush()
 
             # The middle two share a jd.
             tied_jds = [2460000.5, 2460000.6, 2460000.6, 2460000.7]
@@ -814,7 +793,7 @@ class TestTiedJulianDates(unittest.TestCase):
                 image = Image(
                     raw_fname=f"/data/raw/tied_{index}.fits",
                     image_type_id=image_type_id,
-                    observing_session_id=session.id,
+                    observing_session_id=cls.session_id,
                     jd=jd,
                 )
                 db_session.add(image)
@@ -829,7 +808,6 @@ class TestTiedJulianDates(unittest.TestCase):
                         value=value,
                     )
                 )
-            cls.session_id = session.id
         # pylint: enable=not-callable
 
     def test_values_stay_with_their_own_images(self):
