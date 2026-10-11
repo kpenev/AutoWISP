@@ -22,6 +22,7 @@ py_src = [
   '0016_diagnostic_definitions.py',
   '0017_master_mask_description.py',
   '0018_projhome_paths.py',
+  '0019_restore_lc_fnum_fill.py',
 ]
 
 py.install_sources(
