@@ -13,6 +13,10 @@ name: Tests
 # a fix otherwise means paying for the whole grid: workflow_dispatch has no job
 # filter, and cancelling a run cancels every job in it, including the one being
 # watched.
+#
+# `quick` runs the pipeline grid without the tests that run pipeline steps on
+# the test data, the full pipeline and the live catalog queries: everything
+# else, on every OS, in minutes rather than an hour.
 on:
   workflow_dispatch:
     inputs:
@@ -24,6 +28,7 @@ on:
         options:
           - all
           - pipeline
+          - quick
           - catalog
           - migrations
 
@@ -37,7 +42,7 @@ jobs:
   # offline failure instead of a flaky network call. TestCatalog (live Gaia) is
   # excluded here and runs in its own job.
   pipeline:
-    if: inputs.only == 'all' || inputs.only == 'pipeline'
+    if: inputs.only == 'all' || inputs.only == 'pipeline' || inputs.only == 'quick'
     name: ${{ matrix.os }} py${{ matrix.python-version }} np${{ matrix.numpy }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -105,8 +110,9 @@ jobs:
       # in the test data (via AUTOWISP_ANET_INDICES). Windows has no practical
       # solve-field, so local_solver_available() makes it fall back to the web
       # solver -- and as the only Windows cell it is the one live web check.
+      # Only the step tests solve, so `quick` skips it.
       - name: Install solve-field (local plate solving)
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && inputs.only != 'quick'
         shell: bash
         run: |
           case "$RUNNER_OS" in
@@ -140,8 +146,19 @@ jobs:
           # Exclude the live-Gaia catalog tests everywhere; also exclude the
           # expensive full-pipeline integration test unless this cell opts in.
           EXCLUDE="TestCatalog"
-          if [ "${{ matrix.full_pipeline }}" != "true" ]; then
+          if [ "${{ matrix.full_pipeline }}" != "true" ] \
+                  || [ "${{ inputs.only }}" = "quick" ]; then
             EXCLUDE="$EXCLUDE TestFullPipeline"
+          fi
+          # The tests running pipeline steps on the test data take most of an
+          # hour; everything else takes about ten minutes.
+          if [ "${{ inputs.only }}" = "quick" ]; then
+            EXCLUDE="$EXCLUDE TestCalibrate TestStackToMaster TestFindStars"
+            EXCLUDE="$EXCLUDE TestSolveAstrometry TestFitStarShape"
+            EXCLUDE="$EXCLUDE TestMeasureAperturePhotometry"
+            EXCLUDE="$EXCLUDE TestFitSourceExtractedPSFMap TestFitMagnitudes"
+            EXCLUDE="$EXCLUDE TestCreateLightcurves TestEPD TestTFA"
+            EXCLUDE="$EXCLUDE TestDetrendingStat TestLCFilter"
           fi
           python -m autowisp.tests failed_test --test-log test-output.txt -v --exclude $EXCLUDE
       - name: Upload failed-test artifacts
@@ -191,11 +208,11 @@ jobs:
 
   # PROJECT DATABASE MIGRATIONS against a real server.
   #
-  # Ubuntu only, and that is sufficient: nothing in the migration code is
-  # OS-specific (no sys.platform/os.name branches, no shelling out, paths
-  # only via os.path.join), and every branch is on engine.dialect.name,
-  # which the connection URL decides rather than the host. The SQLite half
-  # already gets Windows and macOS coverage from the `pipeline` job.
+  # Ubuntu only, and that is sufficient: what differs between servers is
+  # decided by engine.dialect.name, which the connection URL sets rather
+  # than the host. The OS-specific part, how revision 0018 reads the paths a
+  # project recorded, does not depend on the backend, and the `pipeline`
+  # job runs these tests on SQLite on Windows and macOS.
   #
   # MariaDB rather than MySQL because MySQL 8.4 cannot build a 1.8.1
   # database at all -- it rejects both the VARCHAR(1000) unique keys and
@@ -259,9 +276,13 @@ jobs:
       # SQLite first: it is the backend every project uses, and running it
       # here keeps the two comparable in one log.
       - name: Migration tests on SQLite
-        run: python -m unittest autowisp.tests.test_database_migration -v
+        run: >-
+          python -m unittest -v autowisp.tests.test_database_migration
+          autowisp.tests.test_projhome_migration
       - name: Migration tests on MariaDB (${{ matrix.charset }})
         env:
           AUTOWISP_TEST_DB_URL: >-
             mysql+pymysql://root:autowisp@127.0.0.1:3306/autowisp_test
-        run: python -m unittest autowisp.tests.test_database_migration -v
+        run: >-
+          python -m unittest -v autowisp.tests.test_database_migration
+          autowisp.tests.test_projhome_migration
