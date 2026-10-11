@@ -83,6 +83,10 @@ jobs:
       AUTOWISP_NO_LIVE_CATALOG: '1'
     steps:
       - uses: actions/checkout@v4
+        with:
+          # TestUpgradeFromRelease exports the schema from each release tag;
+          # the default shallow clone has no tags and it would skip.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -278,6 +282,7 @@ jobs:
       - name: Migration tests on SQLite
         run: >-
           python -m unittest -v autowisp.tests.test_database_migration
+          autowisp.tests.test_upgrade_from_release
           autowisp.tests.test_projhome_migration
       - name: Migration tests on MariaDB (${{ matrix.charset }})
         env:
@@ -285,4 +290,5 @@ jobs:
             mysql+pymysql://root:autowisp@127.0.0.1:3306/autowisp_test
         run: >-
           python -m unittest -v autowisp.tests.test_database_migration
+          autowisp.tests.test_upgrade_from_release
           autowisp.tests.test_projhome_migration
