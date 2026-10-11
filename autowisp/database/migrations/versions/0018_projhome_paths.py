@@ -13,27 +13,44 @@ what the database holds:
 
 * the description of ``subpixmap``, whose default changed.
 
-The files the project has produced hold such paths too. Rewriting them takes
-far longer than opening a project should, so it is left to the product
-migration, which this revision records as pending, one kind of product at a
-time so that an interrupted migration resumes with the kind it was at.
+The files the project has produced hold such paths too, and this revision
+converts them after the database: the calibrated images, the masters, the DR
+files and the lightcurves. They are found through the database as converted,
+so this must run at exactly this revision, which is why it is not left to a
+separate step. Every lightcurve is opened, so it can take a long time. A
+file already converted is not changed again, so after an interruption, which
+rolls back the database part, running it again only re-checks those.
+
+The data of a FITS file is copied byte for byte, never decoded: astropy
+re-compresses a compressed image, changing its values, even when only the
+header of the HDU changes.
 
 The project home is given by ``migrate_project`` in
-``config.attributes["project_home"]``. The parameter names and texts below
-are a copy, made so that this revision keeps doing what it did if those
-change.
+``config.attributes["project_home"]``. The parameter names and texts below,
+how the products are found and where their paths are, are a copy, made so
+that this revision keeps doing what it did if those change. The database is
+read through reflected tables, and the files directly, never through the
+classes that interpret them.
 
 There is no going back: the products are not converted back, so a database
 downgraded past this revision would not match them.
 """
 
 import logging
+import os
 from pathlib import Path, PurePath
+import re
+import tempfile
 
 import alembic
+from astropy.io import fits
+from astropy.table import Table
+import h5py
+import numpy
 import sqlalchemy
 
 from autowisp.exceptions import DatabaseError
+from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
 
 # revision identifiers, used by Alembic.
 revision = "0018_projhome_paths"
@@ -45,16 +62,15 @@ _logger = logging.getLogger(__name__)
 
 PROJHOME = "{PROJHOME}"
 
-PENDING_TABLE = "pending_migration"
+#: The keywords of FITS headers that name files.
+_FILE_KEYWORDS = re.compile(r"M(BIAS|DARK|FLAT)FNM|ORIGF\d+")
 
-#: The kinds of product the product migration converts, each recorded as
-#: pending until it is done.
-PENDING_PRODUCTS = (
-    "calibrated_images",
-    "masters",
-    "data_reduction",
-    "lightcurves",
-)
+#: Where products record the single photometric reference they used: an
+#: attribute of DR files and a dataset of lightcurves.
+_SPHOTREF_NAME = "SinglePhotometricReference"
+
+#: The copy of the frame header in a DR file.
+_DR_HEADER_PATH = "/FITSHeader"
 
 #: Parameters whose values are paths, by how their values are converted.
 PATH_PARAMETERS = {
@@ -109,7 +125,7 @@ SUBPIXMAP_DESCRIPTION = {
 }
 
 
-def _project_path(fname, project_home, *, must_exist):
+def _get_stored_path(fname, project_home, *, must_exist):
     """
     Return the path in ``{PROJHOME}`` form, or None if it is not inside.
 
@@ -117,7 +133,7 @@ def _project_path(fname, project_home, *, must_exist):
     form does everywhere else: stored paths are compared as strings.
 
     Args:
-        fname(str):    The path as stored, possibly a template.
+        fname(str):    The path as recorded, possibly a template.
 
         project_home(str):    The absolute path of the project home.
 
@@ -132,17 +148,16 @@ def _project_path(fname, project_home, *, must_exist):
     if fname.startswith(PROJHOME):
         return fname
     path = PurePath(fname)
-    # On Windows, a path is absolute only with a drive: without one it is
-    # relative to the current drive.
     if not path.is_absolute():
-        if must_exist and not (Path(project_home) / path).exists():
+        # On Windows, a path is absolute only with a drive. Joined to the
+        # home, one rooted without a drive keeps only the drive of the home,
+        # and need not be inside it.
+        path = PurePath(project_home) / path
+        if must_exist and not Path(path).exists():
             return None
-        relative = path
-    elif path.is_relative_to(project_home):
-        relative = path.relative_to(project_home)
-    else:
+    if not path.is_relative_to(project_home):
         return None
-    return PROJHOME + "/" + relative.as_posix()
+    return PROJHOME + "/" + path.relative_to(project_home).as_posix()
 
 
 def _convert_files(connection, table_name, column, project_home):
@@ -154,7 +169,7 @@ def _convert_files(connection, table_name, column, project_home):
     for row_id, fname in connection.execute(
         sqlalchemy.select(table.c.id, table.c[column])
     ).all():
-        converted = _project_path(fname, project_home, must_exist=True)
+        converted = _get_stored_path(fname, project_home, must_exist=True)
         if converted is None:
             if not PurePath(fname).is_absolute():
                 _logger.warning(
@@ -198,7 +213,7 @@ def _convert_path_entry(entry, kind, project_home):
         return entry
     if kind == "log":
         entry = entry.replace("{project_home}", PROJHOME)
-    return _project_path(entry, project_home, must_exist=False) or entry
+    return _get_stored_path(entry, project_home, must_exist=False) or entry
 
 
 def _convert_value(value, kind, project_home):
@@ -244,43 +259,392 @@ def _convert_configuration(connection, project_home):
             )
 
 
-def _record_pending_products(connection):
-    """Create the table of pending migrations if needed, and add products."""
+def _resolve(stored_fname, project_home):
+    """Return the file to open for a path in ``{PROJHOME}`` form."""
 
-    if not sqlalchemy.inspect(connection).has_table(PENDING_TABLE):
-        # Its timestamp trigger is installed by migrate_project, once the
-        # revisions are done.
-        alembic.op.create_table(
-            PENDING_TABLE,
-            sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-            sqlalchemy.Column(
-                "timestamp",
-                sqlalchemy.TIMESTAMP,
-                nullable=False,
-                server_default=sqlalchemy.text("CURRENT_TIMESTAMP"),
-            ),
-            sqlalchemy.Column(
-                "name", sqlalchemy.String(100), nullable=False, unique=True
-            ),
+    return stored_fname.format(PROJHOME=project_home)
+
+
+def _convert_header(header, project_home):
+    """
+    Convert a FITS header in place.
+
+    Args:
+        header(fits.Header):    The header to convert.
+
+        project_home(str):    The absolute path of the project home.
+
+    Returns:
+        bool:    Was the header changed?
+    """
+
+    changed = False
+    if "PROJHOME" in header:
+        del header["PROJHOME"]
+        changed = True
+    for keyword in list(header.keys()):
+        if not _FILE_KEYWORDS.fullmatch(keyword):
+            continue
+        converted = _get_stored_path(
+            header[keyword], project_home, must_exist=True
         )
-    pending = sqlalchemy.Table(
-        PENDING_TABLE, sqlalchemy.MetaData(), autoload_with=connection
+        if converted is not None and converted != header[keyword]:
+            header[keyword] = converted
+            changed = True
+    if changed and "CHECKSUM" in header:
+        # It covers the header, so the change invalidates it; recomputing
+        # it is cfitsio's business. DATASUM covers only the data, which is
+        # not touched.
+        del header["CHECKSUM"]
+    return changed
+
+
+def _migrate_fits(fname, project_home):
+    """
+    Convert the headers of a FITS file, copying its data byte for byte.
+
+    The data is never decoded: astropy re-compresses a compressed image,
+    changing its values, even when only the header of the HDU changes.
+
+    Returns:
+        bool:    Was the file changed?
+    """
+
+    with fits.open(fname, mode="readonly") as hdu_list:
+        layout = [
+            (info["hdrLoc"], info["datLoc"], info["datLoc"] + info["datSpan"])
+            for info in (
+                hdu_list.fileinfo(index) for index in range(len(hdu_list))
+            )
+        ]
+    with open(fname, "rb") as fits_file:
+        content = fits_file.read()
+
+    pieces = []
+    changed = False
+    for header_start, data_start, data_end in layout:
+        old_header = content[header_start:data_start]
+        header = fits.Header.fromstring(old_header.decode("ascii"))
+        if _convert_header(header, project_home):
+            changed = True
+            new_header = header.tostring(padding=True).encode("ascii")
+            # Fill the blocks the header had, so that a header that shrank
+            # can be written in place.
+            while len(new_header) < len(old_header):
+                header.append(fits.Card(), useblanks=False, end=True)
+                new_header = header.tostring(padding=True).encode("ascii")
+            pieces.append(new_header)
+        else:
+            pieces.append(old_header)
+        pieces.append(content[data_start:data_end])
+    if not changed:
+        return False
+
+    if sum(map(len, pieces)) == len(content):
+        with open(fname, "r+b") as fits_file:
+            position = 0
+            for piece in pieces:
+                if piece != content[position : position + len(piece)]:
+                    fits_file.seek(position)
+                    fits_file.write(piece)
+                position += len(piece)
+    else:
+        # A header outgrew its blocks, moving everything after it.
+        with tempfile.NamedTemporaryFile(
+            dir=os.path.dirname(fname), delete=False
+        ) as rewritten:
+            for piece in pieces:
+                rewritten.write(piece)
+        os.replace(rewritten.name, fname)
+    return True
+
+
+def _replace_dataset(group, name, data):
+    """Replace a dataset by one holding ``data``, keeping its storage."""
+
+    old = group[name]
+    options = {
+        option: getattr(old, option)
+        for option in ("compression", "compression_opts", "shuffle")
+        if getattr(old, option) is not None
+    }
+    attributes = dict(old.attrs)
+    del group[name]
+    new = group.create_dataset(name, data=data, **options)
+    for attribute, value in attributes.items():
+        new.attrs[attribute] = value
+
+
+def _convert_text(value, project_home):
+    """Return a recorded path as stored, keeping bytes as bytes."""
+
+    as_bytes = isinstance(value, (bytes, numpy.bytes_))
+    text = value.decode() if as_bytes else str(value)
+    converted = _get_stored_path(text, project_home, must_exist=True)
+    if converted is None or converted == text:
+        return value
+    return converted.encode() if as_bytes else converted
+
+
+def _migrate_dr(fname, project_home):
+    """Convert a DR file. Returns whether it was changed."""
+
+    with h5py.File(fname, "r+") as dr_file:
+        changed = False
+
+        def convert_sphotref_attribute(_, obj):
+            """Convert the attribute of each object of the file in turn."""
+
+            nonlocal changed
+            if _SPHOTREF_NAME not in obj.attrs:
+                return
+            old = obj.attrs[_SPHOTREF_NAME]
+            new = _convert_text(old, project_home)
+            if new is old:
+                return
+            obj.attrs[_SPHOTREF_NAME] = new
+
+            changed = True
+
+        # visititems() does not visit the root itself.
+        convert_sphotref_attribute("/", dr_file)
+
+        # Changing an attribute's value does not change what is visited.
+        dr_file.visititems(convert_sphotref_attribute)
+
+        if _DR_HEADER_PATH in dr_file:
+            header = fits.Header.fromstring(
+                dr_file[_DR_HEADER_PATH][()].tobytes().decode("ascii")
+            )
+            if _convert_header(header, project_home):
+                _replace_dataset(
+                    dr_file,
+                    _DR_HEADER_PATH,
+                    numpy.frombuffer(
+                        b"".join(
+                            card.image.encode("ascii") for card in header.cards
+                        ),
+                        dtype="i1",
+                    ),
+                )
+                changed = True
+    return changed
+
+
+def _migrate_lc(fname, project_home):
+    """Convert a lightcurve. Returns whether it was changed."""
+
+    changed = False
+    with h5py.File(fname, "r+") as light_curve:
+        datasets = []
+        light_curve.visititems(
+            lambda name, obj: (
+                datasets.append(obj)
+                if isinstance(obj, h5py.Dataset)
+                and name.rsplit("/", 1)[-1] == _SPHOTREF_NAME
+                else None
+            )
+        )
+        for dataset in datasets:
+            # A list, since iterating an array creates new objects each time,
+            # and converting an unchanged value returns the same one.
+            old = list(dataset[()])
+            new = [_convert_text(value, project_home) for value in old]
+            if all(converted is value for converted, value in zip(new, old)):
+                continue
+            changed = True
+            fixed_length = dataset.dtype.kind == "S"
+            if fixed_length and max(map(len, new)) > dataset.dtype.itemsize:
+                _replace_dataset(
+                    dataset.parent,
+                    dataset.name.rsplit("/", 1)[-1],
+                    numpy.array(new, dtype=bytes),
+                )
+            else:
+                for index, (converted, value) in enumerate(zip(new, old)):
+                    if converted is not value:
+                        dataset[index] = converted
+    return changed
+
+
+def _get_table(connection, name):
+    """Return the table of the given name, as the database has it."""
+
+    return sqlalchemy.Table(
+        name, sqlalchemy.MetaData(), autoload_with=connection
     )
-    recorded = set(
-        connection.execute(sqlalchemy.select(pending.c.name)).scalars()
+
+
+def _get_configured_values(connection, parameter_name):
+    """Return every value a parameter can take under any condition."""
+
+    parameter = _get_table(connection, "parameter")
+    configuration = _get_table(connection, "configuration")
+    return set(
+        connection.execute(
+            sqlalchemy.select(configuration.c.value)
+            .join(parameter, configuration.c.parameter_id == parameter.c.id)
+            .where(
+                parameter.c.name == parameter_name,
+                configuration.c.value.is_not(None),
+            )
+        ).scalars()
     )
-    for name in PENDING_PRODUCTS:
-        if name not in recorded:
-            connection.execute(pending.insert().values(name=name))
+
+
+def _find_masters(connection, project_home, master_type=None):
+    """Return the files of the project's masters, optionally of one type."""
+
+    master_file = _get_table(connection, "master_file")
+    master_type_table = _get_table(connection, "master_type")
+    query = sqlalchemy.select(master_file.c.filename).join(
+        master_type_table, master_file.c.type_id == master_type_table.c.id
+    )
+    if master_type is not None:
+        query = query.where(master_type_table.c.name == master_type)
+    return [
+        _resolve(fname, project_home)
+        for fname in connection.execute(query).scalars()
+    ]
+
+
+def _read_raw_header(raw_fname):
+    """Return the header of the first HDU of a raw frame holding an image."""
+
+    with fits.open(raw_fname, mode="readonly") as raw_image:
+        for hdu in raw_image:
+            if hdu.header["NAXIS"] != 0:
+                return hdu.header.copy()
+    raise OSError(f"No image in {raw_fname!r}.")
+
+
+def _find_image_products(connection, project_home, parameter_name):
+    """
+    Return the products a template names for each image and channel processed.
+
+    Every value the template is configured with is tried, since which one
+    applies depends on conditions, and the names that exist are returned.
+    """
+
+    image = _get_table(connection, "image")
+    processed = _get_table(connection, "processed_images")
+    templates = _get_configured_values(connection, parameter_name)
+    result = set()
+    for raw_fname, channels in _group_channels(
+        connection.execute(
+            sqlalchemy.select(image.c.raw_fname, processed.c.channel)
+            .join(processed, processed.c.image_id == image.c.id)
+            .distinct()
+        ).all()
+    ):
+        raw_fname = _resolve(raw_fname, project_home)
+        try:
+            header = _read_raw_header(raw_fname)
+        except OSError as error:
+            _logger.warning(
+                "Cannot read %r (%s), so the products made from it are not "
+                "converted.",
+                raw_fname,
+                error,
+            )
+            continue
+        base_fname = os.path.basename(raw_fname)
+        for extension in (".fz", ".fits"):
+            if base_fname.endswith(extension):
+                base_fname = base_fname[: -len(extension)]
+        for channel in channels:
+            substitutions = dict(
+                header,
+                PROJHOME=project_home,
+                RAWFNAME=base_fname,
+                CLRCHNL=channel,
+            )
+            for template in templates:
+                try:
+                    fname = template.format_map(substitutions)
+                except (KeyError, IndexError, ValueError):
+                    continue
+                if os.path.exists(fname):
+                    result.add(fname)
+    return sorted(result)
+
+
+def _group_channels(rows):
+    """Group ``(raw_fname, channel)`` rows by the raw image."""
+
+    grouped = {}
+    for raw_fname, channel in rows:
+        grouped.setdefault(raw_fname, set()).add(channel)
+    return sorted(grouped.items())
+
+
+def _find_lightcurves(connection, project_home):
+    """Return the lightcurves the project's lightcurve catalogues list."""
+
+    templates = _get_configured_values(connection, "lc-fname")
+    formatter = DecodingStringFormatter()
+    result = set()
+    for catalog_fname in _find_masters(
+        connection, project_home, "lightcurve_catalog"
+    ):
+        if not os.path.exists(catalog_fname):
+            _logger.warning(
+                "The lightcurve catalogue %r is missing, so the lightcurves it "
+                "lists are not converted.",
+                catalog_fname,
+            )
+            continue
+        for source_id in Table.read(catalog_fname)["source_id"]:
+            for template in templates:
+                fname = formatter.format(
+                    template,
+                    *numpy.atleast_1d(source_id),
+                    PROJHOME=project_home,
+                )
+                if os.path.exists(fname):
+                    result.add(fname)
+    return sorted(result)
+
+
+def _find_fits_masters(connection, project_home):
+    """Return the masters that are FITS files and exist."""
+
+    result = []
+    for fname in _find_masters(connection, project_home):
+        if not os.path.exists(fname):
+            continue
+        with open(fname, "rb") as master:
+            if master.read(6) == b"SIMPLE":
+                result.append(fname)
+    return result
+
+
+#: For each kind of product, in the order converted: how to find its files,
+#: and how to convert one.
+_KINDS = {
+    "calibrated_images": (
+        lambda connection, home: _find_image_products(
+            connection, home, "calibrated-fname"
+        ),
+        _migrate_fits,
+    ),
+    "masters": (_find_fits_masters, _migrate_fits),
+    "data_reduction": (
+        lambda connection, home: _find_image_products(
+            connection, home, "data-reduction-fname"
+        ),
+        _migrate_dr,
+    ),
+    "lightcurves": (_find_lightcurves, _migrate_lc),
+}
 
 
 def upgrade():
-    """Convert the paths the database holds, and record the products."""
+    """Convert the paths the database holds, then those the products hold."""
 
     connection = alembic.op.get_bind()
     project_home = alembic.context.config.attributes["project_home"]
 
-    _record_pending_products(connection)
     _convert_files(connection, "master_file", "filename", project_home)
     _convert_files(connection, "image", "raw_fname", project_home)
     _convert_configuration(connection, project_home)
@@ -296,6 +660,15 @@ def upgrade():
         )
         .values(description=SUBPIXMAP_DESCRIPTION["new"])
     )
+
+    # Last: the products are found through the database as converted.
+    for kind, (find, migrate) in _KINDS.items():
+        migrate_fnames = find(connection, project_home)
+        _logger.info(
+            "Converting the paths in %d %s.", len(migrate_fnames), kind
+        )
+        changed = sum(migrate(fname, project_home) for fname in migrate_fnames)
+        _logger.info("Changed %d of the %s.", changed, kind)
 
 
 def downgrade():
