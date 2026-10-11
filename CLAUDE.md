@@ -112,6 +112,24 @@ run before a merge.
 tests covering the change are enough before a push; the full suite, slow as
 it is, gates the merge.
 
+**Reach GitHub through its REST API, not the `gh` command.** `gh` relied
+on a key on Anthropic's servers, which broke at one point, and is not
+installed everywhere. Call `https://api.github.com` with `curl` and the
+GitHub token the environment provides (which variable holds it differs
+between machines). Dispatching CI, for example:
+
+```bash
+curl -sS -X POST -H "Authorization: Bearer <token>" \
+    -H "Accept: application/vnd.github+json" \
+    https://api.github.com/repos/kpenev/AutoWISP/actions/workflows/run_tests.yml/dispatches \
+    -d '{"ref": "<branch>", "inputs": {"only": "quick"}}'
+```
+
+`only` is one of `all`, `pipeline`, `quick` (every OS, without the tests
+running pipeline steps on the test data, the full pipeline or the live
+catalog queries: minutes rather than an hour), `catalog` and `migrations`.
+Git itself (push, fetch) goes over SSH as usual.
+
 **Run the full suite locally under Python 3.11 as well as 3.14 before
 dispatching the grid** (`conda activate wisp-py311`, then install and run as
 above). Run the two at the same time, each with its own failed-test
