@@ -165,6 +165,17 @@ jobs:
             EXCLUDE="$EXCLUDE TestDetrendingStat TestLCFilter"
           fi
           python -m autowisp.tests failed_test --test-log test-output.txt -v --exclude $EXCLUDE
+      # The results go to test-output.txt, which is kept only when a job
+      # fails, so a green job would otherwise show nothing of what it
+      # skipped.
+      - name: Summarise skipped tests
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          if [ -f test-output.txt ]; then
+            grep -B1 -E '\.\.\. skipped' test-output.txt || true
+            grep -E '^Ran [0-9]+ tests|^(OK|FAILED)' test-output.txt || true
+          fi
       - name: Upload failed-test artifacts
         if: failure()
         uses: actions/upload-artifact@v4
@@ -225,10 +236,12 @@ jobs:
   # upgrade-from-release path can be constructed.
   #
   # The charset matrix is not incidental. utf8mb4 is what a new MariaDB 11
-  # project gets; utf8mb3 is what existing deployments run, and is the only
-  # one where 1.8.1's VARCHAR(1000) unique keys fit InnoDB's 3072-byte
-  # index limit -- so the release-upgrade test only truly exercises there,
-  # and skips (loudly, with its reason) on utf8mb4.
+  # project gets; utf8mb3 is what existing deployments run, and the only one
+  # where 1.8.1's VARCHAR(1000) unique keys fit InnoDB's 3072-byte index
+  # limit. MariaDB builds them under utf8mb4 too, enforcing a unique key
+  # too long to index through a hidden hash, so the release-upgrade test
+  # runs on both; it would skip only on a server that refuses the schema,
+  # as MySQL 8.4 does.
   migrations:
     if: inputs.only == 'all' || inputs.only == 'migrations'
     name: migrations mariadb ${{ matrix.charset }}
