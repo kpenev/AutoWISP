@@ -13,6 +13,11 @@ description: Conventions for python code. Load before writing or editing any Pyt
 - Avoid variable names that differ only by a single letter e.g. (positon and
   positions)
 
+- Start function names with a verb: `_get_table`, not `_table`;
+  `_find_image_products`, not `_image_products`. It matters most where
+  functions are passed around or kept in tables, which is where a noun reads
+  as data rather than as something to call.
+
 - Keep a value local to its only user; a module-level constant is for
   something shared.
 
