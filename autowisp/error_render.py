@@ -46,7 +46,8 @@ def _describe_artifact(error_row, db_session):
             )
         )
         return (
-            f"image {raw_fname!r}"
+            # Not !r, which doubles the backslashes of a Windows path.
+            f"image '{raw_fname}'"
             if raw_fname
             else f"image #{error_row.image_id}"
         )
@@ -58,7 +59,7 @@ def _describe_artifact(error_row, db_session):
             )
         )
         return (
-            f"master {filename!r}"
+            f"master '{filename}'"
             if filename
             else f"master #{error_row.master_file_id}"
         )
