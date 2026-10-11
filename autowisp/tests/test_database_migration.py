@@ -21,9 +21,17 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.data_model.base import DataModelBase
+
+# pylint: disable=no-name-in-module
+from autowisp.database.data_model import Image, ImageType
+from autowisp.database.data_model.provenance import Camera
+
+# pylint: enable=no-name-in-module
+from autowisp.database.interface import enforce_sqlite_foreign_keys
 from autowisp.database.migrate import (
     BASELINE_REVISION,
     _alembic_config,
@@ -38,6 +46,7 @@ from autowisp.database.migrate import (
 )
 from autowisp.exceptions import DatabaseError
 from autowisp.tests import SERVER_URL_ENV, empty_server_database
+from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 
 # Resources here are released via addCleanup rather than `with`, since they
 # are created in setUp and must outlive it.
@@ -95,7 +104,12 @@ class BackendMixin:
             empty_server_database(os.environ[SERVER_URL_ENV])
 
     def make_engine(self, name="project.db"):
-        """An engine for a clean project database on the current backend."""
+        """An engine for a clean project database on the current backend.
+
+        It checks foreign keys as a project's engine does, so a migration
+        tested through it shows that migrating switches them off where it
+        has to.
+        """
 
         if on_server():
             engine = create_engine(
@@ -107,6 +121,7 @@ class BackendMixin:
                 connect_args={"timeout": 30.0},
                 poolclass=NullPool,
             )
+        enforce_sqlite_foreign_keys(engine)
         self.addCleanup(engine.dispose)
         return engine
 
@@ -574,6 +589,67 @@ class TestMigrateProject(BackendMixin, unittest.TestCase):
         self.assertTrue(
             self.has_index(engine, "image", "image_observing_session")
         )
+
+    def test_rows_breaking_a_foreign_key_stop_the_migration(self):
+        """A project holding them is refused, each broken key named.
+
+        Written without the check, as every SQLite project used to be: an
+        image of a session that does not exist and a camera of a type that
+        does not, beside an image whose keys hold. The broken image's type
+        exists too, so exactly two keys are broken.
+
+        Starting from today's schema, no revision rebuilds a table here.
+        That migrating switches the check off for the rebuilds is shown by
+        ``TestUpgradeFromRelease``, whose released schemas do need them.
+        """
+
+        if on_server():
+            self.skipTest("a server refuses such rows as they are written")
+
+        engine = self._legacy_engine()
+        unchecked = create_engine(engine.url, poolclass=NullPool)
+        self.addCleanup(unchecked.dispose)
+        # False positive: the declarative models are callable.
+        # pylint: disable=not-callable
+        with Session(unchecked) as db_session, db_session.begin():
+            image_type = ImageType(name="object", description="objects")
+            db_session.add(image_type)
+            db_session.flush()
+            images = [
+                Image(
+                    raw_fname=f"/data/raw/frame{index}.fits",
+                    image_type_id=image_type.id,
+                    observing_session_id=session_id,
+                )
+                for index, session_id in enumerate(
+                    [
+                        add_observing_session(
+                            db_session, "night", add_cameras(db_session)[0]
+                        ),
+                        99,
+                    ]
+                )
+            ]
+            camera = Camera(camera_type_id=99, serial_number="stray", notes="")
+            db_session.add_all(images + [camera])
+            db_session.flush()
+            broken_image_id, broken_camera_id = images[1].id, camera.id
+        # pylint: enable=not-callable
+
+        with self.assertRaises(DatabaseError) as caught:
+            self.migrate(engine)
+
+        self.assertEqual(
+            sorted(str(caught.exception).split("\n    ")[1:]),
+            [
+                f"camera(camera_type_id) -> camera_type(id): 1 row(s), "
+                f"rowid {broken_camera_id}",
+                f"image(observing_session_id) -> observing_session(id): "
+                f"1 row(s), rowid {broken_image_id}",
+            ],
+        )
+        # Rolled back, baselining included.
+        self.assertIsNone(get_project_revision(engine))
 
 
 class TestCheckProjectSchema(BackendMixin, unittest.TestCase):

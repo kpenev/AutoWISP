@@ -229,12 +229,22 @@ def _sqlite_immediate(engine):
 
     Turning off the driver's implicit transaction handling is the documented
     SQLAlchemy recipe for controlling SQLite's ``BEGIN``.
+
+    Foreign keys go unchecked for the migration, as Alembic advises. Batch
+    mode rebuilds a table by copying it and dropping the original, and with
+    the check on, the drop would act on the rows referring to the table:
+    refuse, or cascade and delete them (``image_master_selection`` cascades
+    from ``master_type``). The pragma does nothing inside a transaction, so
+    it is issued here, the one moment before ``BEGIN`` when none is open,
+    overriding :func:`~autowisp.database.interface.enforce_sqlite_foreign_keys`
+    for this connection only.
     """
 
     def disable_implicit_begin(dbapi_connection, _record):
         dbapi_connection.isolation_level = None
 
     def begin_immediate(connection):
+        connection.exec_driver_sql("PRAGMA foreign_keys = OFF")
         connection.exec_driver_sql("BEGIN IMMEDIATE")
 
     event.listen(engine, "connect", disable_implicit_begin)
@@ -419,6 +429,65 @@ def restore_timestamp_triggers(connection):
     return restored
 
 
+def _check_foreign_keys(connection):
+    """Raise if any row of an SQLite project refers to a row that is not there.
+
+    SQLite projects were never made to check their foreign keys, so one may
+    hold such rows. Now that every connection checks them, the first write
+    touching one would fail, part way through a run and long after whatever
+    left it behind. Migrating is when a project first meets the check, so
+    this is where it is told.
+
+    A server has always checked them, so only SQLite is looked at.
+
+    Args:
+        connection:    An open connection, inside the caller's migration
+            lock, so that raising rolls the whole migration back.
+
+    Raises:
+        DatabaseError:    Naming each broken key and the rows breaking it.
+    """
+
+    if connection.dialect.name != "sqlite":
+        return
+
+    broken = {}
+    for table, rowid, _parent, key_id in connection.exec_driver_sql(
+        "PRAGMA foreign_key_check"
+    ):
+        broken.setdefault((table, key_id), []).append(rowid)
+    if not broken:
+        return
+
+    report = []
+    for (table, key_id), rowids in sorted(broken.items()):
+        # (id, seq, table, from, to, on_update, on_delete, match), one row
+        # per column of the key, the key identified by its id.
+        key_columns = [
+            column
+            for column in connection.exec_driver_sql(
+                f'PRAGMA foreign_key_list("{table}")'
+            )
+            if column[0] == key_id
+        ]
+        shown = ", ".join(str(rowid) for rowid in rowids[:10])
+        if len(rowids) > 10:
+            shown += f" and {len(rowids) - 10} more"
+        report.append(
+            f"{table}({', '.join(column[3] for column in key_columns)}) -> "
+            f"{key_columns[0][2]}"
+            f"({', '.join(str(column[4]) for column in key_columns)}): "
+            f"{len(rowids)} row(s), rowid {shown}"
+        )
+
+    raise DatabaseError(
+        "The project database holds rows referring to rows that do not "
+        "exist, which AutoWISP now refuses to work with. The migration has "
+        "been rolled back, leaving the database as it was. Delete or "
+        "correct these rows, then migrate again:\n    " + "\n    ".join(report)
+    )
+
+
 def migrate_project(engine, project_home, *, assume_backed_up=False):
     """Bring a project database up to the current head revision.
 
@@ -449,7 +518,9 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
 
     Raises:
         DatabaseError:    If a server database is migrated without
-            ``assume_backed_up``, or the migration lock cannot be taken.
+            ``assume_backed_up``, the migration lock cannot be taken, or an
+            SQLite database holds rows breaking its foreign keys (see
+            :func:`_check_foreign_keys`).
     """
 
     current = get_project_revision(engine)
@@ -514,5 +585,9 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
         # rebuild drops them silently, so this cannot be left to each
         # revision to remember.
         restore_timestamp_triggers(connection)
+
+        # Last, so that it covers whatever the revisions left as well as
+        # what the project already held.
+        _check_foreign_keys(connection)
 
     return result

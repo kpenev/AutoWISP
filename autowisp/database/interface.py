@@ -6,7 +6,7 @@ from contextlib import contextmanager
 import platformdirs
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, inspect as sa_inspect
+from sqlalchemy import create_engine, event, inspect as sa_inspect
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.data_model.base import DataModelBase
@@ -101,6 +101,37 @@ def initialize_cmdline_database():
     with start_db_session() as db_session:
         db_session.add(get_default_data_reduction_structure())
         db_session.add(get_default_light_curve_structure(db_session))
+
+
+def enforce_sqlite_foreign_keys(engine):
+    """Make SQLite check the foreign keys on every connection *engine* opens.
+
+    SQLite checks them only on a connection that asks with ``PRAGMA
+    foreign_keys = ON``. The setting is not stored in the database, and a
+    project engine opens a new connection for every session (``NullPool``),
+    so it has to be issued as each connection is made. A server
+    (MySQL/MariaDB) always checks them, so other engines are left alone.
+
+    Migrating turns it back off for its own connection: see
+    :func:`autowisp.database.migrate.migrate_project`.
+
+    Args:
+        engine:    The SQLAlchemy engine for a project database, before
+            anything has connected through it.
+
+    Returns:
+        None
+    """
+
+    if engine.dialect.name != "sqlite":
+        return
+
+    def enable_foreign_keys(dbapi_connection, _record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")
+        cursor.close()
+
+    event.listen(engine, "connect", enable_foreign_keys)
 
 
 def set_project_home(
@@ -223,6 +254,7 @@ def set_project_home(
     # the module-wide one, or the caller would be left connected to the
     # database it was just refused.
     engine = create_engine(db_url, **engine_kwargs)
+    enforce_sqlite_foreign_keys(engine)
     existing_tables = set(sa_inspect(engine).get_table_names())
     already_present = set(DataModelBase.metadata.tables) & existing_tables
     if new_project and already_present:
