@@ -6,20 +6,22 @@ what the database holds:
 
 * the masters and raw images it records, where they lie inside the project;
 
-* configuration values of path parameters: a relative value meant the
-  directory the browser interface was started from, and is taken to be
-  inside the project, as the defaults it replaces are (``MASTERS/...``); the
-  log names named the home ``{project_home}``;
+* configuration values of path parameters; the log names named the home
+  ``{project_home}``;
 
 * the description of ``subpixmap``, whose default changed.
 
 The files the project has produced hold such paths too, and this revision
-converts them after the database: the calibrated images, the masters, the DR
-files and the lightcurves. They are found through the database as converted,
+converts them after the database: the calibrated images, the masters (and
+the DR files a master photometric reference lists as fit), the DR files and
+the lightcurves. They are found through the database as converted,
 so this must run at exactly this revision, which is why it is not left to a
 separate step. Every lightcurve is opened, so it can take a long time. A
 file already converted is not changed again, so after an interruption, which
 rolls back the database part, running it again only re-checks those.
+
+A relative path, wherever it is found, is taken to be inside the project,
+as the defaults the configured values replace are (``MASTERS/...``).
 
 The data of a FITS file is copied byte for byte, never decoded: astropy
 re-compresses a compressed image, changing its values, even when only the
@@ -38,7 +40,7 @@ downgraded past this revision would not match them.
 
 import logging
 import os
-from pathlib import Path, PurePath
+from pathlib import PurePath
 import re
 import tempfile
 
@@ -125,9 +127,14 @@ SUBPIXMAP_DESCRIPTION = {
 }
 
 
-def _get_stored_path(fname, project_home, *, must_exist):
+def _get_stored_path(fname, project_home):
     """
     Return the path in ``{PROJHOME}`` form, or None if it is not inside.
+
+    A relative path is taken to be inside, whether or not the file is still
+    there: left relative, it would be read relative to whichever directory
+    the code reading it runs in, and as a string it would never equal the
+    stored form of the same file.
 
     The part after ``{PROJHOME}`` uses ``/`` on every system, as the stored
     form does everywhere else: stored paths are compared as strings.
@@ -137,12 +144,9 @@ def _get_stored_path(fname, project_home, *, must_exist):
 
         project_home(str):    The absolute path of the project home.
 
-        must_exist(bool):    Should a relative path be taken to be inside the
-            project only if it names a file there?
-
     Returns:
         str or None:    ``{PROJHOME}/<relative>``, or None for a path outside
-        the project or a relative one naming no file there.
+        the project.
     """
 
     if fname.startswith(PROJHOME):
@@ -153,8 +157,6 @@ def _get_stored_path(fname, project_home, *, must_exist):
         # home, one rooted without a drive keeps only the drive of the home,
         # and need not be inside it.
         path = PurePath(project_home) / path
-        if must_exist and not Path(path).exists():
-            return None
     if not path.is_relative_to(project_home):
         return None
     return PROJHOME + "/" + path.relative_to(project_home).as_posix()
@@ -169,19 +171,8 @@ def _convert_files(connection, table_name, column, project_home):
     for row_id, fname in connection.execute(
         sqlalchemy.select(table.c.id, table.c[column])
     ).all():
-        converted = _get_stored_path(fname, project_home, must_exist=True)
-        if converted is None:
-            if not PurePath(fname).is_absolute():
-                _logger.warning(
-                    "%s.%s of row %d is the relative path %r, which names "
-                    "no file in the project home %r; left as it is.",
-                    table_name,
-                    column,
-                    row_id,
-                    fname,
-                    project_home,
-                )
-        elif converted != fname:
+        converted = _get_stored_path(fname, project_home)
+        if converted is not None and converted != fname:
             connection.execute(
                 table.update()
                 .where(table.c.id == row_id)
@@ -213,7 +204,7 @@ def _convert_path_entry(entry, kind, project_home):
         return entry
     if kind == "log":
         entry = entry.replace("{project_home}", PROJHOME)
-    return _get_stored_path(entry, project_home, must_exist=False) or entry
+    return _get_stored_path(entry, project_home) or entry
 
 
 def _convert_value(value, kind, project_home):
@@ -285,9 +276,7 @@ def _convert_header(header, project_home):
     for keyword in list(header.keys()):
         if not _FILE_KEYWORDS.fullmatch(keyword):
             continue
-        converted = _get_stored_path(
-            header[keyword], project_home, must_exist=True
-        )
+        converted = _get_stored_path(header[keyword], project_home)
         if converted is not None and converted != header[keyword]:
             header[keyword] = converted
             changed = True
@@ -380,7 +369,7 @@ def _convert_text(value, project_home):
 
     as_bytes = isinstance(value, (bytes, numpy.bytes_))
     text = value.decode() if as_bytes else str(value)
-    converted = _get_stored_path(text, project_home, must_exist=True)
+    converted = _get_stored_path(text, project_home)
     if converted is None or converted == text:
         return value
     return converted.encode() if as_bytes else converted

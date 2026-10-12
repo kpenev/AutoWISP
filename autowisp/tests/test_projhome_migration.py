@@ -84,8 +84,8 @@ def _get_path_cases(project_home):
     cases = {
         os.path.join(project_home, "sub", "f.fits"): converted,
         "sub/f.fits": converted,
-        # A relative path is inside only if it names a file there.
-        "sub/missing.fits": "sub/missing.fits",
+        # Inside, whether or not the file is still there.
+        "sub/missing.fits": "{PROJHOME}/sub/missing.fits",
         outside: outside,
         converted: converted,
     }
