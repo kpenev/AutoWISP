@@ -42,6 +42,7 @@ from autowisp.database.data_model import (
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.project_paths import PROJHOME_MARKER, resolve_path
 from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 
 
@@ -103,9 +104,9 @@ class PhotrefBindingProject(unittest.TestCase):
 
     @classmethod
     def _raw_fname(cls, name):
-        """Return the raw frame filename of the image with the given name."""
+        """Return the raw frame of the image with the given name, as stored."""
 
-        return path.join(cls._tmp.name, "RAW", f"{name}.fits")
+        return f"{PROJHOME_MARKER}/RAW/{name}.fits"
 
     @classmethod
     def _add_raw_image(cls, db_session, name, session_id, exposure):
@@ -117,7 +118,7 @@ class PhotrefBindingProject(unittest.TestCase):
         header["EXPTIME"] = exposure
         fits.PrimaryHDU(
             data=numpy.zeros((4, 4), dtype=numpy.float32), header=header
-        ).writeto(cls._raw_fname(name))
+        ).writeto(resolve_path(cls._raw_fname(name)))
 
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
@@ -176,7 +177,8 @@ class PhotrefBindingProject(unittest.TestCase):
             },
         )
 
-        cls._photref_fname = path.join(cls._tmp.name, "DR", "ref_R.h5")
+        # As record_single_photref() stores it, and magfit is given it.
+        cls._photref_fname = f"{PROJHOME_MARKER}/DR/ref_R.h5"
         with DataReductionFile(cls._photref_fname, "w") as dr_file:
             dr_file.initialize(
                 fits.Header(

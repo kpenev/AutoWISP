@@ -12,7 +12,6 @@ photometric references next to its ``ref``.
 
 import unittest
 from datetime import datetime
-from os import path
 
 from astropy.io import fits
 from sqlalchemy import func, select, update
@@ -39,6 +38,7 @@ from autowisp.database.data_model import (
 
 # pylint: enable=no-name-in-module
 from autowisp.exceptions import ConfigurationError
+from autowisp.project_paths import PROJHOME_MARKER
 from autowisp.tests.test_photref_binding import PhotrefBindingProject
 
 
@@ -47,9 +47,13 @@ class MasterPhotrefProject(PhotrefBindingProject):
 
     @classmethod
     def _write_photref(cls, name, channel, exposure, fnum):
-        """Write the DR file of a single photometric reference."""
+        """Write the DR file of a single photometric reference.
 
-        fname = path.join(cls._tmp.name, "DR", f"{name}_{channel}.h5")
+        Returns:
+            str:    Its name, as stored.
+        """
+
+        fname = f"{PROJHOME_MARKER}/DR/{name}_{channel}.h5"
         with DataReductionFile(fname, "w") as dr_file:
             dr_file.initialize(
                 fits.Header(
@@ -129,16 +133,17 @@ class TestBuiltMaster(MasterPhotrefProject):
         """Add the references, the batches and the masters they built."""
 
         super()._fill_database()
-        masters_dir = path.join(cls._tmp.name, "MASTERS")
+        # As the steps register them.
+        masters_dir = f"{PROJHOME_MARKER}/MASTERS"
         cls._photrefs = {
             "ref1": cls._photref_fname,
             "ref2": cls._write_photref("ref2", "R", 30.0, 200),
             "ref3": cls._write_photref("ref3", "R", 30.0, 300),
         }
         cls._masters = {
-            "ref1": path.join(masters_dir, "mphotref_ref1.fits"),
-            "ref1_old": path.join(masters_dir, "mphotref_ref1_old.fits"),
-            "ref2": path.join(masters_dir, "mphotref_ref2.fits"),
+            "ref1": f"{masters_dir}/mphotref_ref1.fits",
+            "ref1_old": f"{masters_dir}/mphotref_ref1_old.fits",
+            "ref2": f"{masters_dir}/mphotref_ref2.fits",
         }
         with start_db_session() as db_session:
             # pylint: disable=not-callable
@@ -168,7 +173,7 @@ class TestBuiltMaster(MasterPhotrefProject):
             cls._register(
                 db_session,
                 "magfit_stat",
-                path.join(masters_dir, "mfit_stat_ref1.txt"),
+                f"{masters_dir}/mfit_stat_ref1.txt",
                 progress_id=ref1_progress,
             )
             cls._register(
@@ -181,7 +186,7 @@ class TestBuiltMaster(MasterPhotrefProject):
             cls._register(
                 db_session,
                 "master_photref",
-                path.join(masters_dir, "mphotref_standalone.fits"),
+                f"{masters_dir}/mphotref_standalone.fits",
             )
 
     def setUp(self):
