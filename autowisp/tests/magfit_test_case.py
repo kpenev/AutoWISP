@@ -23,16 +23,17 @@ class MagfitMastersTestCase(AutoWISPTestCase):
             fits.open(master_fname) as master,
         ):
             # Blank cards are padding, e.g. left by converting paths in place.
+            ignored = self._qc_keywords | self._ignore_header_keys
             self.assertEqual(
                 {
                     key: value
                     for key, value in expected[0].header.items()
-                    if key.strip() and key not in self._qc_keywords
+                    if key.strip() and key not in ignored
                 },
                 {
                     key: value
                     for key, value in master[0].header.items()
-                    if key.strip() and key not in self._qc_keywords
+                    if key.strip() and key not in ignored
                 },
             )
             self.assertEqual(

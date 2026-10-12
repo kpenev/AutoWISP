@@ -130,30 +130,35 @@ class AutoWISPTestCase(FloatTestCase):
     # meant to exercise the live query, set this False.
     stage_catalog_cache = True
 
+    # The observing session's identifiers, which the engine adds to the
+    # header at calibration (ImageProcessingManager._get_extra_header).
+    # Steps run on their own have no session, so their outputs lack them,
+    # while the test data, whose headers carry them, are compared with both.
+    _engine_header_keys = {
+        "TARGETID",
+        "TELSCPID",
+        "CAMERAID",
+        "OBSSSNID",
+        "OBSERVER",
+    }
+
     # Header keys whose presence and value must NOT be required to
     # match between the two files:
     #
+    # - ``DATASUM``, ``CHECKSUM``, ``M{BIAS,DARK,FLAT}SHA`` -- hashes of
+    #   data, which is compared within a tolerance, not bit for bit.
     # - ``EXTEND`` -- structural, not data.
     # - ``CALGITID`` -- git commit of the calibration code.
     # - ``COMMENT`` -- free-form text.
-    # - ``M{BIAS,DARK,FLAT}SHA`` -- hash of master files.
-    # - ``TARGETID``, ``TELSCPID``, ``CAMERAID``, ``OBSSSNID``,
-    #   ``OBSERVER`` -- DB row identifiers written by the pipeline's
-    #   ``add_images_to_db`` step but absent from the per-step CLI
-    #   flow used to produce the test_data fixtures.
+    # - ``_engine_header_keys``, unless the test runs the engine.
     _ignore_header_keys = {
         "DATASUM",
         "CHECKSUM",
         "CALGITID",
         "COMMENT",
         "EXTEND",
-        "TARGETID",
-        "TELSCPID",
-        "CAMERAID",
-        "OBSSSNID",
-        "OBSERVER",
-        "PROJHOME",
     } | {f"M{master.upper()}SHA" for master in ("bias", "dark", "flat")}
+    _ignore_header_keys |= _engine_header_keys
 
     # Keys whose stored value must be evaluated with ``asteval`` before
     # the comparison. Subclasses can extend this set.

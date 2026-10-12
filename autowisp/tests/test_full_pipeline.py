@@ -41,6 +41,12 @@ from autowisp.tests.magfit_test_case import MagfitMastersTestCase
 class TestFullPipeline(H5TestCase, FITSTestCase, MagfitMastersTestCase):
     """Run the full pipeline end-to-end and check every output."""
 
+    # The engine writes the observing session's identifiers, so they are
+    # compared like any other keyword.
+    _ignore_header_keys = (
+        H5TestCase._ignore_header_keys - H5TestCase._engine_header_keys
+    )
+
     def setUp(self):
         """Bring up a project the same way the BUI does on creation.
 
