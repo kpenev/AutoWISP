@@ -13,6 +13,7 @@ py_src = [
   'fits_test_case.py',
   'get_test_data.py',
   'h5_test_case.py',
+  'magfit_test_case.py',
   'synthetic_light_curve_test_case.py',
   'test_bui_db_config.py',
   'test_bui_models.py',

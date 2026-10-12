@@ -35,9 +35,10 @@ from autowisp.database.user_interface import (
 )
 from autowisp.tests.fits_test_case import FITSTestCase
 from autowisp.tests.h5_test_case import H5TestCase
+from autowisp.tests.magfit_test_case import MagfitMastersTestCase
 
 
-class TestFullPipeline(H5TestCase, FITSTestCase):
+class TestFullPipeline(H5TestCase, FITSTestCase, MagfitMastersTestCase):
     """Run the full pipeline end-to-end and check every output."""
 
     def setUp(self):
@@ -159,6 +160,8 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
                     self.processing_directory, "MASTERS", master_basename
                 ),
             )
+        self._assert_dir_fits_match("MASTERS", "lc_catalog_*.fits")
+        self._assert_masters_as_expected()
 
         for stats_basename in ("epd_statistics.txt", "tfa_statistics.txt"):
             self._assert_detrending_stats_match(stats_basename)
@@ -199,14 +202,14 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
 
         record_single_photref(photref_fname, photref_batch)
 
-    def _assert_dir_fits_match(self, relative_dir):
-        """Assert every ``*.fits*`` in ``relative_dir`` matches expected."""
+    def _assert_dir_fits_match(self, relative_dir, pattern="*.fits*"):
+        """Assert every ``pattern`` in ``relative_dir`` matches expected."""
 
         generated = sorted(
-            glob(path.join(self.processing_directory, relative_dir, "*.fits*"))
+            glob(path.join(self.processing_directory, relative_dir, pattern))
         )
         expected = sorted(
-            glob(path.join(self.test_directory, relative_dir, "*.fits*"))
+            glob(path.join(self.test_directory, relative_dir, pattern))
         )
         self.assertEqual(
             [path.basename(fname) for fname in generated],
