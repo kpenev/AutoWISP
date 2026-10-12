@@ -110,9 +110,14 @@ its own right -- ``wisp-calibrate``, ``wisp-find-stars``,
 ``wisp-solve-astrometry`` and so on. These exist for running a single
 stage by hand, or for stringing together a sequence of your own in a
 script; you can ignore them entirely if you work through the browser
-interface. :doc:`test_data` walks through the whole sequence one command
-at a time, explaining what each stage does and which of its settings
-matter; :doc:`wisp_options` lists every setting there is.
+interface. Each takes the project's home directory as its first argument
+-- the directory holding the project's database, which ``{PROJHOME}``
+stands for in any file name you give it -- followed by its options and the
+files to work on. :doc:`test_data` walks through the whole sequence one
+command at a time, explaining what each stage does and which of its
+settings matter; :doc:`wisp_options` lists every setting there is. The
+project home is not among them: it is not a setting, but where the
+settings live.
 
 A ready-made setup for Windows
 ------------------------------
@@ -295,7 +300,7 @@ different ways. Use whichever suits you:
 
 4. On the command line*, when running one of the individual stage commands::
 
-    wisp-solve-astrometry --anet-indices /path/to/narrow /path/to/wide ...
+    wisp-solve-astrometry /path/to/project/home --anet-indices /path/to/narrow /path/to/wide ...
 
 One thing to watch for, whichever way you choose: if either folder does
 not exist -- and a typo in the path is enough -- AutoWISP quietly falls
@@ -312,7 +317,7 @@ here**. Create a free account at https://nova.astrometry.net, copy the API key
 shown on your ``Profile`` page, and give it to AutoWISP as ``--anet-api-key``,
 by any of the four means described above -- for example::
 
-    wisp-solve-astrometry --anet-api-key YOUR_KEY ...
+    wisp-solve-astrometry /path/to/project/home --anet-api-key YOUR_KEY ...
 
 Without a valid key the sign-in fails and no image can be solved.
 

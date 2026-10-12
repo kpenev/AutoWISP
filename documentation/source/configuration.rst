@@ -54,10 +54,11 @@ looking at, so editing one while filtered to ``tfa`` changes it for every
 other stage that uses it too.
 
 Running a stage yourself with ``wisp-calibrate`` and the like is the
-exception to all of this. Those commands read a configuration file and
-their own command line, not the database, which is what makes them useful
-for one-off runs but also means a value you set there affects nothing
-else.
+exception to all of this. Those commands are given the project's home
+directory, as their first argument, but take their settings from a
+configuration file and their own command line, not from the configuration
+the project stores. That is what makes them useful for one-off runs, but
+also means a value you set there affects nothing else.
 
 A value, and when it applies
 ============================
@@ -143,7 +144,18 @@ afterwards.
 The configuration files that the individual ``wisp-*`` commands take are
 different again: each is a flat list of settings for one run, which is
 all such a command needs, since it works on what you hand it rather than
-choosing per image.
+choosing per image. The project home is not among them -- it is the
+command's first argument.
+
+Wherever a setting names a file, the name must say where the file is. A
+file inside the project starts with ``{PROJHOME}``, which stands for the
+project home, e.g. ``{PROJHOME}/MASTERS/zero_R.fits``; this is what keeps a
+project usable when its directory is moved or copied. Any other file is
+given by its absolute path, and so must be the astrometry.net indices,
+the sub-pixel sensitivity map and the temporary storage directory
+(``anet-indices``, ``subpixmap``, ``tempstore-dir``), which belong
+outside any project. A relative name is refused, since it would mean
+whatever directory a process happened to run in.
 
 Settings you will not find in your configuration
 ================================================
