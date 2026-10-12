@@ -9,9 +9,6 @@ from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
-from autowisp.project_paths import PROJHOME_MARKER
-
-
 from autowisp.tests import AutoWISPTestCase
 
 
@@ -25,31 +22,6 @@ class H5TestCase(AutoWISPTestCase):
     # own units) instead. BJD is in days, so 1e-6 day (~0.086 s) catches real
     # timing errors while tolerating cross-platform numerical noise.
     _absolute_tolerance_datasets = {"BJD": 1e-6}
-
-    def _project_relative(self, dr_fname, value):
-        """Return ``value`` as a path relative to whichever project_home
-        ``dr_fname`` lives in (``test_directory`` or ``processing_directory``).
-
-        ``value`` may be ``bytes`` (h5py string attrs) or ``str``; the
-        result is returned as ``str``. A value in ``{PROJHOME}/...`` form is
-        returned relative to the project home it names. If ``dr_fname`` does
-        not lie under either project_home the value is returned unchanged.
-        """
-
-        if isinstance(value, bytes):
-            value = value.decode()
-        if value.startswith(PROJHOME_MARKER + "/"):
-            return value[len(PROJHOME_MARKER) + 1 :]
-        if not path.isabs(value):
-            return value
-        dr_norm = path.normpath(dr_fname)
-        # ``processing_directory`` is nested inside ``test_directory``, so
-        # match the more specific one first.
-        for home in (self.processing_directory, self.test_directory):
-            home_norm = path.normpath(home)
-            if dr_norm == home_norm or dr_norm.startswith(home_norm + path.sep):
-                return path.relpath(path.normpath(value), home_norm)
-        return value
 
     def assert_groups_match(  # pylint: disable=too-many-arguments, too-many-positional-arguments
         self, dr_fname1, dr_fname2, group_name, ignore, reorder=None
@@ -86,15 +58,6 @@ class H5TestCase(AutoWISPTestCase):
             )
             data1 = dset1[:]
             data2 = reordered(dset2)
-            if dset1.name.endswith(
-                "/MagnitudeFitting/Configuration/SinglePhotometricReference"
-            ):
-                data1 = numpy.array(
-                    [self._project_relative(dr_fname1, v) for v in data1]
-                )
-                data2 = numpy.array(
-                    [self._project_relative(dr_fname2, v) for v in data2]
-                )
             if dset1.dtype.kind == "f":
                 abs_atol = self._absolute_tolerance_datasets.get(
                     dset1.name.rsplit("/", 1)[-1]
@@ -180,9 +143,6 @@ class H5TestCase(AutoWISPTestCase):
                 )
                 for key, value in obj1.attrs.items():
                     other = obj2.attrs[key]
-                    if key == "SinglePhotometricReference":
-                        value = self._project_relative(dr_fname1, value)
-                        other = self._project_relative(dr_fname2, other)
                     msg = (
                         f"Attribute {dr_fname1!r}/{obj1.name!r}.{key} does "
                         f"not match {dr_fname2!r}/{obj1.name!r}.{key}: "

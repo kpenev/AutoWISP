@@ -11,7 +11,10 @@ class TestStackToMaster(FITSTestCase):
     def _test_stack_to_master(self, master_type):
         """Perform a stacking step and test outputs match expectations."""
 
-        input_dir = path.join(self.test_directory, "CAL", master_type)
+        # Inside the project, as its own calibrated frames are: the master
+        # records the frames it was stacked from.
+        self.get_inputs([f"CAL/{master_type}"])
+        input_dir = path.join(self.processing_directory, "CAL", master_type)
         self.run_step(
             [
                 "wisp-stack-to-master"

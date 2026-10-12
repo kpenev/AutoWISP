@@ -168,8 +168,10 @@ class AutoWISPTestCase(FloatTestCase):
             header1, header2:    The ``astropy.io.fits.Header`` objects.
         """
 
+        # Blank cards are padding, e.g. left by converting paths in place.
         keys = [
-            set(h.keys()) - self._ignore_header_keys for h in (header1, header2)
+            {key for key in h.keys() if key.strip()} - self._ignore_header_keys
+            for h in (header1, header2)
         ]
         self.assertTrue(
             keys[0] == keys[1],
@@ -178,9 +180,10 @@ class AutoWISPTestCase(FloatTestCase):
             f"    Only in {fname2}: {keys[1] - keys[0]}",
         )
 
-        master_fname_keys = {
-            f"M{tp.upper()}FNM" for tp in ("bias", "dark", "flat")
-        }
+        # File names are in stored form on both sides, {PROJHOME}/..., so
+        # they are compared whole: the master and the frames a file was made
+        # from must be the same files of the project, not merely namesakes.
+        # The frames a master was stacked from may come in any order.
         original_files = [set(), set()]
         aeval = Interpreter()
 
@@ -188,17 +191,9 @@ class AutoWISPTestCase(FloatTestCase):
             if key.strip() == "" or key in self._ignore_header_keys:
                 continue
             other = header2[key]
-            if key in master_fname_keys:
-                self.assertEqual(
-                    path.basename(other),
-                    path.basename(value),
-                    f"Master {key[1:-3].lower()} does not match between "
-                    f"{fname1} and {fname2}: "
-                    f"{path.basename(value)!r} vs {path.basename(other)!r}.",
-                )
-            elif key.startswith("ORIGF"):
-                original_files[0].add(path.basename(value))
-                original_files[1].add(path.basename(other))
+            if key.startswith("ORIGF"):
+                original_files[0].add(value)
+                original_files[1].add(other)
             elif key in self._evaluated_header_keys:
                 evaluated = [aeval(str(v)) for v in (value, other)]
                 msg = (

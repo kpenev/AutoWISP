@@ -11,7 +11,17 @@ class TestCalibrate(FITSTestCase):
     """Test cases for image calibration."""
 
     def _test_calibration(self, input_imtype, **masters):
-        """Perform a calibration step and test outputs match expectations."""
+        """
+        Perform a calibration step and test outputs match expectations.
+
+        Args:
+            input_imtype(str):    The type of the raw frames to calibrate.
+
+            masters:    ``<type>=<file name>`` of each master to apply, from
+                the test data's ``MASTERS``. They are copied into the
+                project and given in stored form, as a project's own masters
+                are.
+        """
 
         input_dir = path.join(self.test_directory, "RAW", input_imtype)
         command = [
@@ -21,7 +31,13 @@ class TestCalibrate(FITSTestCase):
             path.join(input_dir, "*.fits.fz"),
         ]
         for master_type, master_fname in masters.items():
-            command.extend([f"--master-{master_type}", master_fname])
+            self.get_inputs([f"MASTERS/{master_fname}"])
+            command.extend(
+                [
+                    f"--master-{master_type}",
+                    f"R:{{PROJHOME}}/MASTERS/{master_fname}",
+                ]
+            )
         self.run_step(command)
 
         generated = sorted(
@@ -56,32 +72,19 @@ class TestCalibrate(FITSTestCase):
     def test_dark_calibration(self):
         """Check if dark calibration works as expected."""
 
-        self._test_calibration(
-            "dark",
-            bias="R:"
-            + path.join(self.test_directory, "MASTERS", "zero_R.fits"),
-        )
+        self._test_calibration("dark", bias="zero_R.fits")
 
     def test_flat_calibration(self):
         """Check if flat calibration works as expected."""
 
-        self._test_calibration(
-            "flat",
-            bias="R:"
-            + path.join(self.test_directory, "MASTERS", "zero_R.fits"),
-            dark="R:"
-            + path.join(self.test_directory, "MASTERS", "dark_R.fits"),
-        )
+        self._test_calibration("flat", bias="zero_R.fits", dark="dark_R.fits")
 
     def test_object_calibration(self):
         """Check if object calibration works as expected."""
 
         self._test_calibration(
             "object",
-            bias="R:"
-            + path.join(self.test_directory, "MASTERS", "zero_R.fits"),
-            dark="R:"
-            + path.join(self.test_directory, "MASTERS", "dark_R.fits"),
-            flat="R:"
-            + path.join(self.test_directory, "MASTERS", "flat_R.fits"),
+            bias="zero_R.fits",
+            dark="dark_R.fits",
+            flat="flat_R.fits",
         )
