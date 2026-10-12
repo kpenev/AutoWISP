@@ -74,6 +74,7 @@ from autowisp.tests.test_database_migration import (
 from autowisp.tests.test_upgrade_from_release import TestUpgradeFromRelease
 from autowisp.tests.test_projhome_migration import (
     TestProjhomeFitsMigration,
+    TestProjhomeMasterPhotrefMigration,
     TestProjhomeDRMigration,
     TestProjhomeLCMigration,
     TestProjhomeProjectMigration,

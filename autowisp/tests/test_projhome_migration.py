@@ -186,6 +186,57 @@ def _write_dr(fname, sphotref, header_cards):
         )
 
 
+def _write_master_photref(fname, header_cards, population):
+    """
+    Write a master photometric reference laid out as magnitude fitting does.
+
+    Args:
+        fname(str):    The file to write.
+
+        header_cards([(str, str)]):    The cards of its primary header.
+
+        population(dict):    ``{dr_fname: included}`` for its ``INMASTER``
+            table.
+    """
+
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
+    fits.HDUList(
+        [
+            fits.PrimaryHDU(header=fits.Header(header_cards)),
+            fits.BinTableHDU.from_columns(
+                [
+                    fits.Column(
+                        name="source_id",
+                        format="K",
+                        array=numpy.array([3, 1, 2]),
+                    ),
+                    fits.Column(
+                        name="magnitude",
+                        format="D",
+                        array=numpy.array([10.125, 11.5, 12.0625]),
+                    ),
+                ],
+                name="MPHOTREF",
+            ),
+            fits.BinTableHDU.from_columns(
+                [
+                    fits.Column(
+                        name="dr_fname",
+                        format=f"{max(map(len, population))}A",
+                        array=numpy.array(list(population), dtype=str),
+                    ),
+                    fits.Column(
+                        name="included",
+                        format="L",
+                        array=numpy.array(list(population.values())),
+                    ),
+                ],
+                name="INMASTER",
+            ),
+        ]
+    ).writeto(fname, overwrite=True)
+
+
 def _read_dr_header(dr_file):
     """Return the copy of the frame header an open DR file holds."""
 
@@ -372,6 +423,67 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
             checksum=True,
         )
         self._assert_unchanged(fname, _load_revision()._migrate_fits)
+
+
+class TestProjhomeMasterPhotrefMigration(_ProjectHomeMixin, unittest.TestCase):
+    """A master photometric reference has its population converted too."""
+
+    def test_converts_the_population_and_the_header(self):
+        """Each DR file listed is converted as the cases say, nothing else.
+
+        Every case is listed in the one table, flagged in turn as included
+        and not, so that a flag moved to another row shows.
+        """
+
+        path_cases = _get_path_cases(self._project_home)
+        population = {
+            recorded: index % 2 == 0
+            for index, recorded in enumerate(path_cases)
+        }
+        fname = self._get_abs_path("MASTERS", "mphotref.fits")
+        _write_master_photref(
+            fname,
+            [("MBIASFNM", self._get_abs_path("sub", "f.fits"))],
+            population,
+        )
+        with fits.open(fname) as hdu_list:
+            original_values = hdu_list["MPHOTREF"].data.copy()
+
+        self.assertTrue(
+            _load_revision()._migrate_master(fname, self._project_home)
+        )
+
+        with fits.open(fname) as hdu_list:
+            self.assertEqual(
+                [hdu.name for hdu in hdu_list],
+                ["PRIMARY", "MPHOTREF", "INMASTER"],
+            )
+            self.assertEqual(
+                hdu_list[0].header["MBIASFNM"], "{PROJHOME}/sub/f.fits"
+            )
+            numpy.testing.assert_array_equal(
+                hdu_list["MPHOTREF"].data, original_values
+            )
+            # Row by row: several cases convert to the same name.
+            migrated = hdu_list["INMASTER"].data
+            self.assertEqual(
+                list(zip(migrated["dr_fname"], migrated["included"].tolist())),
+                [
+                    (path_cases[recorded], included)
+                    for recorded, included in population.items()
+                ],
+            )
+
+    def test_leaves_a_converted_master_alone(self):
+        """A master listing only stored names is not written."""
+
+        fname = self._get_abs_path("MASTERS", "mphotref.fits")
+        _write_master_photref(
+            fname,
+            [("MBIASFNM", "{PROJHOME}/sub/f.fits")],
+            {"{PROJHOME}/DR/a.h5": True, "{PROJHOME}/DR/b.h5": False},
+        )
+        self._assert_unchanged(fname, _load_revision()._migrate_master)
 
 
 class TestProjhomeDRMigration(_ProjectHomeMixin, unittest.TestCase):
@@ -613,7 +725,20 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
             {"source_id": numpy.array([1, 2], dtype="uint64")},
             meta={"PROJHOME": self._project_home},
         ).write(self._lc_catalog)
-        self._masters = {"zero": bias, "lightcurve_catalog": self._lc_catalog}
+        self._mphotref = self._get_abs_path("MASTERS", "mphotref.fits")
+        _write_master_photref(
+            self._mphotref,
+            [("MBIASFNM", bias)],
+            {
+                dr_fname: frame == "frame1"
+                for dr_fname, frame in self._dr.items()
+            },
+        )
+        self._masters = {
+            "zero": bias,
+            "lightcurve_catalog": self._lc_catalog,
+            "master_photref": self._mphotref,
+        }
 
         self._lightcurves = [
             self._get_abs_path("LC", f"GDR3_{source_id}.h5")
@@ -700,6 +825,7 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
                 {
                     "{PROJHOME}/MASTERS/bias.fits",
                     "{PROJHOME}/MASTERS/lc_catalog.fits",
+                    "{PROJHOME}/MASTERS/mphotref.fits",
                     "{PROJHOME}/DR/frame1_R.h5",
                 },
             )
@@ -755,6 +881,21 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
         self.assertEqual(bias_header["ORIGF001"], "{PROJHOME}/RAW/frame1.fits")
         self.assertNotIn("PROJHOME", bias_header)
         self.assertNotIn("PROJHOME", fits.getheader(self._lc_catalog, 1))
+        with fits.open(self._mphotref) as mphotref:
+            self.assertEqual(
+                mphotref[0].header["MBIASFNM"], "{PROJHOME}/MASTERS/bias.fits"
+            )
+            population = mphotref["INMASTER"].data
+            self.assertEqual(
+                list(
+                    zip(population["dr_fname"], population["included"].tolist())
+                ),
+                [
+                    ("{PROJHOME}/DR/frame1_R.h5", True),
+                    ("{PROJHOME}/DR/frame1_G.h5", True),
+                    ("{PROJHOME}/DR/frame2_B.h5", False),
+                ],
+            )
 
         for fname in self._lightcurves:
             with (

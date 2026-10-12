@@ -29,7 +29,11 @@ from autowisp.magnitude_fitting.util import (
     get_path_substitutions,
     read_exclusions,
 )
-from autowisp.project_paths import fill_path_template, resolve_path
+from autowisp.project_paths import (
+    fill_path_template,
+    resolve_path,
+    to_stored_path,
+)
 
 
 def _get_common_header(fit_dr_filenames):
@@ -89,8 +93,9 @@ def _get_population_record(exclusion_rule, dr_filenames, excluded_dr_filenames):
             ``(value, comment)`` tuples.
 
         fits.BinTableHDU:
-            The ``INMASTER`` table listing every DR file fit, with an
-            ``included`` column flagging those the masters are built from.
+            The ``INMASTER`` table listing every DR file fit, in stored form,
+            with an ``included`` column flagging those the masters are built
+            from.
     """
 
     header = {
@@ -99,12 +104,13 @@ def _get_population_record(exclusion_rule, dr_filenames, excluded_dr_filenames):
         "QCNEXCL": (len(excluded_dr_filenames), "Images excluded from master"),
     }
     excluded = set(excluded_dr_filenames)
+    stored_fnames = [to_stored_path(fname) for fname in dr_filenames]
     table = fits.BinTableHDU.from_columns(
         [
             fits.Column(
                 name="dr_fname",
-                format=f"{max(len(fname) for fname in dr_filenames)}A",
-                array=numpy.array(dr_filenames, dtype=str),
+                format=f"{max(len(fname) for fname in stored_fnames)}A",
+                array=numpy.array(stored_fnames, dtype=str),
             ),
             fits.Column(
                 name="included",

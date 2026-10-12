@@ -74,6 +74,9 @@ _SPHOTREF_NAME = "SinglePhotometricReference"
 #: The copy of the frame header in a DR file.
 _DR_HEADER_PATH = "/FITSHeader"
 
+#: The table of a master photometric reference listing the DR files fit.
+_POPULATION_TABLE = "INMASTER"
+
 #: Parameters whose values are paths, by how their values are converted.
 PATH_PARAMETERS = {
     **{
@@ -348,6 +351,54 @@ def _migrate_fits(fname, project_home):
     return True
 
 
+def _migrate_population(fname, project_home):
+    """
+    Convert the DR files a master photometric reference lists as fit.
+
+    The table is replaced, its column of names being as wide as the longest.
+    Rewriting the file with astropy changes no value: unlike the images,
+    a master photometric reference holds only binary tables.
+
+    Returns:
+        bool:    Was the file changed?
+    """
+
+    with fits.open(fname, mode="update") as hdu_list:
+        if _POPULATION_TABLE not in hdu_list:
+            return False
+        population = hdu_list[_POPULATION_TABLE].data
+        # A list: see _migrate_lc().
+        old = list(population["dr_fname"])
+        new = [_convert_text(value, project_home) for value in old]
+        if all(converted is value for converted, value in zip(new, old)):
+            return False
+        hdu_list[hdu_list.index_of(_POPULATION_TABLE)] = (
+            fits.BinTableHDU.from_columns(
+                [
+                    fits.Column(
+                        name="dr_fname",
+                        format=f"{max(map(len, new))}A",
+                        array=numpy.array(new, dtype=str),
+                    ),
+                    fits.Column(
+                        name="included",
+                        format="L",
+                        array=population["included"],
+                    ),
+                ],
+                name=_POPULATION_TABLE,
+            )
+        )
+    return True
+
+
+def _migrate_master(fname, project_home):
+    """Convert a FITS master: its headers, and any population it lists."""
+
+    headers_changed = _migrate_fits(fname, project_home)
+    return _migrate_population(fname, project_home) or headers_changed
+
+
 def _replace_dataset(group, name, data):
     """Replace a dataset by one holding ``data``, keeping its storage."""
 
@@ -617,7 +668,7 @@ _KINDS = {
         ),
         _migrate_fits,
     ),
-    "masters": (_find_fits_masters, _migrate_fits),
+    "masters": (_find_fits_masters, _migrate_master),
     "data_reduction": (
         lambda connection, home: _find_image_products(
             connection, home, "data-reduction-fname"
