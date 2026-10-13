@@ -1,14 +1,12 @@
 """Define the view displaying the current processing progress."""
 
 import logging
-import os
-from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select, sql
-from psutil import pid_exists
+from sqlalchemy import select
 from django.shortcuts import render
 
 from autowisp.database.interface import start_db_session
+from autowisp.database.pipeline_runs import find_active_runs
 from autowisp.database.user_interface import (
     get_processing_sequence,
     get_progress,
@@ -18,11 +16,10 @@ from autowisp.error_render import (
     error_counts_by_step,
     open_error_count_for_steps,
 )
-from autowisp.exceptions import get_hostname
 
 # False positive
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import ImageProcessingProgress, PipelineRun
+from autowisp.database.data_model import ImageProcessingProgress
 
 # pylint: enable=no-name-in-module
 
@@ -108,39 +105,17 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
                 ).all()
             ]
 
-        for check_running in db_session.scalars(
-            select(PipelineRun).filter_by(finished=None, host=get_hostname())
-        ).all():
-            # ``started`` is written by ``sql.func.now()``, which SQLite
-            # evaluates as CURRENT_TIMESTAMP -- naive **UTC** -- so it has
-            # to be compared against UTC, not local ``datetime.now()``.
-            elapsed_time = (
-                datetime.now(timezone.utc).replace(tzinfo=None)
-                - check_running.started
+        # Only this machine's runs: the BUI shows what it can start or wait
+        # for here.
+        running_here = find_active_runs(db_session)[0]
+        if running_here:
+            logger.info(
+                "Pipeline processes still running: %s.",
+                ", ".join(str(run.process_id) for run in running_here),
             )
-            # A run that has only just been recorded may not have got as
-            # far as spawning the process we look for, so trust it for the
-            # first minute regardless of the PID check.
-            recently_started = (
-                timedelta(0) <= elapsed_time <= timedelta(seconds=60)
-            )
-            if (
-                pid_exists(check_running.process_id)
-                and check_running.process_id != os.getpid()
-                or recently_started
-            ):
-                logger.info(
-                    "Calibration process with ID %s still exists.",
-                    check_running.process_id,
-                )
-                context["running"] = True
-                context["refresh_seconds"] = 5
-                context["await_start"] = -1
-            else:
-                logger.info("Marking %s as finished", check_running)
-                check_running.finished = (
-                    sql.func.now()  # pylint: disable=not-callable
-                )
+            context["running"] = True
+            context["refresh_seconds"] = 5
+            context["await_start"] = -1
 
     # Get selected steps from session if processing
     selected_tokens = set()

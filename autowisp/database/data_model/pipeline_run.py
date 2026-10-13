@@ -2,6 +2,7 @@
 
 from sqlalchemy import (
     Column,
+    Double,
     Integer,
     String,
     TIMESTAMP,
@@ -40,6 +41,20 @@ class PipelineRun(DataModelBase):
         doc="Identifier of the code version used for the run, as returned "
         "by get_code_version_str() (a git hash, with a ':dirty' suffix "
         "when the working tree had uncommitted changes).",
+    )
+    machine_id = Column(
+        String(64),
+        nullable=True,
+        doc="Hashed identifier of the machine running the pipeline, which "
+        "survives renaming it (see get_machine_id()). Null for runs recorded "
+        "before it was, or on a machine with no identifier to find.",
+    )
+    process_started = Column(
+        Double,
+        nullable=True,
+        doc="When the process running the pipeline started, in seconds since "
+        "the epoch, so that a process reusing its ID after it ended is not "
+        "taken for it. Null for runs recorded before it was.",
     )
 
     def __repr__(self):

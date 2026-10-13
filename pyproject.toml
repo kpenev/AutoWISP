@@ -69,6 +69,7 @@ dependencies = [
     'pillow',
     'platformdirs',
     'psutil',
+    'py-machineid',
     'pytransit',
     'rechunker',
     'requests',

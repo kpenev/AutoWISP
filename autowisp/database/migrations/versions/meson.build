@@ -23,6 +23,7 @@ py_src = [
   '0017_master_mask_description.py',
   '0018_projhome_paths.py',
   '0019_restore_lc_fnum_fill.py',
+  '0020_pipeline_run_identity.py',
 ]
 
 py.install_sources(

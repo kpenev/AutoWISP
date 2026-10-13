@@ -59,6 +59,7 @@ from autowisp.tests.test_parameter_description_length import (
     TestParameterDescriptionLength,
 )
 from autowisp.tests.test_path_options import TestPathOptions
+from autowisp.tests.test_pipeline_runs import TestFindActiveRuns
 from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
 from autowisp.tests.test_suite_registration import TestSuiteRegistration
 from autowisp.tests.test_database_migration import (

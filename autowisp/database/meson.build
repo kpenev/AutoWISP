@@ -12,6 +12,7 @@ py_src = [
   'migrate.py',
   'migrate_cli.py',
   'photref_selection.py',
+  'pipeline_runs.py',
   'processing.py',
   'provenance_resolver.py',
   'user_interface.py',

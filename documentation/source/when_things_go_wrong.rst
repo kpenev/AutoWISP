@@ -54,6 +54,27 @@ the work is not thrown away, only finished off.
 None of this needs anything from you. It happens as processing starts,
 and the only sign is a warning in the log saying what was cleaned up.
 
+Telling whether a run is still going
+====================================
+
+A run that stops without warning cannot record that it has stopped, so
+the interface works it out: it offers to start processing only once the
+last run has ended. Each run records the machine it runs on and the
+process running it, and a run of this machine whose process is gone is
+taken to have ended. The machine is known by an identifier the operating
+system keeps for it, not by its name, which can change while a run goes
+on -- a laptop renames itself as it moves between networks. A run of
+another machine sharing the project's database is never taken to have
+ended from here, since there is no telling.
+
+Machines made from a single image -- virtual machines, cluster nodes,
+containers -- often share that identifier, unless it is regenerated on
+each (on Linux, by deleting ``/etc/machine-id`` and running
+``systemd-machine-id-setup``). Such machines take each other's runs for
+their own, and one of them may decide that a run still going on another
+has ended. Where several machines share a project's database, give each
+its own identifier.
+
 The logs
 ========
 

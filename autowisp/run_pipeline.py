@@ -20,6 +20,10 @@ from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
 )
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
+from autowisp.database.pipeline_runs import (
+    get_machine_id,
+    get_process_started,
+)
 from autowisp.error_context import get_error_context, set_pipeline_run
 from autowisp.error_cli import report_error
 from autowisp.miscellaneous import get_code_version_str
@@ -153,6 +157,8 @@ def _run_pipeline(config):
             process_id=os.getpid(),
             started=sql.func.now(),  # pylint: disable=not-callable
             code_version=get_code_version_str(),
+            machine_id=get_machine_id(),
+            process_started=get_process_started(),
         )
         db_session.add(pipeline_run)
         # flush (not commit) assigns the id while keeping the transaction
