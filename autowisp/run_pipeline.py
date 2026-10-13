@@ -205,7 +205,9 @@ def _run_pipeline(config):
         sys.stdout.flush()
         sys.stderr.flush()
 
-        LightCurveProcessingManager(pipeline_run_id=pipeline_run)()
+        LightCurveProcessingManager(pipeline_run_id=pipeline_run)(
+            limit_to_steps=config.steps
+        )
 
     with start_db_session() as db_session:
         db_session.execute(
