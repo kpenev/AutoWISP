@@ -49,15 +49,32 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 from autowisp.tests import SERVER_URL_ENV, empty_server_database
 from autowisp.tests.database_fixtures import add_cameras, add_observing_session
+from autowisp.tests.projhome_fixtures import (
+    SPHOTREF_NAME,
+    ProjectHomeMixin,
+    count_cards,
+    get_hdu_bytes,
+    get_path_cases,
+    parse_header,
+    read_dr_header,
+    touch,
+    write_dr,
+    write_fits,
+    write_master_photref,
+)
 from autowisp.tests.test_database_migration import on_server
 
 # Resources here are released via addCleanup rather than `with`, since they
 # are created in setUp and must outlive it.
 # pylint: disable=consider-using-with
 
+# The revision's converters are private to it, and tested here directly.
+# pylint: disable=protected-access
+
+# pylint: disable=invalid-name
 _REVISION = "0018_projhome_paths"
 _PREVIOUS_REVISION = "0017_master_mask_description"
-_SPHOTREF_NAME = "SinglePhotometricReference"
+# pylint: enable=invalid-name
 
 
 @cache
@@ -71,232 +88,19 @@ def _load_revision():
     )
 
 
-def _get_path_cases(project_home):
-    """
-    Return paths a project on this system may record, and what each becomes.
-
-    The project home must hold ``sub/f.fits``. Windows adds the other ways it
-    accepts to write a path, and paths only it can have.
-    """
-
-    converted = "{PROJHOME}/sub/f.fits"
-    outside = os.path.join(os.path.dirname(project_home), "elsewhere.fits")
-    cases = {
-        os.path.join(project_home, "sub", "f.fits"): converted,
-        "sub/f.fits": converted,
-        # Inside, whether or not the file is still there.
-        "sub/missing.fits": "{PROJHOME}/sub/missing.fits",
-        outside: outside,
-        converted: converted,
-    }
-    if os.name == "nt":
-        drive, rooted_home = os.path.splitdrive(project_home)
-        other_drive = "Z:" if drive.upper() != "Z:" else "Y:"
-        on_other_drive = other_drive + rooted_home + "\\sub\\f.fits"
-        cases.update(
-            {
-                project_home.replace("\\", "/") + "/sub/f.fits": converted,
-                project_home + "/sub\\f.fits": converted,
-                # Windows compares paths regardless of case.
-                project_home.upper() + "\\sub\\f.fits": converted,
-                "sub\\f.fits": converted,
-                # Rooted without a drive: on the drive of the home.
-                rooted_home + "\\sub\\f.fits": converted,
-                "\\elsewhere\\f.fits": "\\elsewhere\\f.fits",
-                on_other_drive: on_other_drive,
-            }
-        )
-    return cases
-
-
-def _touch(fname):
-    """Create an empty file, and the directories it is in."""
-
-    os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, "wb"):
-        pass
-
-
-def _write_fits(fname, cards, *, compressed=True, checksum=False):
-    """
-    Write an image whose header holds the given cards.
-
-    Compressed, the image is the second HDU, after an empty primary one, as
-    calibrated images are; otherwise it is the primary HDU itself.
-    """
-
-    os.makedirs(os.path.dirname(fname), exist_ok=True)
-    image = numpy.random.default_rng(0).normal(size=(32, 32)).astype("float32")
-    header = fits.Header(cards)
-    fits.HDUList(
-        [fits.PrimaryHDU(), fits.CompImageHDU(image, header)]
-        if compressed
-        else [fits.PrimaryHDU(image, header)]
-    ).writeto(fname, checksum=checksum, overwrite=True)
-
-
-def _get_hdu_bytes(fname):
-    """Return the header and the data bytes of each HDU of a FITS file."""
-
-    with fits.open(fname) as hdu_list:
-        layout = [hdu_list.fileinfo(index) for index in range(len(hdu_list))]
-    with open(fname, "rb") as fits_file:
-        content = fits_file.read()
-    return [
-        (
-            content[info["hdrLoc"] : info["datLoc"]],
-            content[info["datLoc"] : info["datLoc"] + info["datSpan"]],
-        )
-        for info in layout
-    ]
-
-
-def _parse_header(header_bytes):
-    """Return the header the given bytes of a FITS file hold."""
-
-    return fits.Header.fromstring(header_bytes.decode("ascii"))
-
-
-def _count_cards(header_bytes):
-    """Return the number of cards a header uses, its END card included."""
-
-    count = 0
-    for start in range(0, len(header_bytes), 80):
-        count += 1
-        if header_bytes[start : start + 80].startswith(b"END     "):
-            return count
-    raise ValueError("No END card in the header.")
-
-
-def _write_dr(fname, sphotref, header_cards):
-    """Write a DR file recording a photometric reference and a header."""
-
-    os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with h5py.File(fname, "w") as dr_file:
-        dr_file.attrs[_SPHOTREF_NAME] = sphotref
-        dr_file.create_dataset(
-            "FITSHeader",
-            data=numpy.frombuffer(
-                b"".join(
-                    card.image.encode("ascii")
-                    for card in fits.Header(header_cards).cards
-                ),
-                dtype="i1",
-            ),
-        )
-
-
-def _write_master_photref(fname, header_cards, population):
-    """
-    Write a master photometric reference laid out as magnitude fitting does.
-
-    Args:
-        fname(str):    The file to write.
-
-        header_cards([(str, str)]):    The cards of its primary header.
-
-        population(dict):    ``{dr_fname: included}`` for its ``INMASTER``
-            table.
-    """
-
-    os.makedirs(os.path.dirname(fname), exist_ok=True)
-    fits.HDUList(
-        [
-            fits.PrimaryHDU(header=fits.Header(header_cards)),
-            fits.BinTableHDU.from_columns(
-                [
-                    fits.Column(
-                        name="source_id",
-                        format="K",
-                        array=numpy.array([3, 1, 2]),
-                    ),
-                    fits.Column(
-                        name="magnitude",
-                        format="D",
-                        array=numpy.array([10.125, 11.5, 12.0625]),
-                    ),
-                ],
-                name="MPHOTREF",
-            ),
-            fits.BinTableHDU.from_columns(
-                [
-                    fits.Column(
-                        name="dr_fname",
-                        format=f"{max(map(len, population))}A",
-                        array=numpy.array(list(population), dtype=str),
-                    ),
-                    fits.Column(
-                        name="included",
-                        format="L",
-                        array=numpy.array(list(population.values())),
-                    ),
-                ],
-                name="INMASTER",
-            ),
-        ]
-    ).writeto(fname, overwrite=True)
-
-
-def _read_dr_header(dr_file):
-    """Return the copy of the frame header an open DR file holds."""
-
-    return fits.Header.fromstring(
-        dr_file["FITSHeader"][()].tobytes().decode("ascii")
-    )
-
-
-class _ProjectHomeMixin:
-    """Give each test a project home holding ``sub/f.fits``."""
-
-    # Mixed into unittest.TestCase subclasses, so setUp is an override
-    # despite this class not deriving from TestCase itself.
-    # pylint: disable=invalid-name
-    def setUp(self):
-        """Create the project home."""
-
-        super().setUp()
-        tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self._project_home = tmp.name
-        _touch(self._get_abs_path("sub", "f.fits"))
-
-    # pylint: enable=invalid-name
-
-    def _get_abs_path(self, *parts):
-        """Return the absolute path of a file in the project."""
-
-        return os.path.join(self._project_home, *parts)
-
-    def _assert_unchanged(self, fname, migrate):
-        """
-        Check that converting a file with nothing to convert does not change it.
-
-        Not that it is not written: opening an HDF5 file for writing updates
-        its modification time, even if nothing is written.
-        """
-
-        with open(fname, "rb") as original:
-            content = original.read()
-
-        self.assertFalse(migrate(fname, self._project_home))
-
-        with open(fname, "rb") as migrated:
-            self.assertEqual(migrated.read(), content)
-
-
-class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
+class TestProjhomeFitsMigration(ProjectHomeMixin, unittest.TestCase):
     """The headers of FITS files are converted, and the data copied as is."""
 
     def test_converts_the_file_keywords_in_place(self):
         """Each path of a file keyword is converted as the cases say."""
 
-        path_cases = _get_path_cases(self._project_home)
+        path_cases = get_path_cases(self._project_home)
         inside = self._get_abs_path("sub", "f.fits")
         for compressed in (True, False):
             with self.subTest(compressed=compressed):
                 image_hdu = 1 if compressed else 0
                 fname = self._get_abs_path(f"image{image_hdu}.fits")
-                _write_fits(
+                write_fits(
                     fname,
                     [
                         (f"ORIGF{index:03d}", recorded)
@@ -311,16 +115,15 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
                     compressed=compressed,
                     checksum=True,
                 )
-                original = _get_hdu_bytes(fname)
+                original = get_hdu_bytes(fname)
                 original_stat = os.stat(fname)
-                with fits.open(fname) as hdu_list:
-                    original_image = hdu_list[image_hdu].data.copy()
+                original_image = fits.getdata(fname, image_hdu)
 
                 self.assertTrue(
                     _load_revision()._migrate_fits(fname, self._project_home)
                 )
 
-                migrated = _get_hdu_bytes(fname)
+                migrated = get_hdu_bytes(fname)
                 migrated_stat = os.stat(fname)
                 # No value outgrew its card, so the header kept its blocks
                 # and the file was written in place.
@@ -336,7 +139,7 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
                     # Nothing to convert there, so its CHECKSUM stays.
                     self.assertEqual(migrated[0][0], original[0][0])
 
-                header = _parse_header(migrated[image_hdu][0])
+                header = parse_header(migrated[image_hdu][0])
                 for index, (recorded, expected) in enumerate(
                     path_cases.items()
                 ):
@@ -348,17 +151,17 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
                 self.assertNotIn("CHECKSUM", header)
                 self.assertEqual(
                     header["DATASUM"],
-                    _parse_header(original[image_hdu][0])["DATASUM"],
+                    parse_header(original[image_hdu][0])["DATASUM"],
                 )
 
                 # A checksum that no longer matches is reported as a
                 # warning.
                 with warnings.catch_warnings():
                     warnings.simplefilter("error")
-                    with fits.open(fname, checksum=True) as hdu_list:
-                        numpy.testing.assert_array_equal(
-                            hdu_list[image_hdu].data, original_image
-                        )
+                    numpy.testing.assert_array_equal(
+                        fits.getdata(fname, image_hdu, checksum=True),
+                        original_image,
+                    )
 
     def test_moves_the_data_when_a_header_outgrows_its_blocks(self):
         """A header needing another block is rewritten, data and all."""
@@ -366,25 +169,25 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
         # Converted, a relative path gets longer, and past 68 characters a
         # value takes a second card.
         recorded = "sub/" + "f" * 55 + ".fits"
-        _touch(self._get_abs_path(recorded))
+        touch(self._get_abs_path(recorded))
         for compressed in (True, False):
             with self.subTest(compressed=compressed):
                 image_hdu = 1 if compressed else 0
                 fname = self._get_abs_path(f"image{image_hdu}.fits")
-                _write_fits(
+                write_fits(
                     fname, [("ORIGF001", recorded)], compressed=compressed
                 )
-                cards_used = _count_cards(_get_hdu_bytes(fname)[image_hdu][0])
+                cards_used = count_cards(get_hdu_bytes(fname)[image_hdu][0])
                 # Fill the last block of the header, so that one more card
                 # needs another.
-                _write_fits(
+                write_fits(
                     fname,
                     [("ORIGF001", recorded)]
                     + [("HISTORY", "padding")] * ((-cards_used) % 36),
                     compressed=compressed,
                 )
-                original = _get_hdu_bytes(fname)
-                self.assertEqual(_count_cards(original[image_hdu][0]) % 36, 0)
+                original = get_hdu_bytes(fname)
+                self.assertEqual(count_cards(original[image_hdu][0]) % 36, 0)
                 with fits.open(fname) as hdu_list:
                     original_image = hdu_list[image_hdu].data.copy()
 
@@ -392,7 +195,7 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
                     _load_revision()._migrate_fits(fname, self._project_home)
                 )
 
-                migrated = _get_hdu_bytes(fname)
+                migrated = get_hdu_bytes(fname)
                 self.assertEqual(
                     len(migrated[image_hdu][0]),
                     len(original[image_hdu][0]) + 2880,
@@ -402,7 +205,7 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
                     [data for _, data in original],
                 )
                 self.assertEqual(
-                    _parse_header(migrated[image_hdu][0])["ORIGF001"],
+                    parse_header(migrated[image_hdu][0])["ORIGF001"],
                     "{PROJHOME}/" + recorded,
                 )
                 with fits.open(fname) as hdu_list:
@@ -414,7 +217,7 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
         """A file already converted, or never holding paths, is not written."""
 
         fname = self._get_abs_path("image.fits.fz")
-        _write_fits(
+        write_fits(
             fname,
             [
                 ("ORIGF001", "{PROJHOME}/sub/f.fits"),
@@ -425,7 +228,7 @@ class TestProjhomeFitsMigration(_ProjectHomeMixin, unittest.TestCase):
         self._assert_unchanged(fname, _load_revision()._migrate_fits)
 
 
-class TestProjhomeMasterPhotrefMigration(_ProjectHomeMixin, unittest.TestCase):
+class TestProjhomeMasterPhotrefMigration(ProjectHomeMixin, unittest.TestCase):
     """A master photometric reference has its population converted too."""
 
     def test_converts_the_population_and_the_header(self):
@@ -435,13 +238,13 @@ class TestProjhomeMasterPhotrefMigration(_ProjectHomeMixin, unittest.TestCase):
         and not, so that a flag moved to another row shows.
         """
 
-        path_cases = _get_path_cases(self._project_home)
+        path_cases = get_path_cases(self._project_home)
         population = {
             recorded: index % 2 == 0
             for index, recorded in enumerate(path_cases)
         }
         fname = self._get_abs_path("MASTERS", "mphotref.fits")
-        _write_master_photref(
+        write_master_photref(
             fname,
             [("MBIASFNM", self._get_abs_path("sub", "f.fits"))],
             population,
@@ -478,7 +281,7 @@ class TestProjhomeMasterPhotrefMigration(_ProjectHomeMixin, unittest.TestCase):
         """A master listing only stored names is not written."""
 
         fname = self._get_abs_path("MASTERS", "mphotref.fits")
-        _write_master_photref(
+        write_master_photref(
             fname,
             [("MBIASFNM", "{PROJHOME}/sub/f.fits")],
             {"{PROJHOME}/DR/a.h5": True, "{PROJHOME}/DR/b.h5": False},
@@ -486,16 +289,16 @@ class TestProjhomeMasterPhotrefMigration(_ProjectHomeMixin, unittest.TestCase):
         self._assert_unchanged(fname, _load_revision()._migrate_master)
 
 
-class TestProjhomeDRMigration(_ProjectHomeMixin, unittest.TestCase):
+class TestProjhomeDRMigration(ProjectHomeMixin, unittest.TestCase):
     """DR files have their photometric references and header converted."""
 
     def test_converts_the_references_and_the_header(self):
         """Every reference attribute, wherever it is, and the header."""
 
-        path_cases = _get_path_cases(self._project_home)
+        path_cases = get_path_cases(self._project_home)
         inside = self._get_abs_path("sub", "f.fits")
         fname = self._get_abs_path("frame.h5")
-        _write_dr(
+        write_dr(
             fname,
             inside,
             [
@@ -511,10 +314,10 @@ class TestProjhomeDRMigration(_ProjectHomeMixin, unittest.TestCase):
         with h5py.File(fname, "a") as dr_file:
             for index, recorded in enumerate(path_cases):
                 dr_file.create_group(f"group{index:02d}").attrs[
-                    _SPHOTREF_NAME
+                    SPHOTREF_NAME
                 ] = recorded
             dr_file.create_dataset("group00/data", data=[1, 2]).attrs[
-                _SPHOTREF_NAME
+                SPHOTREF_NAME
             ] = inside
             dr_file.create_group("other").attrs["OtherPath"] = inside
 
@@ -522,21 +325,21 @@ class TestProjhomeDRMigration(_ProjectHomeMixin, unittest.TestCase):
 
         with h5py.File(fname, "r") as dr_file:
             self.assertEqual(
-                dr_file.attrs[_SPHOTREF_NAME], "{PROJHOME}/sub/f.fits"
+                dr_file.attrs[SPHOTREF_NAME], "{PROJHOME}/sub/f.fits"
             )
             for index, (recorded, expected) in enumerate(path_cases.items()):
                 with self.subTest(recorded=recorded):
                     self.assertEqual(
-                        dr_file[f"group{index:02d}"].attrs[_SPHOTREF_NAME],
+                        dr_file[f"group{index:02d}"].attrs[SPHOTREF_NAME],
                         expected,
                     )
             self.assertEqual(
-                dr_file["group00/data"].attrs[_SPHOTREF_NAME],
+                dr_file["group00/data"].attrs[SPHOTREF_NAME],
                 "{PROJHOME}/sub/f.fits",
             )
             self.assertEqual(dr_file["other"].attrs["OtherPath"], inside)
 
-            header = _read_dr_header(dr_file)
+            header = read_dr_header(dr_file)
         for index, (recorded, expected) in enumerate(path_cases.items()):
             with self.subTest(header_recorded=recorded):
                 self.assertEqual(header[f"ORIGF{index:03d}"], expected)
@@ -548,7 +351,7 @@ class TestProjhomeDRMigration(_ProjectHomeMixin, unittest.TestCase):
         """A file already converted, or never holding paths, is not written."""
 
         fname = self._get_abs_path("frame.h5")
-        _write_dr(
+        write_dr(
             fname,
             "{PROJHOME}/sub/f.fits",
             [("OBJECT", self._get_abs_path("sub", "f.fits"))],
@@ -556,27 +359,27 @@ class TestProjhomeDRMigration(_ProjectHomeMixin, unittest.TestCase):
         self._assert_unchanged(fname, _load_revision()._migrate_dr)
 
 
-class TestProjhomeLCMigration(_ProjectHomeMixin, unittest.TestCase):
+class TestProjhomeLCMigration(ProjectHomeMixin, unittest.TestCase):
     """Lightcurves have their photometric references converted."""
 
     def test_converts_the_references(self):
         """Fixed and variable length datasets, widened where needed."""
 
-        path_cases = _get_path_cases(self._project_home)
+        path_cases = get_path_cases(self._project_home)
         recorded = [fname.encode("ascii") for fname in path_cases]
         fname = self._get_abs_path("lc.h5")
         with h5py.File(fname, "w") as light_curve:
             light_curve.create_dataset(
-                f"fixed/{_SPHOTREF_NAME}", data=numpy.array(recorded)
+                f"fixed/{SPHOTREF_NAME}", data=numpy.array(recorded)
             )
             light_curve.create_dataset(
-                f"variable/{_SPHOTREF_NAME}",
+                f"variable/{SPHOTREF_NAME}",
                 data=recorded,
                 dtype=h5py.string_dtype(),
             )
             # Converted, the relative path no longer fits.
             short = light_curve.create_dataset(
-                f"short/{_SPHOTREF_NAME}",
+                f"short/{SPHOTREF_NAME}",
                 data=numpy.array([b"sub/f.fits"]),
                 compression="gzip",
             )
@@ -593,19 +396,63 @@ class TestProjhomeLCMigration(_ProjectHomeMixin, unittest.TestCase):
                     self.assertEqual(
                         [
                             value.decode("ascii")
-                            for value in light_curve[
-                                f"{name}/{_SPHOTREF_NAME}"
-                            ][()]
+                            for value in light_curve[f"{name}/{SPHOTREF_NAME}"][
+                                ()
+                            ]
                         ],
                         list(path_cases.values()),
                     )
-            short = light_curve[f"short/{_SPHOTREF_NAME}"]
+            short = light_curve[f"short/{SPHOTREF_NAME}"]
             self.assertEqual(short[()].tolist(), [b"{PROJHOME}/sub/f.fits"])
+            # False positive: pylint takes indexing a file to give a Group.
+            # pylint: disable-next=no-member
             self.assertEqual(short.compression, "gzip")
             self.assertEqual(short.attrs["kept"], 1)
             self.assertEqual(
                 light_curve["other/OtherPath"][()].tolist(), recorded
             )
+
+    def test_converts_the_reference_in_points_filters(self):
+        """The reference the engine adds to the filters, as it writes it."""
+
+        def match(fname):
+            """Return the comparison the engine adds for a reference."""
+
+            return f"sphotref == {fname.encode('ascii')!r}"
+
+        inside = self._get_abs_path("DR", "ref.h5")
+        outside = os.path.join(os.path.dirname(self._project_home), "ref.h5")
+        converted = match("{PROJHOME}/DR/ref.h5")
+        fname = self._get_abs_path("lc.h5")
+        with h5py.File(fname, "w") as light_curve:
+            light_curve.create_dataset(
+                "EPD/FitProperties/Filter",
+                data=[match(inside), match(outside)],
+                dtype=h5py.string_dtype(),
+            )
+            # After a configured filter, and of fixed length.
+            light_curve.create_dataset(
+                "TFA/FitProperties/PointsFilterExpression",
+                data=numpy.array(
+                    [f"(mag < 10) and {match(inside)}".encode("ascii")]
+                ),
+            )
+
+        self.assertTrue(_load_revision()._migrate_lc(fname, self._project_home))
+
+        with h5py.File(fname, "r") as light_curve:
+            for name, expected in (
+                ("EPD/FitProperties/Filter", [converted, match(outside)]),
+                (
+                    "TFA/FitProperties/PointsFilterExpression",
+                    [f"(mag < 10) and {converted}"],
+                ),
+            ):
+                with self.subTest(dataset=name):
+                    self.assertEqual(
+                        light_curve[name][()].tolist(),
+                        [value.encode("ascii") for value in expected],
+                    )
 
     def test_leaves_a_file_without_paths_to_convert_alone(self):
         """A file already converted is not written."""
@@ -613,13 +460,15 @@ class TestProjhomeLCMigration(_ProjectHomeMixin, unittest.TestCase):
         fname = self._get_abs_path("lc.h5")
         with h5py.File(fname, "w") as light_curve:
             light_curve.create_dataset(
-                f"fixed/{_SPHOTREF_NAME}",
+                f"fixed/{SPHOTREF_NAME}",
                 data=numpy.array([b"{PROJHOME}/sub/f.fits"] * 2),
             )
         self._assert_unchanged(fname, _load_revision()._migrate_lc)
 
 
-class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
+# The fixture's data, written in setUp and checked by the tests.
+# pylint: disable-next=too-many-instance-attributes
+class TestProjhomeProjectMigration(ProjectHomeMixin, unittest.TestCase):
     """
     A project holding every kind of product is migrated whole.
 
@@ -627,6 +476,9 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
     channels ``R`` and ``G``), ``frame2`` (outside, in ``B``) and ``frame3``
     (inside, in ``R``, but missing). ``calibrated-fname`` takes two values,
     the second, under another condition, as an absolute path.
+    ``master-photref-fname-format`` takes two values too: the first, as an
+    absolute path, names the masters magnitude fitting left; the second,
+    under another condition, needs a keyword the reference's header lacks.
     """
 
     # pylint: disable=invalid-name
@@ -662,7 +514,21 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
                         ["EXPTIME > 100"],
                         self._get_abs_path("CAL2", "{RAWFNAME}_{CLRCHNL}.fits"),
                     ),
-                ]
+                ],
+                "master-photref-fname-format": [
+                    (
+                        None,
+                        self._get_abs_path(
+                            "MASTERS",
+                            "mphotref_{OBJECT}_iter{magfit_iteration:03d}.fits",
+                        ),
+                    ),
+                    (
+                        ["EXPTIME > 100"],
+                        "{PROJHOME}/MASTERS/mphotref_{FILTER}"
+                        "_iter{magfit_iteration:03d}.fits",
+                    ),
+                ],
             },
         )
         with get_db_engine().begin() as connection:
@@ -698,10 +564,10 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
             self._get_abs_path("CAL2", "frame2_B.fits"): "frame2",
         }
         for fname, frame in self._calibrated.items():
-            _write_fits(fname, [("ORIGF001", raw[frame])] + common_cards)
+            write_fits(fname, [("ORIGF001", raw[frame])] + common_cards)
         # Named by a template, but for a channel never processed.
         self._unprocessed = self._get_abs_path("CAL", "frame1_B.fits.fz")
-        _write_fits(self._unprocessed, [("ORIGF001", raw["frame1"])])
+        write_fits(self._unprocessed, [("ORIGF001", raw["frame1"])])
 
         self._dr = {
             self._sphotref: "frame1",
@@ -709,35 +575,46 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
             self._get_abs_path("DR", "frame2_B.h5"): "frame2",
         }
         for fname, frame in self._dr.items():
-            _write_dr(
-                fname, self._sphotref, [("ORIGF001", raw[frame])] + common_cards
+            write_dr(
+                fname,
+                self._sphotref,
+                [("ORIGF001", raw[frame]), ("OBJECT", "field1")] + common_cards,
             )
 
-        _write_fits(
+        write_fits(
             bias,
             [
                 ("ORIGF001", raw["frame1"]),
                 ("PROJHOME", self._project_home),
             ],
         )
-        self._lc_catalog = self._get_abs_path("MASTERS", "lc_catalog.fits")
+        lc_catalog = self._get_abs_path("MASTERS", "lc_catalog.fits")
         Table(
             {"source_id": numpy.array([1, 2], dtype="uint64")},
             meta={"PROJHOME": self._project_home},
-        ).write(self._lc_catalog)
-        self._mphotref = self._get_abs_path("MASTERS", "mphotref.fits")
-        _write_master_photref(
-            self._mphotref,
-            [("MBIASFNM", bias)],
-            {
-                dr_fname: frame == "frame1"
-                for dr_fname, frame in self._dr.items()
-            },
-        )
+        ).write(lc_catalog)
+        # Magnitude fitting leaves a master for each iteration, named by the
+        # template filled with the single photometric reference's header, and
+        # only the last is recorded.
+        self._mphotrefs = [
+            self._get_abs_path(
+                "MASTERS", f"mphotref_field1_iter{iteration:03d}.fits"
+            )
+            for iteration in range(3)
+        ]
+        for fname in self._mphotrefs:
+            write_master_photref(
+                fname,
+                [("MBIASFNM", bias)],
+                {
+                    dr_fname: frame == "frame1"
+                    for dr_fname, frame in self._dr.items()
+                },
+            )
         self._masters = {
             "zero": bias,
-            "lightcurve_catalog": self._lc_catalog,
-            "master_photref": self._mphotref,
+            "lightcurve_catalog": lc_catalog,
+            "master_photref": self._mphotrefs[-1],
         }
 
         self._lightcurves = [
@@ -753,7 +630,7 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
         os.makedirs(os.path.dirname(fname), exist_ok=True)
         with h5py.File(fname, "w") as light_curve:
             light_curve.create_dataset(
-                f"AperturePhotometry/{_SPHOTREF_NAME}",
+                f"AperturePhotometry/{SPHOTREF_NAME}",
                 data=numpy.array([self._sphotref.encode("ascii")] * 3),
             )
 
@@ -825,7 +702,7 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
                 {
                     "{PROJHOME}/MASTERS/bias.fits",
                     "{PROJHOME}/MASTERS/lc_catalog.fits",
-                    "{PROJHOME}/MASTERS/mphotref.fits",
+                    "{PROJHOME}/MASTERS/mphotref_field1_iter002.fits",
                     "{PROJHOME}/DR/frame1_R.h5",
                 },
             )
@@ -871,31 +748,39 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
         for fname, frame in self._dr.items():
             with self.subTest(dr=fname), h5py.File(fname, "r") as dr_file:
                 self.assertEqual(
-                    dr_file.attrs[_SPHOTREF_NAME], "{PROJHOME}/DR/frame1_R.h5"
+                    dr_file.attrs[SPHOTREF_NAME], "{PROJHOME}/DR/frame1_R.h5"
                 )
-                header = _read_dr_header(dr_file)
+                header = read_dr_header(dr_file)
                 self.assertEqual(header["ORIGF001"], self._expected_raw[frame])
                 self.assertNotIn("PROJHOME", header)
 
         bias_header = fits.getheader(self._masters["zero"], 1)
         self.assertEqual(bias_header["ORIGF001"], "{PROJHOME}/RAW/frame1.fits")
         self.assertNotIn("PROJHOME", bias_header)
-        self.assertNotIn("PROJHOME", fits.getheader(self._lc_catalog, 1))
-        with fits.open(self._mphotref) as mphotref:
-            self.assertEqual(
-                mphotref[0].header["MBIASFNM"], "{PROJHOME}/MASTERS/bias.fits"
-            )
-            population = mphotref["INMASTER"].data
-            self.assertEqual(
-                list(
-                    zip(population["dr_fname"], population["included"].tolist())
-                ),
-                [
-                    ("{PROJHOME}/DR/frame1_R.h5", True),
-                    ("{PROJHOME}/DR/frame1_G.h5", True),
-                    ("{PROJHOME}/DR/frame2_B.h5", False),
-                ],
-            )
+        self.assertNotIn(
+            "PROJHOME",
+            fits.getheader(self._masters["lightcurve_catalog"], 1),
+        )
+        for fname in self._mphotrefs:
+            with self.subTest(mphotref=fname), fits.open(fname) as mphotref:
+                self.assertEqual(
+                    mphotref[0].header["MBIASFNM"],
+                    "{PROJHOME}/MASTERS/bias.fits",
+                )
+                population = mphotref["INMASTER"].data
+                self.assertEqual(
+                    list(
+                        zip(
+                            population["dr_fname"],
+                            population["included"].tolist(),
+                        )
+                    ),
+                    [
+                        ("{PROJHOME}/DR/frame1_R.h5", True),
+                        ("{PROJHOME}/DR/frame1_G.h5", True),
+                        ("{PROJHOME}/DR/frame2_B.h5", False),
+                    ],
+                )
 
         for fname in self._lightcurves:
             with (
@@ -903,7 +788,7 @@ class TestProjhomeProjectMigration(_ProjectHomeMixin, unittest.TestCase):
                 h5py.File(fname, "r") as light_curve,
             ):
                 self.assertEqual(
-                    light_curve[f"AperturePhotometry/{_SPHOTREF_NAME}"][
+                    light_curve[f"AperturePhotometry/{SPHOTREF_NAME}"][
                         ()
                     ].tolist(),
                     [b"{PROJHOME}/DR/frame1_R.h5"] * 3,

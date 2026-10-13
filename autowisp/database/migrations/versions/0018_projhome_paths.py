@@ -13,8 +13,9 @@ what the database holds:
 
 The files the project has produced hold such paths too, and this revision
 converts them after the database: the calibrated images, the masters (and
-the DR files a master photometric reference lists as fit), the DR files and
-the lightcurves. They are found through the database as converted,
+the DR files a master photometric reference lists as fit, for every magfit
+iteration), the DR files and the lightcurves (with the reference in their
+points filters). They are found through the database as converted,
 so this must run at exactly this revision, which is why it is not left to a
 separate step. Every lightcurve is opened, so it can take a long time. A
 file already converted is not changed again, so after an interruption, which
@@ -38,6 +39,7 @@ There is no going back: the products are not converted back, so a database
 downgraded past this revision would not match them.
 """
 
+import ast
 import logging
 import os
 from pathlib import PurePath
@@ -70,6 +72,16 @@ _FILE_KEYWORDS = re.compile(r"M(BIAS|DARK|FLAT)FNM|ORIGF\d+")
 #: Where products record the single photometric reference they used: an
 #: attribute of DR files and a dataset of lightcurves.
 _SPHOTREF_NAME = "SinglePhotometricReference"
+
+#: The datasets of lightcurves holding the expression that selected the points
+#: EPD and TFA fit, to which the engine adds the comparison below.
+_FILTER_NAMES = ("Filter", "PointsFilterExpression")
+
+#: The comparison selecting the points of one single photometric reference,
+#: which is named by the ``repr`` of its bytes.
+_SPHOTREF_MATCH = re.compile(
+    r"(sphotref == )(b'(?:[^'\\]|\\.)*'|b\"(?:[^\"\\]|\\.)*\")"
+)
 
 #: The copy of the frame header in a DR file.
 _DR_HEADER_PATH = "/FITSHeader"
@@ -426,6 +438,26 @@ def _convert_text(value, project_home):
     return converted.encode() if as_bytes else converted
 
 
+def _convert_filter(value, project_home):
+    """Return a points filter with its reference as stored, keeping the type."""
+
+    as_bytes = isinstance(value, (bytes, numpy.bytes_))
+    text = value.decode() if as_bytes else str(value)
+
+    def convert_match(match):
+        """Return the comparison with the reference converted."""
+
+        # The literal is a repr, which doubles a Windows path's backslashes.
+        old = ast.literal_eval(match[2])
+        new = _convert_text(old, project_home)
+        return match[0] if new is old else match[1] + repr(new)
+
+    converted = _SPHOTREF_MATCH.sub(convert_match, text)
+    if converted == text:
+        return value
+    return converted.encode() if as_bytes else converted
+
+
 def _migrate_dr(fname, project_home):
     """Convert a DR file. Returns whether it was changed."""
 
@@ -474,6 +506,10 @@ def _migrate_dr(fname, project_home):
 def _migrate_lc(fname, project_home):
     """Convert a lightcurve. Returns whether it was changed."""
 
+    convert_by_name = {
+        _SPHOTREF_NAME: _convert_text,
+        **{name: _convert_filter for name in _FILTER_NAMES},
+    }
     changed = False
     with h5py.File(fname, "r+") as light_curve:
         datasets = []
@@ -481,15 +517,16 @@ def _migrate_lc(fname, project_home):
             lambda name, obj: (
                 datasets.append(obj)
                 if isinstance(obj, h5py.Dataset)
-                and name.rsplit("/", 1)[-1] == _SPHOTREF_NAME
+                and name.rsplit("/", 1)[-1] in convert_by_name
                 else None
             )
         )
         for dataset in datasets:
+            convert = convert_by_name[dataset.name.rsplit("/", 1)[-1]]
             # A list, since iterating an array creates new objects each time,
             # and converting an unchanged value returns the same one.
             old = list(dataset[()])
-            new = [_convert_text(value, project_home) for value in old]
+            new = [convert(value, project_home) for value in old]
             if all(converted is value for converted, value in zip(new, old)):
                 continue
             changed = True
@@ -659,6 +696,64 @@ def _find_fits_masters(connection, project_home):
     return result
 
 
+def _read_dr_header(dr_fname):
+    """Return the copy of the frame header a DR file holds."""
+
+    with h5py.File(dr_fname, "r") as dr_file:
+        return fits.Header.fromstring(
+            dr_file[_DR_HEADER_PATH][()].tobytes().decode("ascii")
+        )
+
+
+def _find_photref_iterations(connection, project_home):
+    """
+    Return the master photometric reference of every magfit iteration.
+
+    The database records only the last iteration's. Each is named as magnitude
+    fitting names it: the template filled with the single photometric
+    reference's frame header and the iteration, counted from 0. Every value
+    the template is configured with is tried, since which one applies depends
+    on conditions, and the iterations up to the first missing one are kept.
+    """
+
+    templates = _get_configured_values(
+        connection, "master-photref-fname-format"
+    )
+    result = set()
+    for sphotref_fname in _find_masters(
+        connection, project_home, "single_photref"
+    ):
+        try:
+            header = _read_dr_header(sphotref_fname)
+        except (OSError, KeyError) as error:
+            _logger.warning(
+                "Cannot read the frame header of %r (%s), so the master "
+                "photometric references made from it are not converted.",
+                sphotref_fname,
+                error,
+            )
+            continue
+        for template in templates:
+            iteration_fnames = []
+            while True:
+                try:
+                    fname = template.format_map(
+                        dict(
+                            header,
+                            PROJHOME=project_home,
+                            magfit_iteration=len(iteration_fnames),
+                        )
+                    )
+                except (KeyError, IndexError, ValueError):
+                    break
+                # Without the iteration, a template names the same file again.
+                if fname in iteration_fnames or not os.path.exists(fname):
+                    break
+                iteration_fnames.append(fname)
+            result.update(iteration_fnames)
+    return sorted(result)
+
+
 #: For each kind of product, in the order converted: how to find its files,
 #: and how to convert one.
 _KINDS = {
@@ -669,6 +764,7 @@ _KINDS = {
         _migrate_fits,
     ),
     "masters": (_find_fits_masters, _migrate_master),
+    "magfit_iteration_masters": (_find_photref_iterations, _migrate_master),
     "data_reduction": (
         lambda connection, home: _find_image_products(
             connection, home, "data-reduction-fname"
