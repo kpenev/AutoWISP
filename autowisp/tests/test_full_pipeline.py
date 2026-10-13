@@ -22,7 +22,7 @@ from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.initialize_database import initialize_database
 from autowisp.processing_steps import stack_to_master, stack_to_master_flat
 from autowisp.project_paths import to_stored_path
-from autowisp.database.interface import start_db_session
+from autowisp.database.interface import get_db_engine, start_db_session
 from autowisp.database.photref_selection import (
     compute_photref_candidates,
     record_single_photref,
@@ -36,6 +36,7 @@ from autowisp.database.user_interface import (
 from autowisp.tests.fits_test_case import FITSTestCase
 from autowisp.tests.h5_test_case import H5TestCase
 from autowisp.tests.magfit_test_case import MagfitMastersTestCase
+from autowisp.tests.unstored_paths import find_unstored_paths
 
 
 class TestFullPipeline(H5TestCase, FITSTestCase, MagfitMastersTestCase):
@@ -175,6 +176,8 @@ class TestFullPipeline(H5TestCase, FITSTestCase, MagfitMastersTestCase):
         self._assert_h5_dir_match("DR")
         self._assert_h5_dir_match("LC")
 
+        self._assert_paths_stored()
+
     def _register_photref(self):
         """Mimic the BUI's ``record_photref_selection`` for the test photref.
 
@@ -268,3 +271,24 @@ class TestFullPipeline(H5TestCase, FITSTestCase, MagfitMastersTestCase):
         for gen_fname, exp_fname in zip(generated, expected):
             self.assert_groups_match(gen_fname, exp_fname, "/", ignore=ignore)
             self.assert_groups_match(exp_fname, gen_fname, "/", ignore=ignore)
+
+    def _assert_paths_stored(self):
+        """Assert the project holds every path in stored form.
+
+        Over everything the pipeline wrote, the database included, so that
+        a product, column or attribute added later is covered without being
+        registered anywhere.
+        """
+
+        unstored = find_unstored_paths(
+            self.processing_directory, get_db_engine()
+        )
+        self.assertFalse(
+            unstored,
+            "Paths not in stored form:\n"
+            + "\n".join(
+                f"{found.source}: {found.location}: {found.value!r} "
+                f"({found.kind})"
+                for found in unstored
+            ),
+        )

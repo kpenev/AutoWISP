@@ -72,6 +72,7 @@ py_src = [
   'test_tfa_num_templates.py',
   'test_timestamp_triggers.py',
   'test_upgrade_from_release.py',
+  'unstored_paths.py',
 ]
 
 py.install_sources(
