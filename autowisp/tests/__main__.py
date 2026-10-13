@@ -120,7 +120,10 @@ from autowisp.tests.test_crash_report import (
     TestCrashReportCli,
     TestCollectEnvironment,
 )
-from autowisp.tests.test_full_pipeline import TestFullPipeline
+from autowisp.tests.test_full_pipeline import (
+    TestFullPipeline,
+    TestRelocatedPipeline,
+)
 from autowisp.tests.test_photref_binding import (
     TestSeparationBinding,
     TestConditionBinding,
@@ -261,15 +264,16 @@ from autowisp.tests.test_bui_models import (
 
 
 class _IntegrationLastLoader(unittest.TestLoader):
-    """Run ``TestFullPipeline`` after every other test class.
+    """Run the end-to-end pipeline tests after every other test class.
 
     ``unittest`` discovers classes via ``dir(module)`` which is
-    alphabetical, so without this hook the long end-to-end test runs
-    between ``TestFitStarShape`` and ``TestMeasureAperturePhotometry``
-    -- an integration failure can then eclipse later per-step failures
-    under ``failfast=True``. Sorting the resulting top-level suite so
-    that the ``TestFullPipeline``-bearing entry is last keeps per-step
-    failures visible first.
+    alphabetical, so without this hook the long end-to-end tests run
+    between per-step ones (``TestFullPipeline`` between
+    ``TestFitStarShape`` and ``TestMeasureAperturePhotometry``) -- an
+    integration failure can then eclipse later per-step failures under
+    ``failfast=True``. Sorting the resulting top-level suite so that the
+    entries bearing ``TestFullPipeline`` and ``TestRelocatedPipeline``
+    are last keeps per-step failures visible first.
     """
 
     def loadTestsFromModule(self, *args, **kwargs):
@@ -277,7 +281,9 @@ class _IntegrationLastLoader(unittest.TestLoader):
 
         def is_full_pipeline(case_suite):
             return any(
-                type(test).__name__ == "TestFullPipeline" for test in case_suite
+                type(test).__name__
+                in ("TestFullPipeline", "TestRelocatedPipeline")
+                for test in case_suite
             )
 
         return unittest.TestSuite(sorted(suite, key=is_full_pipeline))

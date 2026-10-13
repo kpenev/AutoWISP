@@ -148,11 +148,11 @@ jobs:
           AUTOWISP_TEST_DB_URL: ${{ matrix.mariadb && 'mysql+pymysql://root:autowisp@127.0.0.1:3306/autowisp_pipeline' || '' }}
         run: |
           # Exclude the live-Gaia catalog tests everywhere; also exclude the
-          # expensive full-pipeline integration test unless this cell opts in.
+          # expensive full-pipeline integration tests unless this cell opts in.
           EXCLUDE="TestCatalog"
           if [ "${{ matrix.full_pipeline }}" != "true" ] \
                   || [ "${{ inputs.only }}" = "quick" ]; then
-            EXCLUDE="$EXCLUDE TestFullPipeline"
+            EXCLUDE="$EXCLUDE TestFullPipeline TestRelocatedPipeline"
           fi
           # The tests running pipeline steps on the test data take most of an
           # hour; everything else takes about ten minutes.

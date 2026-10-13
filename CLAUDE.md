@@ -102,10 +102,10 @@ suite collects from and the first thing CI trips over. `python -m unittest
 autowisp.tests.test_x` costs about the same and skips that entirely, so it
 passes happily while the suite cannot even start.
 
-**Leave `TestFullPipeline` out while iterating.** It runs every step through
-the engine and takes far longer than the rest, while the per-step tests
-exercise the same step code on the same data. It belongs to the full-suite
-run before a merge.
+**Leave `TestFullPipeline` and `TestRelocatedPipeline` out while
+iterating.** Each runs every step through the engine and takes far longer
+than the rest, while the per-step tests exercise the same step code on the
+same data. They belong to the full-suite run before a merge.
 
 **Run the whole suite, or dispatch CI, before merging into master.** CI is
 `workflow_dispatch` only, so a push runs nothing. On a feature branch the

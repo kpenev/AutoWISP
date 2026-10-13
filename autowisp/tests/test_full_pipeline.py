@@ -1,4 +1,4 @@
-"""End-to-end pipeline test driven by :mod:`autowisp.run_pipeline`.
+"""End-to-end pipeline tests driven by :mod:`autowisp.run_pipeline`.
 
 Mirrors what the BUI does when a user creates a new project: builds the
 project's SQLite database from ``test_data/test.cfg`` and
@@ -8,39 +8,60 @@ project's SQLite database from ``test_data/test.cfg`` and
 JSON, registers every raw image, runs the full pipeline (calibration
 through TFA / detrending statistics), and compares the generated
 artifacts to the expected outputs in ``test_data/``.
+
+The pipeline runs either all at once, as a user starts it, or one step at
+a time with the project moved after each step, which shows that a moved
+project carries on wherever it is moved.
 """
 
 import json
 from argparse import Namespace
 from glob import glob
 from os import path
+from shutil import move
 
 import pandas
+from sqlalchemy import func, select
 
 from autowisp import run_pipeline
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.initialize_database import initialize_database
 from autowisp.processing_steps import stack_to_master, stack_to_master_flat
 from autowisp.project_paths import to_stored_path
-from autowisp.database.interface import get_db_engine, start_db_session
+from autowisp.database.interface import (
+    get_db_engine,
+    set_project_home,
+    start_db_session,
+)
 from autowisp.database.photref_selection import (
     compute_photref_candidates,
     record_single_photref,
 )
 from autowisp.database.user_interface import (
     apply_master_config,
+    get_processing_sequence,
     import_json_to_survey,
     master_config_json_to_settings,
     parse_config_overwrites,
 )
+
+# pylint: disable=no-name-in-module
+from autowisp.database.data_model import (
+    ImageProcessingProgress,
+    ImageType,
+    LightCurveProcessingProgress,
+    Step,
+)
+
+# pylint: enable=no-name-in-module
 from autowisp.tests.fits_test_case import FITSTestCase
 from autowisp.tests.h5_test_case import H5TestCase
 from autowisp.tests.magfit_test_case import MagfitMastersTestCase
 from autowisp.tests.unstored_paths import find_unstored_paths
 
 
-class TestFullPipeline(H5TestCase, FITSTestCase, MagfitMastersTestCase):
-    """Run the full pipeline end-to-end and check every output."""
+class _EngineProjectTestCase(H5TestCase, FITSTestCase, MagfitMastersTestCase):
+    """A project created as the BUI does, processed through the engine."""
 
     # The engine writes the observing session's identifiers, so they are
     # compared like any other keyword.
@@ -122,36 +143,16 @@ class TestFullPipeline(H5TestCase, FITSTestCase, MagfitMastersTestCase):
         ) as survey_json:
             import_json_to_survey(survey_json)
 
-    def test_full_pipeline(self):
-        """Run the full pipeline and compare every output to expected.
+    def _get_raw_image_dirs(self):
+        """Return the directories of the raw images to process."""
 
-        The pipeline runs in two passes. On the first pass it does as
-        much as it can; ``fit_magnitudes`` and the downstream lightcurve
-        steps stay pending because no ``single_photref`` master has been
-        registered yet. Between the passes the test registers the
-        single photometric reference DR file via the same helpers the
-        BUI uses, after which the second pass picks up
-        ``fit_magnitudes`` and everything beyond.
-        """
-
-        raw_image_dirs = [
+        return [
             path.join(self.test_directory, "RAW", subdir)
             for subdir in ("zero", "dark", "flat", "object")
         ]
-        for add_raw_images in (raw_image_dirs, []):
-            run_pipeline.main(
-                Namespace(
-                    project_home=self.processing_directory,
-                    add_raw_images=add_raw_images,
-                    steps=None,
-                    step_imtypes=[],
-                    detached=False,
-                )
-            )
-            if add_raw_images:
-                # Register the photref between the two passes -- the
-                # second pass will then resume from ``fit_magnitudes``.
-                self._register_photref()
+
+    def _assert_outputs_match(self):
+        """Compare every output to expected, and check the paths stored."""
 
         for imtype in ("zero", "dark", "flat", "object"):
             self._assert_dir_fits_match(path.join("CAL", imtype))
@@ -292,3 +293,168 @@ class TestFullPipeline(H5TestCase, FITSTestCase, MagfitMastersTestCase):
                 for found in unstored
             ),
         )
+
+
+class TestFullPipeline(_EngineProjectTestCase):
+    """Run the full pipeline end-to-end and check every output."""
+
+    def test_full_pipeline(self):
+        """Run the full pipeline and compare every output to expected.
+
+        The pipeline runs in two passes. On the first pass it does as
+        much as it can; ``fit_magnitudes`` and the downstream lightcurve
+        steps stay pending because no ``single_photref`` master has been
+        registered yet. Between the passes the test registers the
+        single photometric reference DR file via the same helpers the
+        BUI uses, after which the second pass picks up
+        ``fit_magnitudes`` and everything beyond.
+        """
+
+        for add_raw_images in (self._get_raw_image_dirs(), []):
+            run_pipeline.main(
+                Namespace(
+                    project_home=self.processing_directory,
+                    add_raw_images=add_raw_images,
+                    steps=None,
+                    step_imtypes=[],
+                    detached=False,
+                )
+            )
+            if add_raw_images:
+                # Register the photref between the two passes -- the
+                # second pass will then resume from ``fit_magnitudes``.
+                self._register_photref()
+
+        self._assert_outputs_match()
+
+
+class TestRelocatedPipeline(_EngineProjectTestCase):
+    """Move the project before every step, and check that it carries on."""
+
+    # pylint: disable=invalid-name
+    def setUp(self):
+        """Start with the project where it was created."""
+
+        super().setUp()
+        self._left_behind = []
+
+    # pylint: enable=invalid-name
+
+    def test_moved_before_every_step(self):
+        """
+        Run each step of the processing sequence where the project was moved.
+
+        The raw images are added on their own, and every step then runs
+        right after the project was moved, with everything before it written
+        elsewhere, and is the only one to run. The single photometric
+        reference is registered before magnitude fitting, with a move on
+        each side. A step reading a path recorded by absolute path fails,
+        the locations left behind being gone, and one writing to it
+        recreates a location left behind, which is checked after each step.
+        """
+
+        self._run_pipeline(add_raw_images=self._get_raw_image_dirs(), steps=[])
+        with start_db_session() as db_session:
+            sequence = [
+                (step.name, image_type.name)
+                for step, image_type in get_processing_sequence(db_session)
+            ]
+        photref_registered = False
+        for step_name, image_type_name in sequence:
+            self._move_project()
+            if step_name == "fit_magnitudes" and not photref_registered:
+                self._register_photref()
+                photref_registered = True
+                self._move_project()
+            progress_before = self._get_last_progress_ids()
+            self._run_pipeline(
+                steps=[step_name],
+                step_imtypes=[f"{step_name}:{image_type_name}"],
+            )
+            self._assert_only_step_progressed(
+                step_name, image_type_name, progress_before
+            )
+            self.assertEqual(
+                [
+                    location
+                    for location in self._left_behind
+                    if path.exists(location)
+                ],
+                [],
+                f"{step_name} of {image_type_name} frames wrote where the "
+                "project was before it was moved.",
+            )
+
+        self._assert_outputs_match()
+
+    def _run_pipeline(self, *, add_raw_images=(), steps, step_imtypes=()):
+        """Run the pipeline in the project, wherever it is now."""
+
+        run_pipeline.main(
+            Namespace(
+                project_home=self.processing_directory,
+                add_raw_images=list(add_raw_images),
+                steps=steps,
+                step_imtypes=list(step_imtypes),
+                detached=False,
+            )
+        )
+
+    def _move_project(self):
+        """Move the project to a new location, and open it there."""
+
+        self._left_behind.append(self.processing_directory)
+        # A sibling, so that the move is a rename.
+        destination = (
+            f"{self._left_behind[0]}.moved{len(self._left_behind):02d}"
+        )
+        move(self.processing_directory, destination)
+        # Followed by tearDown, which keeps or removes the project.
+        self.processing_directory = destination
+        set_project_home(destination)
+
+    @staticmethod
+    def _get_last_progress_ids():
+        """Return the last ids of image and lightcurve processing progress."""
+
+        with start_db_session() as db_session:
+            return tuple(
+                db_session.scalar(select(func.max(table.id))) or 0
+                for table in (
+                    ImageProcessingProgress,
+                    LightCurveProcessingProgress,
+                )
+            )
+
+    def _assert_only_step_progressed(self, step_name, image_type_name, since):
+        """Assert that a run recorded progress of the given step alone."""
+
+        image_since, light_curve_since = since
+        with start_db_session() as db_session:
+            image_progressed = {
+                tuple(row)
+                for row in db_session.execute(
+                    select(Step.name, ImageType.name)
+                    .select_from(ImageProcessingProgress)
+                    .join(Step, ImageProcessingProgress.step_id == Step.id)
+                    .join(
+                        ImageType,
+                        ImageProcessingProgress.image_type_id == ImageType.id,
+                    )
+                    .where(ImageProcessingProgress.id > image_since)
+                )
+            }
+            light_curve_progressed = set(
+                db_session.scalars(
+                    select(Step.name)
+                    .select_from(LightCurveProcessingProgress)
+                    .join(Step, LightCurveProcessingProgress.step_id == Step.id)
+                    .where(LightCurveProcessingProgress.id > light_curve_since)
+                )
+            )
+        self.assertTrue(
+            image_progressed or light_curve_progressed,
+            f"{step_name} of {image_type_name} frames made no progress.",
+        )
+        self.assertLessEqual(image_progressed, {(step_name, image_type_name)})
+        self.assertLessEqual(light_curve_progressed, {step_name})
