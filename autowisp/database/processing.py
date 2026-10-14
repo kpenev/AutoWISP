@@ -1,5 +1,10 @@
 """Define base class for processing images or lightcurves."""
 
+# ProcessingManager alone is about as long as the limit, so keeping to it
+# would mean splitting the class between modules, which reads worse than one
+# long file.
+# pylint: disable=too-many-lines
+
 import logging
 import os
 from contextlib import contextmanager
@@ -375,13 +380,7 @@ class ProcessingManager:
         return self._get_best_master(candidates, image_eval)
 
     def _get_evaluated_entry(
-        self,
-        evaluate,
-        image_type_id,
-        calib_config,
-        db_session,
-        image_id=None,
-        channel=None,
+        self, evaluate, image, channel, calib_config, db_session
     ):
         """Return entry to add to self._evaluated_expressions."""
 
@@ -419,12 +418,12 @@ class ProcessingManager:
         for master_type in db_session.scalars(
             select(MasterType)
             .join(InputMasterTypes)
-            .where(InputMasterTypes.image_type_id == image_type_id)
+            .where(InputMasterTypes.image_type_id == image.image_type_id)
             .distinct()
         ):
             if master_type.name not in ["epd_stat", "tfa_stat"]:
                 pinned = None
-                if image_id is not None and channel is not None:
+                if channel is not None:
                     pinned = db_session.scalar(
                         select(MasterFile.filename)
                         .join(
@@ -433,7 +432,7 @@ class ProcessingManager:
                             == ImageMasterSelection.master_file_id,
                         )
                         .where(
-                            ImageMasterSelection.image_id == image_id,
+                            ImageMasterSelection.image_id == image.id,
                             ImageMasterSelection.channel == channel,
                             ImageMasterSelection.master_type_id
                             == master_type.id,
@@ -629,12 +628,7 @@ class ProcessingManager:
             add_required_keywords(evaluate.symtable, calib_config, True)
 
             evaluated_expressions = self._get_evaluated_entry(
-                evaluate,
-                image.image_type_id,
-                calib_config,
-                db_session,
-                image_id=image.id,
-                channel=channel_name,
+                evaluate, image, channel_name, calib_config, db_session
             )
 
             if all_channel["matched"] is None:
@@ -827,6 +821,36 @@ class ProcessingManager:
             for channel in image.observing_session.camera.channels
         }
 
+    def _add_configuration(self, db_configuration):
+        """
+        Add configuration entries, and the expressions their conditions use.
+
+        Args:
+            db_configuration([Configuration]):    The entries to add, each a
+                parameter's value under one condition.
+
+        Returns:
+            None
+        """
+
+        for config_entry in db_configuration:
+            if config_entry.parameter.name not in self.configuration:
+                self.configuration[config_entry.parameter.name] = {
+                    "version": config_entry.version,
+                    "value": {},
+                }
+            self.configuration[config_entry.parameter.name]["value"][
+                frozenset(
+                    cond.expression_id for cond in config_entry.conditions
+                )
+            ] = config_entry.value
+
+            for cond in config_entry.conditions:
+                if cond.expression_id not in self.condition_expressions:
+                    self.condition_expressions[cond.expression_id] = (
+                        cond.expression.expression
+                    )
+
     def __init__(self, pipeline_run_id, version=None):
         """
         Set the public class attributes per the given configuartion version.
@@ -890,24 +914,7 @@ class ProcessingManager:
                     # pylint: enable=no-member
                 ).scalar_one()
 
-            db_configuration = get_db_configuration(version, db_session)
-            for config_entry in db_configuration:
-                if config_entry.parameter.name not in self.configuration:
-                    self.configuration[config_entry.parameter.name] = {
-                        "version": config_entry.version,
-                        "value": {},
-                    }
-                self.configuration[config_entry.parameter.name]["value"][
-                    frozenset(
-                        cond.expression_id for cond in config_entry.conditions
-                    )
-                ] = config_entry.value
-
-                for cond in config_entry.conditions:
-                    if cond.expression_id not in self.condition_expressions:
-                        self.condition_expressions[cond.expression_id] = (
-                            cond.expression.expression
-                        )
+            self._add_configuration(get_db_configuration(version, db_session))
 
             self._processing_config = self.get_config(
                 self.get_matched_expressions(Evaluator()),

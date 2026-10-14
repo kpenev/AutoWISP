@@ -438,7 +438,7 @@ def edit_survey(
 
 
 def delete_from_survey(
-    request, component_type, component_id=None, component_type_id=None
+    _request, component_type, component_id=None, component_type_id=None
 ):
     """Deleta a component of the survey network."""
 
@@ -502,7 +502,7 @@ def update_survey_component(request, component_type, component_id):
 
 
 def change_access(  # pylint: disable=too-many-positional-arguments too-many-arguments line-too-long
-    request,
+    _request,
     new_access,
     selected_component,
     selected_id,

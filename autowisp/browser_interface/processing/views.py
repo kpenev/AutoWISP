@@ -99,6 +99,9 @@ def start_processing(request):
         encoding="utf-8",
         buffering=1,
     ) as outf:
+        # Not a with block, which would wait for the run: it is detached,
+        # and outlives the request.
+        # pylint: disable-next=consider-using-with
         proc = subprocess.Popen(
             cmd,
             start_new_session=(os.name == "posix"),
