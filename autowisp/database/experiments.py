@@ -203,16 +203,22 @@ class ProjectExperiments:
             "still be merged: "
             + ", ".join(f"{name} ({state})" for name, state in locking.items())
             + ". Merge or delete them, or unlock the project "
-            "('wisp-experiments unlock'), which marks them stale.",
+            "('wisp-experiments unlock'), which marks the current ones stale; "
+            "one still being created can only be deleted.",
             details={"experiments": locking},
         )
 
     def unlock(self):
         """
-        Release the lock by marking every experiment that is not stale.
+        Release the lock by marking every current experiment stale.
 
         Their configurations are kept: resetting the processing of one brings
         it up to date with the original, and so locks the original again.
+
+        Experiments still being created are left alone, and keep the lock:
+        their copy is incomplete, which their state is the only record of. A
+        stale experiment is a complete copy, which reset can use; one whose
+        create crashed is only deleted.
 
         Returns:
             [str]:    The names of the experiments marked stale.
@@ -224,7 +230,7 @@ class ProjectExperiments:
         unlocked = [
             experiment.name
             for experiment in experiments
-            if experiment.state != self._stale_state
+            if experiment.state == self._current_state
         ]
         if unlocked:
             # By name, so that an experiment created since the read above is

@@ -292,27 +292,31 @@ class TestProjectLock(_ProjectCopyCase):
         return {}
 
     def test_lock_and_unlock(self):
-        """Experiments not yet stale lock the project, until it is unlocked."""
+        """Experiments not yet stale lock the project; unlocking frees it of
+        the current ones, while one still being created keeps it locked."""
 
         # Each project: the states of its experiments, None for a project
-        # that is itself an experiment, and those that must lock it.
+        # that is itself an experiment, those that must lock it, and those
+        # that must still lock it once unlocked.
         projects = {
-            "an experiment": (None, {}),
-            "without experiments": ({}, {}),
+            "an experiment": (None, {}, {}),
+            "without experiments": ({}, {}, {}),
             "with stale experiments": (
                 {"exp1": "stale", "exp2": "stale"},
+                {},
                 {},
             ),
             "with experiments in every state": (
                 {"exp1": "current", "exp2": "creating", "exp3": "stale"},
                 {"exp1": "current", "exp2": "creating"},
+                {"exp2": "creating"},
             ),
         }
 
         locking = {}
         unlocked = {}
         locking_after = {}
-        for project, (states, _) in projects.items():
+        for project, (states, _, _) in projects.items():
             engine, project_home = self._copy_project()
             if states is None:
                 Experiment.__table__.drop(engine)
@@ -325,16 +329,19 @@ class TestProjectLock(_ProjectCopyCase):
 
         self.assertEqual(
             locking,
-            {project: expected for project, (_, expected) in projects.items()},
+            {project: before for project, (_, before, _) in projects.items()},
         )
         self.assertEqual(
             unlocked,
             {
-                project: sorted(expected)
-                for project, (_, expected) in projects.items()
+                project: sorted(set(before) - set(after))
+                for project, (_, before, after) in projects.items()
             },
         )
-        self.assertEqual(locking_after, dict.fromkeys(projects, {}))
+        self.assertEqual(
+            locking_after,
+            {project: after for project, (_, _, after) in projects.items()},
+        )
 
     def test_run_refused(self):
         """A run in a locked project is refused as it starts, and ended."""
