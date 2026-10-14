@@ -6,6 +6,7 @@ py_src = [
   'configuration.py',
   'diagnostic_expression.py',
   'error.py',
+  'experiment.py',
   'hdf5_attributes.py',
   'hdf5_datasets.py',
   'hdf5_links.py',

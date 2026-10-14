@@ -40,6 +40,7 @@ py_src = [
   'test_error_render.py',
   'test_evaluator.py',
   'test_exception_hierarchy.py',
+  'test_experiments.py',
   'test_exclusion_rules.py',
   'test_expression_series.py',
   'test_expressions.py',
