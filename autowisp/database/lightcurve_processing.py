@@ -262,6 +262,7 @@ class LightCurveProcessingManager(ProcessingManager):
                 The complete configuration to use for the specified processing.
         """
 
+        self._refuse_if_locked()
         self._create_current_processing(
             step, ("single_photref", db_sphotref.id), db_session
         )

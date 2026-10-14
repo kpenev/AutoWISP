@@ -840,6 +840,7 @@ class ImageProcessingManager(ProcessingManager):
                 The type of input expected by the current step.
         """
 
+        self._refuse_if_locked()
         self._create_current_processing(
             step, ("image_type", image_type.id), db_session
         )

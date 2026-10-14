@@ -7,6 +7,7 @@ from argparse import Namespace
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
+from autowisp.browser_interface.core.project_lock import get_lock_refusal
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
 from autowisp.database.interface import get_project_home
 from autowisp.file_utilities import find_fits_fnames
@@ -38,6 +39,11 @@ class SelectRawImages(WalkFSView):
         """Respond to user changing file selection configuration."""
 
         self._logger.debug("POST: %s", repr(request.POST))
+
+        # Only reached from a page shown before the project was locked: the
+        # progress page, which says why, no longer offers to add images.
+        if get_lock_refusal() is not None:
+            return HttpResponseRedirect(reverse("processing:progress"))
 
         dir_name = request.POST["currentdir"]
         image_list = []

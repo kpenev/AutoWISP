@@ -20,9 +20,12 @@ from sqlalchemy import (
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
+from autowisp import run_pipeline
 from autowisp.database.experiments import ProjectExperiments
 from autowisp.database.initialize_database import initialize_database
 from autowisp.database.interface import set_project_home, start_db_session
+from autowisp.error_context import get_error_context, set_error_context
+from autowisp.exceptions import ProjectLockedError
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
@@ -58,12 +61,12 @@ def _drop_timestamp_trigger(db_session, model):
     )
 
 
-class TestFingerprint(unittest.TestCase):
-    """Exactly the changes a merge must not lose change the fingerprint."""
+class _ProjectCopyCase(unittest.TestCase):
+    """A new project, created once, which each test changes copies of."""
 
     @classmethod
     def setUpClass(cls):
-        """Create a project with a row in each table the changes touch."""
+        """Create the project, leaving it the current one."""
 
         # Released via addClassCleanup, since it must outlive setUpClass.
         # pylint: disable-next=consider-using-with
@@ -74,6 +77,28 @@ class TestFingerprint(unittest.TestCase):
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True)
         )
+
+    def _copy_project(self):
+        """Return an engine on a copy of the project, and the copy's home."""
+
+        copy_home = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, copy_home)
+        db_fname = os.path.join(copy_home, "autowisp.db")
+        shutil.copy(os.path.join(self._template_home, "autowisp.db"), db_fname)
+        # No pool, so that nothing holds the file open when it is removed.
+        engine = create_engine(f"sqlite:///{db_fname}", poolclass=NullPool)
+        self.addCleanup(engine.dispose)
+        return engine, copy_home
+
+
+class TestFingerprint(_ProjectCopyCase):
+    """Exactly the changes a merge must not lose change the fingerprint."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Give the project a row in each table the changes touch."""
+
+        super().setUpClass()
         with start_db_session() as db_session:
             add_cameras(db_session)
             run = PipelineRun(
@@ -89,18 +114,6 @@ class TestFingerprint(unittest.TestCase):
                     user_message="Failed.",
                 )
             )
-
-    def _copy_project(self):
-        """Return an engine on a copy of the project, and the copy's home."""
-
-        copy_home = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, copy_home)
-        db_fname = os.path.join(copy_home, "autowisp.db")
-        shutil.copy(os.path.join(self._template_home, "autowisp.db"), db_fname)
-        # No pool, so that nothing holds the file open when it is removed.
-        engine = create_engine(f"sqlite:///{db_fname}", poolclass=NullPool)
-        self.addCleanup(engine.dispose)
-        return engine, copy_home
 
     @staticmethod
     def _get_fingerprint(engine, project_home):
@@ -247,6 +260,112 @@ class TestFingerprint(unittest.TestCase):
             changed,
             {change: expected for change, (_, expected) in changes.items()},
         )
+
+
+class TestProjectLock(_ProjectCopyCase):
+    """A project is locked while it has experiments that are not stale."""
+
+    @staticmethod
+    def _add_experiments(engine, states):
+        """Record experiments in the given states, ``{name: state}``."""
+
+        with Session(engine) as db_session, db_session.begin():
+            db_session.add_all(
+                Experiment(
+                    name=name,
+                    home=f"{{PROJHOME}}/experiments/{name}",
+                    created=func.now(),
+                    fingerprint="{}",
+                    state=state,
+                )
+                for name, state in states.items()
+            )
+
+    @staticmethod
+    def _get_locking(experiments):
+        """Return the states of the experiments a refusal names, by name."""
+
+        try:
+            experiments.refuse_if_locked()
+        except ProjectLockedError as error:
+            return error.details["experiments"]
+        return {}
+
+    def test_lock_and_unlock(self):
+        """Experiments not yet stale lock the project, until it is unlocked."""
+
+        # Each project: the states of its experiments, None for a project
+        # that is itself an experiment, and those that must lock it.
+        projects = {
+            "an experiment": (None, {}),
+            "without experiments": ({}, {}),
+            "with stale experiments": (
+                {"exp1": "stale", "exp2": "stale"},
+                {},
+            ),
+            "with experiments in every state": (
+                {"exp1": "current", "exp2": "creating", "exp3": "stale"},
+                {"exp1": "current", "exp2": "creating"},
+            ),
+        }
+
+        locking = {}
+        unlocked = {}
+        locking_after = {}
+        for project, (states, _) in projects.items():
+            engine, project_home = self._copy_project()
+            if states is None:
+                Experiment.__table__.drop(engine)
+            else:
+                self._add_experiments(engine, states)
+            experiments = ProjectExperiments(engine, project_home)
+            locking[project] = self._get_locking(experiments)
+            unlocked[project] = experiments.unlock()
+            locking_after[project] = self._get_locking(experiments)
+
+        self.assertEqual(
+            locking,
+            {project: expected for project, (_, expected) in projects.items()},
+        )
+        self.assertEqual(
+            unlocked,
+            {
+                project: sorted(expected)
+                for project, (_, expected) in projects.items()
+            },
+        )
+        self.assertEqual(locking_after, dict.fromkeys(projects, {}))
+
+    def test_run_refused(self):
+        """A run in a locked project is refused as it starts, and ended."""
+
+        engine, project_home = self._copy_project()
+        self._add_experiments(engine, {"exp1": "current"})
+        image_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, image_dir)
+        # The run makes itself the context of every error recorded later,
+        # which a test of another project must not inherit.
+        self.addCleanup(set_error_context, get_error_context())
+
+        # No steps, as the BUI adds images: only the check at the start of
+        # the run can refuse it.
+        with self.assertRaises(ProjectLockedError):
+            run_pipeline.main(
+                Namespace(
+                    project_home=project_home,
+                    add_raw_images=[image_dir],
+                    steps=[],
+                    step_imtypes=[],
+                )
+            )
+        with Session(engine) as db_session:
+            self.assertEqual(
+                [
+                    run.finished is not None
+                    for run in db_session.scalars(select(PipelineRun))
+                ],
+                [True],
+            )
 
 
 # pylint: enable=not-callable

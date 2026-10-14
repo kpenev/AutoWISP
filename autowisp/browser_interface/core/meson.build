@@ -4,6 +4,7 @@ py_src = [
   'apps.py',
   'context_processors.py',
   'plot_utils.py',
+  'project_lock.py',
   'models.py',
   'tests.py',
   'timestamp_triggers.py',

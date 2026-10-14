@@ -34,6 +34,14 @@ Processing Progress
     Processing
 </div>
 {% endif %}
+{% elif locked %}
+<!-- Locked by experiments: the message area says which, and how to release
+     them. -->
+<div class="lcars-element
+            lcars-golden-tanoi-bg
+            lcars-u-1-2">
+    Locked by experiments
+</div>
 {% else %}
 <!-- Submit Start Processing with selected steps. When open processing
      errors exist the button turns red and requires a second click to
@@ -56,15 +64,17 @@ Processing Progress
 </button>
 {% endif %}
 
+{% if not locked %}
 <a href="{% url 'processing:select_raw_images' %}" id="tutorial-add-images-link">
-    <div class="lcars-element 
-                              button 
+    <div class="lcars-element
+                              button
                               lcars-husk-bg
                               lcars-u-1"
          id="tutorial-add-images">
         Add New Images
     </div>
 </a>
+{% endif %}
 {% endblock left_menu %}
 
 {% block main %}

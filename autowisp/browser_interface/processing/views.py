@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 import platformdirs
 
 from autowisp import run_pipeline
+from autowisp.browser_interface.core.project_lock import get_lock_refusal
 from autowisp.database.interface import get_project_home
 
 # This module should collect all views
@@ -44,6 +45,12 @@ from .error_views import (
 
 def start_processing(request):
     """Run the pipeline to complete any pending processing tasks."""
+
+    # Only reached from a page shown before the project was locked: the
+    # progress page, which says why, no longer offers to start.
+    if get_lock_refusal() is not None:
+        return redirect("processing:progress")
+
     cmd = [
         executable,
         run_pipeline.__file__,

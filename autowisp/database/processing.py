@@ -17,7 +17,12 @@ from autowisp.multiprocessing_util import (
     setup_process,
     get_log_outerr_filenames,
 )
-from autowisp.database.interface import start_db_session, get_project_home
+from autowisp.database.interface import (
+    get_db_engine,
+    get_project_home,
+    start_db_session,
+)
+from autowisp.database.experiments import ProjectExperiments
 from autowisp.exceptions import ConfigurationError, PipelineError
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
@@ -777,6 +782,20 @@ class ProcessingManager:
                 **self._processing_config,
             ),
         )
+
+    @staticmethod
+    def _refuse_if_locked():
+        """
+        Raise if the project has become locked since the run checked.
+
+        Called as each step starts, so that a run an experiment's creation
+        failed to see as active stops at the next step, rather than
+        processing the locked original to the end.
+        """
+
+        ProjectExperiments(
+            get_db_engine(), get_project_home()
+        ).refuse_if_locked()
 
     def _create_current_processing(self, step, target, db_session):
         """Add a new ProcessingProgress at start of given step."""

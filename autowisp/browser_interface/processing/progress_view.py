@@ -3,8 +3,10 @@
 import logging
 
 from sqlalchemy import select
+from django.contrib import messages
 from django.shortcuts import render
 
+from autowisp.browser_interface.core.project_lock import get_lock_refusal
 from autowisp.database.interface import start_db_session
 from autowisp.database.pipeline_runs import find_active_runs
 from autowisp.database.user_interface import (
@@ -48,6 +50,14 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
             "running": False,
             "refresh_seconds": 0,
         }
+
+    # A locked project offers neither starting a run nor adding images, and
+    # says why here; the views doing either send a refusal back to this page.
+    lock_refusal = get_lock_refusal()
+    context["locked"] = lock_refusal is not None
+    if context["locked"]:
+        messages.info(request, lock_refusal)
+
     with start_db_session() as db_session:
         context["channels"] = sorted(list_channels(db_session))
         channel_index = {

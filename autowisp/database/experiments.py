@@ -9,15 +9,17 @@ it an experiment.
 
 import hashlib
 import json
+from contextlib import contextmanager
 
 from alembic.runtime.migration import MigrationContext
-from sqlalchemy import MetaData, inspect as sa_inspect, select
+from sqlalchemy import MetaData, inspect as sa_inspect, select, update
 from sqlalchemy.orm import Session
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import Experiment
 
 # pylint: enable=no-name-in-module
+from autowisp.exceptions import ProjectLockedError
 
 
 class ProjectExperiments:
@@ -135,6 +137,21 @@ class ProjectExperiments:
         self._engine = engine
         self._home = project_home
 
+    @contextmanager
+    def _begin_session(self):
+        """
+        Yield a session on the original's database, within a transaction.
+
+        The transaction is committed on leaving the block, and rolled back if
+        it raises. Objects loaded in it stay readable afterwards.
+        """
+
+        with (
+            Session(self._engine, expire_on_commit=False) as db_session,
+            db_session.begin(),
+        ):
+            yield db_session
+
     def get_experiments(self):
         """
         Return the experiments of the project, or None if it is an experiment.
@@ -149,7 +166,7 @@ class ProjectExperiments:
                 has no ``experiment`` table, i.e. is an experiment itself.
         """
 
-        with Session(self._engine, expire_on_commit=False) as db_session:
+        with self._begin_session() as db_session:
             if not sa_inspect(db_session.connection()).has_table(
                 Experiment.__tablename__
             ):
@@ -157,6 +174,68 @@ class ProjectExperiments:
             return list(
                 db_session.scalars(select(Experiment).order_by(Experiment.name))
             )
+
+    def refuse_if_locked(self):
+        """
+        Raise if the project is locked: it has experiments not yet stale.
+
+        Any change to the original makes its experiments unmergeable, so it
+        is refused while one could still be merged. One still being created
+        counts: it is locked from the moment its row is inserted. An
+        experiment, having no ``experiment`` table, is never locked.
+
+        Raises:
+            ProjectLockedError:    Naming the experiments holding the lock.
+        """
+
+        experiments = self.get_experiments()
+        if experiments is None:
+            return
+        locking = {
+            experiment.name: experiment.state
+            for experiment in experiments
+            if experiment.state != self._stale_state
+        }
+        if not locking:
+            return
+        raise ProjectLockedError(
+            "The project cannot be changed while it has experiments that may "
+            "still be merged: "
+            + ", ".join(f"{name} ({state})" for name, state in locking.items())
+            + ". Merge or delete them, or unlock the project "
+            "('wisp-experiments unlock'), which marks them stale.",
+            details={"experiments": locking},
+        )
+
+    def unlock(self):
+        """
+        Release the lock by marking every experiment that is not stale.
+
+        Their configurations are kept: resetting the processing of one brings
+        it up to date with the original, and so locks the original again.
+
+        Returns:
+            [str]:    The names of the experiments marked stale.
+        """
+
+        experiments = self.get_experiments()
+        if experiments is None:
+            return []
+        unlocked = [
+            experiment.name
+            for experiment in experiments
+            if experiment.state != self._stale_state
+        ]
+        if unlocked:
+            # By name, so that an experiment created since the read above is
+            # not marked stale without being reported.
+            with self._begin_session() as db_session:
+                db_session.execute(
+                    update(Experiment)
+                    .where(Experiment.name.in_(unlocked))
+                    .values(state=self._stale_state)
+                )
+        return unlocked
 
     def _select_hashed_rows(self, table):
         """

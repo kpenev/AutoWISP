@@ -601,6 +601,10 @@ class DependencyResolutionError(PipelineError):
     """Failure resolving processing-step dependencies."""
 
 
+class ProjectLockedError(PipelineError):
+    """A change refused because the project has experiments not yet stale."""
+
+
 # --- BUI-level exceptions. --------------------------------------------
 
 

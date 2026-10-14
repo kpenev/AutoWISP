@@ -8,6 +8,7 @@ from sqlalchemy import select, func, delete
 from django.contrib import messages
 from django.shortcuts import render, redirect, HttpResponse
 
+from autowisp.browser_interface.core.project_lock import get_lock_refusal
 from autowisp.browser_interface.diagnostics.expression_views import (
     get_expression_warnings,
 )
@@ -151,9 +152,13 @@ def save_config(request, version):
     redirect, rendering the tree and using up the warnings before the reload
     could show them. A configuration that cannot be saved, e.g. one with a
     relative path, is answered with the reason as plain text, which the page
-    shows instead of reloading, so the edits are kept to be corrected.
+    shows instead of reloading, so the edits are kept to be corrected. So is
+    one refused because the project is locked by its experiments.
     """
 
+    refusal = get_lock_refusal()
+    if refusal is not None:
+        return HttpResponse(refusal, status=409, content_type="text/plain")
     try:
         save_json_config(request.body, version)
     except ConfigurationError as error:
