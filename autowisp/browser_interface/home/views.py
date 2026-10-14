@@ -286,13 +286,8 @@ def delete_image_products(
             logger.warning("Raw FITS file missing, skipping: %s", raw_path)
             continue
 
-        header = get_primary_header(raw_path)
+        header = get_primary_header(raw_path, add_filename_keywords=True)
         header["PROJHOME"] = project_home
-        base_fname = os.path.basename(raw_path)
-        for ext in [".fz", ".fits"]:
-            if base_fname.endswith(ext):
-                base_fname = base_fname[: -len(ext)]
-        header["RAWFNAME"] = base_fname
 
         for kind, pattern in patterns.items():
             for channel_name in channel_names:
