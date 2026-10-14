@@ -19,7 +19,8 @@ class Experiment(DataModelBase):
     drop it from the copy, and nothing in the copy refers to its original.
     So **a missing table means the project is an experiment**, which is why
     every read of it goes through
-    :meth:`autowisp.database.experiments.ProjectExperiments.get_experiments`.
+    ``ProjectExperiments._read_experiments``
+    (:mod:`autowisp.database.experiments`).
 
     A later revision changing this table must leave a missing one missing.
     Recreating it would silently turn an experiment into an ordinary project,

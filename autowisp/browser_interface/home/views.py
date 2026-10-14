@@ -20,6 +20,7 @@ from autowisp.database.interface import (
     get_db_engine,
     DB_URL_FNAME,
 )
+from autowisp.database.migrate import describe_migration
 from autowisp.error_persistence import delete_all_error_sidecars
 from autowisp.exceptions import DatabaseError, ViewError
 from autowisp.database.data_model.base import DataModelBase
@@ -497,15 +498,10 @@ def select_project(request, project_id):
         return redirect("home:home")
 
     if migration is not None and migration["from"] != migration["to"]:
-        messages.info(
+        messages.add_message(
             request,
-            f"Updated the project database from {migration['from']} to "
-            f"{migration['to']}."
-            + (
-                f" Previous version saved as {migration['backup']}."
-                if migration["backup"]
-                else ""
-            ),
+            messages.WARNING if migration["stale"] else messages.INFO,
+            describe_migration(migration),
         )
 
     request.session["project_home"] = project.path

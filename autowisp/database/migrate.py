@@ -37,6 +37,7 @@ from sqlalchemy import event, inspect as sa_inspect, text
 
 from autowisp.database.data_model import timestamp_trigger_ddl
 from autowisp.database.data_model.base import DataModelBase
+from autowisp.database.experiments import ProjectExperiments
 from autowisp.exceptions import DatabaseError
 
 BASELINE_REVISION = "0001_baseline"  # pylint: disable=invalid-name
@@ -499,6 +500,10 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
       ``0001_baseline``, then upgrade;
     - **empty** -- create the schema and stamp head.
 
+    A project with experiments keeps them mergeable across the migration
+    (:meth:`~autowisp.database.experiments.ProjectExperiments.keep_mergeable`),
+    marking stale those the project had already changed since.
+
     Args:
         engine:    The SQLAlchemy engine for the project database.
 
@@ -512,9 +517,11 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
             proceeding without a backup has to be a deliberate choice.
 
     Returns:
-        dict:    ``{"from": ..., "to": ..., "backup": ...}``. ``from`` equals
-        ``to`` if the database was already current. Which revisions ran in
-        between is Alembic's business, not something worth recomputing here.
+        dict:    ``{"from": ..., "to": ..., "backup": ..., "stale": [...]}``.
+        ``from`` equals ``to`` if the database was already current. Which
+        revisions ran in between is Alembic's business, not something worth
+        recomputing here. ``stale`` names the experiments marked stale.
+        :func:`describe_migration` puts it in words.
 
     Raises:
         DatabaseError:    If a server database is migrated without
@@ -525,7 +532,7 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
 
     current = get_project_revision(engine)
     head = get_head_revision()
-    result = {"from": current, "to": head, "backup": None}
+    result = {"from": current, "to": head, "backup": None, "stale": []}
     if current == head:
         # Already current, but possibly damaged by rebuilds an earlier
         # release performed, so it would otherwise never be repaired: the
@@ -579,15 +586,55 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
 
         config.attributes["connection"] = connection
         config.attributes["project_home"] = project_home
-        alembic.command.upgrade(config, "head")
+        # The checks below are inside, so that a project they reject rolls
+        # back before the experiments' new fingerprint is computed.
+        with ProjectExperiments(engine, project_home).keep_mergeable(
+            connection
+        ) as stale:
+            alembic.command.upgrade(config, "head")
 
-        # Whatever the revisions just did, leave the triggers correct. A
-        # rebuild drops them silently, so this cannot be left to each
-        # revision to remember.
-        restore_timestamp_triggers(connection)
+            # Whatever the revisions just did, leave the triggers correct. A
+            # rebuild drops them silently, so this cannot be left to each
+            # revision to remember.
+            restore_timestamp_triggers(connection)
 
-        # Last, so that it covers whatever the revisions left as well as
-        # what the project already held.
-        _check_foreign_keys(connection)
+            # Last, so that it covers whatever the revisions left as well as
+            # what the project already held.
+            _check_foreign_keys(connection)
+        result["stale"] = stale
 
     return result
+
+
+def describe_migration(result):
+    """
+    Return what a migration did, in words, for whoever started it.
+
+    The one wording of a migration's result: ``wisp-migrate`` prints it, and
+    the browser interface shows it when a project is selected.
+
+    Args:
+        result(dict):    What :func:`migrate_project` returned.
+
+    Returns:
+        str:    The revisions migrated from and to, the backup made, and the
+            experiments marked stale.
+    """
+
+    if result["from"] == result["to"]:
+        return f"The project database is up to date at {result['to']}."
+
+    description = (
+        f"Updated the project database from {result['from']} to "
+        f"{result['to']}."
+    )
+    if result["backup"]:
+        description += f" The previous version is saved as {result['backup']}."
+    if result["stale"]:
+        description += (
+            " The project had changed since these experiments were created, "
+            "so they can no longer be merged: "
+            + ", ".join(result["stale"])
+            + ". Resetting their processing brings them up to date."
+        )
+    return description

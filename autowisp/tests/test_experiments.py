@@ -1,5 +1,6 @@
-"""Tests of a project's record of its experiments, and of its fingerprint."""
+"""Tests of a project's experiments: what locks it, what makes them stale."""
 
+import json
 import os
 import shutil
 import tempfile
@@ -24,6 +25,7 @@ from autowisp import run_pipeline
 from autowisp.database.experiments import ProjectExperiments
 from autowisp.database.initialize_database import initialize_database
 from autowisp.database.interface import set_project_home, start_db_session
+from autowisp.database.migrate import migrate_project
 from autowisp.error_context import get_error_context, set_error_context
 from autowisp.exceptions import ProjectLockedError
 
@@ -61,6 +63,25 @@ def _drop_timestamp_trigger(db_session, model):
     )
 
 
+def _stamp_previous_revision(engine):
+    """Make the project look one revision behind, changing nothing else.
+
+    It stands in for a project to migrate while there is no revision after
+    the one creating the ``experiment`` table: that revision finds its table
+    there and does nothing, but the project's revision does change.
+    """
+
+    with Session(engine) as db_session, db_session.begin():
+        version = Table(
+            "alembic_version",
+            MetaData(),
+            autoload_with=db_session.connection(),
+        )
+        db_session.execute(
+            update(version).values(version_num="0020_pipeline_run_identity")
+        )
+
+
 class _ProjectCopyCase(unittest.TestCase):
     """A new project, created once, which each test changes copies of."""
 
@@ -90,9 +111,25 @@ class _ProjectCopyCase(unittest.TestCase):
         self.addCleanup(engine.dispose)
         return engine, copy_home
 
+    @staticmethod
+    def _add_experiments(engine, states, fingerprint="{}"):
+        """Record experiments in the given states, ``{name: state}``."""
 
-class TestFingerprint(_ProjectCopyCase):
-    """Exactly the changes a merge must not lose change the fingerprint."""
+        with Session(engine) as db_session, db_session.begin():
+            db_session.add_all(
+                Experiment(
+                    name=name,
+                    home=f"{{PROJHOME}}/experiments/{name}",
+                    created=func.now(),
+                    fingerprint=fingerprint,
+                    state=state,
+                )
+                for name, state in states.items()
+            )
+
+
+class TestStaleness(_ProjectCopyCase):
+    """Migrating marks stale the experiments a merge would lose changes of."""
 
     @classmethod
     def setUpClass(cls):
@@ -117,16 +154,27 @@ class TestFingerprint(_ProjectCopyCase):
 
     @staticmethod
     def _get_fingerprint(engine, project_home):
-        """Return the fingerprint of the given project."""
+        """Return the project's fingerprint, as an experiment records it.
+
+        Only creating an experiment produces one, and create does not exist
+        yet (SUP-572); once it does, the tests create their experiments.
+        """
 
         with engine.connect() as connection:
-            # pylint: disable-next=protected-access
-            return ProjectExperiments(engine, project_home)._get_fingerprint(
-                connection
+            return json.dumps(
+                # pylint: disable-next=protected-access
+                ProjectExperiments(engine, project_home)._get_fingerprint(
+                    connection
+                )
             )
 
     def test_changes_seen(self):
-        """Each change, made to its own copy, changes only what it must."""
+        """Each change, made to its own copy, makes stale only what it must.
+
+        Every copy holds an experiment of each state, recorded as the project
+        stood: the current one becomes stale if the change is one a merge
+        would lose, while the others keep their states whatever it is.
+        """
 
         def update_within_the_second(db_session):
             # Without the trigger the timestamp stays as it was, as it does
@@ -151,16 +199,6 @@ class TestFingerprint(_ProjectCopyCase):
                 )
             )
 
-        def stamp_previous_revision(db_session):
-            version = Table(
-                "alembic_version",
-                MetaData(),
-                autoload_with=db_session.connection(),
-            )
-            return db_session.execute(
-                update(version).values(version_num="0020_pipeline_run_identity")
-            )
-
         def restamp(db_session):
             # Without the trigger the timestamp certainly changes, rather
             # than being set to the second it already holds.
@@ -169,43 +207,37 @@ class TestFingerprint(_ProjectCopyCase):
                 update(Parameter).values(timestamp=datetime(2000, 1, 1))
             )
 
-        # Each change: the function making it, and what it must change. The
-        # function returns the result of its update or delete, if it has one.
+        # Each change: the function making it, and whether a merge would
+        # lose it, making the current experiment stale. The function returns
+        # the result of its update or delete, if it has one.
         changes = {
-            "value updated within the second": (
-                update_within_the_second,
-                {"step"},
-            ),
+            "value updated within the second": (update_within_the_second, True),
             "row deleted": (
                 lambda db_session: db_session.execute(
                     delete(DiagnosticExpression)
                 ),
-                {"diagnostic_expression"},
+                True,
             ),
             "row inserted": (
                 lambda db_session: db_session.add(
                     ImageType(name="test", description="Added by the test.")
                 ),
-                {"image_type"},
+                True,
             ),
-            "row deleted without a primary key": (
-                delete_unkeyed_row,
-                {"step_parameters"},
-            ),
+            "row deleted without a primary key": (delete_unkeyed_row, True),
             "notes edited": (
                 lambda db_session: db_session.execute(
                     update(Camera).values(notes="Edited.")
                 ),
-                {"camera"},
+                True,
             ),
             "run finished": (
                 lambda db_session: db_session.execute(
                     update(PipelineRun).values(finished=func.now())
                 ),
-                {"pipeline_run"},
+                True,
             ),
-            "migrated": (stamp_previous_revision, {"revision"}),
-            "restamped": (restamp, set()),
+            "restamped": (restamp, False),
             "error added": (
                 lambda db_session: db_session.add(
                     Error(
@@ -214,72 +246,69 @@ class TestFingerprint(_ProjectCopyCase):
                         user_message="Failed.",
                     )
                 ),
-                set(),
+                False,
             ),
             "error resolved": (
                 lambda db_session: db_session.execute(
                     update(Error).values(resolved=func.now())
                 ),
-                set(),
+                False,
             ),
             "experiment added": (
                 lambda db_session: db_session.add(
                     Experiment(
-                        name="exp1",
-                        home="{PROJHOME}/experiments/exp1",
+                        name="exp4",
+                        home="{PROJHOME}/experiments/exp4",
                         created=func.now(),
                         fingerprint="{}",
                         state="creating",
                     )
                 ),
-                set(),
+                False,
             ),
         }
+        states = {"exp1": "current", "exp2": "stale", "exp3": "creating"}
 
-        original = self._get_fingerprint(*self._copy_project())
-        changed = {}
+        outcome = {}
         for change, (make_change, _) in changes.items():
             engine, project_home = self._copy_project()
+            _stamp_previous_revision(engine)
+            self._add_experiments(
+                engine, states, self._get_fingerprint(engine, project_home)
+            )
             with Session(engine) as db_session, db_session.begin():
                 result = make_change(db_session)
                 if result is not None:
                     self.assertGreater(
                         result.rowcount, 0, f"{change!r} changed nothing."
                     )
-            fingerprint = self._get_fingerprint(engine, project_home)
-            changed[change] = {
-                name
-                for name in set(original["tables"]) | set(fingerprint["tables"])
-                if original["tables"].get(name)
-                != fingerprint["tables"].get(name)
-            }
-            if fingerprint["revision"] != original["revision"]:
-                changed[change].add("revision")
+
+            migration = migrate_project(engine, project_home)
+            outcome[change] = (
+                {
+                    experiment.name: experiment.state
+                    for experiment in ProjectExperiments(
+                        engine, project_home
+                    ).get_experiments()
+                    if experiment.name in states
+                },
+                migration["stale"],
+            )
 
         self.assertEqual(
-            changed,
-            {change: expected for change, (_, expected) in changes.items()},
+            outcome,
+            {
+                change: (
+                    dict(states, exp1="stale" if seen else "current"),
+                    ["exp1"] if seen else [],
+                )
+                for change, (_, seen) in changes.items()
+            },
         )
 
 
 class TestProjectLock(_ProjectCopyCase):
     """A project is locked while it has experiments that are not stale."""
-
-    @staticmethod
-    def _add_experiments(engine, states):
-        """Record experiments in the given states, ``{name: state}``."""
-
-        with Session(engine) as db_session, db_session.begin():
-            db_session.add_all(
-                Experiment(
-                    name=name,
-                    home=f"{{PROJHOME}}/experiments/{name}",
-                    created=func.now(),
-                    fingerprint="{}",
-                    state=state,
-                )
-                for name, state in states.items()
-            )
 
     @staticmethod
     def _get_locking(experiments):

@@ -12,6 +12,7 @@ from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.database.interface import set_project_home, get_db_engine
 from autowisp.database.migrate import (
+    describe_migration,
     get_head_revision,
     get_project_revision,
 )
@@ -75,11 +76,5 @@ def main(config=None):
         print(f"Created a new project database at {get_head_revision()}.")
         return 0
 
-    if result["from"] == result["to"]:
-        print(f"Already up to date at {result['to']}.")
-        return 0
-
-    if result["backup"]:
-        print(f"Backed up to {result['backup']}")
-    print(f"Migrated from {result['from']} to {result['to']}.")
+    print(describe_migration(result))
     return 0

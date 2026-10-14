@@ -61,8 +61,8 @@ from autowisp.tests.test_parameter_description_length import (
 from autowisp.tests.test_path_options import TestPathOptions
 from autowisp.tests.test_pipeline_runs import TestFindActiveRuns
 from autowisp.tests.test_experiments import (
-    TestFingerprint,
     TestProjectLock,
+    TestStaleness,
 )
 from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
 from autowisp.tests.test_suite_registration import TestSuiteRegistration

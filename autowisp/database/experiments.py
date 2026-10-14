@@ -152,13 +152,36 @@ class ProjectExperiments:
         ):
             yield db_session
 
-    def get_experiments(self):
+    @staticmethod
+    def _read_experiments(db_session):
         """
         Return the experiments of the project, or None if it is an experiment.
 
         Every read of the ``experiment`` table goes through here: its absence
         is what marks a project as an experiment, and only here is that
-        decided.
+        decided. Takes the session to read in, since a migration has to read
+        on its own connection (see :meth:`keep_mergeable`).
+
+        Args:
+            db_session:    A session on the original's database.
+
+        Returns:
+            [Experiment] or None:    The project's experiments, by name; None
+                if the project has no ``experiment`` table, i.e. is an
+                experiment itself.
+        """
+
+        if not sa_inspect(db_session.connection()).has_table(
+            Experiment.__tablename__
+        ):
+            return None
+        return list(
+            db_session.scalars(select(Experiment).order_by(Experiment.name))
+        )
+
+    def get_experiments(self):
+        """
+        Return the experiments of the project, or None if it is an experiment.
 
         Returns:
             [Experiment] or None:    The project's experiments, by name,
@@ -167,13 +190,7 @@ class ProjectExperiments:
         """
 
         with self._begin_session() as db_session:
-            if not sa_inspect(db_session.connection()).has_table(
-                Experiment.__tablename__
-            ):
-                return None
-            return list(
-                db_session.scalars(select(Experiment).order_by(Experiment.name))
-            )
+            return self._read_experiments(db_session)
 
     def refuse_if_locked(self):
         """
@@ -242,6 +259,85 @@ class ProjectExperiments:
                     .values(state=self._stale_state)
                 )
         return unlocked
+
+    @contextmanager
+    def keep_mergeable(self, connection):
+        """
+        Keep the experiments mergeable across the migration in the block.
+
+        A migration changes the original's rows, which would make every
+        experiment look stale and unmergeable for nothing. So around it:
+
+        * on entering, every current experiment whose recorded fingerprint
+          differs from the original's is marked stale: the original changed
+          after it was copied, which had already made it unmergeable;
+
+        * on leaving normally, the original's new fingerprint is recorded in
+          every experiment still current. Each migrates with the same
+          revisions when next opened, so it stays mergeable.
+
+        Without a current experiment, no fingerprint is read. One still being
+        created is left alone, having no fingerprint to compare until its
+        copy completes.
+
+        Everything is done on the given connection, within its transaction,
+        which commits or rolls back with the migration: another connection
+        would wait on the lock the migration holds.
+
+        Args:
+            connection:    The connection the migration runs on, inside its
+                transaction.
+
+        Yields:
+            [str]:    The names of the experiments marked stale.
+        """
+
+        # The session joins the connection's transaction, leaving committing
+        # it to the migration.
+        with Session(bind=connection) as db_session:
+            current = [
+                experiment
+                for experiment in self._read_experiments(db_session) or []
+                if experiment.state == self._current_state
+            ]
+            stale = []
+            if current:
+                fingerprint = self._get_fingerprint(connection)
+                stale = [
+                    experiment.name
+                    for experiment in current
+                    if json.loads(experiment.fingerprint) != fingerprint
+                ]
+                if stale:
+                    db_session.execute(
+                        update(Experiment)
+                        .where(Experiment.name.in_(stale))
+                        .values(state=self._stale_state)
+                    )
+
+            yield stale
+
+            still_current = [
+                experiment.name
+                for experiment in current
+                if experiment.name not in stale
+            ]
+            if still_current:
+                db_session.execute(
+                    update(Experiment)
+                    .where(Experiment.name.in_(still_current))
+                    .values(
+                        fingerprint=self._dump_fingerprint(
+                            self._get_fingerprint(connection)
+                        )
+                    )
+                )
+
+    @staticmethod
+    def _dump_fingerprint(fingerprint):
+        """Return the fingerprint as stored in an experiment's row."""
+
+        return json.dumps(fingerprint, sort_keys=True)
 
     def _select_hashed_rows(self, table):
         """
