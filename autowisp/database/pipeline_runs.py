@@ -13,7 +13,6 @@ project's server database, each needs an identifier of its own.
 """
 
 import logging
-import os
 from functools import cache
 
 import machineid
@@ -75,10 +74,6 @@ def is_this_machine(pipeline_run):
 def _is_process_alive(pipeline_run):
     """Is the process of a run of this machine still running it?"""
 
-    if pipeline_run.process_id == os.getpid():
-        # The only run recorded by the process asking is the BUI adding raw
-        # images, which is over by the time anything asks.
-        return False
     try:
         process = psutil.Process(pipeline_run.process_id)
         if process.status() == psutil.STATUS_ZOMBIE:
@@ -130,3 +125,44 @@ def find_active_runs(db_session):
             # pylint: disable-next=not-callable
             pipeline_run.finished = sql.func.now()
     return here, elsewhere
+
+
+def find_earlier_run(db_session, pipeline_run_id):
+    """
+    Return the earliest run of this machine still going, if before this one.
+
+    A run records itself, then calls this, and gives up if it returns a run:
+    the tie between runs starting together is broken by their ids, which
+    the database hands out in the order the runs recorded themselves, so
+    exactly one of them goes on, whichever order they check in. A run of
+    another machine may have ended without anyone here being able to tell,
+    and is warned about rather than waited for.
+
+    Args:
+        db_session:    The session to read the runs in, as for
+            find_active_runs().
+
+        pipeline_run_id(int):    The id of the run asking, already recorded.
+
+    Returns:
+        PipelineRun or None:    The earliest run going on this machine, if it
+        was recorded before the one asking.
+    """
+
+    here, elsewhere = find_active_runs(db_session)
+    for pipeline_run in elsewhere:
+        _logger.warning(
+            "Run %d, on %s, has not finished; it may still be processing "
+            "this project.",
+            pipeline_run.id,
+            pipeline_run.host,
+        )
+    return min(
+        (
+            pipeline_run
+            for pipeline_run in here
+            if pipeline_run.id < pipeline_run_id
+        ),
+        key=lambda pipeline_run: pipeline_run.id,
+        default=None,
+    )

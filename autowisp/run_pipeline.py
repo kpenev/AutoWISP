@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from contextlib import contextmanager
 from traceback import format_exc
 
 from configargparse import ArgumentParser, DefaultsFormatter, SUPPRESS
@@ -10,17 +11,20 @@ from sqlalchemy import sql, update
 import platformdirs
 
 from autowisp.database.interface import (
+    get_db_engine,
     start_db_session,
     set_project_home,
     get_project_home,
     snapshot_row,
 )
+from autowisp.database.migrate import locked_connection
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     PipelineRun,
 )
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.database.pipeline_runs import (
+    find_earlier_run,
     get_machine_id,
     get_process_started,
 )
@@ -129,6 +133,30 @@ def _record_escaping_error(exc):
     report_error(exc)
 
 
+@contextmanager
+def _lock_run_start():
+    """
+    Let one run at a time record itself, on a server database.
+
+    find_earlier_run() needs the runs' rows to become visible in the order of
+    their ids. SQLite sees to that: an insert holds the write lock until the
+    commit. A server hands the id out at the insert, so a run recorded later
+    could commit first and check without seeing the earlier one. Its
+    migration lock serializes them: recording takes too little time for
+    sharing the lock with migrating to matter.
+
+    Not taken on SQLite, where it would deadlock: the lock there makes every
+    transaction of the engine wait for the write lock it holds.
+    """
+
+    engine = get_db_engine()
+    if engine.dialect.name == "sqlite":
+        yield
+        return
+    with locked_connection(engine):
+        yield
+
+
 def _run_pipeline(config):
     """Create the pipeline run and drive image + lightcurve processing."""
 
@@ -151,7 +179,7 @@ def _run_pipeline(config):
 
     # setup_process_map(db_fname, dummy_config)
 
-    with start_db_session() as db_session:
+    with _lock_run_start(), start_db_session() as db_session:
         pipeline_run = PipelineRun(
             host=get_hostname(),
             process_id=os.getpid(),
@@ -170,6 +198,38 @@ def _run_pipeline(config):
         db_session.flush()
         set_pipeline_run(snapshot_row(pipeline_run))
         pipeline_run = pipeline_run.id
+
+    try:
+        _process(config, pipeline_run)
+    finally:
+        # However the run ends, since its process may go on: the BUI adds raw
+        # images by calling main() in its own process, and the run would
+        # otherwise look alive for as long as the BUI is.
+        with start_db_session() as db_session:
+            db_session.execute(
+                update(PipelineRun).where(PipelineRun.id == pipeline_run)
+                # pylint: disable-next=not-callable
+                .values(finished=sql.func.now())
+            )
+
+
+def _process(config, pipeline_run):
+    """Add the images and process them, as the run with the given id."""
+
+    # Recorded first, then checked, so that of runs starting together
+    # exactly one goes on (find_earlier_run). Only adding images is left to
+    # go alongside a run.
+    if config.steps is None or config.steps:
+        with start_db_session() as db_session:
+            earlier = find_earlier_run(db_session, pipeline_run)
+            if earlier is not None:
+                logging.warning(
+                    "Not processing: run %d (process %d) is already "
+                    "processing this project.",
+                    earlier.id,
+                    earlier.process_id,
+                )
+                return
 
     step_imtype_filter = None
     if hasattr(config, "step_imtypes") and config.step_imtypes:
@@ -213,13 +273,6 @@ def _run_pipeline(config):
 
         LightCurveProcessingManager(pipeline_run_id=pipeline_run)(
             limit_to_steps=config.steps
-        )
-
-    with start_db_session() as db_session:
-        db_session.execute(
-            update(PipelineRun)
-            .where(PipelineRun.id == pipeline_run)
-            .values(finished=sql.func.now())  # pylint: disable=not-callable
         )
 
 

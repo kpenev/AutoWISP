@@ -126,10 +126,9 @@ class TestFindActiveRuns(unittest.TestCase):
             "process_id": self._live.pid,
             "process_started": self._live_started,
         }
+        # Recorded in this order, so that each run not going on here is
+        # earlier than every run that is.
         runs = {
-            "live": {**this_machine, **live},
-            # SUP-491: the machine renamed itself while the run went on.
-            "renamed": {**this_machine, **live, "host": "old-name"},
             "reused_id": {
                 **this_machine,
                 **live,
@@ -140,12 +139,16 @@ class TestFindActiveRuns(unittest.TestCase):
                 "process_id": self._dead_pid,
                 "process_started": self._live_started,
             },
+            "other_machine": {"machine_id": "other-machine", **live},
+            "live": {**this_machine, **live},
+            # SUP-491: the machine renamed itself while the run went on.
+            "renamed": {**this_machine, **live, "host": "old-name"},
+            # The run asking, e.g. run_pipeline checking for earlier runs.
             "own_process": {
                 **this_machine,
                 "process_id": os.getpid(),
                 "process_started": pipeline_runs.get_process_started(),
             },
-            "other_machine": {"machine_id": "other-machine", **live},
             "legacy": {"process_id": self._live.pid},
             "legacy_other_host": {
                 "process_id": self._dead_pid,
@@ -162,7 +165,13 @@ class TestFindActiveRuns(unittest.TestCase):
 
         here, elsewhere = self._find()
 
-        self.assertEqual(here, {ids["live"], ids["renamed"], ids["legacy"]})
+        self.assertEqual(
+            here,
+            {
+                ids[name]
+                for name in ("live", "renamed", "own_process", "legacy")
+            },
+        )
         self.assertEqual(
             elsewhere, {ids["other_machine"], ids["legacy_other_host"]}
         )
@@ -170,10 +179,22 @@ class TestFindActiveRuns(unittest.TestCase):
             self._get_finished(),
             {
                 ids[name]
-                for name in ("reused_id", "dead", "own_process", "zombie")
+                for name in ("reused_id", "dead", "zombie")
                 if name in ids
             },
         )
+
+        # Of the runs going here, as if all started together, only the
+        # first recorded goes on.
+        with self.assertLogs(pipeline_runs.__name__, "WARNING"):
+            with start_db_session() as db_session:
+                going_on = {
+                    run_id
+                    for run_id in here
+                    if pipeline_runs.find_earlier_run(db_session, run_id)
+                    is None
+                }
+        self.assertEqual(going_on, {ids["live"]})
 
     def test_compares_host_names_without_a_machine_id(self):
         """A machine with no identifier to find falls back to its name."""

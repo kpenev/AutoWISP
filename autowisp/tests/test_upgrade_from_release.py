@@ -23,7 +23,7 @@ from sqlalchemy import MetaData, Table, select
 from autowisp.database.migrate import (
     BASELINE_REVISION,
     _alembic_config,
-    _locked_connection,
+    locked_connection,
     _apply_additive_migrations as apply_additive_migrations,
     get_head_revision,
     get_project_revision,
@@ -401,7 +401,7 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
         """
 
         config = _alembic_config()
-        with _locked_connection(engine) as connection:
+        with locked_connection(engine) as connection:
             config.attributes["connection"] = connection
             if (
                 MigrationContext.configure(connection).get_current_revision()
@@ -659,7 +659,10 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                     # Created with them already applied, so it never held
                     # what downgrading them leaves.
                     continue
-                if int(ref.split(".")[0]) != _current_major_version():
+                if (
+                    int(ref.split(".", maxsplit=1)[0])
+                    != _current_major_version()
+                ):
                     # A new major version is where a project may not be
                     # taken back.
                     continue

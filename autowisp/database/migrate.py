@@ -76,7 +76,7 @@ def _apply_additive_migrations(connection):
 
     Args:
         connection:    An open connection to the project database, inside a
-            transaction held by :func:`_locked_connection`.
+            transaction held by :func:`locked_connection`.
 
     Returns:
         None
@@ -257,7 +257,7 @@ def _sqlite_immediate(engine):
 
 
 @contextmanager
-def _locked_connection(engine):
+def locked_connection(engine):
     """Yield a connection in a transaction, with the migration lock held.
 
     Alembic has no locking of its own -- two concurrent ``upgrade`` calls
@@ -534,7 +534,7 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
         with engine.connect() as connection:
             damaged = bool(_missing_timestamp_triggers(connection))
         if damaged:
-            with _locked_connection(engine) as connection:
+            with locked_connection(engine) as connection:
                 restore_timestamp_triggers(connection)
         return result
 
@@ -556,7 +556,7 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
         return result
 
     config = _alembic_config()
-    with _locked_connection(engine) as connection:
+    with locked_connection(engine) as connection:
         # Re-read now that the lock is held. The check above was an unlocked
         # fast path, and another migrator may have finished while this one
         # waited -- without this it would redo work already done, and stamp

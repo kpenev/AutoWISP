@@ -59,9 +59,11 @@ Telling whether a run is still going
 
 A run that stops without warning cannot record that it has stopped, so
 the interface works it out: it offers to start processing only once the
-last run has ended. Each run records the machine it runs on and the
-process running it, and a run of this machine whose process is gone is
-taken to have ended. The machine is known by an identifier the operating
+last run has ended. A run started anyway, e.g. from a terminal, gives up
+if another run on the same machine is already processing the project;
+of runs started together, the first to record itself goes on. Each run
+records the machine it runs on and the process running it, and a run of
+this machine whose process is gone is taken to have ended. The machine is known by an identifier the operating
 system keeps for it, not by its name, which can change while a run goes
 on -- a laptop renames itself as it moves between networks. A run of
 another machine sharing the project's database is never taken to have
