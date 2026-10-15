@@ -62,6 +62,7 @@ from autowisp.tests.test_path_options import TestPathOptions
 from autowisp.tests.test_pipeline_runs import TestFindActiveRuns
 from autowisp.tests.test_experiments import (
     TestProjectLock,
+    TestRefusals,
     TestStaleness,
 )
 from autowisp.tests.test_project_copy import TestProjectCopy

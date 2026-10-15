@@ -30,7 +30,7 @@ from autowisp.database.data_model import (
 from autowisp.database.data_model.provenance import Camera
 
 # pylint: enable=no-name-in-module
-from autowisp.database.experiments import ProjectExperiments
+from autowisp.database.experiments import ExperimentRecords
 from autowisp.database.initialize_database import initialize_database
 from autowisp.database.interface import (
     create_project_engine,
@@ -192,7 +192,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
             copy_engine,
             self._source,
             replace=True,
-            kept_rows={"pipeline_run": ProjectExperiments.is_operation_run},
+            kept_rows={"pipeline_run": ExperimentRecords.is_operation_run},
         )
 
         self.assertEqual(_get_contents(self._source), before)
@@ -281,7 +281,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
             target_engine,
             replace=True,
             kept_tables=["camera"],
-            kept_rows={"pipeline_run": ProjectExperiments.is_operation_run},
+            kept_rows={"pipeline_run": ExperimentRecords.is_operation_run},
         )
 
         with Session(target_engine) as db_session:
@@ -413,7 +413,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
                     target_engine,
                     replace=replace,
                     kept_rows=(
-                        {"pipeline_run": ProjectExperiments.is_operation_run}
+                        {"pipeline_run": ExperimentRecords.is_operation_run}
                         if replace
                         else None
                     ),

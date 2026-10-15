@@ -1,10 +1,15 @@
-"""Manage a project's experiments: copies processed on their own.
+"""The records of a project's experiments, kept in its database.
 
 An experiment is a copy of a project, living at ``<home>/experiments/<name>``,
 processed on its own and possibly merged back. The original records its
 experiments in the ``experiment`` table (:class:`Experiment`); an
 experiment's own database has no such table, and that absence is what makes
 it an experiment.
+
+Only what the database layer needs is here: the lock, the fingerprint, and
+what migrating does to them, imported by the modules that open and migrate a
+project. The operations on experiments, which copy whole projects, are in
+:mod:`autowisp.project_experiments`.
 """
 
 import hashlib
@@ -19,17 +24,20 @@ from sqlalchemy.orm import Session
 from autowisp.database.data_model import Experiment
 
 # pylint: enable=no-name-in-module
+from autowisp.database.pipeline_runs import find_active_runs
 from autowisp.database.project_rows import read_project
-from autowisp.exceptions import ProjectLockedError
+from autowisp.exceptions import ExperimentError, ProjectLockedError
 
 
-class ProjectExperiments:
+class ExperimentRecords:
     """
-    The experiments of one project, and every operation on them.
+    The records of one project's experiments, in its database.
 
-    Every operation runs from the original, whose ``experiment`` table is the
-    only record of its experiments. Each method opens its own connections, so
-    that it decides when what it writes is committed.
+    Everything runs from the original, whose ``experiment`` table is the only
+    record of its experiments. Each method opens its own connections, so that
+    it decides when what it writes is committed. The operations on
+    experiments are added by its subclass,
+    :class:`~autowisp.project_experiments.ProjectExperiments`.
 
     The original's fingerprint (:meth:`_get_fingerprint`) tells whether it
     has changed since an experiment was copied from it. It covers what a
@@ -210,6 +218,49 @@ class ProjectExperiments:
             db_session.begin(),
         ):
             yield db_session
+
+    @staticmethod
+    def _refuse_active_runs(engine, ignored_runs):
+        """
+        Raise if a run is going in the project, other than those ignored.
+
+        By :func:`~autowisp.database.pipeline_runs.find_active_runs`, which
+        records as finished the runs of this machine whose process is gone; that
+        is committed, refused or not. A run of another machine counts as going,
+        there being no telling from here whether it has ended: the user, knowing
+        it has, e.g. because that machine crashed, names it among the ignored.
+
+        Args:
+            engine:    The engine of the project's database: the original's, or
+                an experiment's.
+
+            ignored_runs:    The ids of the runs not counted: those the user
+                knows have ended, and the operation's own.
+
+        Raises:
+            ExperimentError:    Naming each run going, with its task and host.
+        """
+
+        with Session(engine) as db_session, db_session.begin():
+            here, elsewhere = find_active_runs(db_session)
+            active = {
+                pipeline_run.id: (
+                    f"{pipeline_run.id} ({pipeline_run.task}, on "
+                    f"{pipeline_run.host})"
+                )
+                for pipeline_run in here + elsewhere
+                if pipeline_run.id not in ignored_runs
+            }
+        if active:
+            raise ExperimentError(
+                "Refusing while runs are going in "
+                f"{engine.url.render_as_string(hide_password=True)}: "
+                + ", ".join(active.values())
+                + ". Wait for them to finish. A run known to have ended "
+                "without recording it, e.g. on a machine that crashed, can be "
+                "ignored by its id (wisp-experiments --ignore-run).",
+                details={"runs": sorted(active)},
+            )
 
     @staticmethod
     def _read_experiments(db_session):

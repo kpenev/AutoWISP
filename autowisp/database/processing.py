@@ -22,7 +22,7 @@ from autowisp.database.interface import (
     get_project_home,
     start_db_session,
 )
-from autowisp.database.experiments import ProjectExperiments
+from autowisp.database.experiments import ExperimentRecords
 from autowisp.exceptions import ConfigurationError, PipelineError
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
@@ -793,7 +793,7 @@ class ProcessingManager:
         processing the locked original to the end.
         """
 
-        ProjectExperiments(
+        ExperimentRecords(
             get_db_engine(), get_project_home()
         ).refuse_if_locked()
 

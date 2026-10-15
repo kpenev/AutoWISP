@@ -605,6 +605,10 @@ class ProjectLockedError(PipelineError):
     """A change refused because the project has experiments not yet stale."""
 
 
+class ExperimentError(PipelineError):
+    """An operation on experiments refused, or unable to complete."""
+
+
 # --- BUI-level exceptions. --------------------------------------------
 
 

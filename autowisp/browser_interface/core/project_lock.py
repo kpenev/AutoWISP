@@ -1,6 +1,6 @@
 """Tell the views whether the current project may be changed."""
 
-from autowisp.database.experiments import ProjectExperiments
+from autowisp.database.experiments import ExperimentRecords
 from autowisp.database.interface import get_db_engine, get_project_home
 from autowisp.exceptions import ProjectLockedError
 
@@ -20,7 +20,7 @@ def get_lock_refusal():
     """
 
     try:
-        ProjectExperiments(
+        ExperimentRecords(
             get_db_engine(), get_project_home()
         ).refuse_if_locked()
     except ProjectLockedError as error:

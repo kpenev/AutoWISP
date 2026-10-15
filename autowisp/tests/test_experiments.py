@@ -20,15 +20,24 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from autowisp import run_pipeline
-from autowisp.database.experiments import ProjectExperiments
+from autowisp.database.experiments import ExperimentRecords
 from autowisp.database.initialize_database import initialize_database
 from autowisp.database.interface import set_project_home, start_db_session
 from autowisp.database.migrate import migrate_project
+from autowisp.database.pipeline_runs import get_machine_id, get_process_started
 from autowisp.error_context import get_error_context, set_error_context
-from autowisp.exceptions import ProjectLockedError
+from autowisp.exceptions import (
+    ConfigurationError,
+    ExperimentError,
+    ProjectLockedError,
+    get_hostname,
+)
+from autowisp.project_experiments import ProjectExperiments
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
+    Condition,
+    Configuration,
     DiagnosticExpression,
     Error,
     Experiment,
@@ -157,7 +166,7 @@ class TestStaleness(_ProjectCopyCase):
         with engine.connect() as connection:
             return json.dumps(
                 # pylint: disable-next=protected-access
-                ProjectExperiments(engine, project_home)._get_fingerprint(
+                ExperimentRecords(engine, project_home)._get_fingerprint(
                     connection
                 )
             )
@@ -283,7 +292,7 @@ class TestStaleness(_ProjectCopyCase):
             outcome[change] = (
                 {
                     experiment.name: experiment.state
-                    for experiment in ProjectExperiments(
+                    for experiment in ExperimentRecords(
                         engine, project_home
                     ).get_experiments()
                     if experiment.name in states
@@ -347,7 +356,7 @@ class TestProjectLock(_ProjectCopyCase):
                 Experiment.__table__.drop(engine)
             else:
                 self._add_experiments(engine, states)
-            experiments = ProjectExperiments(engine, project_home)
+            experiments = ExperimentRecords(engine, project_home)
             locking[project] = self._get_locking(experiments)
             unlocked[project] = experiments.unlock()
             locking_after[project] = self._get_locking(experiments)
@@ -403,6 +412,151 @@ class TestProjectLock(_ProjectCopyCase):
                 ],
                 [True],
             )
+
+
+class TestRefusals(_ProjectCopyCase):
+    """What refuses the operations on experiments, and runs in them."""
+
+    def test_active_runs(self):
+        """Runs going here and elsewhere refuse, unless ignored by their ids.
+
+        Those found ended stay recorded as finished, though the check refuses.
+        """
+
+        engine = self._copy_project()[0]
+        this_machine = {
+            "host": get_hostname(),
+            "machine_id": get_machine_id(),
+            "process_id": os.getpid(),
+            "process_started": get_process_started(),
+        }
+        other_machine = {"host": "other-host", "machine_id": "other-machine"}
+        # Each run's columns besides its start; all unfinished but the first.
+        runs = {
+            "finished": {**this_machine, "finished": func.now()},
+            "going": this_machine,
+            "operation going": {**this_machine, "task": "create experiment"},
+            # Its process id since taken by this test's, which started later.
+            "ended": {
+                **this_machine,
+                "process_started": this_machine["process_started"] - 3600,
+            },
+            "elsewhere": {**other_machine, "process_id": 1},
+            "ignored": {**other_machine, "process_id": 2},
+        }
+        ids = {}
+        with Session(engine) as db_session, db_session.begin():
+            for name, columns in runs.items():
+                pipeline_run = PipelineRun(started=func.now(), **columns)
+                db_session.add(pipeline_run)
+                db_session.flush()
+                ids[name] = pipeline_run.id
+
+        # pylint: disable=protected-access
+        with self.assertRaises(ExperimentError) as refusal:
+            ExperimentRecords._refuse_active_runs(engine, {ids["ignored"]})
+        with Session(engine) as db_session:
+            finished = set(
+                db_session.scalars(
+                    select(PipelineRun.id).where(
+                        PipelineRun.finished.is_not(None)
+                    )
+                )
+            )
+        # Raises if ignoring fails for any of them.
+        ExperimentRecords._refuse_active_runs(engine, set(ids.values()))
+        # pylint: enable=protected-access
+
+        self.assertEqual(
+            refusal.exception.details["runs"],
+            sorted(
+                ids[name] for name in ("going", "operation going", "elsewhere")
+            ),
+        )
+        self.assertEqual(finished, {ids["finished"], ids["ended"]})
+
+    def test_external_paths(self):
+        """A run in an experiment is refused for each path configured outside
+        it, under any condition; in its original, or as created, it is not."""
+
+        outside = os.path.abspath("outside")
+        # Each value configured: the parameter, whether the value is added
+        # under another condition rather than replacing the parameter's, the
+        # value, and whether it is refused.
+        configured = [
+            ("lc-fname", False, os.path.join(outside, "{:d}.h5"), True),
+            (
+                "master-mask",
+                False,
+                "[R:{PROJHOME}/mask_R.fits, "
+                f"G:{os.path.join(outside, 'mask_G.fits')}]",
+                True,
+            ),
+            ("subpixmap", False, os.path.join(outside, "subpixmap"), False),
+            (
+                "epd-statistics-fname",
+                True,
+                os.path.join(outside, "epd.txt"),
+                True,
+            ),
+            ("tfa-statistics-fname", True, "{PROJHOME}/tfa.txt", False),
+        ]
+
+        def configure(db_session):
+            condition_id = db_session.scalar(select(func.max(Condition.id)))
+            for name, added, value, _ in configured:
+                parameter_id = db_session.scalar(
+                    select(Parameter.id).filter_by(name=name)
+                )
+                if added:
+                    db_session.add(
+                        Configuration(
+                            parameter_id=parameter_id,
+                            version=0,
+                            condition_id=condition_id,
+                            value=value,
+                        )
+                    )
+                else:
+                    db_session.execute(
+                        update(Configuration)
+                        .filter_by(parameter_id=parameter_id)
+                        .values(value=value)
+                    )
+
+        # Each project: whether it is an experiment, whether it is configured
+        # as above, and the parameters refused.
+        projects = {
+            "original": (False, True, []),
+            "experiment": (
+                True,
+                True,
+                sorted(name for name, _, _, refused in configured if refused),
+            ),
+            "experiment as created": (True, False, []),
+        }
+
+        refused = {}
+        for project, (is_experiment, is_configured, _) in projects.items():
+            engine, project_home = self._copy_project()
+            if is_configured:
+                with Session(engine) as db_session, db_session.begin():
+                    configure(db_session)
+            if is_experiment:
+                Experiment.__table__.drop(engine)
+            try:
+                ProjectExperiments(engine, project_home).refuse_run()
+                refused[project] = []
+            except ConfigurationError as error:
+                refused[project] = error.details["parameters"]
+
+        self.assertEqual(
+            refused,
+            {
+                project: expected
+                for project, (_, _, expected) in projects.items()
+            },
+        )
 
 
 # pylint: enable=not-callable

@@ -131,6 +131,40 @@ def _checked_path_type(base_type, path_kind):
     return checked
 
 
+def _is_list_value(value):
+    """Is a configured value a multi-valued option's?"""
+
+    return value.startswith("[") and value.endswith("]")
+
+
+def split_path_values(value, path_kind):
+    """
+    Return the prefix and the path of each value of a configured path option.
+
+    Args:
+        value(str):    The value as a configuration file gives it, a
+            multi-valued option's as ``[<value>, <value>, ...]``.
+
+        path_kind:    See ``path`` in ``ManualStepArgumentParser.add_argument``.
+
+    Returns:
+        [(str, str)]:    For each value, its ``<channel>:`` prefix (empty
+        unless ``path_kind`` is ``"channel"``) and its path.
+
+    Raises:
+        ConfigurationError:    If a path is not in a form allowed for the
+            option.
+    """
+
+    result = []
+    for entry in value[1:-1].split(",") if _is_list_value(value) else [value]:
+        try:
+            result.append(_split_path_value(entry.strip(), path_kind))
+        except ValueError as error:
+            raise ConfigurationError(str(error)) from error
+    return result
+
+
 def stored_path_value(value, path_kind):
     """
     Return a configured value of a path option in the form to store.
@@ -154,18 +188,11 @@ def stored_path_value(value, path_kind):
 
     if not value:
         return value
-    is_list = value.startswith("[") and value.endswith("]")
-    result = []
-    for entry in value[1:-1].split(",") if is_list else [value]:
-        try:
-            prefix, fname = _split_path_value(entry.strip(), path_kind)
-        except ValueError as error:
-            raise ConfigurationError(str(error)) from error
-        result.append(
-            prefix
-            + (fname if path_kind == "external" else to_stored_path(fname))
-        )
-    return "[" + ", ".join(result) + "]" if is_list else result[0]
+    result = [
+        prefix + (fname if path_kind == "external" else to_stored_path(fname))
+        for prefix, fname in split_path_values(value, path_kind)
+    ]
+    return "[" + ", ".join(result) + "]" if _is_list_value(value) else result[0]
 
 
 class ManualStepArgumentParser(ArgumentParser):

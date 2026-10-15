@@ -19,7 +19,7 @@ class Experiment(DataModelBase):
     drop it from the copy, and nothing in the copy refers to its original.
     So **a missing table means the project is an experiment**, which is why
     every read of it goes through
-    ``ProjectExperiments._read_experiments``
+    ``ExperimentRecords._read_experiments``
     (:mod:`autowisp.database.experiments`).
 
     A later revision changing this table must leave a missing one missing.
@@ -53,7 +53,7 @@ class Experiment(DataModelBase):
         nullable=False,
         doc="The original's fingerprint when it was copied, as JSON: its "
         "revision and a hash of each table (see "
-        ":class:`autowisp.database.experiments.ProjectExperiments`).",
+        ":class:`autowisp.database.experiments.ExperimentRecords`).",
     )
     state = Column(
         String(20),

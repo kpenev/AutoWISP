@@ -21,7 +21,6 @@ from autowisp.database.migrate import locked_connection
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     PipelineRun,
 )
-from autowisp.database.experiments import ProjectExperiments
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.database.pipeline_runs import (
@@ -32,6 +31,7 @@ from autowisp.database.pipeline_runs import (
 from autowisp.error_context import get_error_context, set_pipeline_run
 from autowisp.error_cli import report_error
 from autowisp.miscellaneous import get_code_version_str
+from autowisp.project_experiments import ProjectExperiments
 from autowisp.exceptions import (
     AutoWISPError,
     PipelineError,
@@ -219,7 +219,7 @@ def _process(config, pipeline_run):
 
     # Only now that the run is recorded: an experiment being created at the
     # same time then either sees the run, or has locked the project already.
-    ProjectExperiments(get_db_engine(), get_project_home()).refuse_if_locked()
+    ProjectExperiments(get_db_engine(), get_project_home()).refuse_run()
 
     # Recorded first, then checked, so that of runs starting together
     # exactly one goes on (find_earlier_run). Only adding images is left to

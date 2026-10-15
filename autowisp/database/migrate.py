@@ -37,7 +37,7 @@ from sqlalchemy import event, inspect as sa_inspect, text
 
 from autowisp.database.data_model import timestamp_trigger_ddl
 from autowisp.database.data_model.base import DataModelBase
-from autowisp.database.experiments import ProjectExperiments
+from autowisp.database.experiments import ExperimentRecords
 from autowisp.exceptions import DatabaseError
 
 BASELINE_REVISION = "0001_baseline"  # pylint: disable=invalid-name
@@ -501,7 +501,7 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
     - **empty** -- create the schema and stamp head.
 
     A project with experiments keeps them mergeable across the migration
-    (:meth:`~autowisp.database.experiments.ProjectExperiments.keep_mergeable`),
+    (:meth:`~autowisp.database.experiments.ExperimentRecords.keep_mergeable`),
     marking stale those the project had already changed since.
 
     Args:
@@ -588,7 +588,7 @@ def migrate_project(engine, project_home, *, assume_backed_up=False):
         config.attributes["project_home"] = project_home
         # The checks below are inside, so that a project they reject rolls
         # back before the experiments' new fingerprint is computed.
-        with ProjectExperiments(engine, project_home).keep_mergeable(
+        with ExperimentRecords(engine, project_home).keep_mergeable(
             connection
         ) as stale:
             alembic.command.upgrade(config, "head")
