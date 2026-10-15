@@ -61,6 +61,7 @@ from autowisp.tests.test_parameter_description_length import (
 from autowisp.tests.test_path_options import TestPathOptions
 from autowisp.tests.test_pipeline_runs import TestFindActiveRuns
 from autowisp.tests.test_experiments import (
+    TestCopyTree,
     TestProjectLock,
     TestRefusals,
     TestStaleness,
