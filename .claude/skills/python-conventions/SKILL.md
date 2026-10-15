@@ -26,3 +26,10 @@ description: Conventions for python code. Load before writing or editing any Pyt
   things to keep in step. E.g. a test needing cameras generalized the
   fixture's own `_add_camera` rather than adding its own, and the
   configuration page's rule warnings reuse the expression library's.
+
+- A docstring's summary is one line, within the 80 columns, indentation and
+  quotes included; anything more goes in a paragraph after a blank line.
+  Test docstrings too: a test's sentence that wraps onto a second line is
+  the usual offender. Count the columns rather than estimate them; Black
+  does not rewrap docstrings, and pylint flags only a line over 80, not a
+  summary wrapped to stay under it.
