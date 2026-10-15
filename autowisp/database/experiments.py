@@ -35,13 +35,13 @@ class ProjectExperiments:
     has changed since an experiment was copied from it. It covers what a
     merge must not lose: a merge replaces the original with the experiment,
     so a change made to the original meanwhile counts only if losing it would
-    matter. Everything is included except :attr:`_unhashed_tables` and
-    :attr:`_unhashed_columns`, each with its reason, so that a table or
-    column added later is covered by default. Kept deliberately:
-    ``pipeline_run``, which the active-run checks read (a run recorded as
-    finished in the original would come back unfinished, and block every
-    later create and merge), and the ``notes`` columns, the user's
-    annotations.
+    matter. Everything is included except :attr:`_unhashed_tables`,
+    :attr:`_unhashed_columns` and :attr:`_unhashed_rows`, each with its
+    reason, so that a table or column added later is covered by default.
+    Kept deliberately: the processing runs in ``pipeline_run``, which the
+    active-run checks read (a run recorded as finished in the original would
+    come back unfinished, and block every later create and merge), and the
+    ``notes`` columns, the user's annotations.
     """
 
     # The directory under the original's home that holds its experiments.
@@ -53,6 +53,14 @@ class ProjectExperiments:
     _current_state = "current"
     # The original has changed since the experiment was copied from it.
     _stale_state = "stale"
+
+    # By operation, the task of the original's runs performing it. Only these
+    # are operations on experiments: a task added later counts as
+    # processing, hashed and replaced by a merge, until added here.
+    _operation_tasks = {
+        operation: f"{operation} experiment"
+        for operation in ("create", "reset", "merge", "delete")
+    }
 
     _unhashed_tables = {
         # Recorded as the fingerprint's revision instead.
@@ -73,6 +81,16 @@ class ProjectExperiments:
         "timestamp",
     }
 
+    # By table, a column and the values of it whose rows are left out of the
+    # table's hash.
+    _unhashed_rows = {
+        # The runs of operations on experiments: processing depends on none
+        # of them, and each, e.g. creating another experiment, would
+        # otherwise make every current experiment stale. A merge keeps the
+        # original's.
+        "pipeline_run": ("task", set(_operation_tasks.values())),
+    }
+
     class _ProjectHasher:
         """
         Hash each table a fingerprint covers, as :func:`read_project` reads it.
@@ -87,19 +105,24 @@ class ProjectExperiments:
         copying the original can hash it in the same pass.
         """
 
-        def __init__(self, unhashed_tables, unhashed_columns):
+        def __init__(self, unhashed_tables, unhashed_columns, unhashed_rows):
             """
-            Prepare to hash the tables and columns not excluded.
+            Prepare to hash the tables, columns and rows not excluded.
 
             Args:
                 unhashed_tables(set):    The names of the tables left out.
 
                 unhashed_columns(set):    The names of the columns left out
                     of every table.
+
+                unhashed_rows(dict):    By table name, a column and a set of
+                    values: the table's rows holding one of them in that
+                    column are left out.
             """
 
             self._unhashed_tables = unhashed_tables
             self._unhashed_columns = unhashed_columns
+            self._unhashed_rows = unhashed_rows
             self._hashes = {}
 
         def __call__(self, table):
@@ -114,9 +137,17 @@ class ProjectExperiments:
             ]
             rows_hash = hashlib.sha256()
             self._hashes[table.name] = rows_hash
+            unhashed_column, unhashed_values = self._unhashed_rows.get(
+                table.name, (None, ())
+            )
 
             def hash_rows(batch):
                 for row in batch:
+                    if (
+                        unhashed_column is not None
+                        and row[unhashed_column] in unhashed_values
+                    ):
+                        continue
                     rows_hash.update(
                         json.dumps(
                             [row[column] for column in hashed_columns],
@@ -148,6 +179,22 @@ class ProjectExperiments:
 
         self._engine = engine
         self._home = project_home
+
+    @classmethod
+    def is_operation_run(cls, row):
+        """
+        Is the run one of an operation on experiments, rather than processing?
+
+        Args:
+            row:    The run's ``pipeline_run`` row, as a mapping from column
+                name to value.
+
+        Returns:
+            bool:    Whether its task is one of the operations': a merge keeps
+            the original's such runs, and the fingerprint leaves them out.
+        """
+
+        return row["task"] in cls._operation_tasks.values()
 
     @contextmanager
     def _begin_session(self):
@@ -369,7 +416,7 @@ class ProjectExperiments:
         """
 
         hasher = self._ProjectHasher(
-            self._unhashed_tables, self._unhashed_columns
+            self._unhashed_tables, self._unhashed_columns, self._unhashed_rows
         )
         read_project(connection, [hasher])
         # After reading, so within the transaction the reading began.

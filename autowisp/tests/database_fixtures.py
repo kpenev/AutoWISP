@@ -11,7 +11,11 @@ from sqlalchemy import MetaData, Table, select, update
 from sqlalchemy.orm import Session
 
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import ObservingSession, Target
+from autowisp.database.data_model import (
+    ObservingSession,
+    PipelineRun,
+    Target,
+)
 from autowisp.database.data_model.provenance import (
     Camera,
     CameraChannel,
@@ -184,3 +188,21 @@ def stamp_previous_revision(engine):
         db_session.execute(
             update(version).values(version_num="0020_pipeline_run_identity")
         )
+
+
+def add_create_run(db_session):
+    """Record the finished run of creating an experiment, and return it.
+
+    Every experiment refers to the run that copied the original into it.
+    """
+
+    pipeline_run = PipelineRun(
+        host="test-host",
+        process_id=1,
+        started=datetime(2026, 1, 1),
+        finished=datetime(2026, 1, 1),
+        task="create experiment",
+    )
+    db_session.add(pipeline_run)
+    db_session.flush()
+    return pipeline_run

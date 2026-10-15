@@ -45,6 +45,7 @@ from autowisp.database.data_model.steps_and_parameters import (
 )
 from autowisp.tests.database_fixtures import (
     add_cameras,
+    add_create_run,
     stamp_previous_revision,
 )
 
@@ -93,20 +94,31 @@ class _ProjectCopyCase(unittest.TestCase):
         self.addCleanup(engine.dispose)
         return engine, copy_home
 
-    @staticmethod
-    def _add_experiments(engine, states, fingerprint="{}"):
-        """Record experiments in the given states, ``{name: state}``."""
+    @classmethod
+    def _add_experiments(
+        cls, engine, states, fingerprint="{}", db_session=None
+    ):
+        """Record experiments in the given states, ``{name: state}``.
 
-        with Session(engine) as db_session, db_session.begin():
-            db_session.add_all(
+        Each with the finished run that created it, as creating one leaves
+        it. Within ``db_session`` if given, else in a transaction of its own
+        on ``engine``.
+        """
+
+        if db_session is None:
+            with Session(engine) as own_session, own_session.begin():
+                cls._add_experiments(engine, states, fingerprint, own_session)
+            return
+        for name, state in states.items():
+            db_session.add(
                 Experiment(
                     name=name,
                     home=f"{{PROJHOME}}/experiments/{name}",
                     created=func.now(),
                     fingerprint=fingerprint,
                     state=state,
+                    copy_run_id=add_create_run(db_session).id,
                 )
-                for name, state in states.items()
             )
 
 
@@ -236,17 +248,19 @@ class TestStaleness(_ProjectCopyCase):
                 ),
                 False,
             ),
-            "experiment added": (
-                lambda db_session: db_session.add(
-                    Experiment(
-                        name="exp4",
-                        home="{PROJHOME}/experiments/exp4",
-                        created=func.now(),
-                        fingerprint="{}",
-                        state="creating",
-                    )
+            "experiment added, with the run creating it": (
+                lambda db_session: self._add_experiments(
+                    None, {"exp4": "creating"}, db_session=db_session
                 ),
                 False,
+            ),
+            "processing run added": (
+                lambda db_session: db_session.add(
+                    PipelineRun(
+                        host="test-host", process_id=2, started=func.now()
+                    )
+                ),
+                True,
             ),
         }
         states = {"exp1": "current", "exp2": "stale", "exp3": "creating"}
@@ -376,11 +390,16 @@ class TestProjectLock(_ProjectCopyCase):
                     step_imtypes=[],
                 )
             )
+        # The refused run, not the one that created the experiment.
         with Session(engine) as db_session:
             self.assertEqual(
                 [
                     run.finished is not None
-                    for run in db_session.scalars(select(PipelineRun))
+                    for run in db_session.scalars(
+                        select(PipelineRun).filter_by(
+                            task=PipelineRun.processing_task
+                        )
+                    )
                 ],
                 [True],
             )

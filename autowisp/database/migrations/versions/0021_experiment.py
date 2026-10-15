@@ -11,6 +11,11 @@ below this revision, which the older code takes for an ordinary project
 anyway, and which becomes one here when it is upgraded again. A later
 revision changing the table must not create it where it is missing: that
 would turn an experiment into an ordinary project.
+
+Operations on experiments are pipeline runs of the original, so runs now
+record their task: 'processing' for every run before this revision, and for
+every run of the pipeline's steps since. Each experiment refers to the run
+that last copied the original into it.
 """
 
 import alembic
@@ -23,6 +28,10 @@ branch_labels = None
 depends_on = None
 
 TABLE_NAME = "experiment"
+RUN_TABLE_NAME = "pipeline_run"
+TASK_COLUMN = "task"
+# Frozen: the model's default is free to move.
+PROCESSING_TASK = "processing"
 
 
 def _has_table(connection):
@@ -31,14 +40,37 @@ def _has_table(connection):
     return sqlalchemy.inspect(connection).has_table(TABLE_NAME)
 
 
-def upgrade():
-    """Create the table, unless it exists already.
+def _has_task_column(connection):
+    """Whether the runs already record their task."""
 
-    Its timestamp trigger is not created here: ``migrate_project``
+    return TASK_COLUMN in {
+        described["name"]
+        for described in sqlalchemy.inspect(connection).get_columns(
+            RUN_TABLE_NAME
+        )
+    }
+
+
+def upgrade():
+    """Give runs their task, and create the table, unless already done.
+
+    The table's timestamp trigger is not created here: ``migrate_project``
     installs any missing one once the revisions are done.
     """
 
-    if _has_table(alembic.op.get_bind()):
+    connection = alembic.op.get_bind()
+    if not _has_task_column(connection):
+        alembic.op.add_column(
+            RUN_TABLE_NAME,
+            sqlalchemy.Column(
+                TASK_COLUMN,
+                sqlalchemy.String(50),
+                nullable=False,
+                server_default=PROCESSING_TASK,
+            ),
+        )
+
+    if _has_table(connection):
         return
 
     alembic.op.create_table(
@@ -57,17 +89,32 @@ def upgrade():
         sqlalchemy.Column("created", sqlalchemy.TIMESTAMP, nullable=False),
         sqlalchemy.Column("fingerprint", sqlalchemy.Text, nullable=False),
         sqlalchemy.Column("state", sqlalchemy.String(20), nullable=False),
+        sqlalchemy.Column(
+            "copy_run_id",
+            sqlalchemy.Integer,
+            sqlalchemy.ForeignKey(f"{RUN_TABLE_NAME}.id", onupdate="CASCADE"),
+            nullable=False,
+        ),
     )
 
 
 def downgrade():
-    """Drop the table, and the record of every experiment, if it is there.
+    """Drop the table, and the record of every experiment, and the tasks.
 
     The experiments' directories are left in place: they are ordinary
-    projects, which the code being downgraded to opens like any other.
+    projects, which the code being downgraded to opens like any other. The
+    runs of operations on experiments stay, which that code takes for
+    processing runs; being finished, they change nothing it decides.
     """
 
-    if not _has_table(alembic.op.get_bind()):
-        return
+    connection = alembic.op.get_bind()
+    # First, since it refers to the runs.
+    if _has_table(connection):
+        alembic.op.drop_table(TABLE_NAME)
 
-    alembic.op.drop_table(TABLE_NAME)
+    if _has_task_column(connection):
+        # SQLite cannot drop a column in place, so the table is rebuilt
+        # there; migrate_project reinstates the timestamp trigger the
+        # rebuild loses.
+        with alembic.op.batch_alter_table(RUN_TABLE_NAME) as batch:
+            batch.drop_column(TASK_COLUMN)

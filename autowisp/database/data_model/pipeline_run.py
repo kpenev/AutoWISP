@@ -18,6 +18,10 @@ class PipelineRun(DataModelBase):
 
     __tablename__ = "pipeline_run"
 
+    # The task of a run processing images or lightcurves, rather than e.g.
+    # creating an experiment of the project.
+    processing_task = "processing"
+
     host = Column(
         String(1000),
         nullable=False,
@@ -56,9 +60,19 @@ class PipelineRun(DataModelBase):
         "the epoch, so that a process reusing its ID after it ended is not "
         "taken for it. Null for runs recorded before it was.",
     )
+    task = Column(
+        String(50),
+        nullable=False,
+        default=processing_task,
+        server_default=processing_task,
+        doc="What the run does: 'processing' for a run of the pipeline's "
+        "steps, or an operation on the project's experiments, e.g. 'create "
+        "experiment' (see :mod:`autowisp.database.experiments`). Only "
+        "processing runs count in an experiment's fingerprint.",
+    )
 
     def __repr__(self):
         return (
-            f"PipelineRun(id={self.id}, start_time={self.started}, "
-            f"end_time={self.finished})"
+            f"PipelineRun(id={self.id}, task={self.task!r}, "
+            f"start_time={self.started}, end_time={self.finished})"
         )

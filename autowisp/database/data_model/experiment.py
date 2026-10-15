@@ -1,6 +1,6 @@
 """Define the :class:`Experiment` table, recording a project's experiments."""
 
-from sqlalchemy import Column, String, Text, TIMESTAMP
+from sqlalchemy import Column, ForeignKey, Integer, String, Text, TIMESTAMP
 
 from autowisp.database.data_model.base import DataModelBase
 
@@ -60,6 +60,15 @@ class Experiment(DataModelBase):
         nullable=False,
         doc="'creating' until the copy is complete, then 'current', or "
         "'stale' once the original has changed since it was copied.",
+    )
+    copy_run_id = Column(
+        Integer,
+        ForeignKey("pipeline_run.id", onupdate="CASCADE"),
+        nullable=False,
+        doc="The run that last copied the original into the experiment: its "
+        "create, or its latest reset. While the experiment is 'creating', "
+        "it tells whether the copy is still going or crashed. Follows the "
+        "run's id when a merge renumbers it.",
     )
 
     def __repr__(self):
