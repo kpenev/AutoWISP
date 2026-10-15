@@ -134,6 +134,65 @@ def enforce_sqlite_foreign_keys(engine):
     event.listen(engine, "connect", enable_foreign_keys)
 
 
+def use_utc_sessions(engine):
+    """Make a server present and take timestamps in UTC, as SQLite does.
+
+    A server stores ``TIMESTAMP`` values in UTC, but converts them to and
+    from the session's time zone, which is the server's own unless set.
+    SQLite's ``CURRENT_TIMESTAMP`` is UTC, so without this a project copied
+    between the two would mix local and UTC times. Like the foreign keys on
+    SQLite, it is a setting of the session, issued as each connection is
+    made.
+
+    Args:
+        engine:    The SQLAlchemy engine for a project database, before
+            anything has connected through it.
+
+    Returns:
+        None
+    """
+
+    if engine.dialect.name not in ("mysql", "mariadb"):
+        return
+
+    def set_utc(dbapi_connection, _record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("SET time_zone = '+00:00'")
+        cursor.close()
+
+    event.listen(engine, "connect", set_utc)
+
+
+def create_project_engine(db_url):
+    """
+    Return an engine for a project database, set up as every one must be.
+
+    The one place a project engine is made, so that every connection to a
+    project, whichever code opens it, checks foreign keys on SQLite and uses
+    UTC on a server.
+
+    Args:
+        db_url(str):    SQLAlchemy URL of the project database.
+
+    Returns:
+        sqlalchemy.engine.Engine:    The engine, not yet connected.
+    """
+
+    engine_kwargs = {
+        "echo": False,
+        "pool_pre_ping": True,
+        "pool_recycle": 3600,
+    }
+    if db_url.startswith("sqlite"):
+        engine_kwargs["poolclass"] = NullPool
+        engine_kwargs["connect_args"] = {"timeout": 600}
+
+    engine = create_engine(db_url, **engine_kwargs)
+    enforce_sqlite_foreign_keys(engine)
+    use_utc_sessions(engine)
+    return engine
+
+
 def set_project_home(
     project_home,
     db_url=None,
@@ -237,24 +296,14 @@ def set_project_home(
         with open(url_file, encoding="utf-8") as fobj:
             db_url = fobj.read().strip()
 
-    engine_kwargs = {
-        "echo": False,
-        "pool_pre_ping": True,
-        "pool_recycle": 3600,
-    }
-
     if db_url is None:
         db_path = path.join(project_home, "autowisp.db")
         db_url = f"sqlite:///{path.abspath(db_path)}?timeout=600&uri=true"
-    if db_url.startswith("sqlite"):
-        engine_kwargs["poolclass"] = NullPool
-        engine_kwargs["connect_args"] = {"timeout": 600}
 
     # Built into a local first: an engine rejected below must not become
     # the module-wide one, or the caller would be left connected to the
     # database it was just refused.
-    engine = create_engine(db_url, **engine_kwargs)
-    enforce_sqlite_foreign_keys(engine)
+    engine = create_project_engine(db_url)
     existing_tables = set(sa_inspect(engine).get_table_names())
     already_present = set(DataModelBase.metadata.tables) & existing_tables
     if new_project and already_present:
