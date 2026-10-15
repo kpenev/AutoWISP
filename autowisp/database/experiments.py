@@ -12,13 +12,14 @@ import json
 from contextlib import contextmanager
 
 from alembic.runtime.migration import MigrationContext
-from sqlalchemy import MetaData, inspect as sa_inspect, select, update
+from sqlalchemy import inspect as sa_inspect, select, update
 from sqlalchemy.orm import Session
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import Experiment
 
 # pylint: enable=no-name-in-module
+from autowisp.database.project_rows import read_project
 from autowisp.exceptions import ProjectLockedError
 
 
@@ -72,57 +73,68 @@ class ProjectExperiments:
         "timestamp",
     }
 
-    class _TableHasher:
+    class _ProjectHasher:
         """
-        Hash the rows of one table, fed in the order of ``_select_hashed_rows``.
+        Hash each table a fingerprint covers, as :func:`read_project` reads it.
 
         Each row is encoded as a compact JSON list of the values of its
         hashed columns, in the table's column order, one line per row. Values
         JSON has no form for (dates, decimals, bytes) are written as their
         ``str``. The encoding need only agree with itself: the hashes
-        compared are always of the same original, on its own backend and
-        driver.
+        compared are always of the same original, read by the same code.
 
-        Separate from ``_get_fingerprint`` so that copying the project, which
-        reads every row anyway, can hash them as it goes.
+        A consumer of the reader rather than a reader of its own, so that
+        copying the original can hash it in the same pass.
         """
 
-        def __init__(self, table, unhashed_columns):
+        def __init__(self, unhashed_tables, unhashed_columns):
             """
-            Start hashing the rows of the given table.
+            Prepare to hash the tables and columns not excluded.
 
             Args:
-                table(sqlalchemy.Table):    The table, reflected from the
-                    database. The rows fed must have its columns, in its
-                    order.
+                unhashed_tables(set):    The names of the tables left out.
 
                 unhashed_columns(set):    The names of the columns left out
-                    of the hash.
+                    of every table.
             """
 
-            self._positions = [
-                position
-                for position, column in enumerate(table.columns)
-                if column.name not in unhashed_columns
+            self._unhashed_tables = unhashed_tables
+            self._unhashed_columns = unhashed_columns
+            self._hashes = {}
+
+        def __call__(self, table):
+            """Start hashing the table; return what to give its rows to."""
+
+            if table.name in self._unhashed_tables:
+                return None
+            hashed_columns = [
+                column.name
+                for column in table.columns
+                if column.name not in self._unhashed_columns
             ]
-            self._hash = hashlib.sha256()
+            rows_hash = hashlib.sha256()
+            self._hashes[table.name] = rows_hash
 
-        def update(self, row):
-            """Add the next row to the hash."""
+            def hash_rows(batch):
+                for row in batch:
+                    rows_hash.update(
+                        json.dumps(
+                            [row[column] for column in hashed_columns],
+                            separators=(",", ":"),
+                            default=str,
+                        ).encode("utf-8")
+                        + b"\n"
+                    )
 
-            self._hash.update(
-                json.dumps(
-                    [row[position] for position in self._positions],
-                    separators=(",", ":"),
-                    default=str,
-                ).encode("utf-8")
-                + b"\n"
-            )
+            return hash_rows
 
-        def hexdigest(self):
-            """Return the hash of the rows fed so far, as hexadecimal."""
+        def get_table_hashes(self):
+            """Return the hash of each table, by name, as hexadecimal."""
 
-            return self._hash.hexdigest()
+            return {
+                name: rows_hash.hexdigest()
+                for name, rows_hash in sorted(self._hashes.items())
+            }
 
     def __init__(self, engine, project_home):
         """
@@ -339,42 +351,13 @@ class ProjectExperiments:
 
         return json.dumps(fingerprint, sort_keys=True)
 
-    def _select_hashed_rows(self, table):
-        """
-        Return the statement reading a table's rows in the order they hash.
-
-        That is primary key order, or, for a table without a primary key, the
-        order of the columns that are hashed, so that the rows come in the
-        same order however their timestamps change.
-
-        Args:
-            table(sqlalchemy.Table):    The table, reflected from the
-                database.
-
-        Returns:
-            sqlalchemy.Select:    Every column of every row, in the table's
-                column order.
-        """
-
-        order = list(table.primary_key.columns) or [
-            column
-            for column in table.columns
-            if column.name not in self._unhashed_columns
-        ]
-        return select(table).order_by(*order)
-
     def _get_fingerprint(self, connection):
         """
         Return the original's fingerprint: its revision, and a hash per table.
 
         Exact: deletions, updates within the same second and updates after
-        the clock is set back all change it. Tables are reflected from the
-        database rather than taken from the models, so that it covers
-        whatever the database holds.
-
-        Every table is read within one transaction, so that the fingerprint
-        is of one state of the project. SQLite does not start one for a read,
-        so it is started here unless the connection is already in one; it
+        the clock is set back all change it. It covers whatever the database
+        holds, read by :func:`read_project` within one transaction, which
         ends when the caller's does.
 
         Args:
@@ -385,21 +368,14 @@ class ProjectExperiments:
                 <hex SHA-256>}}``, which is stored as JSON.
         """
 
-        if (
-            connection.dialect.name == "sqlite"
-            and not connection.connection.dbapi_connection.in_transaction
-        ):
-            connection.exec_driver_sql("BEGIN")
-
-        revision = MigrationContext.configure(connection).get_current_revision()
-        metadata = MetaData()
-        metadata.reflect(connection)
-        table_hashes = {}
-        for name in sorted(set(metadata.tables) - self._unhashed_tables):
-            table = metadata.tables[name]
-            hasher = self._TableHasher(table, self._unhashed_columns)
-            for row in connection.execute(self._select_hashed_rows(table)):
-                hasher.update(row)
-            table_hashes[name] = hasher.hexdigest()
-
-        return {"revision": revision, "tables": table_hashes}
+        hasher = self._ProjectHasher(
+            self._unhashed_tables, self._unhashed_columns
+        )
+        read_project(connection, [hasher])
+        # After reading, so within the transaction the reading began.
+        return {
+            "revision": MigrationContext.configure(
+                connection
+            ).get_current_revision(),
+            "tables": hasher.get_table_hashes(),
+        }

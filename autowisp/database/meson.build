@@ -15,6 +15,7 @@ py_src = [
   'photref_selection.py',
   'pipeline_runs.py',
   'processing.py',
+  'project_rows.py',
   'provenance_resolver.py',
   'user_interface.py',
 ]
