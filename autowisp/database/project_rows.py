@@ -10,13 +10,15 @@ its source in the same pass.
 from sqlalchemy import MetaData, select
 
 
-def _begin_snapshot(connection):
+def begin_transaction(connection):
     """
-    Make every read on the connection see one state of the database.
+    Make sure the connection is in a transaction, as its caller assumes.
 
-    A server reads within the connection's transaction anyway. SQLite does
-    not start one for a read, so it is started here unless the connection is
-    already in one; it ends when the caller's does.
+    A server's connection always is. SQLite does not start one for a read or
+    a ``PRAGMA``, so it is started here unless the connection is already in
+    one; it ends when the caller's does. Every read on the connection then
+    sees one state of the database, and a pragma lasting for the transaction
+    (e.g. ``defer_foreign_keys``) lasts for the caller's.
     """
 
     if (
@@ -68,7 +70,7 @@ def read_project(connection, table_consumers, batch_size=10000):
         None
     """
 
-    _begin_snapshot(connection)
+    begin_transaction(connection)
     metadata = MetaData()
     metadata.reflect(connection)
     for table in metadata.sorted_tables:

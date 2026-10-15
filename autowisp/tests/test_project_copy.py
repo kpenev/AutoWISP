@@ -8,7 +8,7 @@ import warnings
 from argparse import Namespace
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import MetaData, create_engine, func, select
+from sqlalchemy import MetaData, create_engine, func, select, update
 from sqlalchemy.exc import IntegrityError, SAWarning
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
@@ -30,6 +30,7 @@ from autowisp.database.data_model import (
 from autowisp.database.data_model.provenance import Camera
 
 # pylint: enable=no-name-in-module
+from autowisp.database.experiments import ProjectExperiments
 from autowisp.database.initialize_database import initialize_database
 from autowisp.database.interface import (
     create_project_engine,
@@ -41,6 +42,7 @@ from autowisp.exceptions import DatabaseError
 from autowisp.tests import server_test_url
 from autowisp.tests.database_fixtures import (
     add_cameras,
+    add_create_run,
     add_observing_session,
     stamp_previous_revision,
 )
@@ -158,6 +160,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
                     created=self._known_time,
                     fingerprint="{}",
                     state="current",
+                    copy_run_id=add_create_run(db_session).id,
                 )
             )
         self._source = self._create_engine(server_url or "autowisp.db")
@@ -177,14 +180,20 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
         """Copied out to SQLite and back in, the project holds what it did.
 
         Back in, as merging an experiment does: replacing the source's rows,
-        but not its record of its experiments, which the copy does not get.
+        but not its record of its experiments, which the copy does not get,
+        nor its runs of operations on them.
         """
 
         before = _get_contents(self._source)
         copy_engine = self._create_engine("copy.db")
         copy_project_database(self._source, copy_engine)
         copied = _get_contents(copy_engine)
-        copy_project_database(copy_engine, self._source, replace=True)
+        copy_project_database(
+            copy_engine,
+            self._source,
+            replace=True,
+            kept_rows={"pipeline_run": ProjectExperiments.is_operation_run},
+        )
 
         self.assertEqual(_get_contents(self._source), before)
         self.assertEqual(
@@ -202,6 +211,110 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
         self.assertTrue(stamps)
         for stamp in stamps:
             self.assertLess(abs(stamp - now), timedelta(minutes=10))
+
+    def test_replace_keeps(self):
+        """Replacing keeps the target's rows it is told to, with their errors.
+
+        One copy keeps a whole table, as resetting an experiment's processing
+        keeps its configuration, and the runs of operations on experiments,
+        as merging one keeps the original's. After the source is copied into
+        the target, each records a run of each kind, each with an error, and
+        labels its own version of the rows both hold, so that which version
+        survived shows.
+
+        The target is SQLite, as a reset's always is: the table kept refers
+        to rows deleted and inserted again, which only SQLite checks at the
+        commit. Replacing a server's rows is the round trip's second copy.
+        """
+
+        target_engine = self._create_engine("copy.db")
+        copy_project_database(self._source, target_engine)
+        with Session(self._source) as db_session:
+            create_run_id = db_session.scalar(select(Experiment.copy_run_id))
+            processing_run_id = db_session.scalar(
+                select(PipelineRun.id).filter_by(
+                    task=PipelineRun.processing_task
+                )
+            )
+
+        # By database, the runs it records after the copy, by id. The ids
+        # are distinct, as a merge renumbers them before copying.
+        added_runs = {
+            "source": {100: "processing", 101: "create experiment"},
+            "target": {200: "processing", 201: "create experiment"},
+        }
+        for label, engine in (
+            ("source", self._source),
+            ("target", target_engine),
+        ):
+            with Session(engine) as db_session, db_session.begin():
+                for run_id, task in added_runs[label].items():
+                    db_session.add(
+                        PipelineRun(
+                            id=run_id,
+                            host=label,
+                            process_id=run_id,
+                            started=self._known_time,
+                            task=task,
+                        )
+                    )
+                    db_session.flush()
+                    db_session.add(
+                        Error(
+                            pipeline_run_id=run_id,
+                            component="step",
+                            exception_class="TestError",
+                            user_message=f"Run {run_id} failed.",
+                        )
+                    )
+                db_session.execute(
+                    update(PipelineRun)
+                    .where(PipelineRun.id == create_run_id)
+                    .values(host=label)
+                )
+                db_session.execute(
+                    update(Camera).values(notes=f"Notes of the {label}.")
+                )
+
+        copy_project_database(
+            self._source,
+            target_engine,
+            replace=True,
+            kept_tables=["camera"],
+            kept_rows={"pipeline_run": ProjectExperiments.is_operation_run},
+        )
+
+        with Session(target_engine) as db_session:
+            outcome = {
+                "runs": {
+                    pipeline_run.id: pipeline_run.host
+                    for pipeline_run in db_session.scalars(select(PipelineRun))
+                },
+                "errors": {
+                    error.user_message: error.pipeline_run_id
+                    for error in db_session.scalars(select(Error))
+                },
+                "notes": set(db_session.scalars(select(Camera.notes))),
+            }
+        self.assertEqual(
+            outcome,
+            {
+                # The source's processing runs, and the target's operation
+                # runs.
+                "runs": {
+                    processing_run_id: "test-host",
+                    create_run_id: "target",
+                    100: "source",
+                    201: "target",
+                },
+                "errors": {
+                    "Failed.": processing_run_id,
+                    "Run 100 failed.": 100,
+                    "Run 201 failed.": 201,
+                },
+                "notes": {"Notes of the target."},
+            },
+        )
 
     def test_ids_continue(self):
         """A row added to a copy gets an id past every row copied."""
@@ -293,11 +406,17 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
         for case, (set_up, _) in cases.items():
             source_engine, target_engine = set_up()
             before = _get_contents(target_engine)
+            replace = target_engine is self._source
             try:
                 copy_project_database(
                     source_engine,
                     target_engine,
-                    replace=target_engine is self._source,
+                    replace=replace,
+                    kept_rows=(
+                        {"pipeline_run": ProjectExperiments.is_operation_run}
+                        if replace
+                        else None
+                    ),
                 )
             except (DatabaseError, IntegrityError) as error:
                 raised = type(error)
