@@ -78,8 +78,10 @@ class TestSeriesKeyReferences(unittest.TestCase):
             SeriesKey(3, "object", ("R", "B"), photrefs=(12,))
 
     def test_coerced_to_a_hashable_key(self):
-        """References and photometries posted as lists of strings still make
-        a usable key."""
+        """References and photometries posted as strings make a usable key.
+
+        As lists of strings, which a form posts.
+        """
 
         key = SeriesKey(3, "object", ["R"], photometries=["2"], photrefs=["12"])
 
@@ -95,8 +97,11 @@ class TestSeriesKeyReferences(unittest.TestCase):
         )
 
     def test_references_and_photometries_by_keyword_only(self):
-        """Both are tuples of ids, so one in the other's place is refused
-        rather than read wrongly."""
+        """References and photometries are given by keyword only.
+
+        Both are tuples of ids, so one in the other's place is refused rather
+        than read wrongly.
+        """
 
         with self.assertRaises(TypeError):
             # pylint: disable-next=too-many-function-args
@@ -792,8 +797,10 @@ class TestCountUnboundImages(ReferenceProject):
 
 
 class TestReferenceCounts(ReferenceProject):
-    """What the series table offers and counts: per reference, per
-    photometry, and per bound row."""
+    """What the series table offers and counts.
+
+    Per reference, per photometry, and per bound row.
+    """
 
     #: What a row comparing the two channels' offsets in aperture 0 reads.
     colour_reads = {

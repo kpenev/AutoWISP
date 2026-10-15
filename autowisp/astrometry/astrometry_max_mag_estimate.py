@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Find the appropriate value for astrometry-catalog-max-magnitude
-parameter based on the flux threshold
+Estimate astrometry-catalog-max-magnitude from the flux threshold.
 """
 
 import contextlib
@@ -59,9 +58,9 @@ def parse_command_line():
         "(default: 1.1)",
     )
     parser.add_argument(
-        '--project-home',
-        default='.',
-        help="The path to the calibration project."
+        "--project-home",
+        default=".",
+        help="The path to the calibration project.",
     )
 
     add_anet_cmdline_args(parser)
@@ -126,7 +125,7 @@ def read_dr_file(dr_path, cmdline_args):
             header=None,
             web_lock=web_lock,
         )
-        print(f'field_corr from astrometry.net:\n: {field_corr}')
+        print(f"field_corr from astrometry.net:\n: {field_corr}")
 
     return field_corr, dr_df
 
@@ -183,7 +182,7 @@ def query_gaia(
     n_extracted,
     image_scale_factor,
     frame_fov_estimate=None,
-    image_margin=1.1
+    image_margin=1.1,
 ):
     """
     Query Gaia DR3 catalog for sources matching the extracted sources.
@@ -206,8 +205,8 @@ def query_gaia(
     ra_center = np.mean(corr_matched["field_ra"])
     dec_center = np.mean(corr_matched["field_dec"])
 
-    height = Interpreter({'units': units})(frame_fov_estimate[0])
-    width = Interpreter({'units': units})(frame_fov_estimate[1])
+    height = Interpreter({"units": units})(frame_fov_estimate[0])
+    width = Interpreter({"units": units})(frame_fov_estimate[1])
 
     create_catalog_file(
         "cat.fits",
@@ -264,6 +263,7 @@ def query_gaia(
 
     return corr_matched_sorted
 
+
 def main():
     """Main function to run the astrometry matching process."""
 
@@ -295,8 +295,10 @@ def main():
         y0 = corr_matched_sorted["cum_median"].iloc[3]  # top 3 faintest sources
         mags.append(-2.5 * np.log10(flux_threshold) + y0 + 0.2)
 
-    print(f"Suggested minimum max_mag_astrometry based on "
-          f"matching flux and mag ~ {np.array(mags).mean():.2f}")
+    print(
+        f"Suggested minimum max_mag_astrometry based on "
+        f"matching flux and mag ~ {np.array(mags).mean():.2f}"
+    )
 
 
 if __name__ == "__main__":

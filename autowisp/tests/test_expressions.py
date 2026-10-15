@@ -220,8 +220,11 @@ class TestRenamingReferences(unittest.TestCase):
         )
 
     def test_an_unmentioned_name_changes_nothing(self):
-        """Every expression in a library is offered to this, not just the
-        dependents."""
+        """An unmentioned name changes nothing.
+
+        Every expression in a library is offered to this, not just the
+        dependents.
+        """
 
         self.assertEqual(
             rename_references("bg_center * 2", "rel", "r"), "bg_center * 2"
@@ -554,8 +557,11 @@ class TestSlotSyntax(SlotTestCase):
         )
 
     def test_a_slot_must_be_a_whole_number(self):
-        """Anything else cannot name a channel, and says so here rather
-        than failing later as an unresolvable name."""
+        """A slot must be a whole number, which is said when it is parsed.
+
+        Anything else cannot name a channel, and would otherwise fail later
+        as an unresolvable name.
+        """
 
         for text in (
             "bg_center[i]",
@@ -768,8 +774,11 @@ class TestSlotEvaluation(SlotTestCase):
         self.evaluate_one("silly", ("B", "R", "G0"))
 
     def test_an_unfetched_channel_is_reported(self):
-        """A miss means the walk and the fetch disagree, which is a fault
-        in the pair rather than something to repair here."""
+        """A channel not fetched is reported, not repaired.
+
+        A miss means the walk and the fetch disagree, which is a fault in the
+        pair rather than something to repair here.
+        """
 
         with self.assertRaises(PipelineError):
             evaluate_quantities(
@@ -880,8 +889,7 @@ class TestQuotedChannels(SlotTestCase):
         )
 
     def test_evaluated_through_a_bare_reference(self):
-        """The slotted expression it quotes into is bound, not evaluated
-        bare."""
+        """The slotted expression it quotes into is bound, not left bare."""
 
         numpy.testing.assert_allclose(
             self.evaluate_one("over_fixed", ("G0",)),

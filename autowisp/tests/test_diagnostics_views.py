@@ -253,8 +253,11 @@ class TestAvailableQuantities(DiagnosticsViewTestCase):
             return get_recorded_diagnostics(db_session)
 
     def test_every_recorded_name_is_offered(self):
-        """Including each quantile, which is what an expression is judged
-        against and what a section may now draw."""
+        """Every recorded name is offered, each quantile included.
+
+        Those are what an expression is judged against, and what a section
+        may now draw.
+        """
 
         self.assertEqual(sorted(self._recorded()), sorted(_diagnostic_names))
 

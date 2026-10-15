@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 """Fit for a transformation between sky and image coordinates."""
+
 import logging
 from tempfile import TemporaryDirectory
 import subprocess
@@ -269,8 +270,7 @@ class TempAstrometryFiles:
 
 
 def create_sources_file(xy_extracted, sources_fname):
-    """Create a FITS BinTable file with the given name containing
-    the extracted sources.
+    """Save the extracted sources as a FITS BinTable file.
 
     Returns: an array containing x-y extracted sources
     """
@@ -602,8 +602,7 @@ def refine_transformation(
     min_source_safety_factor=5.0,
 ):
     """
-    Iterate the process until we get a transformation that
-    its difference from the previous one is less than a threshold
+    Refine the transformation until it changes by less than a threshold.
 
     Args:
         astrometry_order(int):    The order of the transformation to fit

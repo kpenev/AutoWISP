@@ -110,8 +110,11 @@ class TestVocabulary(unittest.TestCase):
                 self.assertTrue(is_diagnostic(name))
 
     def test_time_is_a_quantity_but_not_a_diagnostic(self):
-        """``jd`` is a column of the image row, not an ``image_diagnostics``
-        value, yet it is a variable in the same flat name space."""
+        """``jd`` is a variable in the same flat name space as diagnostics.
+
+        Yet it is a column of the image row, not an ``image_diagnostics``
+        value.
+        """
 
         self.assertFalse(is_diagnostic(time_quantity))
         self.assertTrue(is_known_quantity(time_quantity))

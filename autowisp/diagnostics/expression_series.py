@@ -993,8 +993,11 @@ def _read_custom_group(members, needed, db_session):
     own = numpy.array([channel for _, channel in members])
 
     def read(name, binding):
-        """Return *name* in *binding* per member, in each one's own channel
-        where it is bound to :data:`_own_channel`."""
+        """Return *name* in *binding* per member.
+
+        In each member's own channel where it is bound to
+        :data:`_own_channel`.
+        """
 
         (channel,), photometries = binding
         if channel != _own_channel:

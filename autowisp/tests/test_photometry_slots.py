@@ -27,14 +27,13 @@ from autowisp.tests.test_expressions import SlotTestCase
 
 
 class TestPhotometrySlots(SlotTestCase):
-    """Photometries, bound through a second subscript as channels are
-    through the first.
+    """Photometries, bound through a second subscript.
 
-    The library adds to the channel one: two photometries of one channel;
-    one formal photometry against a quoted aperture; an expression passing
-    its photometries on the other way round; one quoting both its channel
-    and its photometry, the shape fit; and a channel-free one taking a
-    photometry, and one reading that.
+    As channels are through the first. The library adds to the channel one:
+    two photometries of one channel; one formal photometry against a quoted
+    aperture; an expression passing its photometries on the other way round;
+    one quoting both its channel and its photometry, the shape fit; and a
+    channel-free one taking a photometry, and one reading that.
     """
 
     library = dict(

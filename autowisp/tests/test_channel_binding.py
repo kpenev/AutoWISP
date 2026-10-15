@@ -286,8 +286,10 @@ class TestRebinding(TwoChannelProject):
         return self.rebinding(row, *channels, session_id=session_id)[1]
 
     def test_a_pair_change_is_answered_with_the_channels_unset(self):
-        """Which channels a column may offer depends on the pair, so the
-        cells are re-rendered before anything is bound in them."""
+        """The cells are re-rendered before anything is bound in them.
+
+        Which channels a column may offer depends on the pair.
+        """
 
         response = self.rebind(
             self.first_row("jd", "bg_center"), "", session_id=self.session_id
@@ -298,8 +300,10 @@ class TestRebinding(TwoChannelProject):
         self.assertIn("R (3)", response["slot_cells"])
 
     def test_a_session_recording_one_channel_settles_on_it(self):
-        """One channel to choose from is no choice at all, so the cell
-        states what it binds and the row is counted at once."""
+        """The cell states what it binds, and the row is counted at once.
+
+        One channel to choose from is no choice at all.
+        """
 
         response = self.rebind(self.first_row("jd", "bg_center"), "")
 
@@ -450,8 +454,10 @@ class TestAddedRow(TwoChannelProject):
             )
 
     def test_the_copy_carries_the_pair_and_channels(self):
-        """The next series usually differs in one thing, so copying
-        leaves only that thing to change."""
+        """Copying leaves only the one thing the next series changes.
+
+        It usually differs in one thing.
+        """
 
         row = self.moved_to(
             self.first_row("jd", "bg_center"), self.session_id, "B"
@@ -474,8 +480,11 @@ class TestAddedRow(TwoChannelProject):
         self.assertEqual(drawn[1]["count"], len(self.values_of["B"]))
 
     def test_the_copy_takes_the_next_ordinal(self):
-        """And one past the highest, so a gap left by a removal is not
-        reused while the row that had it may still be on the page."""
+        """The copy takes the ordinal one past the highest.
+
+        A gap left by a removal is not reused, while the row that had it may
+        still be on the page.
+        """
 
         row = self.moved_to(
             self.first_row("jd", "bg_center"), self.session_id, "B"
@@ -489,8 +498,10 @@ class TestAddedRow(TwoChannelProject):
         )
 
     def test_the_copy_is_rendered_as_a_row(self):
-        """Through the one row template, so it arrives able to do
-        everything a row rendered with the page can."""
+        """The copy is rendered through the one row template.
+
+        So it arrives able to do everything a row rendered with the page can.
+        """
 
         row = self.moved_to(
             self.first_row("jd", "bg_center"), self.session_id, "B"

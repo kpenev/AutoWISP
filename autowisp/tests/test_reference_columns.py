@@ -48,8 +48,7 @@ from autowisp.tests.test_series_references import ReferenceProject
 
 
 class TestReferenceColumns(ReferenceProject):
-    """The table over magfit diagnostics: references and photometries
-    chosen in its columns.
+    """The magfit diagnostics table: references and photometries in its columns.
 
     On the night of :mod:`autowisp.tests.test_series_references`, fit
     against two references in each of two channels, with one frame bound
@@ -117,9 +116,12 @@ class TestReferenceColumns(ReferenceProject):
         )
 
     def test_a_rebound_row_counts_the_frames_of_its_binding(self):
-        """Those fit against both references, as the series will draw, and
+        """A rebound row counts the frames of its binding.
+
+        Those fit against both references, as the series will draw, and
         recording the offset in the photometry bound: in aperture 2, one of
-        them does not in R."""
+        them does not in R.
+        """
 
         row_id = make_id("offset_to_b", 0)
         population = self.selected(
@@ -207,9 +209,12 @@ class TestReferenceColumns(ReferenceProject):
         )
 
     def test_each_photometry_parameter_gets_a_column(self):
-        """However the photometries are reached: a diagnostic takes one, an
-        expression one per photometry parameter, and a quoted photometry
-        none. Each column offers both of the night's apertures."""
+        """Each photometry parameter gets a column, however it is reached.
+
+        A diagnostic takes one, an expression one per photometry parameter,
+        and a quoted photometry none. Each column offers both of the night's
+        apertures.
+        """
 
         expected = {
             "photometry_mag_offset": 1,

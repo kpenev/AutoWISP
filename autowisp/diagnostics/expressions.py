@@ -641,8 +641,7 @@ def _evaluation_order(targets, expressions):
 
 
 def _needed_diagnostics(targets, references, expressions):
-    """Return the diagnostics to fetch, rejecting names that resolve to
-    nothing.
+    """Return the diagnostics to fetch, rejecting names resolving to nothing.
 
     Raises:
         PipelineError:    If any referenced name is neither an expression,

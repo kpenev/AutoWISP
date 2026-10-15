@@ -241,9 +241,11 @@ class TestAdditiveMigrations(BackendMixin, unittest.TestCase):
             apply_additive_migrations(conn)
 
     def _make_old_project(self):
-        """Simulate an existing project: a ``pipeline_run`` table from
-        before ``code_version`` and the ``error`` table existed, holding a
-        row."""
+        """Simulate an existing project, from before the ``error`` table.
+
+        Its ``pipeline_run`` table, from before ``code_version`` too, holds a
+        row.
+        """
 
         with self.engine.begin() as conn:
             conn.execute(
@@ -714,8 +716,7 @@ class TestCheckProjectSchema(BackendMixin, unittest.TestCase):
 
 @unittest.skipIf(on_server(), "exercises SQLite's own locking")
 class TestSqliteMigrationLock(unittest.TestCase):
-    """The SQLite half of the migration lock really does exclude a second
-    writer.
+    """The SQLite half of the migration lock excludes a second writer.
 
     Alembic does no locking of its own, so without this two migrators can
     both read the same revision and both try to apply it. On SQLite the

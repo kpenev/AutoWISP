@@ -327,8 +327,7 @@ class AutoWISPError(Exception):
         self.details = dict(details or {})
 
     def __reduce__(self):
-        """Pickle by restoring ``__dict__`` rather than re-running
-        ``__init__``.
+        """Pickle by restoring ``__dict__``, not by re-running ``__init__``.
 
         Subclasses (e.g. :class:`StepError`) accept keyword-only
         arguments and carry context attributes that are not part of
