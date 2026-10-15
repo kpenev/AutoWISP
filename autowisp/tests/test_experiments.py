@@ -10,8 +10,6 @@ from datetime import datetime
 
 from sqlalchemy import (
     DDL,
-    MetaData,
-    Table,
     create_engine,
     delete,
     func,
@@ -45,7 +43,10 @@ from autowisp.database.data_model.provenance import Camera
 from autowisp.database.data_model.steps_and_parameters import (
     step_param_association,
 )
-from autowisp.tests.database_fixtures import add_cameras
+from autowisp.tests.database_fixtures import (
+    add_cameras,
+    stamp_previous_revision,
+)
 
 # False positive: the declarative models are callable.
 # pylint: disable=not-callable
@@ -61,25 +62,6 @@ def _drop_timestamp_trigger(db_session, model):
     db_session.connection().execute(
         DDL(f"DROP TRIGGER update_{model.__tablename__}_timestamp")
     )
-
-
-def _stamp_previous_revision(engine):
-    """Make the project look one revision behind, changing nothing else.
-
-    It stands in for a project to migrate while there is no revision after
-    the one creating the ``experiment`` table: that revision finds its table
-    there and does nothing, but the project's revision does change.
-    """
-
-    with Session(engine) as db_session, db_session.begin():
-        version = Table(
-            "alembic_version",
-            MetaData(),
-            autoload_with=db_session.connection(),
-        )
-        db_session.execute(
-            update(version).values(version_num="0020_pipeline_run_identity")
-        )
 
 
 class _ProjectCopyCase(unittest.TestCase):
@@ -272,7 +254,7 @@ class TestStaleness(_ProjectCopyCase):
         outcome = {}
         for change, (make_change, _) in changes.items():
             engine, project_home = self._copy_project()
-            _stamp_previous_revision(engine)
+            stamp_previous_revision(engine)
             self._add_experiments(
                 engine, states, self._get_fingerprint(engine, project_home)
             )

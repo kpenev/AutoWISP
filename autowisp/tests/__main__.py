@@ -64,6 +64,7 @@ from autowisp.tests.test_experiments import (
     TestProjectLock,
     TestStaleness,
 )
+from autowisp.tests.test_project_copy import TestProjectCopy
 from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
 from autowisp.tests.test_suite_registration import TestSuiteRegistration
 from autowisp.tests.test_database_migration import (

@@ -7,7 +7,8 @@ images, not about who took them with what, and these supply the rest.
 
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import MetaData, Table, select, update
+from sqlalchemy.orm import Session
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import ObservingSession, Target
@@ -164,3 +165,22 @@ def add_observing_session(db_session, label, camera_id, *, day=0):
     db_session.add(session)
     db_session.flush()
     return session.id
+
+
+def stamp_previous_revision(engine):
+    """Make the project look one revision behind, changing nothing else.
+
+    It stands in for a project not fully migrated while there is no revision
+    after the one creating the ``experiment`` table: that revision finds its
+    table there and does nothing, but the project's revision does change.
+    """
+
+    with Session(engine) as db_session, db_session.begin():
+        version = Table(
+            "alembic_version",
+            MetaData(),
+            autoload_with=db_session.connection(),
+        )
+        db_session.execute(
+            update(version).values(version_num="0020_pipeline_run_identity")
+        )

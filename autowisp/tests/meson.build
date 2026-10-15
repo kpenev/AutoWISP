@@ -59,6 +59,7 @@ py_src = [
   'test_photref_binding.py',
   'test_photref_candidates.py',
   'test_pipeline_runs.py',
+  'test_project_copy.py',
   'test_project_creation_guard.py',
   'test_projhome_migration.py',
   'test_provenance_resolver.py',
