@@ -5,7 +5,6 @@ from contextlib import contextmanager
 
 import platformdirs
 
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, event, inspect as sa_inspect
 from sqlalchemy.pool import NullPool
 
@@ -22,6 +21,7 @@ from autowisp.database.initialize_data_reduction_structure import (
 from autowisp.database.initialize_light_curve_structure import (
     get_default_light_curve_structure,
 )
+from autowisp.database.sessions import start_engine_session
 
 # get_project_home is re-exported: the project home is kept in project_paths
 # so that the file classes can resolve paths without importing the database.
@@ -32,11 +32,6 @@ from autowisp.project_paths import (  # pylint: disable=unused-import
 from autowisp.exceptions import DatabaseError
 
 _db_engine = None
-
-# pylint false positive - Session is actually a class name.
-# pylint: disable=invalid-name
-_Session = None  # sessionmaker(db_engine, expire_on_commit=False)
-# pylint: enable=invalid-name
 
 DB_URL_FNAME = "autowisp_db.url"  # pylint: disable=invalid-name
 """
@@ -58,9 +53,15 @@ def get_db_engine():
 
 @contextmanager
 def start_db_session():
-    """Context manager to start a database session."""
+    """
+    Yield a session on the current project's database, in a transaction.
 
-    with _Session.begin() as db_session:  # pylint: disable=no-member
+    See :func:`~autowisp.database.sessions.start_engine_session`. Objects
+    loaded in it stay readable after the block, as its callers have always
+    been able to rely on.
+    """
+
+    with start_engine_session(_db_engine, expire_on_commit=False) as db_session:
         yield db_session
 
 
@@ -161,6 +162,13 @@ def use_utc_sessions(engine):
         cursor.close()
 
     event.listen(engine, "connect", set_utc)
+
+
+def get_sqlite_url(project_home):
+    """Return the URL of the SQLite database of the project at the home."""
+
+    db_path = path.abspath(path.join(project_home, "autowisp.db"))
+    return f"sqlite:///{db_path}?timeout=600&uri=true"
 
 
 def create_project_engine(db_url):
@@ -264,7 +272,7 @@ def set_project_home(
             this check passes.
     """
 
-    global _db_engine, _Session  # pylint: disable=global-statement
+    global _db_engine  # pylint: disable=global-statement
     # print(f"Setting project home to {project_home!r}")
     if _db_engine is not None:
         _db_engine.dispose()
@@ -297,8 +305,7 @@ def set_project_home(
             db_url = fobj.read().strip()
 
     if db_url is None:
-        db_path = path.join(project_home, "autowisp.db")
-        db_url = f"sqlite:///{path.abspath(db_path)}?timeout=600&uri=true"
+        db_url = get_sqlite_url(project_home)
 
     # Built into a local first: an engine rejected below must not become
     # the module-wide one, or the caller would be left connected to the
@@ -321,7 +328,6 @@ def set_project_home(
         )
 
     _db_engine = engine
-    _Session = sessionmaker(_db_engine, expire_on_commit=False)
     set_project_home_path(project_home)
 
     if persist_db_url is not None:

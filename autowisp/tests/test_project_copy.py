@@ -38,6 +38,7 @@ from autowisp.database.interface import (
     start_db_session,
 )
 from autowisp.database.project_copy import copy_project_database
+from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import DatabaseError
 from autowisp.tests import server_test_url
 from autowisp.tests.database_fixtures import (
@@ -247,7 +248,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
             ("source", self._source),
             ("target", target_engine),
         ):
-            with Session(engine) as db_session, db_session.begin():
+            with start_engine_session(engine) as db_session:
                 for run_id, task in added_runs[label].items():
                     db_session.add(
                         PipelineRun(
@@ -331,7 +332,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
 
         added_past_copied = {}
         for name, engine in (("copy", copy_engine), ("target", target_engine)):
-            with Session(engine) as db_session, db_session.begin():
+            with start_engine_session(engine) as db_session:
                 largest = db_session.scalar(select(func.max(ImageType.id)))
                 added = ImageType(name="added", description="Added after.")
                 db_session.add(added)
@@ -359,7 +360,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
             # Without the check the project's engines make, to break one.
             unchecked = create_engine(source_engine.url, poolclass=NullPool)
             self.addCleanup(unchecked.dispose)
-            with Session(unchecked) as db_session, db_session.begin():
+            with start_engine_session(unchecked) as db_session:
                 db_session.add(
                     Error(
                         pipeline_run_id=999999,
@@ -374,7 +375,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
             # SQLite keeps a string longer than its column, a server does not.
             source_engine = self._create_engine("long_string.db")
             copy_project_database(self._source, source_engine)
-            with Session(source_engine) as db_session, db_session.begin():
+            with start_engine_session(source_engine) as db_session:
                 db_session.execute(
                     Camera.__table__.update().values(notes="x" * 1001)
                 )

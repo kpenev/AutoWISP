@@ -18,6 +18,7 @@ py_src = [
   'project_copy.py',
   'project_rows.py',
   'provenance_resolver.py',
+  'sessions.py',
   'user_interface.py',
 ]
 

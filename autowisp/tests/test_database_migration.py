@@ -21,7 +21,6 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.data_model.base import DataModelBase
@@ -44,6 +43,7 @@ from autowisp.database.migrate import (
     get_schema_drift,
     migrate_project,
 )
+from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import DatabaseError
 from autowisp.tests import SERVER_URL_ENV, empty_server_database
 from autowisp.tests.database_fixtures import add_cameras, add_observing_session
@@ -613,7 +613,7 @@ class TestMigrateProject(BackendMixin, unittest.TestCase):
         self.addCleanup(unchecked.dispose)
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
-        with Session(unchecked) as db_session, db_session.begin():
+        with start_engine_session(unchecked) as db_session:
             image_type = ImageType(name="object", description="objects")
             db_session.add(image_type)
             db_session.flush()
