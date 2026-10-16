@@ -23,21 +23,11 @@ from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
 )
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
-from autowisp.database.pipeline_runs import (
-    find_earlier_run,
-    get_machine_id,
-    get_process_started,
-)
+from autowisp.database.pipeline_runs import find_earlier_run, record_run
 from autowisp.error_context import get_error_context, set_pipeline_run
 from autowisp.error_cli import report_error
-from autowisp.miscellaneous import get_code_version_str
 from autowisp.project_experiments import ProjectExperiments
-from autowisp.exceptions import (
-    AutoWISPError,
-    PipelineError,
-    ResourceError,
-    get_hostname,
-)
+from autowisp.exceptions import AutoWISPError, PipelineError, ResourceError
 from autowisp.file_utilities import find_fits_fnames
 
 
@@ -181,22 +171,11 @@ def _run_pipeline(config):
     # setup_process_map(db_fname, dummy_config)
 
     with _lock_run_start(), start_db_session() as db_session:
-        pipeline_run = PipelineRun(
-            host=get_hostname(),
-            process_id=os.getpid(),
-            started=sql.func.now(),  # pylint: disable=not-callable
-            code_version=get_code_version_str(),
-            machine_id=get_machine_id(),
-            process_started=get_process_started(),
-        )
-        db_session.add(pipeline_run)
-        # flush (not commit) assigns the id while keeping the transaction
-        # open, so snapshot_row can read every column -- including the
-        # server-evaluated ``started`` -- without tripping over a closed
-        # transaction. The begin() block commits the row on exit. The
-        # snapshot lets the error context carry the run even before the
-        # first setup_process call.
-        db_session.flush()
+        pipeline_run = record_run(db_session)
+        # Within the transaction, so that snapshot_row can read every column,
+        # the server-evaluated ``started`` included. The snapshot lets the
+        # error context carry the run even before the first setup_process
+        # call.
         set_pipeline_run(snapshot_row(pipeline_run))
         pipeline_run = pipeline_run.id
 

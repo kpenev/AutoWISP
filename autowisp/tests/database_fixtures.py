@@ -5,13 +5,20 @@ rows it refers to. Most tests care only about the sessions and their
 images, not about who took them with what, and these supply the rest.
 """
 
+import json
+import os
+import shutil
+import tempfile
+import unittest
+from argparse import Namespace
 from datetime import datetime
 
-from sqlalchemy import MetaData, Table, select, update
-from sqlalchemy.orm import Session
+from sqlalchemy import MetaData, Table, create_engine, func, select, update
+from sqlalchemy.pool import NullPool
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
+    Experiment,
     ObservingSession,
     PipelineRun,
     Target,
@@ -29,6 +36,9 @@ from autowisp.database.data_model.provenance import (
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.database.initialize_database import initialize_database
+from autowisp.database.interface import set_project_home
+from autowisp.database.sessions import start_engine_session
 
 # False positive: the declarative models are callable.
 # pylint: disable=not-callable
@@ -177,17 +187,26 @@ def stamp_previous_revision(engine):
     It stands in for a project not fully migrated while there is no revision
     after the one creating the ``experiment`` table: that revision finds its
     table there and does nothing, but the project's revision does change.
+
+    The fingerprints its experiments recorded are stamped with it, as if the
+    previous version had created them: the revision is all a fingerprint
+    holds of it.
     """
 
-    with Session(engine) as db_session, db_session.begin():
+    previous = "0020_pipeline_run_identity"
+    with start_engine_session(engine) as db_session:
         version = Table(
             "alembic_version",
             MetaData(),
             autoload_with=db_session.connection(),
         )
-        db_session.execute(
-            update(version).values(version_num="0020_pipeline_run_identity")
-        )
+        db_session.execute(update(version).values(version_num=previous))
+        for experiment in db_session.scalars(select(Experiment)):
+            fingerprint = json.loads(experiment.fingerprint)
+            if "revision" in fingerprint:
+                experiment.fingerprint = json.dumps(
+                    dict(fingerprint, revision=previous), sort_keys=True
+                )
 
 
 def add_create_run(db_session):
@@ -206,3 +225,63 @@ def add_create_run(db_session):
     db_session.add(pipeline_run)
     db_session.flush()
     return pipeline_run
+
+
+class ProjectCopyCase(unittest.TestCase):
+    """A new project, created once, which each test changes copies of."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Create the project, leaving it the current one."""
+
+        # Released via addClassCleanup, since it must outlive setUpClass.
+        # pylint: disable-next=consider-using-with
+        template = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(template.cleanup)
+        cls._template_home = template.name
+        set_project_home(cls._template_home)
+        initialize_database(
+            Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True)
+        )
+
+    def _copy_project(self):
+        """Return an engine on a copy of the project, and the copy's home.
+
+        The whole home is copied, since creating an experiment copies it.
+        """
+
+        copy_home = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, copy_home)
+        shutil.copytree(self._template_home, copy_home, dirs_exist_ok=True)
+        db_fname = os.path.join(copy_home, "autowisp.db")
+        # No pool, so that nothing holds the file open when it is removed.
+        engine = create_engine(f"sqlite:///{db_fname}", poolclass=NullPool)
+        self.addCleanup(engine.dispose)
+        return engine, copy_home
+
+    @classmethod
+    def _add_experiments(
+        cls, engine, states, fingerprint="{}", db_session=None
+    ):
+        """Record experiments in the given states, ``{name: state}``.
+
+        Each with the finished run that created it, as creating one leaves
+        it. Within ``db_session`` if given, else in a transaction of its own
+        on ``engine``.
+        """
+
+        if db_session is None:
+            with start_engine_session(engine) as own_session:
+                cls._add_experiments(engine, states, fingerprint, own_session)
+            return
+        for name, state in states.items():
+            db_session.add(
+                Experiment(
+                    name=name,
+                    home=f"{{PROJHOME}}/experiments/{name}",
+                    created=func.now(),
+                    fingerprint=fingerprint,
+                    state=state,
+                    copy_run_id=add_create_run(db_session).id,
+                )
+            )

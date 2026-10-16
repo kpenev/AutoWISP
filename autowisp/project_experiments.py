@@ -1,39 +1,70 @@
 """Create, reset, merge and delete a project's experiments.
 
 The operations copy whole projects: their files, and their databases with
-:mod:`autowisp.database.project_copy`. What they record in the original's
-database is managed by
-:class:`~autowisp.database.experiments.ExperimentRecords`, which the database
-layer uses on its own, being unable to import the steps and the copy.
+:mod:`autowisp.database.project_copy`. They extend
+:class:`~autowisp.database.experiments.ExperimentRecords`, which holds what
+the database layer itself needs, the lock and the fingerprint. The split is
+by what each module may import, not by database work and file work: the
+records are imported by :mod:`autowisp.database.migrate`, so everything built
+on it, the copy and the steps' path options, is here, database work
+included.
 """
 
+import logging
 import os
+import re
 import shutil
 import stat
 import sys
 from pathlib import PurePath
 
-from sqlalchemy import select
+from alembic.runtime.migration import MigrationContext
+from sqlalchemy import delete, func, select, update
 
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import Configuration, Parameter
+from autowisp.database.data_model import (
+    Configuration,
+    Experiment,
+    Image,
+    Parameter,
+    PipelineRun,
+)
 
 # pylint: enable=no-name-in-module
 from autowisp.database.experiments import ExperimentRecords
-from autowisp.database.interface import DB_URL_FNAME
-from autowisp.exceptions import ConfigurationError, ResourceError
+from autowisp.database.interface import (
+    DB_URL_FNAME,
+    create_project_engine,
+    get_sqlite_url,
+)
+from autowisp.database.migrate import locked_connection
+from autowisp.database.pipeline_runs import record_run
+from autowisp.database.project_copy import copy_project_database
+from autowisp.database.sessions import start_engine_session
+from autowisp.exceptions import (
+    ConfigurationError,
+    ExperimentError,
+    ResourceError,
+)
 from autowisp.processing_steps import get_path_arguments
 from autowisp.processing_steps.manual_util import split_path_values
 from autowisp.project_paths import PROJHOME_MARKER
+
+_logger = logging.getLogger(__name__)
 
 
 class ProjectExperiments(ExperimentRecords):
     """
     The experiments of one project, and every operation on them.
 
-    Adds to the records what reaches beyond the database: the configured
-    paths, and the projects' files.
+    Adds to the records the operations, and what they are built on: the
+    checks of the configured paths, and the copies of the projects' files and
+    databases.
     """
+
+    # A name an experiment may take, which is its directory's: letters,
+    # digits, "-" and "_", so never a hidden one, nor a path.
+    _name_pattern = re.compile("[A-Za-z0-9_-]+")
 
     @staticmethod
     def _refuse_external_paths(db_session):
@@ -260,6 +291,231 @@ class ProjectExperiments(ExperimentRecords):
         """
 
         self.refuse_if_locked()
-        with self._begin_session() as db_session:
+        with start_engine_session(self._engine) as db_session:
             if self._read_experiments(db_session) is None:
                 self._refuse_external_paths(db_session)
+
+    def _get_home(self, name):
+        """Return the home of the named experiment."""
+
+        return os.path.join(self._home, self._dirname, name)
+
+    @staticmethod
+    def _find_raw_images(db_session):
+        """
+        Return the raw images inside the project, relative to its home.
+
+        Nothing writes to them, so copying the project links them.
+        """
+
+        prefix = PROJHOME_MARKER + "/"
+        return {
+            PurePath(raw_fname[len(prefix) :])
+            for raw_fname in db_session.scalars(
+                select(Image.raw_fname).where(
+                    Image.raw_fname.startswith(prefix)
+                )
+            )
+        }
+
+    @staticmethod
+    def _finish_run(engine, run_id):
+        """Record the run as finished in the project's database, if not yet."""
+
+        with engine.begin() as connection:
+            connection.execute(
+                update(PipelineRun)
+                .where(PipelineRun.id == run_id, PipelineRun.finished.is_(None))
+                .values(finished=func.now())  # pylint: disable=not-callable
+            )
+
+    def _copy_database(self, home, run_id):
+        """
+        Copy the original's database into the experiment's home.
+
+        The original is hashed in the same pass. The copy's ``experiment``
+        table, which the copy creates empty, is dropped: its absence is what
+        makes the copy an experiment. The copy holds the run copying it,
+        unfinished, which is recorded as finished in it: otherwise a later
+        check from another machine would count the run as still going in the
+        experiment.
+
+        Args:
+            home(str):    The experiment's home.
+
+            run_id(int):    The id of the run copying it.
+
+        Returns:
+            dict:    The original's fingerprint, as copied.
+        """
+
+        hasher = self._make_hasher()
+        engine = create_project_engine(get_sqlite_url(home))
+        try:
+            copy_project_database(
+                self._engine, engine, table_consumers=[hasher]
+            )
+            Experiment.__table__.drop(engine)
+            self._finish_run(engine, run_id)
+        finally:
+            engine.dispose()
+        return hasher.get_fingerprint()
+
+    def _complete_copy(self, name, fingerprint):
+        """
+        Record the copy of the original as complete, making it current.
+
+        Under the migration lock, so that the original's revision cannot
+        change between checking and recording it. If it is still the one
+        copied, the experiment is current. Otherwise a newer AutoWISP migrated
+        the original during the copy, and the experiment is stale: its copy is
+        complete at the earlier revision, and resetting it with that version
+        brings it up to date.
+
+        Nothing else can have changed the original since it was copied: the
+        experiment's row has locked it since before the copy.
+
+        Args:
+            name(str):    The experiment's name.
+
+            fingerprint(dict):    The original's fingerprint, as copied.
+
+        Returns:
+            str:    The experiment's state.
+
+        Raises:
+            ExperimentError:    If the experiment was deleted meanwhile.
+        """
+
+        with locked_connection(self._engine) as connection:
+            if (
+                connection.scalar(
+                    select(Experiment.id).where(Experiment.name == name)
+                )
+                is None
+            ):
+                raise ExperimentError(
+                    f"Experiment {name!r} was deleted while being copied."
+                )
+            revision = MigrationContext.configure(
+                connection
+            ).get_current_revision()
+            state = (
+                self._current_state
+                if revision == fingerprint["revision"]
+                else self._stale_state
+            )
+            connection.execute(
+                update(Experiment)
+                .where(Experiment.name == name)
+                .values(
+                    state=state,
+                    fingerprint=self._dump_fingerprint(fingerprint),
+                )
+            )
+        if state == self._stale_state:
+            _logger.warning(
+                "Experiment %s is stale: a newer AutoWISP migrated the "
+                "original while it was copied. Resetting the experiment with "
+                "that version brings it up to date.",
+                name,
+            )
+        return state
+
+    def create(self, name, ignored_runs=()):
+        """
+        Create an experiment: a copy of the project at ``experiments/<name>``.
+
+        Refused before anything is touched if the name is not one an
+        experiment may take (:attr:`_name_pattern`) or is taken, if the
+        project is itself an experiment, if a path is configured outside it
+        (:meth:`_refuse_external_paths`), or if the experiment's directory
+        exists and is not empty: deleting an experiment removes everything
+        under it, so it never adopts files it did not put there.
+
+        The experiment's row is inserted ``creating``, with the run creating
+        it, which locks the original. A run going in the original
+        (:meth:`_refuse_active_runs`), or too little free space, then refuses
+        the create, which is undone. Otherwise the files are copied, then the
+        database (:meth:`_copy_database`), and the experiment becomes current
+        (:meth:`_complete_copy`). However the create ends, its run is recorded
+        as finished: one interrupted leaves the experiment ``creating``, which
+        only delete applies to.
+
+        Args:
+            name(str):    The experiment's name.
+
+            ignored_runs:    The ids of runs not counted as going (see
+                :meth:`_refuse_active_runs`).
+
+        Returns:
+            str:    The experiment's state: ``"current"``, or ``"stale"`` if
+            the original was migrated during the copy.
+
+        Raises:
+            ExperimentError:    If refused, or if the experiment was deleted
+                while being created.
+
+            ConfigurationError:    If a path is configured outside the
+                project.
+
+            ResourceError:    If the copy would not fit in the free space.
+        """
+
+        if not self._name_pattern.fullmatch(name):
+            raise ExperimentError(
+                f"{name!r} cannot name an experiment: use only letters, "
+                "digits, '-' and '_'."
+            )
+        home = self._get_home(name)
+        if os.path.exists(home) and (
+            not os.path.isdir(home) or os.listdir(home)
+        ):
+            raise ExperimentError(
+                f"{home} exists and is not an empty directory: move it away, "
+                "or choose another name."
+            )
+        made_home = not os.path.exists(home)
+        with start_engine_session(self._engine) as db_session:
+            experiments = self._read_experiments(db_session)
+            if experiments is None:
+                raise ExperimentError(
+                    f"{self._home} is an experiment: create experiments from "
+                    "its original."
+                )
+            if name in [experiment.name for experiment in experiments]:
+                raise ExperimentError(
+                    f"The project already has an experiment named {name!r}."
+                )
+            self._refuse_external_paths(db_session)
+            linked_files = self._find_raw_images(db_session)
+            run_id = record_run(db_session, self._operation_tasks["create"]).id
+            db_session.add(
+                Experiment(
+                    name=name,
+                    home=f"{PROJHOME_MARKER}/{self._dirname}/{name}",
+                    created=func.now(),  # pylint: disable=not-callable
+                    fingerprint="{}",
+                    state=self._creating_state,
+                    copy_run_id=run_id,
+                )
+            )
+
+        try:
+            try:
+                self._refuse_active_runs(self._engine, {*ignored_runs, run_id})
+                os.makedirs(home, exist_ok=True)
+                self._copy_tree(self._home, home, linked_files)
+            except (ExperimentError, ResourceError):
+                # Refused before anything was copied: undone, which releases
+                # the lock.
+                with start_engine_session(self._engine) as db_session:
+                    db_session.execute(
+                        delete(Experiment).where(Experiment.name == name)
+                    )
+                if made_home and os.path.isdir(home):
+                    os.rmdir(home)
+                raise
+            return self._complete_copy(name, self._copy_database(home, run_id))
+        finally:
+            self._finish_run(self._engine, run_id)

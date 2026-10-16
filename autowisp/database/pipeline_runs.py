@@ -13,6 +13,7 @@ project's server database, each needs an identifier of its own.
 """
 
 import logging
+import os
 from functools import cache
 
 import machineid
@@ -24,6 +25,7 @@ from autowisp.database.data_model import PipelineRun
 
 # pylint: enable=no-name-in-module
 from autowisp.exceptions import get_hostname
+from autowisp.miscellaneous import get_code_version_str
 
 _logger = logging.getLogger(__name__)
 
@@ -54,6 +56,36 @@ def get_process_started(process_id=None):
     """Return when a process (this one by default) started, as a timestamp."""
 
     return psutil.Process(process_id).create_time()
+
+
+def record_run(db_session, task=PipelineRun.processing_task):
+    """
+    Record a run by this process, and return it with its id assigned.
+
+    Flushed, not committed: the caller's transaction decides when it becomes
+    visible, so that it can record something else along with it.
+
+    Args:
+        db_session:    The session to record the run in.
+
+        task(str):    What the run does (see :attr:`PipelineRun.task`).
+
+    Returns:
+        PipelineRun:    The run.
+    """
+
+    pipeline_run = PipelineRun(
+        host=get_hostname(),
+        process_id=os.getpid(),
+        started=sql.func.now(),  # pylint: disable=not-callable
+        code_version=get_code_version_str(),
+        machine_id=get_machine_id(),
+        process_started=get_process_started(),
+        task=task,
+    )
+    db_session.add(pipeline_run)
+    db_session.flush()
+    return pipeline_run
 
 
 def is_this_machine(pipeline_run):

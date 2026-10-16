@@ -60,12 +60,11 @@ from autowisp.tests.test_parameter_description_length import (
 )
 from autowisp.tests.test_path_options import TestPathOptions
 from autowisp.tests.test_pipeline_runs import TestFindActiveRuns
-from autowisp.tests.test_experiments import (
-    TestCopyTree,
-    TestProjectLock,
-    TestRefusals,
-    TestStaleness,
-)
+from autowisp.tests.test_copy_tree import TestCopyTree
+from autowisp.tests.test_experiment_create import TestCreate
+from autowisp.tests.test_experiment_refusals import TestRefusals
+from autowisp.tests.test_experiment_staleness import TestStaleness
+from autowisp.tests.test_project_lock import TestProjectLock
 from autowisp.tests.test_project_copy import TestProjectCopy
 from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
 from autowisp.tests.test_suite_registration import TestSuiteRegistration

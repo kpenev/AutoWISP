@@ -6,17 +6,18 @@ experiments in the ``experiment`` table (:class:`Experiment`); an
 experiment's own database has no such table, and that absence is what makes
 it an experiment.
 
-Only what the database layer needs is here: the lock, the fingerprint, and
-what migrating does to them, imported by the modules that open and migrate a
-project. The operations on experiments, which copy whole projects, are in
-:mod:`autowisp.project_experiments`.
+Only what the database layer itself needs is here: the lock, the fingerprint,
+and keeping experiments mergeable across a migration. :mod:`migrate
+<autowisp.database.migrate>` imports it, so it cannot import ``migrate``, nor
+anything that does, such as the copy of a project's database. The operations
+on experiments, which are built on both, are in
+:mod:`autowisp.project_experiments`, database work and file work alike.
 """
 
 import hashlib
 import json
 from contextlib import contextmanager
 
-from alembic.runtime.migration import MigrationContext
 from sqlalchemy import inspect as sa_inspect, select, update
 from sqlalchemy.orm import Session
 
@@ -26,6 +27,7 @@ from autowisp.database.data_model import Experiment
 # pylint: enable=no-name-in-module
 from autowisp.database.pipeline_runs import find_active_runs
 from autowisp.database.project_rows import read_project
+from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import ExperimentError, ProjectLockedError
 
 
@@ -36,8 +38,8 @@ class ExperimentRecords:
     Everything runs from the original, whose ``experiment`` table is the only
     record of its experiments. Each method opens its own connections, so that
     it decides when what it writes is committed. The operations on
-    experiments are added by its subclass,
-    :class:`~autowisp.project_experiments.ProjectExperiments`.
+    experiments, which need what this module cannot import, are added by its
+    subclass, :class:`~autowisp.project_experiments.ProjectExperiments`.
 
     The original's fingerprint (:meth:`_get_fingerprint`) tells whether it
     has changed since an experiment was copied from it. It covers what a
@@ -132,10 +134,19 @@ class ExperimentRecords:
             self._unhashed_columns = unhashed_columns
             self._unhashed_rows = unhashed_rows
             self._hashes = {}
+            # The project's Alembic revision, once read; None if it has none.
+            self._revision = None
 
         def __call__(self, table):
             """Start hashing the table; return what to give its rows to."""
 
+            if table.name == "alembic_version":
+
+                def record_revision(batch):
+                    for row in batch:
+                        self._revision = row["version_num"]
+
+                return record_revision
             if table.name in self._unhashed_tables:
                 return None
             hashed_columns = [
@@ -167,12 +178,15 @@ class ExperimentRecords:
 
             return hash_rows
 
-        def get_table_hashes(self):
-            """Return the hash of each table, by name, as hexadecimal."""
+        def get_fingerprint(self):
+            """Return the revision read, and each table's hash, by name."""
 
             return {
-                name: rows_hash.hexdigest()
-                for name, rows_hash in sorted(self._hashes.items())
+                "revision": self._revision,
+                "tables": {
+                    name: rows_hash.hexdigest()
+                    for name, rows_hash in sorted(self._hashes.items())
+                },
             }
 
     def __init__(self, engine, project_home):
@@ -204,21 +218,6 @@ class ExperimentRecords:
 
         return row["task"] in cls._operation_tasks.values()
 
-    @contextmanager
-    def _begin_session(self):
-        """
-        Yield a session on the original's database, within a transaction.
-
-        The transaction is committed on leaving the block, and rolled back if
-        it raises. Objects loaded in it stay readable afterwards.
-        """
-
-        with (
-            Session(self._engine, expire_on_commit=False) as db_session,
-            db_session.begin(),
-        ):
-            yield db_session
-
     @staticmethod
     def _refuse_active_runs(engine, ignored_runs):
         """
@@ -241,7 +240,7 @@ class ExperimentRecords:
             ExperimentError:    Naming each run going, with its task and host.
         """
 
-        with Session(engine) as db_session, db_session.begin():
+        with start_engine_session(engine) as db_session:
             here, elsewhere = find_active_runs(db_session)
             active = {
                 pipeline_run.id: (
@@ -299,7 +298,9 @@ class ExperimentRecords:
                 has no ``experiment`` table, i.e. is an experiment itself.
         """
 
-        with self._begin_session() as db_session:
+        with start_engine_session(
+            self._engine, expire_on_commit=False
+        ) as db_session:
             return self._read_experiments(db_session)
 
     def refuse_if_locked(self):
@@ -362,7 +363,7 @@ class ExperimentRecords:
         if unlocked:
             # By name, so that an experiment created since the read above is
             # not marked stale without being reported.
-            with self._begin_session() as db_session:
+            with start_engine_session(self._engine) as db_session:
                 db_session.execute(
                     update(Experiment)
                     .where(Experiment.name.in_(unlocked))
@@ -449,6 +450,13 @@ class ExperimentRecords:
 
         return json.dumps(fingerprint, sort_keys=True)
 
+    def _make_hasher(self):
+        """Return a consumer of the original's rows, for its fingerprint."""
+
+        return self._ProjectHasher(
+            self._unhashed_tables, self._unhashed_columns, self._unhashed_rows
+        )
+
     def _get_fingerprint(self, connection):
         """
         Return the original's fingerprint: its revision, and a hash per table.
@@ -456,7 +464,7 @@ class ExperimentRecords:
         Exact: deletions, updates within the same second and updates after
         the clock is set back all change it. It covers whatever the database
         holds, read by :func:`read_project` within one transaction, which
-        ends when the caller's does.
+        ends when the caller's does; the revision is read in the same pass.
 
         Args:
             connection:    A connection to the original's database.
@@ -466,14 +474,6 @@ class ExperimentRecords:
                 <hex SHA-256>}}``, which is stored as JSON.
         """
 
-        hasher = self._ProjectHasher(
-            self._unhashed_tables, self._unhashed_columns, self._unhashed_rows
-        )
+        hasher = self._make_hasher()
         read_project(connection, [hasher])
-        # After reading, so within the transaction the reading began.
-        return {
-            "revision": MigrationContext.configure(
-                connection
-            ).get_current_revision(),
-            "tables": hasher.get_table_hashes(),
-        }
+        return hasher.get_fingerprint()
