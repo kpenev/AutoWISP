@@ -8,18 +8,16 @@ import json
 import matplotlib
 from matplotlib import pyplot, gridspec, rcParams
 import numpy
-from astroquery.mast import Catalogs
-from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.urls import reverse
 
 from autowisp.browser_interface.core.plot_utils import (
     setup_svg_matplotlib,
     figure_to_svg_response,
 )
 from autowisp.bui_util import hex_color
+from autowisp.catalog import resolve_gaia_id
 from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.get_from_lc import get_plot_data, calculate_combined
 from autowisp.database.image_processing import ImageProcessingManager
@@ -438,23 +436,7 @@ def update_subplot(  # pylint: disable=too-many-branches
             if updates[decoration] and updates[decoration] != "None"
             else None
         )
-    if updates["star_id_type"] == "GDR3":
-        gaia_id = updates["star_id"]
-    elif updates["star_id_type"] == "TIC":
-        gaia_id = Catalogs.query_criteria(  # pylint: disable=no-member
-            catalog="Tic", ID=int(updates["star_id"])
-        )["GAIA"]
-    else:
-        gaia_id = (
-            NasaExoplanetArchive.query_object(  # pylint: disable=no-member
-                updates["star_id"]
-            )["gaia_id"]
-        )
-        gaia_id = numpy.unique(gaia_id)
-        assert len(gaia_id) == 1
-        gaia_id = gaia_id[0].split()[-1]
-
-    gaia_id = int(gaia_id)
+    gaia_id = resolve_gaia_id(updates["star_id"], updates["star_id_type"])
     gaia_id_str = str(gaia_id)
 
     for plot_decorations in plotting_session["plot_decorations"]:

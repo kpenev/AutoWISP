@@ -7,6 +7,7 @@ from os import path, makedirs, environ
 import logging
 from hashlib import md5
 from contextlib import nullcontext
+import re
 from tempfile import TemporaryDirectory
 import time
 
@@ -17,6 +18,8 @@ from astropy.io import fits
 from astropy.io.votable import parse as parse_votable
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import GaiaClass, conf
+from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
+from astroquery.mast import Catalogs
 
 from autowisp.evaluator import Evaluator
 from autowisp.exceptions import CatalogError
@@ -541,9 +544,9 @@ def create_catalog_file(fname, overwrite=False, **query_kwargs):
 
     if environ.get("AUTOWISP_NO_LIVE_CATALOG"):
         raise CatalogError(
-            "Live Gaia query disabled via AUTOWISP_NO_LIVE_CATALOG, but catalog "
-            f"{fname!r} is missing and would require a query. Its cached FITS "
-            "fixture is absent or its checksum did not match."
+            "Live Gaia query disabled via AUTOWISP_NO_LIVE_CATALOG, but "
+            f"catalog {fname!r} is missing and would require a query. Its "
+            "cached FITS fixture is absent or its checksum did not match."
         )
 
     write_query_to_file(
@@ -644,6 +647,119 @@ def read_catalog_file(
     if return_metadata:
         return result, metadata
     return result
+
+
+def _get_unique(values, star_id):
+    """
+    Return the one distinct value a query found for a star.
+
+    Args:
+        values:    The values found, e.g. a column of the query's result.
+            Masked and empty ones are ignored.
+
+        star_id(str):    The star, as given, to name in an error.
+
+    Returns:
+        str:    The value.
+
+    Raises:
+        CatalogError:    If there is no value, or more than one.
+    """
+
+    distinct = sorted(
+        {
+            str(value).strip()
+            for value in values
+            if value is not numpy.ma.masked and str(value).strip()
+        }
+    )
+    if len(distinct) != 1:
+        raise CatalogError(
+            f"{star_id!r} resolved to {len(distinct)} distinct sources"
+            + (f" ({', '.join(distinct)})" if distinct else "")
+            + ", rather than one."
+        )
+    return distinct[0]
+
+
+def resolve_gaia_id(star_id, id_type=None):
+    """
+    Return the Gaia DR3 source id of a star, given any of its identifiers.
+
+    A TIC id refers to Gaia DR2, so it is translated through
+    ``gaiadr3.dr2_neighbourhood``, to the nearest DR3 source. A TOI is
+    looked up in the NASA Exoplanet Archive's TOI table, for its TIC id. Any
+    other name is looked up in the archive's planetary systems.
+
+    Args:
+        star_id(str):    A Gaia DR3 source id, a TIC id, a TOI number, or a
+            name the NASA Exoplanet Archive knows, e.g. ``WASP-12``.
+
+        id_type(str):    What ``star_id`` is: ``"GDR3"``, ``"TIC"``, ``"TOI"``
+            or ``"name"``. If None, it is told from a prefix of ``star_id``
+            (``GDR3_<id>``, ``TIC <id>``, ``TOI-<number>``, ...), and taken
+            for a name without one.
+
+    Returns:
+        int:    The star's Gaia DR3 source id.
+
+    Raises:
+        CatalogError:    If the star resolves to no source, or to several.
+    """
+
+    star_id = star_id.strip()
+    if id_type is None:
+        match = re.fullmatch(
+            r"(GDR3|TIC|TOI)[\s_-]*([\d.]+)", star_id, re.IGNORECASE
+        )
+        if match is None:
+            id_type = "name"
+        else:
+            id_type, star_id = match.group(1).upper(), match.group(2)
+
+    if id_type == "GDR3":
+        return int(star_id)
+    if id_type == "TOI":
+        # The planets of a TOI (.01, .02, ...) share its star.
+        star_id = _get_unique(
+            NasaExoplanetArchive.query_criteria(  # pylint: disable=no-member
+                table="toi",
+                select="tid",
+                where=f"toi like '{int(float(star_id))}.%'",
+            )["tid"],
+            f"TOI {star_id}",
+        )
+        id_type = "TIC"
+    if id_type == "TIC":
+        dr2_id = _get_unique(
+            Catalogs.query_criteria(  # pylint: disable=no-member
+                catalog="Tic", ID=int(star_id)
+            )["GAIA"],
+            f"TIC {star_id}",
+        )
+        dr3_ids = (
+            GaiaClass()
+            .launch_job(
+                "SELECT dr3_source_id FROM gaiadr3.dr2_neighbourhood "
+                f"WHERE dr2_source_id = {int(dr2_id)} "
+                "ORDER BY angular_distance"
+            )
+            .get_results()["dr3_source_id"]
+        )
+        if len(dr3_ids) == 0:
+            raise CatalogError(
+                f"TIC {star_id} is Gaia DR2 {dr2_id}, which has no DR3 "
+                "counterpart."
+            )
+        return int(dr3_ids[0])
+    return int(
+        _get_unique(
+            NasaExoplanetArchive.query_object(  # pylint: disable=no-member
+                star_id
+            )["gaia_dr3_id"],
+            star_id,
+        ).split()[-1]
+    )
 
 
 def parse_command_line():  # pragma: no cover
