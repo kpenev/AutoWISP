@@ -5,33 +5,21 @@ import unittest
 from contextlib import nullcontext
 from unittest import mock
 
-from sqlalchemy import create_engine, delete, select, update
+from sqlalchemy import create_engine, delete, select
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.experiments import ExperimentRecords
-from autowisp.database.interface import start_db_session
-from autowisp.database.pipeline_runs import record_run
-from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import ConfigurationError, ExperimentError
 from autowisp.project_experiments import ProjectExperiments
 
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import (
-    Configuration,
-    Experiment,
-    Image,
-    ImageType,
-    Parameter,
-    PipelineRun,
-)
+from autowisp.database.data_model import Experiment, PipelineRun
 
 # pylint: enable=no-name-in-module
 from autowisp.tests.database_fixtures import (
     ProjectCopyCase,
-    add_cameras,
-    add_observing_session,
     stamp_previous_revision,
 )
 
@@ -47,23 +35,7 @@ class TestCreate(ProjectCopyCase):
         """Give the project a raw image inside it, and a file it wrote."""
 
         super().setUpClass()
-        with start_db_session() as db_session:
-            db_session.add(
-                Image(
-                    raw_fname="{PROJHOME}/RAW/frame1.fits",
-                    image_type_id=db_session.scalar(
-                        select(ImageType.id).limit(1)
-                    ),
-                    observing_session_id=add_observing_session(
-                        db_session, "night1", add_cameras(db_session)[0]
-                    ),
-                )
-            )
-        for fname in ["RAW/frame1.fits", "DR/frame1.h5"]:
-            path = os.path.join(cls._template_home, *fname.split("/"))
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, "w", encoding="ascii") as file:
-                file.write(fname)
+        cls._add_processed_files()
 
     @staticmethod
     def _make_directory(project_home, fnames):
@@ -78,45 +50,11 @@ class TestCreate(ProjectCopyCase):
                 file.write(fname)
 
     @staticmethod
-    def _add_live_run(engine, ignored):
-        """Record a run of this process; return its id if ignored."""
-
-        with start_engine_session(engine) as db_session:
-            run_id = record_run(db_session).id
-        return {run_id} if ignored else set()
-
-    @staticmethod
-    def _configure_outside(engine):
-        """Configure the lightcurves outside the project."""
-
-        with start_engine_session(engine) as db_session:
-            db_session.execute(
-                update(Configuration)
-                .where(
-                    Configuration.parameter_id
-                    == select(Parameter.id)
-                    .filter_by(name="lc-fname")
-                    .scalar_subquery()
-                )
-                .values(value=os.path.abspath("{:d}.h5"))
-            )
-
-    @staticmethod
     def _delete_experiments(engine):
         """Delete the rows of every experiment, as deleting them does."""
 
         with start_engine_session(engine) as db_session:
             db_session.execute(delete(Experiment))
-
-    @staticmethod
-    def _copy_then(change):
-        """Return the database copy, followed by changing its source."""
-
-        def copy_and_change(source_engine, *args, **kwargs):
-            copy_project_database(source_engine, *args, **kwargs)
-            change(source_engine)
-
-        return copy_and_change
 
     def _try_create(self, prepare, name, change):
         """

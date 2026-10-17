@@ -43,6 +43,7 @@ py_src = [
   'test_exception_hierarchy.py',
   'test_experiment_create.py',
   'test_experiment_refusals.py',
+  'test_experiment_reset.py',
   'test_experiment_staleness.py',
   'test_exclusion_rules.py',
   'test_expression_series.py',

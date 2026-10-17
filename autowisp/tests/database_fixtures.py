@@ -13,13 +13,25 @@ import unittest
 from argparse import Namespace
 from datetime import datetime
 
-from sqlalchemy import MetaData, Table, create_engine, func, select, update
+from sqlalchemy import (
+    MetaData,
+    Table,
+    create_engine,
+    func,
+    inspect as sa_inspect,
+    select,
+    update,
+)
 from sqlalchemy.pool import NullPool
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
+    Configuration,
     Experiment,
+    Image,
+    ImageType,
     ObservingSession,
+    Parameter,
     PipelineRun,
     Target,
 )
@@ -37,7 +49,9 @@ from autowisp.database.data_model.provenance import (
 
 # pylint: enable=no-name-in-module
 from autowisp.database.initialize_database import initialize_database
-from autowisp.database.interface import set_project_home
+from autowisp.database.interface import set_project_home, start_db_session
+from autowisp.database.pipeline_runs import record_run
+from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
 
 # False positive: the declarative models are callable.
@@ -188,9 +202,9 @@ def stamp_previous_revision(engine):
     after the one creating the ``experiment`` table: that revision finds its
     table there and does nothing, but the project's revision does change.
 
-    The fingerprints its experiments recorded are stamped with it, as if the
-    previous version had created them: the revision is all a fingerprint
-    holds of it.
+    The fingerprints its experiments recorded, if it is an original, are
+    stamped with it, as if the previous version had created them: the
+    revision is all a fingerprint holds of it.
     """
 
     previous = "0020_pipeline_run_identity"
@@ -201,6 +215,10 @@ def stamp_previous_revision(engine):
             autoload_with=db_session.connection(),
         )
         db_session.execute(update(version).values(version_num=previous))
+        if not sa_inspect(db_session.connection()).has_table(
+            Experiment.__tablename__
+        ):
+            return
         for experiment in db_session.scalars(select(Experiment)):
             fingerprint = json.loads(experiment.fingerprint)
             if "revision" in fingerprint:
@@ -285,3 +303,59 @@ class ProjectCopyCase(unittest.TestCase):
                     copy_run_id=add_create_run(db_session).id,
                 )
             )
+
+    @classmethod
+    def _add_processed_files(cls):
+        """Give the project a raw image inside it, and a file it wrote."""
+
+        with start_db_session() as db_session:
+            db_session.add(
+                Image(
+                    raw_fname="{PROJHOME}/RAW/frame1.fits",
+                    image_type_id=db_session.scalar(
+                        select(ImageType.id).limit(1)
+                    ),
+                    observing_session_id=add_observing_session(
+                        db_session, "night1", add_cameras(db_session)[0]
+                    ),
+                )
+            )
+        for fname in ["RAW/frame1.fits", "DR/frame1.h5"]:
+            path = os.path.join(cls._template_home, *fname.split("/"))
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="ascii") as file:
+                file.write(fname)
+
+    @staticmethod
+    def _add_live_run(engine, ignored):
+        """Record a run of this process; return its id if ignored."""
+
+        with start_engine_session(engine) as db_session:
+            run_id = record_run(db_session).id
+        return {run_id} if ignored else set()
+
+    @staticmethod
+    def _configure_outside(engine):
+        """Configure the lightcurves outside the project."""
+
+        with start_engine_session(engine) as db_session:
+            db_session.execute(
+                update(Configuration)
+                .where(
+                    Configuration.parameter_id
+                    == select(Parameter.id)
+                    .filter_by(name="lc-fname")
+                    .scalar_subquery()
+                )
+                .values(value=os.path.abspath("{:d}.h5"))
+            )
+
+    @staticmethod
+    def _copy_then(change):
+        """Return the database copy, followed by changing its source."""
+
+        def copy_and_change(source_engine, *args, **kwargs):
+            copy_project_database(source_engine, *args, **kwargs)
+            change(source_engine)
+
+        return copy_and_change

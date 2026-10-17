@@ -23,9 +23,11 @@ from sqlalchemy import delete, func, select, update
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
+    Condition,
     Configuration,
     Experiment,
     Image,
+    MasterType,
     Parameter,
     PipelineRun,
 )
@@ -37,12 +39,13 @@ from autowisp.database.interface import (
     create_project_engine,
     get_sqlite_url,
 )
-from autowisp.database.migrate import locked_connection
+from autowisp.database.migrate import check_project_schema, locked_connection
 from autowisp.database.pipeline_runs import record_run
 from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import (
     ConfigurationError,
+    DatabaseError,
     ExperimentError,
     ResourceError,
 )
@@ -329,11 +332,11 @@ class ProjectExperiments(ExperimentRecords):
                 .values(finished=func.now())  # pylint: disable=not-callable
             )
 
-    def _copy_database(self, home, run_id):
+    def _copy_database(self, home, run_id, kept_tables=None):
         """
         Copy the original's database into the experiment's home.
 
-        The original is hashed in the same pass. The copy's ``experiment``
+        The original is hashed in the same pass. A new copy's ``experiment``
         table, which the copy creates empty, is dropped: its absence is what
         makes the copy an experiment. The copy holds the run copying it,
         unfinished, which is recorded as finished in it: otherwise a later
@@ -345,6 +348,10 @@ class ProjectExperiments(ExperimentRecords):
 
             run_id(int):    The id of the run copying it.
 
+            kept_tables:    None to copy into a new database. Otherwise the
+                rows of the experiment's database are replaced, except those
+                of the tables named.
+
         Returns:
             dict:    The original's fingerprint, as copied.
         """
@@ -353,9 +360,13 @@ class ProjectExperiments(ExperimentRecords):
         engine = create_project_engine(get_sqlite_url(home))
         try:
             copy_project_database(
-                self._engine, engine, table_consumers=[hasher]
+                self._engine,
+                engine,
+                replace=kept_tables is not None,
+                kept_tables=kept_tables or (),
+                table_consumers=[hasher],
             )
-            Experiment.__table__.drop(engine)
+            Experiment.__table__.drop(engine, checkfirst=True)
             self._finish_run(engine, run_id)
         finally:
             engine.dispose()
@@ -517,5 +528,182 @@ class ProjectExperiments(ExperimentRecords):
                     os.rmdir(home)
                 raise
             return self._complete_copy(name, self._copy_database(home, run_id))
+        finally:
+            self._finish_run(self._engine, run_id)
+
+    def _find_experiment(self, name):
+        """
+        Return the named experiment's row.
+
+        Raises:
+            ExperimentError:    If the project is itself an experiment, or has
+                no experiment of that name.
+        """
+
+        experiments = self.get_experiments()
+        if experiments is None:
+            raise ExperimentError(
+                f"{self._home} is an experiment: its original manages "
+                "experiments."
+            )
+        for experiment in experiments:
+            if experiment.name == name:
+                return experiment
+        raise ExperimentError(f"The project has no experiment named {name!r}.")
+
+    def _refuse_reset(self, experiment, experiment_engine):
+        """
+        Raise if the experiment's processing cannot be reset.
+
+        See :meth:`reset` for when.
+
+        Args:
+            experiment(Experiment):    The experiment's row.
+
+            experiment_engine:    The engine of the experiment's database.
+        """
+
+        if experiment.state == self._creating_state:
+            raise ExperimentError(
+                f"Experiment {experiment.name!r} is incomplete: it is being "
+                "created or reset, or that was interrupted. It can only be "
+                "deleted."
+            )
+        for engine, home in [
+            (self._engine, self._home),
+            (experiment_engine, self._get_home(experiment.name)),
+        ]:
+            try:
+                check_project_schema(engine)
+            except DatabaseError as error:
+                raise ExperimentError(f"{home}: {error}") from error
+        with start_engine_session(experiment_engine) as db_session:
+            self._refuse_external_paths(db_session)
+            present = set(db_session.scalars(select(Condition.id)))
+        with start_engine_session(self._engine) as db_session:
+            missing = {
+                condition_id
+                for condition_id in db_session.scalars(
+                    select(MasterType.condition_id).union(
+                        select(MasterType.maker_image_split_condition_id)
+                    )
+                )
+                if condition_id is not None
+            } - present
+        if missing:
+            raise ExperimentError(
+                f"Experiment {experiment.name!r} lacks the conditions "
+                f"{sorted(missing)}, which the original's master types use: "
+                "resetting it keeps its conditions, so its masters could not "
+                "be matched to images."
+            )
+
+    def reset(self, name, ignored_runs=()):
+        """
+        Reset an experiment's processing to the original's, keeping its setup.
+
+        Refused before anything is touched if the project has no such
+        experiment, if the experiment is incomplete (``creating``) or its
+        database is gone, either of which only delete applies to, or if
+        either project is not at the code's revision: each is migrated on its
+        own, with its backup and confirmation. Also refused if the
+        experiment's configuration, which a reset keeps, has a path outside
+        it (:meth:`_refuse_external_paths`) or lacks a condition the
+        original's master types use.
+
+        The reset's run is recorded, and the experiment, referring to it, is
+        marked ``creating``, which locks the original until the copy is
+        complete. A run going in either project then refuses the reset, which
+        restores the experiment as it was: the lock comes first, so that a
+        run starting meanwhile is either seen or refused by it. Otherwise the
+        experiment's files are replaced by the original's, then the rows of
+        its database, except its configuration's, and it becomes current, as
+        a created one does. However the reset ends, its run is recorded as
+        finished: one interrupted leaves the experiment ``creating``.
+
+        Args:
+            name(str):    The experiment's name.
+
+            ignored_runs:    The ids of runs not counted as going (see
+                :meth:`_refuse_active_runs`).
+
+        Returns:
+            str:    The experiment's state: ``"current"``, or ``"stale"`` if
+            the original was migrated during the copy.
+
+        Raises:
+            ExperimentError:    If refused, or if the experiment was deleted
+                during the reset.
+
+            ConfigurationError:    If a path is configured outside the
+                experiment.
+
+            ResourceError:    If the original's files would not fit in the
+                free space, which is checked once the experiment's are
+                removed.
+        """
+
+        experiment = self._find_experiment(name)
+        home = self._get_home(name)
+        # Checked before opening it: opening a missing one would create it.
+        if not os.path.isfile(os.path.join(home, "autowisp.db")):
+            raise ExperimentError(
+                f"Experiment {name!r} has no database in {home}: it can only "
+                "be deleted."
+            )
+        experiment_engine = create_project_engine(get_sqlite_url(home))
+        try:
+            self._refuse_reset(experiment, experiment_engine)
+            with start_engine_session(self._engine) as db_session:
+                linked_files = self._find_raw_images(db_session)
+                run_id = record_run(
+                    db_session, self._operation_tasks["reset"]
+                ).id
+                db_session.execute(
+                    update(Experiment)
+                    .where(Experiment.name == name)
+                    .values(
+                        state=self._creating_state,
+                        copy_run_id=run_id,
+                        created=func.now(),  # pylint: disable=not-callable
+                    )
+                )
+            try:
+                self._refuse_active_runs(self._engine, {*ignored_runs, run_id})
+                self._refuse_active_runs(experiment_engine, ignored_runs)
+            except ExperimentError:
+                # Refused before anything was replaced: restored as it was.
+                with start_engine_session(self._engine) as db_session:
+                    db_session.execute(
+                        update(Experiment)
+                        .where(Experiment.name == name)
+                        .values(
+                            state=experiment.state,
+                            copy_run_id=experiment.copy_run_id,
+                            created=experiment.created,
+                        )
+                    )
+                self._finish_run(self._engine, run_id)
+                raise
+        finally:
+            experiment_engine.dispose()
+
+        try:
+            self._clear_tree(home)
+            self._copy_tree(self._home, home, linked_files)
+            return self._complete_copy(
+                name,
+                self._copy_database(
+                    home,
+                    run_id,
+                    # The experiment's configuration.
+                    kept_tables=[
+                        "configuration",
+                        "condition",
+                        "condition_expression",
+                        "diagnostic_expression",
+                    ],
+                ),
+            )
         finally:
             self._finish_run(self._engine, run_id)
