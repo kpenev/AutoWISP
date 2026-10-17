@@ -206,8 +206,16 @@ def get_sphotref_result(
 # pylint: enable=too-many-arguments
 
 
-def get_plot_data(lc_fname, expressions, configuration, model=None):
-    """Read relevant data from the lightcurve."""
+def get_plot_data(
+    lc_fname, expressions, configuration, model=None, symbols=None
+):
+    """
+    Read relevant data from the lightcurve.
+
+    Args:
+        symbols(dict):    Further names the expressions may use, beside the
+            lightcurve's quantities, e.g. a label of the lightcurve.
+    """
 
     result = {}
     if model and model.get("shift_to") is True:
@@ -216,6 +224,7 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
         lc_eval = LightCurveEvaluator(
             lightcurve, **configuration["lc_substitutions"]
         )
+        lc_eval.symtable.update(symbols or {})
         all_sphotref_fnames = set()
         for photometry_mode in configuration["photometry_modes"]:
             all_sphotref_fnames |= set(
@@ -269,6 +278,32 @@ def calculate_combined(plot_data, match_id_key, aggregation_function):
     return combined_data
 
 
+# By model type, the parameters a model starts from, before the user changes
+# them: lightcurve expressions as strings, other values as themselves.
+DEFAULT_MODELS = {  # pylint: disable=invalid-name
+    "transit": {
+        "times": "skypos.BJD",
+        # The planet-star radius ratio.
+        "k": 0.1,
+        # The limb darkening coefficients.
+        "ldc": [0.8, 0.7],
+        # The zero epoch.
+        "t0": 2455787.553228,
+        # The orbital period.
+        "p": 3.0,
+        # The orbital semi-major axis over the stellar radius.
+        "a": 10.0,
+        # The orbital inclination, in radians.
+        "i": numpy.pi / 2,
+        # The orbital eccentricity, optional for a circular orbit.
+        "e": 0.0,
+        # The argument of periastron in radians, optional for a circular
+        # orbit.
+        "w": 0.0,
+    }
+}
+
+
 def transit_model(times, **params):
     """Calculate the magnitude change of exoplanet with given parameters."""
 
@@ -299,15 +334,21 @@ def format_lc_quantities():
     ].strip("\n")
 
 
+def parse_range(range_str):
+    """
+    Parse a value of ``--find-best``: ``<substitution>:<min>..<max>``.
+
+    Returns:
+        (str, range):    The substitution, and its values, ``max`` included.
+    """
+
+    key, range_str = range_str.split(":")
+    start, stop = map(int, range_str.split(".."))
+    return key, range(start, stop + 1)
+
+
 def parse_command_line():
     """Return the command line configuration."""
-
-    def parse_range(range_str):
-        """Parse optimize option value."""
-
-        key, range_str = range_str.split(":")
-        start, stop = map(int, range_str.split(".."))
-        return key, range(start, stop + 1)
 
     def parse_format(format_str):
         """Parse the format string for output."""

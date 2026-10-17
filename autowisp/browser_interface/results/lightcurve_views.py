@@ -19,27 +19,15 @@ from autowisp.browser_interface.core.plot_utils import (
 from autowisp.bui_util import hex_color
 from autowisp.catalog import resolve_gaia_id
 from autowisp.evaluator import Evaluator
-from autowisp.diagnostics.get_from_lc import get_plot_data, calculate_combined
+from autowisp.diagnostics.get_from_lc import (
+    DEFAULT_MODELS,
+    calculate_combined,
+    get_plot_data,
+)
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.interface import get_project_home
 
 _custom_aggregators = {"len": len}
-
-_default_models = {
-    "transit": {
-        "times": "skypos.BJD",
-        "k": 0.1,  # the planet-star radius ratio
-        "ldc": [0.8, 0.7],  # limb darkening coeff
-        "t0": 2455787.553228,  # the zero epoch,
-        "p": 3.0,  # the orbital period,
-        "a": 10.0,  # the orbital semi-major divided by R*,
-        "i": numpy.pi / 2,  # the orbital inclination in rad,
-        "e": 0.0,  # the orbital eccentricity (optional, can be left out if
-        # assuming circular a orbit), and
-        "w": 0.0,  # the argument of periastron in radians (also optional,
-        # can be left out if assuming circular a orbit).
-    }
-}
 
 
 def _init_session(request):
@@ -669,7 +657,7 @@ def edit_model(request, model_type, data_select_index):
             "expressions": request.session["lc_plotting"]["data_select"][
                 data_select_index
             ]["expressions"].keys(),
-            "model": _default_models[model_type],
+            "model": DEFAULT_MODELS[model_type],
         },
     )
 
