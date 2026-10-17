@@ -59,7 +59,8 @@ class Experiment(DataModelBase):
         String(20),
         nullable=False,
         doc="'creating' until the copy is complete, then 'current', or "
-        "'stale' once the original has changed since it was copied.",
+        "'stale' once the original has changed since it was copied; "
+        "'merging' or 'deleting' while it is merged or deleted.",
     )
     copy_run_id = Column(
         Integer,

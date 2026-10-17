@@ -37,10 +37,11 @@ class TestProjectLock(ProjectCopyCase):
         return {}
 
     def test_lock_and_unlock(self):
-        """Experiments not yet stale lock the project, until it is unlocked.
+        """Experiments lock the project until it is unlocked, in most states.
 
-        Unlocking frees it of the current ones, while one still being created
-        keeps it locked.
+        Unlocking frees it of the current ones, while one being created or
+        merged keeps it locked, and one stale or being deleted never locks
+        it. Only the current and stale ones may be opened.
         """
 
         # Each project: the states of its experiments, None for a project
@@ -55,15 +56,22 @@ class TestProjectLock(ProjectCopyCase):
                 {},
             ),
             "with experiments in every state": (
-                {"exp1": "current", "exp2": "creating", "exp3": "stale"},
-                {"exp1": "current", "exp2": "creating"},
-                {"exp2": "creating"},
+                {
+                    "exp1": "current",
+                    "exp2": "creating",
+                    "exp3": "stale",
+                    "exp4": "merging",
+                    "exp5": "deleting",
+                },
+                {"exp1": "current", "exp2": "creating", "exp4": "merging"},
+                {"exp2": "creating", "exp4": "merging"},
             ),
         }
 
         locking = {}
         unlocked = {}
         locking_after = {}
+        openable = {}
         for project, (states, _, _) in projects.items():
             engine, project_home = self._copy_project()
             if states is None:
@@ -71,9 +79,24 @@ class TestProjectLock(ProjectCopyCase):
             else:
                 self._add_experiments(engine, states)
             experiments = ExperimentRecords(engine, project_home)
+            openable[project] = [
+                experiment.name
+                for experiment in experiments.get_experiments() or []
+                if experiments.can_open(experiment)
+            ]
             locking[project] = self._get_locking(experiments)
             unlocked[project] = experiments.unlock()
             locking_after[project] = self._get_locking(experiments)
+
+        self.assertEqual(
+            openable,
+            {
+                "an experiment": [],
+                "without experiments": [],
+                "with stale experiments": ["exp1", "exp2"],
+                "with experiments in every state": ["exp1", "exp3"],
+            },
+        )
 
         self.assertEqual(
             locking,

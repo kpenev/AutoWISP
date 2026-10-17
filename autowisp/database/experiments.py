@@ -57,12 +57,23 @@ class ExperimentRecords:
     # The directory under the original's home that holds its experiments.
     _dirname = "experiments"
 
-    # Until the copy is complete. Counts as current: it locks the original.
+    # Until the copy is complete, by a create or a reset.
     _creating_state = "creating"
     # The original has not changed since the experiment was copied from it.
     _current_state = "current"
     # The original has changed since the experiment was copied from it.
     _stale_state = "stale"
+    # While the experiment is merged into the original.
+    _merging_state = "merging"
+    # While the experiment is deleted.
+    _deleting_state = "deleting"
+    # The states of experiments that do not lock the original, which no
+    # merge would lose a change to: every other state does, a state added
+    # later included, until it is added here.
+    _unlocked_states = {_stale_state, _deleting_state}
+    # The states of experiments that may be opened as projects. In any
+    # other, an operation is working on it, or was interrupted doing so.
+    _openable_states = {_current_state, _stale_state}
 
     # By operation, the task of the original's runs performing it. Only these
     # are operations on experiments: a task added later counts as
@@ -303,14 +314,36 @@ class ExperimentRecords:
         ) as db_session:
             return self._read_experiments(db_session)
 
+    @classmethod
+    def can_open(cls, experiment):
+        """
+        May the experiment be opened as a project?
+
+        Not while an operation is working on it, nor once one was interrupted
+        doing so: only in the states of :attr:`_openable_states`. The browser
+        interface finds an experiment only through its original's row, so
+        this is what keeps it from opening one being reset, merged or
+        deleted. A command given the experiment's home directly is not
+        stopped.
+
+        Args:
+            experiment(Experiment):    The experiment's row.
+
+        Returns:
+            bool:    Whether it may be opened.
+        """
+
+        return experiment.state in cls._openable_states
+
     def refuse_if_locked(self):
         """
-        Raise if the project is locked: it has experiments not yet stale.
+        Raise if the project is locked: it has experiments that lock it.
 
         Any change to the original makes its experiments unmergeable, so it
-        is refused while one could still be merged. One still being created
-        counts: it is locked from the moment its row is inserted. An
-        experiment, having no ``experiment`` table, is never locked.
+        is refused while one could still be merged: one in any state but
+        those of :attr:`_unlocked_states`. One still being created counts: it
+        is locked from the moment its row is inserted. An experiment, having
+        no ``experiment`` table, is never locked.
 
         Raises:
             ProjectLockedError:    Naming the experiments holding the lock.
@@ -322,7 +355,7 @@ class ExperimentRecords:
         locking = {
             experiment.name: experiment.state
             for experiment in experiments
-            if experiment.state != self._stale_state
+            if experiment.state not in self._unlocked_states
         }
         if not locking:
             return
