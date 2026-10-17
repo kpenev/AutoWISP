@@ -24,7 +24,7 @@ from sqlalchemy import select, sql
 from autowisp.database.data_model import PipelineRun
 
 # pylint: enable=no-name-in-module
-from autowisp.exceptions import get_hostname
+from autowisp.exceptions import PipelineError, get_hostname
 from autowisp.miscellaneous import get_code_version_str
 
 _logger = logging.getLogger(__name__)
@@ -34,6 +34,10 @@ _logger = logging.getLogger(__name__)
 # time, which it may estimate again after the clock is adjusted; a process
 # reusing the id starts far later than that.
 _START_TIME_TOLERANCE = 1.0  # pylint: disable=invalid-name
+
+# How long, in seconds, a run's processes are given to exit when asked to,
+# before those left are killed, and again to be gone once killed.
+_STOP_TIMEOUT = 10.0  # pylint: disable=invalid-name
 
 
 @cache
@@ -157,6 +161,73 @@ def find_active_runs(db_session):
             # pylint: disable-next=not-callable
             pipeline_run.finished = sql.func.now()
     return here, elsewhere
+
+
+def stop_run(pipeline_run):
+    """
+    Stop a run going on this machine, and every process it started.
+
+    The run's process and its descendants are asked to terminate, and
+    whichever has not exited after a while is killed. Returns only once all
+    of them are gone, since Windows cannot delete a file still open. The
+    descendants are found before anything is stopped: once their parent is
+    gone they no longer descend from it.
+
+    The run is not recorded as finished here: the next
+    :func:`find_active_runs` sees its process gone and does that.
+
+    Args:
+        pipeline_run(PipelineRun):    A run of this machine
+            (:func:`is_this_machine`); another machine's processes cannot be
+            stopped from here.
+
+    Returns:
+        bool:    Whether the run was still going, and so was stopped.
+
+    Raises:
+        PipelineError:    If the run belongs to another machine, or its
+            processes could not be stopped, e.g. being another user's.
+    """
+
+    if not is_this_machine(pipeline_run):
+        raise PipelineError(
+            f"Run {pipeline_run.id} is on {pipeline_run.host}, so it cannot "
+            "be stopped from this machine."
+        )
+    if not _is_process_alive(pipeline_run):
+        return False
+    try:
+        process = psutil.Process(pipeline_run.process_id)
+        processes = [process] + process.children(recursive=True)
+    except psutil.NoSuchProcess:
+        return False
+
+    try:
+        for running in processes:
+            try:
+                running.terminate()
+            except psutil.NoSuchProcess:
+                pass
+        _, alive = psutil.wait_procs(processes, timeout=_STOP_TIMEOUT)
+        for running in alive:
+            try:
+                running.kill()
+            except psutil.NoSuchProcess:
+                pass
+        _, alive = psutil.wait_procs(alive, timeout=_STOP_TIMEOUT)
+    except psutil.AccessDenied as error:
+        raise PipelineError(
+            f"Not allowed to stop process {error.pid} of run "
+            f"{pipeline_run.id}: it belongs to another user."
+        ) from error
+    if alive:
+        raise PipelineError(
+            f"Processes {', '.join(str(running.pid) for running in alive)} "
+            f"of run {pipeline_run.id} are still running after being "
+            "killed."
+        )
+    _logger.info("Stopped %s.", pipeline_run)
+    return True
 
 
 def find_earlier_run(db_session, pipeline_run_id):

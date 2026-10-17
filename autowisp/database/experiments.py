@@ -230,47 +230,86 @@ class ExperimentRecords:
         return row["task"] in cls._operation_tasks.values()
 
     @staticmethod
-    def _refuse_active_runs(engine, ignored_runs):
+    def _find_active_runs(engine, ignored_runs, run_ids=None):
         """
-        Raise if a run is going in the project, other than those ignored.
+        Return the runs going in the project, on this machine and on others.
 
         By :func:`~autowisp.database.pipeline_runs.find_active_runs`, which
-        records as finished the runs of this machine whose process is gone; that
-        is committed, refused or not. A run of another machine counts as going,
-        there being no telling from here whether it has ended: the user, knowing
-        it has, e.g. because that machine crashed, names it among the ignored.
+        records as finished the runs of this machine whose process is gone;
+        that is committed. A run of another machine counts as going, there
+        being no telling from here whether it has ended: the user, knowing it
+        has, e.g. because that machine crashed, names it among the ignored.
 
         Args:
             engine:    The engine of the project's database: the original's, or
                 an experiment's.
 
-            ignored_runs:    The ids of the runs not counted: those the user
-                knows have ended, and the operation's own.
+            ignored_runs:    The ids of the runs left out: those the user knows
+                have ended, and the operation's own.
+
+            run_ids:    The ids of the only runs to consider, or None for all.
+
+        Returns:
+            [PipelineRun]:    The runs going on this machine.
+
+            [PipelineRun]:    The runs going on other machines.
+        """
+
+        with start_engine_session(engine, expire_on_commit=False) as db_session:
+            found = find_active_runs(db_session)
+        return tuple(
+            [
+                pipeline_run
+                for pipeline_run in runs
+                if pipeline_run.id not in ignored_runs
+                and (run_ids is None or pipeline_run.id in run_ids)
+            ]
+            for runs in found
+        )
+
+    @staticmethod
+    def _refuse_runs(engine, runs):
+        """
+        Raise if any runs are given, naming them, going in the project.
+
+        Args:
+            engine:    The engine of the project's database.
+
+            runs([PipelineRun]):    The runs going, which refuse the operation.
+
+        Raises:
+            ExperimentError:    Naming each run, with its task and host.
+        """
+
+        if not runs:
+            return
+        raise ExperimentError(
+            "Refusing while runs are going in "
+            f"{engine.url.render_as_string(hide_password=True)}: "
+            + ", ".join(
+                f"{pipeline_run.id} ({pipeline_run.task}, on "
+                f"{pipeline_run.host})"
+                for pipeline_run in runs
+            )
+            + ". Wait for them to finish. A run known to have ended without "
+            "recording it, e.g. on a machine that crashed, can be ignored by "
+            "its id (wisp-experiments --ignore-run).",
+            details={"runs": sorted(pipeline_run.id for pipeline_run in runs)},
+        )
+
+    @classmethod
+    def _refuse_active_runs(cls, engine, ignored_runs):
+        """
+        Raise if a run is going in the project, other than those ignored.
+
+        See :meth:`_find_active_runs` for the runs counted.
 
         Raises:
             ExperimentError:    Naming each run going, with its task and host.
         """
 
-        with start_engine_session(engine) as db_session:
-            here, elsewhere = find_active_runs(db_session)
-            active = {
-                pipeline_run.id: (
-                    f"{pipeline_run.id} ({pipeline_run.task}, on "
-                    f"{pipeline_run.host})"
-                )
-                for pipeline_run in here + elsewhere
-                if pipeline_run.id not in ignored_runs
-            }
-        if active:
-            raise ExperimentError(
-                "Refusing while runs are going in "
-                f"{engine.url.render_as_string(hide_password=True)}: "
-                + ", ".join(active.values())
-                + ". Wait for them to finish. A run known to have ended "
-                "without recording it, e.g. on a machine that crashed, can be "
-                "ignored by its id (wisp-experiments --ignore-run).",
-                details={"runs": sorted(active)},
-            )
+        here, elsewhere = cls._find_active_runs(engine, ignored_runs)
+        cls._refuse_runs(engine, here + elsewhere)
 
     @staticmethod
     def _read_experiments(db_session):

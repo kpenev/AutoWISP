@@ -40,7 +40,7 @@ from autowisp.database.interface import (
     get_sqlite_url,
 )
 from autowisp.database.migrate import check_project_schema, locked_connection
-from autowisp.database.pipeline_runs import record_run
+from autowisp.database.pipeline_runs import record_run, stop_run
 from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import (
@@ -705,5 +705,93 @@ class ProjectExperiments(ExperimentRecords):
                     ],
                 ),
             )
+        finally:
+            self._finish_run(self._engine, run_id)
+
+    def delete(self, name, ignored_runs=()):
+        """
+        Delete an experiment: its directory, then its row.
+
+        Any experiment may be deleted, in whatever state: one whose create,
+        reset or delete was interrupted, or whose directory is gone, too. Its
+        files all lie in its directory, since its configuration allows no
+        path outside it, so removing the directory removes all it made.
+
+        The delete's run is recorded and the experiment marked ``deleting``,
+        which releases its lock on the original and keeps the browser
+        interface from opening it. A run going on another machine, in the
+        experiment or copying the original into it, then refuses the delete,
+        which restores the experiment's state: it cannot be stopped from here,
+        and removing its files would make it fail, or recreate some of them.
+        Runs going on this machine are stopped and waited for, since Windows
+        cannot remove a file still open. However the delete ends, its run is
+        recorded as finished: one interrupted leaves the experiment
+        ``deleting``, and deleting it again completes it.
+
+        Args:
+            name(str):    The experiment's name.
+
+            ignored_runs:    The ids of runs going on other machines that the
+                user knows have ended (see :meth:`_find_active_runs`).
+
+        Raises:
+            ExperimentError:    If there is no such experiment, or a run is
+                going in it on another machine.
+
+            PipelineError:    If a run going on this machine cannot be stopped.
+        """
+
+        experiment = self._find_experiment(name)
+        home = self._get_home(name)
+        with start_engine_session(self._engine) as db_session:
+            run_id = record_run(db_session, self._operation_tasks["delete"]).id
+            db_session.execute(
+                update(Experiment)
+                .where(Experiment.name == name)
+                .values(state=self._deleting_state)
+            )
+
+        try:
+            try:
+                # The experiment's create or reset, if still going.
+                copying, elsewhere = self._find_active_runs(
+                    self._engine, ignored_runs, {experiment.copy_run_id}
+                )
+                self._refuse_runs(self._engine, elsewhere)
+                in_experiment = []
+                # Checked before opening it: opening a missing one would
+                # create it.
+                if os.path.isfile(os.path.join(home, "autowisp.db")):
+                    experiment_engine = create_project_engine(
+                        get_sqlite_url(home)
+                    )
+                    try:
+                        in_experiment, elsewhere = self._find_active_runs(
+                            experiment_engine, ignored_runs
+                        )
+                        self._refuse_runs(experiment_engine, elsewhere)
+                    finally:
+                        experiment_engine.dispose()
+            except ExperimentError:
+                # Refused before anything was removed: restored as it was.
+                with start_engine_session(self._engine) as db_session:
+                    db_session.execute(
+                        update(Experiment)
+                        .where(Experiment.name == name)
+                        .values(state=experiment.state)
+                    )
+                raise
+            for pipeline_run in copying + in_experiment:
+                stop_run(pipeline_run)
+            # Recorded as ended now, rather than whenever the original's runs
+            # are next looked at; those in the experiment go with it.
+            for pipeline_run in copying:
+                self._finish_run(self._engine, pipeline_run.id)
+            if os.path.lexists(home):
+                self._remove_path(home)
+            with start_engine_session(self._engine) as db_session:
+                db_session.execute(
+                    delete(Experiment).where(Experiment.name == name)
+                )
         finally:
             self._finish_run(self._engine, run_id)
