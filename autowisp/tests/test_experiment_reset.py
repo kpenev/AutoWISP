@@ -5,9 +5,8 @@ import unittest
 from contextlib import nullcontext
 from unittest import mock
 
-from sqlalchemy import create_engine, delete, func, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session
-from sqlalchemy.pool import NullPool
 
 from autowisp.database.experiments import ExperimentRecords
 from autowisp.database.sessions import start_engine_session
@@ -45,24 +44,6 @@ class TestReset(ProjectCopyCase):
         super().setUpClass()
         cls._add_processed_files()
 
-    def _create_experiment(self):
-        """
-        Create experiment ``exp1`` in a copy of the project.
-
-        Returns:
-            tuple:    The original's engine and home, and the experiment's.
-        """
-
-        engine, project_home = self._copy_project()
-        ProjectExperiments(engine, project_home).create("exp1")
-        experiment_home = os.path.join(project_home, "experiments", "exp1")
-        experiment_engine = create_engine(
-            f"sqlite:///{os.path.join(experiment_home, 'autowisp.db')}",
-            poolclass=NullPool,
-        )
-        self.addCleanup(experiment_engine.dispose)
-        return engine, project_home, experiment_engine, experiment_home
-
     @staticmethod
     def _mark_incomplete(engine):
         """Mark every experiment as still being created."""
@@ -80,20 +61,6 @@ class TestReset(ProjectCopyCase):
                     Condition.id.in_(select(MasterType.condition_id))
                 )
             )
-
-    @staticmethod
-    def _read_tree(home):
-        """Return the files under a home, but its database and experiments."""
-
-        contents = {}
-        for directory, subdirs, fnames in os.walk(home):
-            subdirs[:] = [name for name in subdirs if name != "experiments"]
-            for fname in fnames:
-                path = os.path.join(directory, fname)
-                if path != os.path.join(home, "autowisp.db"):
-                    with open(path, "rb") as file:
-                        contents[os.path.relpath(path, home)] = file.read()
-        return contents
 
     def _try_reset(self, prepare, name, change):
         """

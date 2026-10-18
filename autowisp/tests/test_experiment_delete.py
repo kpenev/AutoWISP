@@ -8,9 +8,8 @@ import time
 import unittest
 
 import psutil
-from sqlalchemy import create_engine, func, select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
-from sqlalchemy.pool import NullPool
 
 from autowisp.database.pipeline_runs import (
     get_machine_id,
@@ -146,15 +145,10 @@ class TestDelete(ProjectCopyCase):
             operations' runs left unfinished.
         """
 
-        engine, project_home = self._copy_project()
-        experiments = ProjectExperiments(engine, project_home)
-        experiments.create("exp1")
-        experiment_home = os.path.join(project_home, "experiments", "exp1")
-        experiment_engine = create_engine(
-            f"sqlite:///{os.path.join(experiment_home, 'autowisp.db')}",
-            poolclass=NullPool,
+        engine, project_home, experiment_engine, experiment_home = (
+            self._create_experiment()
         )
-        self.addCleanup(experiment_engine.dispose)
+        experiments = ProjectExperiments(engine, project_home)
         ignored_runs = (
             prepare(engine, experiment_engine, experiment_home)
             if prepare

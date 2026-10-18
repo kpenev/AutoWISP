@@ -16,13 +16,11 @@ from datetime import datetime
 from sqlalchemy import (
     MetaData,
     Table,
-    create_engine,
     func,
     inspect as sa_inspect,
     select,
     update,
 )
-from sqlalchemy.pool import NullPool
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
@@ -49,10 +47,16 @@ from autowisp.database.data_model.provenance import (
 
 # pylint: enable=no-name-in-module
 from autowisp.database.initialize_database import initialize_database
-from autowisp.database.interface import set_project_home, start_db_session
+from autowisp.database.interface import (
+    create_project_engine,
+    get_sqlite_url,
+    set_project_home,
+    start_db_session,
+)
 from autowisp.database.pipeline_runs import record_run
 from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
+from autowisp.project_experiments import ProjectExperiments
 
 # False positive: the declarative models are callable.
 # pylint: disable=not-callable
@@ -271,11 +275,43 @@ class ProjectCopyCase(unittest.TestCase):
         copy_home = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, copy_home)
         shutil.copytree(self._template_home, copy_home, dirs_exist_ok=True)
-        db_fname = os.path.join(copy_home, "autowisp.db")
-        # No pool, so that nothing holds the file open when it is removed.
-        engine = create_engine(f"sqlite:///{db_fname}", poolclass=NullPool)
+        # Set up as a project's: foreign keys checked, and no pool, so that
+        # nothing holds the file open when it is removed.
+        engine = create_project_engine(get_sqlite_url(copy_home))
         self.addCleanup(engine.dispose)
         return engine, copy_home
+
+    def _create_experiment(self):
+        """
+        Create experiment ``exp1`` in a copy of the project.
+
+        Returns:
+            tuple:    The original's engine and home, and the experiment's.
+        """
+
+        engine, project_home = self._copy_project()
+        ProjectExperiments(engine, project_home).create("exp1")
+        experiment_home = os.path.join(project_home, "experiments", "exp1")
+        experiment_engine = create_project_engine(
+            get_sqlite_url(experiment_home)
+        )
+        self.addCleanup(experiment_engine.dispose)
+        return engine, project_home, experiment_engine, experiment_home
+
+    @staticmethod
+    def _read_tree(home):
+        """Return the files under a home, but its database and experiments."""
+
+        contents = {}
+        for directory, subdirs, fnames in os.walk(home):
+            # In place: os.walk descends only into the directories left.
+            subdirs[:] = [name for name in subdirs if name != "experiments"]
+            for fname in fnames:
+                path = os.path.join(directory, fname)
+                if path != os.path.join(home, "autowisp.db"):
+                    with open(path, "rb") as file:
+                        contents[os.path.relpath(path, home)] = file.read()
+        return contents
 
     @classmethod
     def _add_experiments(
