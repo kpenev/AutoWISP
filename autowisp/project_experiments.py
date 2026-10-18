@@ -1,6 +1,7 @@
 """Create, reset, merge and delete a project's experiments.
 
-The operations copy whole projects: their files, and their databases with
+The operations copy whole projects: their files with
+:mod:`autowisp.project_tree`, and their databases with
 :mod:`autowisp.database.project_copy`. They extend
 :class:`~autowisp.database.experiments.ExperimentRecords`, which holds what
 the database layer itself needs, the lock and the fingerprint. The split is
@@ -10,12 +11,16 @@ on it, the copy and the steps' path options, is here, database work
 included.
 """
 
+# Every operation on experiments, kept together in one class.
+# pylint: disable=too-many-lines
+
+import json
 import logging
 import os
 import re
-import shutil
-import stat
-import sys
+import sqlite3
+from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import PurePath
 
 from alembic.runtime.migration import MigrationContext
@@ -25,6 +30,7 @@ from sqlalchemy import delete, func, select, update
 from autowisp.database.data_model import (
     Condition,
     Configuration,
+    Error,
     Experiment,
     Image,
     MasterType,
@@ -34,11 +40,7 @@ from autowisp.database.data_model import (
 
 # pylint: enable=no-name-in-module
 from autowisp.database.experiments import ExperimentRecords
-from autowisp.database.interface import (
-    DB_URL_FNAME,
-    create_project_engine,
-    get_sqlite_url,
-)
+from autowisp.database.interface import create_project_engine, get_sqlite_url
 from autowisp.database.migrate import check_project_schema, locked_connection
 from autowisp.database.pipeline_runs import record_run, stop_run
 from autowisp.database.project_copy import copy_project_database
@@ -52,6 +54,13 @@ from autowisp.exceptions import (
 from autowisp.processing_steps import get_path_arguments
 from autowisp.processing_steps.manual_util import split_path_values
 from autowisp.project_paths import PROJHOME_MARKER
+from autowisp.project_tree import (
+    clear_tree,
+    copy_tree,
+    list_movable,
+    move_tree,
+    remove_path,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -68,6 +77,11 @@ class ProjectExperiments(ExperimentRecords):
     # A name an experiment may take, which is its directory's: letters,
     # digits, "-" and "_", so never a hidden one, nor a path.
     _name_pattern = re.compile("[A-Za-z0-9_-]+")
+
+    # The start of the name of a merge's backup, under the experiments'
+    # directory, followed by when the merge started (UTC). Not a name an
+    # experiment may take.
+    _backup_prefix = ".pre-merge-"
 
     @staticmethod
     def _refuse_external_paths(db_session):
@@ -121,161 +135,6 @@ class ProjectExperiments(ExperimentRecords):
                 + f". Configure them under {PROJHOME_MARKER}.",
                 details={"parameters": sorted({name for name, _ in refused})},
             )
-
-    @staticmethod
-    def _is_database_file(name):
-        """
-        Is a name in a project's home one of its database's files?
-
-        The database, SQLite's journals beside it, the backups migrating it
-        leaves (``autowisp.db.pre-<revision>``), and the file naming a server
-        database. Copying a project's files leaves them all out: its database
-        is copied by
-        :func:`~autowisp.database.project_copy.copy_project_database`.
-        """
-
-        return name in ("autowisp.db", DB_URL_FNAME) or name.startswith(
-            ("autowisp.db-", "autowisp.db.pre-")
-        )
-
-    @classmethod
-    def _list_tree(cls, home):
-        """
-        Return the directories and files a copy of a project's tree takes.
-
-        Everything under the home, following symbolic links, except at the
-        top the database's files (:meth:`_is_database_file`) and the
-        experiments.
-
-        Args:
-            home(str):    The project's home.
-
-        Returns:
-            [PurePath]:    The directories, relative to the home, the home
-            itself included.
-
-            [PurePath]:    The files, relative to the home.
-        """
-
-        directories = []
-        fnames = []
-        for directory, subdirs, files in os.walk(home, followlinks=True):
-            if directory == home:
-                subdirs[:] = [
-                    name
-                    for name in subdirs
-                    if name != cls._dirname and not cls._is_database_file(name)
-                ]
-                files = [
-                    name for name in files if not cls._is_database_file(name)
-                ]
-            relative_dir = PurePath(directory).relative_to(home)
-            directories.append(relative_dir)
-            fnames.extend(relative_dir / name for name in files)
-        return directories, fnames
-
-    @classmethod
-    def _copy_tree(cls, source_home, target_home, linked_files):
-        """
-        Copy a project's files into another home, all but its database's.
-
-        What is copied is listed by :meth:`_list_tree`. Symbolic links are
-        followed, so that nothing is shared through one, as nothing may be
-        through a path configured outside the project.
-
-        Files are copied with their metadata (``shutil.copy2``), over any
-        already in the target: steps append to DR and lightcurve files in
-        place, so each project needs its own. Only the files nothing writes,
-        the raw images, are hard-linked instead, or copied where the
-        filesystem cannot link them. One already in the target is left as it
-        is, being the same file or a copy of it.
-
-        The space the copies take is checked against the target's free space
-        before anything is copied.
-
-        Args:
-            source_home(str):    The home of the project copied.
-
-            target_home(str):    The home to copy it into, which exists.
-
-            linked_files(set):    The files to hard-link, each a ``PurePath``
-                relative to ``source_home``.
-
-        Returns:
-            None
-
-        Raises:
-            ResourceError:    If the copies would not fit in the free space.
-        """
-
-        directories, fnames = cls._list_tree(source_home)
-        # Hard links are made only within one filesystem.
-        same_device = os.stat(source_home).st_dev == os.stat(target_home).st_dev
-        needed = sum(
-            os.stat(os.path.join(source_home, fname)).st_size
-            for fname in fnames
-            if not (same_device and fname in linked_files)
-        )
-        free = shutil.disk_usage(target_home).free
-        if needed > free:
-            raise ResourceError(
-                f"Copying {source_home} into {target_home} needs {needed:,} "
-                f"bytes, but only {free:,} are free there.",
-                details={"needed": needed, "free": free},
-            )
-
-        for directory in directories:
-            os.makedirs(os.path.join(target_home, directory), exist_ok=True)
-        for fname in fnames:
-            source = os.path.join(source_home, fname)
-            target = os.path.join(target_home, fname)
-            if fname not in linked_files:
-                shutil.copy2(source, target)
-            elif not os.path.exists(target):
-                try:
-                    os.link(source, target)
-                except OSError:
-                    shutil.copy2(source, target)
-
-    @staticmethod
-    def _remove_path(path):
-        """
-        Remove a file, or a directory with everything in it.
-
-        Windows refuses to remove a read-only file, so one that fails to be
-        removed is made writable and removed again.
-        """
-
-        def remove_writable(remove, failed_path, _):
-            os.chmod(failed_path, stat.S_IWRITE)
-            remove(failed_path)
-
-        if os.path.isdir(path) and not os.path.islink(path):
-            if sys.version_info >= (3, 12):
-                # pylint: disable-next=unexpected-keyword-arg
-                shutil.rmtree(path, onexc=remove_writable)
-            else:
-                # Deprecated from 3.12, which has onexc instead.
-                # pylint: disable-next=deprecated-argument
-                shutil.rmtree(path, onerror=remove_writable)
-        else:
-            try:
-                os.remove(path)
-            except OSError as error:
-                remove_writable(os.remove, path, error)
-
-    @classmethod
-    def _clear_tree(cls, home):
-        """
-        Remove everything in a project's home but its database's files.
-
-        Resetting an experiment does this before copying its original's
-        files in, so that the experiment's tree mirrors the original's.
-        """
-
-        for name in os.listdir(home):
-            if not cls._is_database_file(name):
-                cls._remove_path(os.path.join(home, name))
 
     def refuse_run(self):
         """
@@ -516,7 +375,7 @@ class ProjectExperiments(ExperimentRecords):
             try:
                 self._refuse_active_runs(self._engine, {*ignored_runs, run_id})
                 os.makedirs(home, exist_ok=True)
-                self._copy_tree(self._home, home, linked_files)
+                copy_tree(self._home, home, linked_files, self._dirname)
             except (ExperimentError, ResourceError):
                 # Refused before anything was copied: undone, which releases
                 # the lock.
@@ -551,6 +410,47 @@ class ProjectExperiments(ExperimentRecords):
                 return experiment
         raise ExperimentError(f"The project has no experiment named {name!r}.")
 
+    def _set_state(self, name, state):
+        """Set the state of the named experiment, in its own transaction."""
+
+        with start_engine_session(self._engine) as db_session:
+            db_session.execute(
+                update(Experiment)
+                .where(Experiment.name == name)
+                .values(state=state)
+            )
+
+    def _refuse_copy_operation(self, name, experiment_engine):
+        """
+        Raise unless the original and the experiment can be copied between.
+
+        Both must be at the code's revision: each is migrated on its own, with
+        its backup and confirmation. And the experiment's configuration must
+        have no path outside it (:meth:`_refuse_external_paths`).
+
+        Args:
+            name(str):    The experiment's name.
+
+            experiment_engine:    The engine of the experiment's database.
+
+        Raises:
+            ExperimentError:    Naming the project not at the code's revision.
+
+            ConfigurationError:    If a path is configured outside the
+                experiment.
+        """
+
+        for engine, home in [
+            (self._engine, self._home),
+            (experiment_engine, self._get_home(name)),
+        ]:
+            try:
+                check_project_schema(engine)
+            except DatabaseError as error:
+                raise ExperimentError(f"{home}: {error}") from error
+        with start_engine_session(experiment_engine) as db_session:
+            self._refuse_external_paths(db_session)
+
     def _refuse_reset(self, experiment, experiment_engine):
         """
         Raise if the experiment's processing cannot be reset.
@@ -569,16 +469,8 @@ class ProjectExperiments(ExperimentRecords):
                 "created or reset, or that was interrupted. It can only be "
                 "deleted."
             )
-        for engine, home in [
-            (self._engine, self._home),
-            (experiment_engine, self._get_home(experiment.name)),
-        ]:
-            try:
-                check_project_schema(engine)
-            except DatabaseError as error:
-                raise ExperimentError(f"{home}: {error}") from error
+        self._refuse_copy_operation(experiment.name, experiment_engine)
         with start_engine_session(experiment_engine) as db_session:
-            self._refuse_external_paths(db_session)
             present = set(db_session.scalars(select(Condition.id)))
         with start_engine_session(self._engine) as db_session:
             missing = {
@@ -689,8 +581,8 @@ class ProjectExperiments(ExperimentRecords):
             experiment_engine.dispose()
 
         try:
-            self._clear_tree(home)
-            self._copy_tree(self._home, home, linked_files)
+            clear_tree(home)
+            copy_tree(self._home, home, linked_files, self._dirname)
             return self._complete_copy(
                 name,
                 self._copy_database(
@@ -774,12 +666,7 @@ class ProjectExperiments(ExperimentRecords):
                         experiment_engine.dispose()
             except ExperimentError:
                 # Refused before anything was removed: restored as it was.
-                with start_engine_session(self._engine) as db_session:
-                    db_session.execute(
-                        update(Experiment)
-                        .where(Experiment.name == name)
-                        .values(state=experiment.state)
-                    )
+                self._set_state(name, experiment.state)
                 raise
             for pipeline_run in copying + in_experiment:
                 stop_run(pipeline_run)
@@ -788,10 +675,401 @@ class ProjectExperiments(ExperimentRecords):
             for pipeline_run in copying:
                 self._finish_run(self._engine, pipeline_run.id)
             if os.path.lexists(home):
-                self._remove_path(home)
+                remove_path(home)
             with start_engine_session(self._engine) as db_session:
                 db_session.execute(
                     delete(Experiment).where(Experiment.name == name)
                 )
         finally:
             self._finish_run(self._engine, run_id)
+
+    def _back_up_database(self, backup):
+        """
+        Copy the original's database into a merge's backup, as autowisp.db.
+
+        SQLite is copied with its backup API, which gives a consistent copy
+        while others use the database. A server database is copied into
+        SQLite by :func:`copy_project_database`, which leaves out the
+        ``experiment`` table's rows: the merge changes only their states.
+
+        Args:
+            backup(str):    The backup's directory.
+
+        Returns:
+            None
+        """
+
+        if self._engine.dialect.name == "sqlite":
+            source = self._engine.raw_connection()
+            try:
+                with closing(
+                    sqlite3.connect(os.path.join(backup, "autowisp.db"))
+                ) as target:
+                    source.driver_connection.backup(target)
+            finally:
+                source.close()
+            return
+        backup_engine = create_project_engine(get_sqlite_url(backup))
+        try:
+            copy_project_database(self._engine, backup_engine)
+        finally:
+            backup_engine.dispose()
+
+    def _restore_backup(self, backup, kept_files, moved):
+        """
+        Put the original's files back from a merge's backup, then remove it.
+
+        Its database needs nothing: the merge's transaction rolled back.
+
+        Args:
+            backup(str):    The backup's directory.
+
+            kept_files(set):    The files the backup left in place (see
+                :func:`~autowisp.project_tree.move_tree`).
+
+            moved(bool):    Whether all the original's files were moved into
+                the backup, so that whatever is in their place was copied
+                from the experiment, and is removed first. Otherwise only
+                some were, and those left are the original's.
+
+        Returns:
+            None
+        """
+
+        if moved:
+            for relative in list_movable(self._home, kept_files, self._dirname):
+                remove_path(os.path.join(self._home, relative))
+        move_tree(backup, self._home, kept_files, self._dirname)
+        remove_path(backup)
+
+    def _list_merge_backups(self):
+        """Return the paths of the backups merges left, oldest first."""
+
+        directory = os.path.join(self._home, self._dirname)
+        if not os.path.isdir(directory):
+            return []
+        return [
+            os.path.join(directory, name)
+            for name in sorted(os.listdir(directory))
+            if name.startswith(self._backup_prefix)
+        ]
+
+    def _make_backup_dir(self):
+        """
+        Create the directory of a merge's backup, named for the time (UTC).
+
+        A merge started within the same second as another's backup gets a
+        counter after the time: ``-1``, ``-2``, etc.
+
+        Returns:
+            str:    The directory created.
+        """
+
+        name = self._backup_prefix + datetime.now(timezone.utc).strftime(
+            "%Y%m%dT%H%M%SZ"
+        )
+        backup = os.path.join(self._home, self._dirname, name)
+        counter = 0
+        while True:
+            try:
+                os.makedirs(backup)
+                return backup
+            except FileExistsError:
+                counter += 1
+                backup = os.path.join(
+                    self._home, self._dirname, f"{name}-{counter}"
+                )
+
+    def _merge_database(self, name, experiment_engine, run_id):
+        """
+        Replace the original's rows with the experiment's, in one transaction.
+
+        On SQLite, the connection's foreign keys are turned on, which the
+        renumbering needs, and the transaction takes the write lock first, so
+        that nothing writes between reading the runs and renumbering them.
+        Within it:
+
+        * Refused, even if forced, unless each of the original's processing
+          runs is in the experiment, as the same run under the same id. The
+          lock froze them at the copy, so anything else means the original
+          was processed since, which the merge would lose.
+
+        * The original's runs of operations whose ids the experiment gives to
+          other runs, i.e. those recorded since the copy (e.g. creating
+          another experiment, or this merge), are renumbered past both
+          projects' ids. The rows referring to them follow (``ON UPDATE
+          CASCADE``).
+
+        * The errors recorded against the original's runs of operations are
+          deleted. Kept with their runs, they could collide with the
+          experiment's errors by id, and their files are in the backup.
+
+        * The experiment's rows replace the original's
+          (:func:`copy_project_database`), except the original's runs of
+          operations and its ``experiment`` table.
+
+        * The experiment becomes current, with the original's new
+          fingerprint, read from the original, whose backend may encode rows
+          differently from the experiment's. The other current experiments
+          become stale.
+
+        Args:
+            name(str):    The experiment's name.
+
+            experiment_engine:    The engine of the experiment's database.
+
+            run_id(int):    The id of the merge's run in the original.
+
+        Returns:
+            int:    The id of the merge's run, as renumbered.
+
+        Raises:
+            ExperimentError:    If the processing runs differ.
+        """
+
+        run_columns = [
+            PipelineRun.id,
+            PipelineRun.task,
+            PipelineRun.host,
+            PipelineRun.process_id,
+            PipelineRun.started,
+        ]
+        with self._engine.begin() as connection:
+            if connection.dialect.name == "sqlite":
+                # The renumbering relies on ON UPDATE CASCADE, whatever engine
+                # the caller gave; the pragma is ignored within a transaction.
+                connection.exec_driver_sql("PRAGMA foreign_keys = ON")
+                connection.exec_driver_sql("BEGIN IMMEDIATE")
+            original_runs = {
+                row["id"]: dict(row)
+                for row in connection.execute(select(*run_columns)).mappings()
+            }
+            with experiment_engine.connect() as experiment_connection:
+                experiment_runs = {
+                    row["id"]: dict(row)
+                    for row in experiment_connection.execute(
+                        select(*run_columns)
+                    ).mappings()
+                }
+            lost = sorted(
+                original_id
+                for original_id, pipeline_run in original_runs.items()
+                if not self.is_operation_run(pipeline_run)
+                and experiment_runs.get(original_id) != pipeline_run
+            )
+            if lost:
+                raise ExperimentError(
+                    f"The original's processing runs {lost} are not in "
+                    f"experiment {name!r} as they are in the original: the "
+                    "original was processed after the experiment was copied, "
+                    "which merging would lose. Reset the experiment, or "
+                    "delete it.",
+                    details={"runs": lost},
+                )
+            # Only runs of operations are left to differ.
+            next_id = max([*original_runs, *experiment_runs]) + 1
+            for original_id, pipeline_run in sorted(original_runs.items()):
+                if experiment_runs.get(original_id, pipeline_run) != (
+                    pipeline_run
+                ):
+                    connection.execute(
+                        update(PipelineRun)
+                        .where(PipelineRun.id == original_id)
+                        .values(id=next_id)
+                    )
+                    if original_id == run_id:
+                        run_id = next_id
+                    next_id += 1
+            connection.execute(
+                delete(Error).where(
+                    Error.pipeline_run_id.in_(
+                        select(PipelineRun.id).where(
+                            PipelineRun.task.in_(self._operation_tasks.values())
+                        )
+                    )
+                )
+            )
+            copy_project_database(
+                experiment_engine,
+                connection,
+                replace=True,
+                kept_rows={"pipeline_run": self.is_operation_run},
+            )
+            fingerprint = self._get_fingerprint(connection)
+            connection.execute(
+                update(Experiment)
+                .where(
+                    Experiment.name != name,
+                    Experiment.state == self._current_state,
+                )
+                .values(state=self._stale_state)
+            )
+            connection.execute(
+                update(Experiment)
+                .where(Experiment.name == name)
+                .values(
+                    state=self._current_state,
+                    fingerprint=self._dump_fingerprint(fingerprint),
+                )
+            )
+        return run_id
+
+    def merge(self, name, force=False, ignored_runs=()):
+        """
+        Merge an experiment into the original, which becomes a copy of it.
+
+        Refused before anything is touched if the project has no such
+        experiment, if an operation is working on it or was interrupted doing
+        so (any state but those of :attr:`_openable_states`), if its database
+        is gone, or if either project cannot be copied between
+        (:meth:`_refuse_copy_operation`). A stale experiment is refused unless
+        forced: the original changed after the experiment was copied, and the
+        merge loses that change.
+
+        The merge's run is recorded and the experiment marked ``merging``,
+        which locks the original. A run going in either project then refuses
+        the merge, as does the original's fingerprint differing from the one
+        recorded, unless forced. Either restores the experiment's state.
+
+        Otherwise the original is backed up into
+        ``experiments/.pre-merge-<UTC time>``: its database is copied there
+        (:meth:`_back_up_database`), and its other files moved there, all but
+        the experiments and the raw images inside it
+        (:func:`~autowisp.project_tree.move_tree`).
+        The experiment's files are copied into their place, then its rows
+        (:meth:`_merge_database`), which makes it current: an exact copy of
+        the new original. Should either fail, the original's files are put
+        back (:meth:`_restore_backup`) and the experiment's state restored.
+        Once merged, the earlier backups are deleted. However the merge ends,
+        its run is recorded as finished; one interrupted leaves the
+        experiment ``merging``, with the backup to restore the original from.
+
+        Args:
+            name(str):    The experiment's name.
+
+            force(bool):    Whether to merge even if the original changed
+                after the experiment was copied, losing the change.
+
+            ignored_runs:    The ids of runs not counted as going (see
+                :meth:`_refuse_active_runs`).
+
+        Returns:
+            str:    The backup's directory, which :meth:`delete_merge_backup`
+            removes.
+
+        Raises:
+            ExperimentError:    If refused.
+
+            ConfigurationError:    If a path is configured outside the
+                experiment.
+
+            ResourceError:    If the experiment's files would not fit in the
+                free space.
+        """
+
+        experiment = self._find_experiment(name)
+        if experiment.state not in self._openable_states:
+            raise ExperimentError(
+                f"Experiment {name!r} is {experiment.state}: an operation is "
+                "working on it, or was interrupted doing so."
+            )
+        if experiment.state == self._stale_state and not force:
+            raise ExperimentError(
+                f"Experiment {name!r} is stale: the original changed after it "
+                "was copied, and merging would lose the change. Reset the "
+                "experiment, or force the merge (--force) to lose it."
+            )
+        home = self._get_home(name)
+        # Checked before opening it: opening a missing one would create it.
+        if not os.path.isfile(os.path.join(home, "autowisp.db")):
+            raise ExperimentError(
+                f"Experiment {name!r} has no database in {home}: it can only "
+                "be deleted."
+            )
+        experiment_engine = create_project_engine(get_sqlite_url(home))
+        try:
+            self._refuse_copy_operation(name, experiment_engine)
+            with start_engine_session(self._engine) as db_session:
+                kept_files = self._find_raw_images(db_session)
+                run_id = record_run(
+                    db_session, self._operation_tasks["merge"]
+                ).id
+                db_session.execute(
+                    update(Experiment)
+                    .where(Experiment.name == name)
+                    .values(state=self._merging_state)
+                )
+            try:
+                try:
+                    self._refuse_active_runs(
+                        self._engine, {*ignored_runs, run_id}
+                    )
+                    self._refuse_active_runs(experiment_engine, ignored_runs)
+                    if not force:
+                        with self._engine.connect() as connection:
+                            fingerprint = self._get_fingerprint(connection)
+                        if fingerprint != json.loads(experiment.fingerprint):
+                            raise ExperimentError(
+                                "The original changed after experiment "
+                                f"{name!r} was copied, and merging would lose "
+                                "the change. Reset the experiment, or force "
+                                "the merge (--force) to lose it."
+                            )
+                except ExperimentError:
+                    # Refused before anything was moved: restored as it was.
+                    self._set_state(name, experiment.state)
+                    raise
+                with start_engine_session(experiment_engine) as db_session:
+                    linked_files = self._find_raw_images(db_session)
+                backup = self._make_backup_dir()
+                moved = False
+                try:
+                    self._back_up_database(backup)
+                    move_tree(self._home, backup, kept_files, self._dirname)
+                    moved = True
+                    copy_tree(home, self._home, linked_files, self._dirname)
+                    run_id = self._merge_database(
+                        name, experiment_engine, run_id
+                    )
+                except BaseException:
+                    self._restore_backup(backup, kept_files, moved)
+                    self._set_state(name, experiment.state)
+                    raise
+            finally:
+                self._finish_run(self._engine, run_id)
+        finally:
+            experiment_engine.dispose()
+        for earlier in self._list_merge_backups():
+            if earlier != backup:
+                remove_path(earlier)
+        return backup
+
+    def delete_merge_backup(self):
+        """
+        Delete the backups merges left, once the merge is known to be right.
+
+        Refused while an experiment is being merged, or its merge was
+        interrupted: its backup holds the original as it was before.
+
+        Returns:
+            [str]:    The directories of the backups deleted.
+
+        Raises:
+            ExperimentError:    Naming the experiments being merged.
+        """
+
+        merging = [
+            experiment.name
+            for experiment in self.get_experiments() or []
+            if experiment.state == self._merging_state
+        ]
+        if merging:
+            raise ExperimentError(
+                "Refusing while experiments are being merged, or their merge "
+                f"was interrupted: {', '.join(merging)}. Their backup holds "
+                "the original as it was before."
+            )
+        backups = self._list_merge_backups()
+        for backup in backups:
+            remove_path(backup)
+        return backups

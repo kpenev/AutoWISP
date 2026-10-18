@@ -9,7 +9,7 @@ from pathlib import PurePath
 from unittest import mock
 
 from autowisp.exceptions import ResourceError
-from autowisp.project_experiments import ProjectExperiments
+from autowisp.project_tree import clear_tree, copy_tree
 
 
 class TestCopyTree(unittest.TestCase):
@@ -108,22 +108,16 @@ class TestCopyTree(unittest.TestCase):
             if linked
         }
 
-        # pylint: disable=protected-access
         with mock.patch.object(
             shutil, "disk_usage", return_value=mock.Mock(free=needed - 1)
         ):
             with self.assertRaises(ResourceError):
-                ProjectExperiments._copy_tree(
-                    source_home, target_home, linked_files
-                )
+                copy_tree(source_home, target_home, linked_files, "experiments")
         refused_contents = self._read_files(target_home)
         with mock.patch.object(
             shutil, "disk_usage", return_value=mock.Mock(free=needed)
         ):
-            ProjectExperiments._copy_tree(
-                source_home, target_home, linked_files
-            )
-        # pylint: enable=protected-access
+            copy_tree(source_home, target_home, linked_files, "experiments")
 
         self.assertEqual(refused_contents, target_files)
         self.assertEqual(self._read_files(target_home), expected)
@@ -160,8 +154,7 @@ class TestCopyTree(unittest.TestCase):
         for fname in read_only:
             os.chmod(os.path.join(home, *fname.split("/")), stat.S_IREAD)
 
-        # pylint: disable-next=protected-access
-        ProjectExperiments._clear_tree(home)
+        clear_tree(home)
 
         self.assertEqual(sorted(os.listdir(home)), sorted(self._database_files))
 

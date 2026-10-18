@@ -21,6 +21,7 @@ py_src = [
   'processor.py',
   'project_experiments.py',
   'project_paths.py',
+  'project_tree.py',
   'run_pipeline.py',
   'source_finder.py',
   'source_finder_util.py',
