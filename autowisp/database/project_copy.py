@@ -6,6 +6,8 @@ the database (SUP-572). Either side may be SQLite or a server: an experiment
 is always SQLite, whatever its original's backend.
 """
 
+from contextlib import nullcontext
+
 from sqlalchemy import (
     MetaData,
     String,
@@ -14,6 +16,7 @@ from sqlalchemy import (
     inspect as sa_inspect,
     select,
 )
+from sqlalchemy.engine import Connection
 
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.migrate import (
@@ -217,9 +220,45 @@ def _find_kept_keys(connection, uncopied_tables, kept_rows):
     return kept_keys
 
 
+def _clear_target(connection, uncopied_tables, kept_rows):
+    """
+    Delete the target's rows that a replacing copy replaces.
+
+    An SQLite target checks its foreign keys at the commit from here on, so
+    that rows kept may refer to rows deleted and inserted again.
+
+    Args:
+        connection:    A connection to the target, in the copy's transaction.
+
+        uncopied_tables(set):    The names of the tables kept whole.
+
+        kept_rows(dict):    As for :func:`copy_project_database`.
+
+    Returns:
+        None
+    """
+
+    if connection.dialect.name == "sqlite":
+        # Lasts until the transaction ends, so it must be in one.
+        begin_transaction(connection)
+        connection.exec_driver_sql("PRAGMA defer_foreign_keys = ON")
+    # Found before anything is deleted: a row is kept for referring to a kept
+    # row.
+    kept_keys = _find_kept_keys(connection, uncopied_tables, kept_rows)
+    for table in reversed(DataModelBase.metadata.sorted_tables):
+        if table.name in uncopied_tables:
+            continue
+        statement = delete(table)
+        if kept_keys.get(table.name):
+            statement = statement.where(
+                table.c[_get_key_column(table)].not_in(kept_keys[table.name])
+            )
+        connection.execute(statement)
+
+
 def copy_project_database(  # pylint: disable=too-many-arguments
     source_engine,
-    target_engine,
+    target,
     *,
     replace=False,
     kept_tables=(),
@@ -242,7 +281,11 @@ def copy_project_database(  # pylint: disable=too-many-arguments
     Args:
         source_engine:    The engine of the project database to copy.
 
-        target_engine:    The engine of the database to copy into.
+        target:    The engine of the database to copy into. When replacing,
+            an open connection to it may be given instead: the copy is then
+            written in the connection's transaction, which commits or rolls
+            back with the caller's, so that the caller can change the
+            target's rows in the same transaction, before the copy.
 
         replace(bool):    Whether to replace the contents of a project
             database, rather than fill an empty one. When replacing, the
@@ -281,11 +324,21 @@ def copy_project_database(  # pylint: disable=too-many-arguments
             already holds AutoWISP tables, or a string is too long for its
             column in a server target.
 
-        ValueError:    If tables or rows are to be kept without replacing.
+        ValueError:    If tables or rows are to be kept, or the target is a
+            connection, without replacing.
     """
 
     if not replace and (kept_tables or kept_rows):
         raise ValueError("Only a copy replacing rows can keep any.")
+    if isinstance(target, Connection):
+        if not replace:
+            raise ValueError(
+                "A new database needs an engine: its schema is created, and "
+                "dropped if the copy fails."
+            )
+        target_engine = target.engine
+    else:
+        target_engine = target
     uncopied_tables = {
         # The original's record of its experiments, which no copy carries.
         "experiment",
@@ -312,30 +365,22 @@ def copy_project_database(  # pylint: disable=too-many-arguments
         create_project_schema(target_engine)
 
     try:
-        with source_engine.connect() as source, target_engine.begin() as target:
+        with (
+            source_engine.connect() as source,
+            (
+                nullcontext(target)
+                if isinstance(target, Connection)
+                else target_engine.begin()
+            ) as target_connection,
+        ):
             if replace:
-                if target.dialect.name == "sqlite":
-                    # Lasts until the transaction ends, so it must be in one.
-                    begin_transaction(target)
-                    target.exec_driver_sql("PRAGMA defer_foreign_keys = ON")
-                # Found before anything is deleted: a row is kept for
-                # referring to a kept row.
-                kept_keys = _find_kept_keys(target, uncopied_tables, kept_rows)
-                for table in reversed(DataModelBase.metadata.sorted_tables):
-                    if table.name in uncopied_tables:
-                        continue
-                    statement = delete(table)
-                    if kept_keys.get(table.name):
-                        statement = statement.where(
-                            table.c[_get_key_column(table)].not_in(
-                                kept_keys[table.name]
-                            )
-                        )
-                    target.execute(statement)
+                _clear_target(target_connection, uncopied_tables, kept_rows)
             read_project(
                 source,
                 [
-                    _TargetWriter(target, uncopied_tables, kept_rows),
+                    _TargetWriter(
+                        target_connection, uncopied_tables, kept_rows
+                    ),
                     *table_consumers,
                 ],
             )
