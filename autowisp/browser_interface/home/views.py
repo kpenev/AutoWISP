@@ -22,7 +22,7 @@ from autowisp.database.interface import (
 )
 from autowisp.database.migrate import describe_migration
 from autowisp.error_persistence import delete_all_error_sidecars
-from autowisp.exceptions import DatabaseError, ViewError
+from autowisp.exceptions import DatabaseError, ExperimentError, ViewError
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     Configuration,
@@ -37,6 +37,7 @@ from autowisp.database.data_model.provenance.camera_channel import (
 )
 from autowisp.fits_utilities import get_primary_header
 from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
+from autowisp.project_experiments import ProjectExperiments
 from autowisp.project_paths import resolve_path
 
 from .create_project_view import (  # pylint: disable=unused-import
@@ -127,6 +128,8 @@ def delete_projects(request):
         id__in=project_ids
     )
     missing_db_ids = {proj.id for proj in find_missing_databases()}
+    # Projects whose experiments could not all be deleted, kept whole.
+    kept_ids = set()
     for project in projects:
         project_home = project.path
 
@@ -135,6 +138,17 @@ def delete_projects(request):
                 "Skipping file deletion for %s: database missing",
                 project.name,
             )
+            continue
+
+        set_project_home(project_home)
+        try:
+            # First, so that a refusal leaves the project as it was.
+            ProjectExperiments(get_db_engine(), project_home).delete_all()
+        except ExperimentError as error:
+            messages.error(
+                request, f"Project {project.name} was not deleted: {error}"
+            )
+            kept_ids.add(project.id)
             continue
 
         if "lightcurves" in file_types:
@@ -169,7 +183,7 @@ def delete_projects(request):
         # keep their directories.
         prune_empty_directories(project_home)
 
-    projects.delete()
+    projects.exclude(id__in=kept_ids).delete()
     request.session.flush()
     return redirect("home:home")
 

@@ -332,6 +332,32 @@ class TestDelete(ProjectCopyCase):
             "Runs going here, or their children, were not stopped.",
         )
 
+    def test_delete_all(self):
+        """Every experiment that can be deleted is, and the rest are named."""
+
+        engine, project_home, *_ = self._create_experiment()
+        experiments = ProjectExperiments(engine, project_home)
+        for name in ["exp2", "exp3"]:
+            experiments.create(name)
+        with start_engine_session(engine) as db_session:
+            for name, state in [("exp2", "merging"), ("exp3", "creating")]:
+                db_session.execute(
+                    update(Experiment).filter_by(name=name).values(state=state)
+                )
+
+        with self.assertRaises(ExperimentError) as refusal:
+            experiments.delete_all()
+
+        self.assertEqual(refusal.exception.details, {"experiments": ["exp2"]})
+        self.assertEqual(
+            [experiment.name for experiment in experiments.get_experiments()],
+            ["exp2"],
+        )
+        self.assertEqual(
+            sorted(os.listdir(os.path.join(project_home, "experiments"))),
+            ["exp2"],
+        )
+
 
 # pylint: enable=not-callable
 

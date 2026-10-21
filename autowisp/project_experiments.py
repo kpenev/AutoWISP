@@ -701,6 +701,43 @@ class ProjectExperiments(ExperimentRecords):
         finally:
             self._finish_run(self._engine, run_id)
 
+    def delete_all(self, ignored_runs=()):
+        """
+        Delete every experiment of the project, as deleting the project needs.
+
+        Each is deleted by :meth:`delete`, with its refusals. Those refused do
+        not stop the others: every experiment that can be deleted is, and
+        one error then names those refused. A project that is itself an
+        experiment has none.
+
+        Args:
+            ignored_runs:    As for :meth:`delete`.
+
+        Returns:
+            [str]:    The names of the experiments deleted.
+
+        Raises:
+            ExperimentError:    Naming each experiment refused, and why.
+        """
+
+        deleted = []
+        refused = {}
+        for experiment in self.get_experiments() or []:
+            try:
+                self.delete(experiment.name, ignored_runs)
+                deleted.append(experiment.name)
+            except ExperimentError as error:
+                refused[experiment.name] = str(error)
+        if refused:
+            raise ExperimentError(
+                f"Experiments of {self._home} could not be deleted: "
+                + " ".join(
+                    f"{name}: {reason}" for name, reason in refused.items()
+                ),
+                details={"experiments": sorted(refused)},
+            )
+        return deleted
+
     def _back_up_database(self, backup):
         """
         Copy the original's database into a merge's backup, as autowisp.db.
