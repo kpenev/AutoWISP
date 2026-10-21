@@ -22,7 +22,7 @@ from sqlalchemy import inspect as sa_inspect, select, update
 from sqlalchemy.orm import Session
 
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import Experiment
+from autowisp.database.data_model import Experiment, PipelineRun
 
 # pylint: enable=no-name-in-module
 from autowisp.database.pipeline_runs import find_active_runs
@@ -80,7 +80,7 @@ class ExperimentRecords:
     # processing, hashed and replaced by a merge, until added here.
     _operation_tasks = {
         operation: f"{operation} experiment"
-        for operation in ("create", "reset", "merge", "delete")
+        for operation in ("create", "reset", "merge", "restore", "delete")
     }
 
     _unhashed_tables = {
@@ -352,6 +352,70 @@ class ExperimentRecords:
             self._engine, expire_on_commit=False
         ) as db_session:
             return self._read_experiments(db_session)
+
+    def describe_experiments(self):
+        """
+        Return each experiment, with its state and the operation working on it.
+
+        An experiment in any state but those of :attr:`_openable_states` has
+        an operation working on it, or interrupted doing so: its latest, whose
+        run it refers to. That run is either going, on this machine or
+        another, or ended without the operation completing. Runs of this
+        machine whose process is gone are recorded as finished as they are
+        found (see :meth:`_find_active_runs`), which is committed.
+
+        Returns:
+            [dict] or None:    By name, each experiment's ``name``, ``state``
+            and ``created``, and its ``operation``: None if the experiment is
+            ``current`` or ``stale``, otherwise the ``task`` of its latest
+            operation's run (e.g. ``"reset experiment"``) and where it is
+            ``running``: ``"here"``, the host of another machine, or None if
+            it was interrupted. None if the project is itself an experiment.
+        """
+
+        experiments = self.get_experiments()
+        if experiments is None:
+            return None
+        unsettled = {
+            experiment.run_id
+            for experiment in experiments
+            if experiment.state not in self._openable_states
+        }
+        running = {}
+        tasks = {}
+        if unsettled:
+            here, elsewhere = self._find_active_runs(
+                self._engine, (), unsettled
+            )
+            running = {pipeline_run.id: "here" for pipeline_run in here}
+            running.update(
+                (pipeline_run.id, pipeline_run.host)
+                for pipeline_run in elsewhere
+            )
+            with start_engine_session(self._engine) as db_session:
+                tasks = dict(
+                    db_session.execute(
+                        select(PipelineRun.id, PipelineRun.task).where(
+                            PipelineRun.id.in_(unsettled)
+                        )
+                    ).all()
+                )
+        return [
+            {
+                "name": experiment.name,
+                "state": experiment.state,
+                "created": experiment.created,
+                "operation": (
+                    {
+                        "task": tasks[experiment.run_id],
+                        "running": running.get(experiment.run_id),
+                    }
+                    if experiment.run_id in unsettled
+                    else None
+                ),
+            }
+            for experiment in experiments
+        ]
 
     @classmethod
     def can_open(cls, experiment):
