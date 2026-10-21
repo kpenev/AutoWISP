@@ -606,8 +606,9 @@ class ExperimentRecords:
             connection:    A connection to the original's database.
 
         Returns:
-            dict:    ``{"revision": <Alembic revision>, "tables": {<name>:
-                <hex SHA-256>}}``, which is stored as JSON.
+            dict:    Its Alembic revision, under ``"revision"``, and under
+            ``"tables"``, by table name, the hex SHA-256 of the table's rows.
+            It is stored as JSON.
         """
 
         hasher = self._make_hasher()
