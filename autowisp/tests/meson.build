@@ -48,6 +48,7 @@ py_src = [
   'test_experiment_refusals.py',
   'test_experiment_reset.py',
   'test_experiment_staleness.py',
+  'test_experiments_cli.py',
   'test_exclusion_rules.py',
   'test_expression_series.py',
   'test_expressions.py',

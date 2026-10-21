@@ -9,6 +9,7 @@ py_src = [
   'error_render.py',
   'evaluator.py',
   'exceptions.py',
+  'experiments_cli.py',
   'file_utilities.py',
   'fits_utilities.py',
   'hdf5_file.py',
