@@ -115,7 +115,7 @@ class TestDelete(ProjectCopyCase):
                 update(PipelineRun)
                 .where(
                     PipelineRun.id
-                    == select(Experiment.copy_run_id).scalar_subquery()
+                    == select(Experiment.run_id).scalar_subquery()
                 )
                 .values(finished=None, **columns)
             )
@@ -235,6 +235,14 @@ class TestDelete(ProjectCopyCase):
                 "exp2",
                 "ExperimentError",
                 "current",
+                True,
+            ),
+            # Its merge going or interrupted: the original may need restoring.
+            "being merged": (
+                lambda engine, *_: self._set_state(engine, "merging"),
+                "exp1",
+                "ExperimentError",
+                "merging",
                 True,
             ),
             # Restored: refused before anything was removed.

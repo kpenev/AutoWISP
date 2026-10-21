@@ -106,7 +106,7 @@ class TestReset(ProjectCopyCase):
             return (
                 result,
                 row.state,
-                db_session.get(PipelineRun, row.copy_run_id).task,
+                db_session.get(PipelineRun, row.run_id).task,
                 db_session.scalars(
                     select(PipelineRun.id).where(
                         PipelineRun.task != PipelineRun.processing_task,

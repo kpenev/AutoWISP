@@ -62,14 +62,15 @@ class Experiment(DataModelBase):
         "'stale' once the original has changed since it was copied; "
         "'merging' or 'deleting' while it is merged or deleted.",
     )
-    copy_run_id = Column(
+    run_id = Column(
         Integer,
         ForeignKey("pipeline_run.id", onupdate="CASCADE"),
         nullable=False,
-        doc="The run that last copied the original into the experiment: its "
-        "create, or its latest reset. While the experiment is 'creating', "
-        "it tells whether the copy is still going or crashed. Follows the "
-        "run's id when a merge renumbers it.",
+        doc="The run of the latest operation on the experiment: its create, "
+        "reset, merge or delete, set with the state the operation gives it. "
+        "While that state lasts ('creating', 'merging' or 'deleting'), it "
+        "tells whether the operation is still going or was interrupted. "
+        "Follows the run's id when a merge renumbers it.",
     )
 
     def __repr__(self):

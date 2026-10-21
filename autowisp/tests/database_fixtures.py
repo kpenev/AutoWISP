@@ -300,7 +300,11 @@ class ProjectCopyCase(unittest.TestCase):
 
     @staticmethod
     def _read_tree(home):
-        """Return the files under a home, but its database and experiments."""
+        """Return the files under a home, but its database's and experiments.
+
+        The database's files are all those at the top named for it: its
+        journals, e.g. one a crash left, and its migration backups too.
+        """
 
         contents = {}
         for directory, subdirs, fnames in os.walk(home):
@@ -308,7 +312,7 @@ class ProjectCopyCase(unittest.TestCase):
             subdirs[:] = [name for name in subdirs if name != "experiments"]
             for fname in fnames:
                 path = os.path.join(directory, fname)
-                if path != os.path.join(home, "autowisp.db"):
+                if directory != home or not fname.startswith("autowisp.db"):
                     with open(path, "rb") as file:
                         contents[os.path.relpath(path, home)] = file.read()
         return contents
@@ -336,7 +340,7 @@ class ProjectCopyCase(unittest.TestCase):
                     created=func.now(),
                     fingerprint=fingerprint,
                     state=state,
-                    copy_run_id=add_create_run(db_session).id,
+                    run_id=add_create_run(db_session).id,
                 )
             )
 

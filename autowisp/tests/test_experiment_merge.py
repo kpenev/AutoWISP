@@ -1,9 +1,13 @@
 """Tests of merging an experiment into its original."""
 
+import json
 import os
 import shutil
+import subprocess
+import sys
 import unittest
-from contextlib import nullcontext
+from contextlib import ExitStack, nullcontext
+from pkgutil import resolve_name
 from unittest import mock
 
 from sqlalchemy import create_engine, func, select, update
@@ -11,6 +15,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.experiments import ExperimentRecords
+from autowisp.database.interface import create_project_engine, get_sqlite_url
 from autowisp.database.pipeline_runs import record_run
 from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import (
@@ -37,6 +42,71 @@ from autowisp.tests.database_fixtures import (
 # False positive: the declarative models are callable.
 # pylint: disable=not-callable
 
+# The status a merge crashing as a test asks exits with, which tells the
+# crash from a traceback or a merge that finished.
+_crash_status = 17
+
+
+# A stand-in, called in place of the function it stands in for.
+# pylint: disable-next=too-few-public-methods
+class _Crash:
+    """Stand in for a function, crashing or failing on one of its calls."""
+
+    def __init__(self, target, crash_ncalls, action):
+        """
+        Pass every call on to the target, but the given one.
+
+        Args:
+            target(str):    The import path of the function stood in for.
+
+            crash_ncalls(int):    Which call, counting from 1, crashes or
+                fails.
+
+            action(str):    ``"exit"`` to end the process there, as a crash
+                would, with nothing cleaning up; or ``"fail"`` to raise
+                ``OSError``.
+        """
+
+        self._original = resolve_name(target)
+        self._crash_ncalls = crash_ncalls
+        self._action = action
+        self._call_count = 0
+
+    def __call__(self, *args, **kwargs):
+        """Call the target, unless this is the call to crash or fail."""
+
+        self._call_count += 1
+        if self._call_count == self._crash_ncalls:
+            if self._action == "exit":
+                os._exit(_crash_status)
+            raise OSError("Failing, as the test asks.")
+        return self._original(*args, **kwargs)
+
+
+def merge_crashing(project_home, crashes):
+    """
+    Merge experiment ``exp1`` of the project, crashing as a test asks.
+
+    Run by the tests in a process of its own, which the crash ends.
+
+    Args:
+        project_home(str):    The original's home.
+
+        crashes:    Each ``[target, crash_ncalls, action]``, as
+            :class:`_Crash` takes them.
+    """
+
+    with ExitStack() as stack:
+        for target, crash_ncalls, action in crashes:
+            stack.enter_context(
+                mock.patch(target, _Crash(target, crash_ncalls, action))
+            )
+        engine = create_project_engine(get_sqlite_url(project_home))
+        try:
+            ProjectExperiments(engine, project_home).merge("exp1")
+        finally:
+            engine.dispose()
+
 
 class TestMerge(ProjectCopyCase):
     """Merging an experiment: what refuses it, what it replaces and keeps."""
@@ -46,10 +116,19 @@ class TestMerge(ProjectCopyCase):
 
     @classmethod
     def setUpClass(cls):
-        """Give the project a raw image inside it, and a file it wrote."""
+        """Give the project a raw image, files it wrote, and other files.
+
+        Enough files that moving the project into a backup takes several
+        renames, which a crash can stop part way.
+        """
 
         super().setUpClass()
         cls._add_processed_files()
+        for fname in ["notes.txt", "LOGS/run.log"]:
+            path = os.path.join(cls._template_home, *fname.split("/"))
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="ascii") as file:
+                file.write(fname)
 
     @staticmethod
     def _process_experiment(experiment_engine, experiment_home):
@@ -87,7 +166,7 @@ class TestMerge(ProjectCopyCase):
             db_session.add(
                 Error(
                     pipeline_run_id=db_session.scalar(
-                        select(Experiment.copy_run_id).filter_by(name="exp2")
+                        select(Experiment.run_id).filter_by(name="exp2")
                     ),
                     component="cli",
                     exception_class="ExperimentError",
@@ -272,7 +351,7 @@ class TestMerge(ProjectCopyCase):
                 ),
                 "exp2's run": db_session.scalar(
                     select(PipelineRun.task)
-                    .join(Experiment, Experiment.copy_run_id == PipelineRun.id)
+                    .join(Experiment, Experiment.run_id == PipelineRun.id)
                     .filter(Experiment.name == "exp2")
                 ),
                 "error kept": db_session.scalar(select(Error.id)) is not None,
@@ -562,6 +641,221 @@ class TestMerge(ProjectCopyCase):
             {
                 scenario: parameters[4]
                 for scenario, parameters in test_scenarios.items()
+            },
+        )
+
+    @staticmethod
+    def _crash_merge(project_home, crashes):
+        """
+        Merge experiment ``exp1`` in a process of its own, crashing it.
+
+        Args:
+            project_home(str):    The original's home.
+
+            crashes:    How the merge crashes (see :func:`merge_crashing`).
+
+        Returns:
+            bool:    Whether the process ended as the crash ends it, rather
+            than by a traceback or with the merge finished.
+        """
+
+        # The code under test, whether the checkout's or installed.
+        code_root = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
+        merge = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import json, sys\n"
+                "from autowisp.tests.test_experiment_merge import "
+                "merge_crashing\n"
+                "merge_crashing(sys.argv[1], json.loads(sys.argv[2]))",
+                project_home,
+                json.dumps(crashes),
+            ],
+            env={**os.environ, "PYTHONPATH": code_root},
+            capture_output=True,
+            check=False,
+        )
+        return merge.returncode == _crash_status
+
+    @staticmethod
+    def _mark_merge_going(engine):
+        """Make ``exp1`` look merged by a run of this process, still going."""
+
+        with start_engine_session(engine) as db_session:
+            db_session.execute(
+                update(Experiment)
+                .filter_by(name="exp1")
+                .values(
+                    state="merging",
+                    run_id=record_run(db_session, "merge experiment").id,
+                )
+            )
+
+    def _try_restore(self, crashes, prepare):
+        """
+        Restore the original after a merge crashed, as a scenario says.
+
+        Args:
+            crashes:    How the merge crashes (see :func:`merge_crashing`);
+                None for no merge.
+
+            prepare:    Given the original's engine, prepares it after the
+                merge, if any; or None.
+
+        Returns:
+            tuple:    What the crash left: whether the merge ended as the
+            crash ends it (None if there was none), whether there is a
+            backup, whether the marker of all files moved is in it, and whose
+            files the original holds. Then what the restore left: the state
+            it returned, or the name of the class of the exception it raised;
+            the experiment's state; whose files and processing runs the
+            original holds; the number of backups; and the operations' runs
+            left unfinished.
+        """
+
+        engine, project_home, *experiment = self._create_experiment()
+        self._process_experiment(*experiment)
+        homes = {"original": project_home, "experiment": experiment[1]}
+        owner_trees, owner_runs = self._read_owners(
+            homes, {"original": engine, "experiment": experiment[0]}
+        )
+        crashed = self._crash_merge(project_home, crashes) if crashes else None
+        if prepare:
+            prepare(engine)
+        backups = self._list_backups(project_home)
+        crash_left = (
+            crashed,
+            bool(backups),
+            any(
+                os.path.exists(os.path.join(backup, ".all-moved"))
+                for backup in backups
+            ),
+            self._find_owner(owner_trees, self._read_tree(project_home)),
+        )
+
+        try:
+            result = ProjectExperiments(engine, project_home).restore_merge(
+                "exp1"
+            )
+        except ExperimentError as error:
+            result = type(error).__name__
+        with Session(engine) as db_session:
+            return crash_left + (
+                result,
+                db_session.scalar(
+                    select(Experiment.state).filter_by(name="exp1")
+                ),
+                self._find_owner(owner_trees, self._read_tree(project_home)),
+                self._find_owner(owner_runs, self._read_runs(engine)),
+                len(self._list_backups(project_home)),
+                sorted(
+                    db_session.scalars(
+                        select(PipelineRun.task).where(
+                            PipelineRun.task != PipelineRun.processing_task,
+                            PipelineRun.finished.is_(None),
+                        )
+                    )
+                ),
+            )
+
+    def test_restore_merge(self):
+        """Each merge crashed at a different point, then restored.
+
+        A crash ends the merge's process wherever the scenario says, with
+        nothing cleaning up, by standing in for a function the merge calls
+        there. What the crash left is checked first, so that a change to
+        merge moving the crash elsewhere fails here, rather than testing
+        another point unnoticed.
+        """
+
+        restored = ("current", "current", "original", "original", 0, [])
+        # Each scenario: how the merge crashes, each crash a function stood
+        # in for, on which call, and whether it crashes or fails there; what
+        # prepares the original after the merge; what the crash left; and
+        # what the restore left (see _try_restore).
+        test_scenarios = {
+            "before the backup": (
+                [["os.makedirs", 1, "exit"]],
+                None,
+                (True, False, False, "original"),
+                restored,
+            ),
+            "before moving": (
+                [["autowisp.project_experiments.move_tree", 1, "exit"]],
+                None,
+                (True, True, False, "original"),
+                restored,
+            ),
+            "part way moving": (
+                [["os.rename", 2, "exit"]],
+                None,
+                (True, True, False, None),
+                restored,
+            ),
+            "part way copying": (
+                [["shutil.copy2", 2, "exit"]],
+                None,
+                (True, True, True, None),
+                restored,
+            ),
+            "in the database's transaction": (
+                [
+                    [
+                        "autowisp.project_experiments.copy_project_database",
+                        1,
+                        "exit",
+                    ]
+                ],
+                None,
+                (True, True, True, "experiment"),
+                restored,
+            ),
+            # The copy fails, and its rollback crashes.
+            "part way rolling back": (
+                [
+                    ["shutil.copy2", 2, "fail"],
+                    ["autowisp.project_experiments.remove_path", 1, "exit"],
+                ],
+                None,
+                (True, True, True, None),
+                restored,
+            ),
+            "not merging": (
+                None,
+                None,
+                (None, False, False, "original"),
+                ("ExperimentError",) + restored[1:],
+            ),
+            "merge going": (
+                None,
+                self._mark_merge_going,
+                (None, False, False, "original"),
+                (
+                    "ExperimentError",
+                    "merging",
+                    "original",
+                    "original",
+                    0,
+                    ["merge experiment"],
+                ),
+            ),
+        }
+
+        self.assertEqual(
+            {
+                scenario: self._try_restore(crashes, prepare)
+                for scenario, (crashes, prepare, *_) in test_scenarios.items()
+            },
+            {
+                scenario: crash_left + restore_left
+                for scenario, (
+                    *_,
+                    crash_left,
+                    restore_left,
+                ) in test_scenarios.items()
             },
         )
 

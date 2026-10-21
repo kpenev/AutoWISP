@@ -15,7 +15,7 @@ would turn an experiment into an ordinary project.
 Operations on experiments are pipeline runs of the original, so runs now
 record their task: 'processing' for every run before this revision, and for
 every run of the pipeline's steps since. Each experiment refers to the run
-that last copied the original into it.
+of the latest operation on it.
 """
 
 import alembic
@@ -90,7 +90,7 @@ def upgrade():
         sqlalchemy.Column("fingerprint", sqlalchemy.Text, nullable=False),
         sqlalchemy.Column("state", sqlalchemy.String(20), nullable=False),
         sqlalchemy.Column(
-            "copy_run_id",
+            "run_id",
             sqlalchemy.Integer,
             sqlalchemy.ForeignKey(f"{RUN_TABLE_NAME}.id", onupdate="CASCADE"),
             nullable=False,

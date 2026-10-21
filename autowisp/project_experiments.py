@@ -79,9 +79,14 @@ class ProjectExperiments(ExperimentRecords):
     _name_pattern = re.compile("[A-Za-z0-9_-]+")
 
     # The start of the name of a merge's backup, under the experiments'
-    # directory, followed by when the merge started (UTC). Not a name an
-    # experiment may take.
+    # directory, followed by when the merge started (UTC) and its run. Not a
+    # name an experiment may take.
     _backup_prefix = ".pre-merge-"
+
+    # A file in a merge's backup while every file of the original it moves is
+    # in the backup, so that what is in their place was copied from the
+    # experiment (see _restore_backup).
+    _moved_marker = ".all-moved"
 
     @staticmethod
     def _refuse_external_paths(db_session):
@@ -367,7 +372,7 @@ class ProjectExperiments(ExperimentRecords):
                     created=func.now(),  # pylint: disable=not-callable
                     fingerprint="{}",
                     state=self._creating_state,
-                    copy_run_id=run_id,
+                    run_id=run_id,
                 )
             )
 
@@ -410,14 +415,14 @@ class ProjectExperiments(ExperimentRecords):
                 return experiment
         raise ExperimentError(f"The project has no experiment named {name!r}.")
 
-    def _set_state(self, name, state):
-        """Set the state of the named experiment, in its own transaction."""
+    def _set_state(self, name, state, run_id):
+        """Set an experiment's state, and the run of the operation giving it."""
 
         with start_engine_session(self._engine) as db_session:
             db_session.execute(
                 update(Experiment)
                 .where(Experiment.name == name)
-                .values(state=state)
+                .values(state=state, run_id=run_id)
             )
 
     def _refuse_copy_operation(self, name, experiment_engine):
@@ -556,7 +561,7 @@ class ProjectExperiments(ExperimentRecords):
                     .where(Experiment.name == name)
                     .values(
                         state=self._creating_state,
-                        copy_run_id=run_id,
+                        run_id=run_id,
                         created=func.now(),  # pylint: disable=not-callable
                     )
                 )
@@ -571,7 +576,7 @@ class ProjectExperiments(ExperimentRecords):
                         .where(Experiment.name == name)
                         .values(
                             state=experiment.state,
-                            copy_run_id=experiment.copy_run_id,
+                            run_id=experiment.run_id,
                             created=experiment.created,
                         )
                     )
@@ -604,17 +609,21 @@ class ProjectExperiments(ExperimentRecords):
         """
         Delete an experiment: its directory, then its row.
 
-        Any experiment may be deleted, in whatever state: one whose create,
-        reset or delete was interrupted, or whose directory is gone, too. Its
+        Any experiment may be deleted, in any state but ``merging``: one whose
+        create, reset or delete was interrupted, or whose directory is gone,
+        too. One being merged is refused, whether the merge is going or was
+        interrupted: its row is the only record that the original may need
+        restoring from the merge's backup (see :meth:`restore_merge`). Its
         files all lie in its directory, since its configuration allows no
         path outside it, so removing the directory removes all it made.
 
-        The delete's run is recorded and the experiment marked ``deleting``,
-        which releases its lock on the original and keeps the browser
-        interface from opening it. A run going on another machine, in the
-        experiment or copying the original into it, then refuses the delete,
-        which restores the experiment's state: it cannot be stopped from here,
-        and removing its files would make it fail, or recreate some of them.
+        The delete's run is recorded, and the experiment marked ``deleting``
+        and referred to it, which releases its lock on the original and keeps
+        the browser interface from opening it. A run going on another
+        machine, in the experiment or as its latest operation (e.g. copying
+        the original into it), then refuses the delete, which restores the
+        experiment's state and run: it cannot be stopped from here, and
+        removing its files would make it fail, or recreate some of them.
         Runs going on this machine are stopped and waited for, since Windows
         cannot remove a file still open. However the delete ends, its run is
         recorded as finished: one interrupted leaves the experiment
@@ -627,27 +636,36 @@ class ProjectExperiments(ExperimentRecords):
                 user knows have ended (see :meth:`_find_active_runs`).
 
         Raises:
-            ExperimentError:    If there is no such experiment, or a run is
-                going in it on another machine.
+            ExperimentError:    If there is no such experiment, it is being
+                merged, or a run is going in it on another machine.
 
             PipelineError:    If a run going on this machine cannot be stopped.
         """
 
         experiment = self._find_experiment(name)
+        if experiment.state == self._merging_state:
+            raise ExperimentError(
+                f"Experiment {name!r} is being merged, or its merge was "
+                "interrupted, which may have left the original's files part "
+                "way into the merge's backup. Wait for the merge to finish, "
+                "or restore the original from the backup "
+                "(wisp-experiments restore) first."
+            )
         home = self._get_home(name)
         with start_engine_session(self._engine) as db_session:
             run_id = record_run(db_session, self._operation_tasks["delete"]).id
             db_session.execute(
                 update(Experiment)
                 .where(Experiment.name == name)
-                .values(state=self._deleting_state)
+                .values(state=self._deleting_state, run_id=run_id)
             )
 
         try:
             try:
-                # The experiment's create or reset, if still going.
-                copying, elsewhere = self._find_active_runs(
-                    self._engine, ignored_runs, {experiment.copy_run_id}
+                # The experiment's latest operation, if still going: its
+                # create or reset, or an earlier delete.
+                previous, elsewhere = self._find_active_runs(
+                    self._engine, ignored_runs, {experiment.run_id}
                 )
                 self._refuse_runs(self._engine, elsewhere)
                 in_experiment = []
@@ -666,13 +684,13 @@ class ProjectExperiments(ExperimentRecords):
                         experiment_engine.dispose()
             except ExperimentError:
                 # Refused before anything was removed: restored as it was.
-                self._set_state(name, experiment.state)
+                self._set_state(name, experiment.state, experiment.run_id)
                 raise
-            for pipeline_run in copying + in_experiment:
+            for pipeline_run in previous + in_experiment:
                 stop_run(pipeline_run)
             # Recorded as ended now, rather than whenever the original's runs
             # are next looked at; those in the experiment go with it.
-            for pipeline_run in copying:
+            for pipeline_run in previous:
                 self._finish_run(self._engine, pipeline_run.id)
             if os.path.lexists(home):
                 remove_path(home)
@@ -715,11 +733,19 @@ class ProjectExperiments(ExperimentRecords):
         finally:
             backup_engine.dispose()
 
-    def _restore_backup(self, backup, kept_files, moved):
+    def _restore_backup(self, backup, kept_files):
         """
         Put the original's files back from a merge's backup, then remove it.
 
-        Its database needs nothing: the merge's transaction rolled back.
+        Wherever the merge stopped: the marker (:attr:`_moved_marker`) in the
+        backup tells that all the original's files were moved there, so that
+        what is in their place was copied from the experiment, and is removed
+        first, then the marker. Without it, only some were moved, and those
+        in place are the original's. Each step can be repeated, so a restore
+        interrupted in turn is completed by restoring again.
+
+        Its database needs nothing: a merge left ``merging`` never committed
+        its transaction.
 
         Args:
             backup(str):    The backup's directory.
@@ -727,18 +753,15 @@ class ProjectExperiments(ExperimentRecords):
             kept_files(set):    The files the backup left in place (see
                 :func:`~autowisp.project_tree.move_tree`).
 
-            moved(bool):    Whether all the original's files were moved into
-                the backup, so that whatever is in their place was copied
-                from the experiment, and is removed first. Otherwise only
-                some were, and those left are the original's.
-
         Returns:
             None
         """
 
-        if moved:
+        marker = os.path.join(backup, self._moved_marker)
+        if os.path.exists(marker):
             for relative in list_movable(self._home, kept_files, self._dirname):
                 remove_path(os.path.join(self._home, relative))
+            os.remove(marker)
         move_tree(backup, self._home, kept_files, self._dirname)
         remove_path(backup)
 
@@ -754,31 +777,38 @@ class ProjectExperiments(ExperimentRecords):
             if name.startswith(self._backup_prefix)
         ]
 
-    def _make_backup_dir(self):
+    def _make_backup_dir(self, run_id):
         """
-        Create the directory of a merge's backup, named for the time (UTC).
+        Create the directory of a merge's backup, named for the time and run.
 
-        A merge started within the same second as another's backup gets a
-        counter after the time: ``-1``, ``-2``, etc.
+        The time (UTC) is for the user. The merge's run, which is unique,
+        tells the backup of an interrupted merge from the others (see
+        :meth:`_find_backup`).
+
+        Args:
+            run_id(int):    The id of the merge's run.
 
         Returns:
             str:    The directory created.
         """
 
-        name = self._backup_prefix + datetime.now(timezone.utc).strftime(
-            "%Y%m%dT%H%M%SZ"
+        backup = os.path.join(
+            self._home,
+            self._dirname,
+            self._backup_prefix
+            + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            + f"-run{run_id}",
         )
-        backup = os.path.join(self._home, self._dirname, name)
-        counter = 0
-        while True:
-            try:
-                os.makedirs(backup)
+        os.makedirs(backup)
+        return backup
+
+    def _find_backup(self, run_id):
+        """Return the backup of the merge with the given run; None if none."""
+
+        for backup in self._list_merge_backups():
+            if backup.endswith(f"-run{run_id}"):
                 return backup
-            except FileExistsError:
-                counter += 1
-                backup = os.path.join(
-                    self._home, self._dirname, f"{name}-{counter}"
-                )
+        return None
 
     def _merge_database(self, name, experiment_engine, run_id):
         """
@@ -932,17 +962,19 @@ class ProjectExperiments(ExperimentRecords):
         recorded, unless forced. Either restores the experiment's state.
 
         Otherwise the original is backed up into
-        ``experiments/.pre-merge-<UTC time>``: its database is copied there
-        (:meth:`_back_up_database`), and its other files moved there, all but
-        the experiments and the raw images inside it
-        (:func:`~autowisp.project_tree.move_tree`).
-        The experiment's files are copied into their place, then its rows
-        (:meth:`_merge_database`), which makes it current: an exact copy of
-        the new original. Should either fail, the original's files are put
-        back (:meth:`_restore_backup`) and the experiment's state restored.
-        Once merged, the earlier backups are deleted. However the merge ends,
-        its run is recorded as finished; one interrupted leaves the
-        experiment ``merging``, with the backup to restore the original from.
+        ``experiments/.pre-merge-<UTC time>-run<merge's run id>``: its
+        database is copied there (:meth:`_back_up_database`), and its other
+        files moved there, all but the experiments and the raw images inside
+        it (:func:`~autowisp.project_tree.move_tree`), after which
+        :attr:`_moved_marker` is created there. The experiment's files are
+        copied into their place, then its rows (:meth:`_merge_database`),
+        which makes it current: an exact copy of the new original. Should
+        either fail, the original's files are put back
+        (:meth:`_restore_backup`) and the experiment's state restored. Once
+        merged, the marker and the earlier backups are deleted. However the
+        merge ends, its run is recorded as finished; one interrupted leaves
+        the experiment ``merging``, and :meth:`restore_merge` puts the
+        original's files back from the backup.
 
         Args:
             name(str):    The experiment's name.
@@ -997,7 +1029,7 @@ class ProjectExperiments(ExperimentRecords):
                 db_session.execute(
                     update(Experiment)
                     .where(Experiment.name == name)
-                    .values(state=self._merging_state)
+                    .values(state=self._merging_state, run_id=run_id)
                 )
             try:
                 try:
@@ -1017,32 +1049,100 @@ class ProjectExperiments(ExperimentRecords):
                             )
                 except ExperimentError:
                     # Refused before anything was moved: restored as it was.
-                    self._set_state(name, experiment.state)
+                    self._set_state(name, experiment.state, experiment.run_id)
                     raise
                 with start_engine_session(experiment_engine) as db_session:
                     linked_files = self._find_raw_images(db_session)
-                backup = self._make_backup_dir()
-                moved = False
+                backup = self._make_backup_dir(run_id)
                 try:
                     self._back_up_database(backup)
                     move_tree(self._home, backup, kept_files, self._dirname)
-                    moved = True
+                    # Created only once everything is moved, which tells a
+                    # restore what in the home is the experiment's.
+                    with open(
+                        os.path.join(backup, self._moved_marker),
+                        "w",
+                        encoding="ascii",
+                    ):
+                        pass
                     copy_tree(home, self._home, linked_files, self._dirname)
                     run_id = self._merge_database(
                         name, experiment_engine, run_id
                     )
                 except BaseException:
-                    self._restore_backup(backup, kept_files, moved)
-                    self._set_state(name, experiment.state)
+                    self._restore_backup(backup, kept_files)
+                    self._set_state(name, experiment.state, experiment.run_id)
                     raise
             finally:
                 self._finish_run(self._engine, run_id)
         finally:
             experiment_engine.dispose()
+        # Merged: the backup is left holding only the original's files.
+        os.remove(os.path.join(backup, self._moved_marker))
         for earlier in self._list_merge_backups():
             if earlier != backup:
                 remove_path(earlier)
         return backup
+
+    def restore_merge(self, name, ignored_runs=()):
+        """
+        Restore the original from the backup of an interrupted merge.
+
+        Refused unless the experiment is ``merging``. The restore's run is
+        recorded, then a run going in the original refuses the restore: the
+        merge itself, still going, or another restore. A merge is never
+        stopped: stopped part way, it would leave what this restores.
+
+        The merge's backup is the one named for the run the experiment refers
+        to (:meth:`_find_backup`), which the restore leaves as it is, so that
+        a restore interrupted in turn finds the backup again. Its files are
+        put back (:meth:`_restore_backup`); without a backup, the merge
+        stopped before moving anything. The original's database needs
+        nothing: the merge's transaction never committed. The experiment then
+        becomes current if the original's fingerprint is still the one it
+        recorded, otherwise stale. However the restore ends, its run is
+        recorded as finished; one interrupted leaves the experiment
+        ``merging``, and restoring again completes it.
+
+        Args:
+            name(str):    The experiment's name.
+
+            ignored_runs:    The ids of runs not counted as going, e.g. the
+                merge's, on a machine that crashed (see
+                :meth:`_refuse_active_runs`).
+
+        Returns:
+            str:    The experiment's state: ``"current"`` or ``"stale"``.
+
+        Raises:
+            ExperimentError:    If refused.
+        """
+
+        experiment = self._find_experiment(name)
+        if experiment.state != self._merging_state:
+            raise ExperimentError(
+                f"Experiment {name!r} is {experiment.state}, not being "
+                "merged: there is no merge to restore the original from."
+            )
+        with start_engine_session(self._engine) as db_session:
+            kept_files = self._find_raw_images(db_session)
+            run_id = record_run(db_session, self._operation_tasks["restore"]).id
+        try:
+            self._refuse_active_runs(self._engine, {*ignored_runs, run_id})
+            backup = self._find_backup(experiment.run_id)
+            if backup is not None:
+                self._restore_backup(backup, kept_files)
+            with self._engine.connect() as connection:
+                fingerprint = self._get_fingerprint(connection)
+            state = (
+                self._current_state
+                if fingerprint == json.loads(experiment.fingerprint)
+                else self._stale_state
+            )
+            self._set_state(name, state, experiment.run_id)
+            return state
+        finally:
+            self._finish_run(self._engine, run_id)
 
     def delete_merge_backup(self):
         """

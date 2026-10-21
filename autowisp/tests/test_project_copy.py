@@ -161,7 +161,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
                     created=self._known_time,
                     fingerprint="{}",
                     state="current",
-                    copy_run_id=add_create_run(db_session).id,
+                    run_id=add_create_run(db_session).id,
                 )
             )
         self._source = self._create_engine(server_url or "autowisp.db")
@@ -231,7 +231,7 @@ class TestProjectCopy(BackendMixin, unittest.TestCase):
         target_engine = self._create_engine("copy.db")
         copy_project_database(self._source, target_engine)
         with Session(self._source) as db_session:
-            create_run_id = db_session.scalar(select(Experiment.copy_run_id))
+            create_run_id = db_session.scalar(select(Experiment.run_id))
             processing_run_id = db_session.scalar(
                 select(PipelineRun.id).filter_by(
                     task=PipelineRun.processing_task
