@@ -15,7 +15,6 @@ from autowisp.database.interface import (
     start_db_session,
     set_project_home,
     get_project_home,
-    snapshot_row,
 )
 from autowisp.database.migrate import locked_connection
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
@@ -24,7 +23,7 @@ from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.database.pipeline_runs import find_earlier_run, record_run
-from autowisp.error_context import get_error_context, set_pipeline_run
+from autowisp.error_context import get_error_context
 from autowisp.error_cli import report_error
 from autowisp.project_experiments import ProjectExperiments
 from autowisp.exceptions import AutoWISPError, PipelineError, ResourceError
@@ -171,13 +170,9 @@ def _run_pipeline(config):
     # setup_process_map(db_fname, dummy_config)
 
     with _lock_run_start(), start_db_session() as db_session:
-        pipeline_run = record_run(db_session)
-        # Within the transaction, so that snapshot_row can read every column,
-        # the server-evaluated ``started`` included. The snapshot lets the
-        # error context carry the run even before the first setup_process
+        # Also the error context's run, even before the first setup_process
         # call.
-        set_pipeline_run(snapshot_row(pipeline_run))
-        pipeline_run = pipeline_run.id
+        pipeline_run = record_run(db_session).id
 
     try:
         _process(config, pipeline_run)

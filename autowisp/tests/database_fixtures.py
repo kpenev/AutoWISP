@@ -56,6 +56,7 @@ from autowisp.database.interface import (
 from autowisp.database.pipeline_runs import record_run
 from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
+from autowisp.error_context import set_pipeline_run
 from autowisp.project_experiments import ProjectExperiments
 
 # False positive: the declarative models are callable.
@@ -265,6 +266,18 @@ class ProjectCopyCase(unittest.TestCase):
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True)
         )
+
+    def setUp(self):
+        """Leave no run in the error context once the test is done.
+
+        Recording a run makes it the context's for the rest of the process
+        (see :func:`~autowisp.database.pipeline_runs.record_run`): a test
+        after this one would record its errors against a run its own
+        project does not have.
+        """
+
+        super().setUp()
+        self.addCleanup(set_pipeline_run, None)
 
     def _copy_project(self):
         """Return an engine on a copy of the project, and the copy's home.

@@ -1,14 +1,19 @@
-"""Open sessions on a database, each within a transaction.
+"""Open sessions on a database, each within a transaction; snapshot rows.
 
-Imports only SQLAlchemy, so that every database module can use it:
-:mod:`autowisp.database.interface` imports :mod:`autowisp.database.migrate`,
-which imports :mod:`autowisp.database.experiments`, so a helper in either of
-the first two could not be used by the last.
+Imports only SQLAlchemy and the dependency-free
+:class:`~autowisp.database.frozen_row.FrozenRow`, so that every database
+module can use it: :mod:`autowisp.database.interface` imports
+:mod:`autowisp.database.migrate`, which imports
+:mod:`autowisp.database.experiments`, so a helper in either of the first two
+could not be used by the last.
 """
 
 from contextlib import contextmanager
 
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.orm import Session
+
+from autowisp.database.frozen_row import FrozenRow
 
 
 @contextmanager
@@ -36,3 +41,33 @@ def start_engine_session(engine, expire_on_commit=True):
         db_session.begin(),
     ):
         yield db_session
+
+
+def snapshot_row(orm_obj, *, exclude=()):
+    """Freeze all mapped columns of a live ORM instance into a FrozenRow.
+
+    Must be called while ``orm_obj`` is still attached/loaded (i.e.
+    inside the session block that produced it), otherwise touching an
+    expired column would raise ``DetachedInstanceError``.
+
+    Args:
+        orm_obj:    A SQLAlchemy ORM instance.
+
+        exclude(Iterable[str]):    Column keys to omit (e.g. large or
+            sensitive columns).
+
+    Returns:
+        FrozenRow:    Snapshot of the instance's column values, detached
+            from the session and safe to pickle.
+    """
+
+    mapper = sa_inspect(orm_obj).mapper
+    exclude = set(exclude)
+    return FrozenRow(
+        table=mapper.local_table.name,
+        columns={
+            attr.key: getattr(orm_obj, attr.key)
+            for attr in mapper.column_attrs
+            if attr.key not in exclude
+        },
+    )

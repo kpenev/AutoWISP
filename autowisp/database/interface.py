@@ -9,7 +9,6 @@ from sqlalchemy import create_engine, event, inspect as sa_inspect
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.data_model.base import DataModelBase
-from autowisp.database.frozen_row import FrozenRow
 from autowisp.database.migrate import (
     check_project_schema,
     create_project_schema,
@@ -47,7 +46,6 @@ requiring the caller to supply the URL again.
 def get_db_engine():
     """Return the database engine."""
 
-    print(f"Returning engine {_db_engine!r}")
     return _db_engine
 
 
@@ -63,36 +61,6 @@ def start_db_session():
 
     with start_engine_session(_db_engine, expire_on_commit=False) as db_session:
         yield db_session
-
-
-def snapshot_row(orm_obj, *, exclude=()):
-    """Freeze all mapped columns of a live ORM instance into a FrozenRow.
-
-    Must be called while ``orm_obj`` is still attached/loaded (i.e.
-    inside the ``start_db_session()`` block that produced it), otherwise
-    touching an expired column would raise ``DetachedInstanceError``.
-
-    Args:
-        orm_obj:    A SQLAlchemy ORM instance.
-
-        exclude(Iterable[str]):    Column keys to omit (e.g. large or
-            sensitive columns).
-
-    Returns:
-        FrozenRow:    Snapshot of the instance's column values, detached
-            from the session and safe to pickle.
-    """
-
-    mapper = sa_inspect(orm_obj).mapper
-    exclude = set(exclude)
-    return FrozenRow(
-        table=mapper.local_table.name,
-        columns={
-            attr.key: getattr(orm_obj, attr.key)
-            for attr in mapper.column_attrs
-            if attr.key not in exclude
-        },
-    )
 
 
 def initialize_cmdline_database():

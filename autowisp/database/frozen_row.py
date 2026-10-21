@@ -3,7 +3,7 @@
 This module intentionally imports nothing from SQLAlchemy (or anything
 else heavy), so that :class:`FrozenRow` can be referenced from the
 exception hierarchy without dragging the ORM into it. The companion
-:func:`autowisp.database.interface.snapshot_row` -- which *does* need
+:func:`autowisp.database.sessions.snapshot_row` -- which *does* need
 SQLAlchemy -- builds a :class:`FrozenRow` from a live ORM instance.
 """
 
@@ -23,7 +23,7 @@ class FrozenRow:
     (``snapshot.host``) or via :attr:`columns`.
 
     Built from a live instance with
-    :func:`autowisp.database.interface.snapshot_row` (parent side, where
+    :func:`autowisp.database.sessions.snapshot_row` (parent side, where
     the row exists) or directly from a dict (a worker, which only has
     primitives threaded through its config).
 

@@ -35,7 +35,7 @@ from autowisp.exceptions import (
     OutsideImageError,
 )
 from autowisp.database.frozen_row import FrozenRow
-from autowisp.database.interface import snapshot_row
+from autowisp.database.sessions import snapshot_row
 
 
 def _concrete_exception_classes():

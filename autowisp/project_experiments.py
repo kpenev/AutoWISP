@@ -40,11 +40,13 @@ from autowisp.database.data_model import (
 
 # pylint: enable=no-name-in-module
 from autowisp.database.experiments import ExperimentRecords
+from autowisp.database.frozen_row import FrozenRow
 from autowisp.database.interface import create_project_engine, get_sqlite_url
 from autowisp.database.migrate import check_project_schema, locked_connection
 from autowisp.database.pipeline_runs import record_run, stop_run
 from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
+from autowisp.error_context import get_error_context, set_pipeline_run
 from autowisp.exceptions import (
     ConfigurationError,
     DatabaseError,
@@ -1105,6 +1107,17 @@ class ProjectExperiments(ExperimentRecords):
                     copy_tree(home, self._home, linked_files, self._dirname)
                     run_id = self._merge_database(
                         name, experiment_engine, run_id
+                    )
+                    # Errors from here on, recorded against the run as it
+                    # may have been renumbered.
+                    set_pipeline_run(
+                        FrozenRow(
+                            "pipeline_run",
+                            {
+                                **get_error_context().pipeline_run.columns,
+                                "id": run_id,
+                            },
+                        )
                     )
                 except BaseException:
                     self._restore_backup(backup, kept_files)

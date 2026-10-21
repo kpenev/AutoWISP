@@ -24,6 +24,8 @@ from sqlalchemy import select, sql
 from autowisp.database.data_model import PipelineRun
 
 # pylint: enable=no-name-in-module
+from autowisp.database.sessions import snapshot_row
+from autowisp.error_context import set_pipeline_run
 from autowisp.exceptions import PipelineError, get_hostname
 from autowisp.miscellaneous import get_code_version_str
 
@@ -69,6 +71,12 @@ def record_run(db_session, task=PipelineRun.processing_task):
     Flushed, not committed: the caller's transaction decides when it becomes
     visible, so that it can record something else along with it.
 
+    The run also becomes the error context's
+    (:func:`~autowisp.error_context.set_pipeline_run`), so that errors
+    captured from here on in this context, e.g. by
+    :func:`~autowisp.error_cli.cli_entry_point`, are recorded against it.
+    It is not reset: an error escaping the run is captured only after.
+
     Args:
         db_session:    The session to record the run in.
 
@@ -89,6 +97,9 @@ def record_run(db_session, task=PipelineRun.processing_task):
     )
     db_session.add(pipeline_run)
     db_session.flush()
+    # Within the transaction, so that snapshot_row can read every column,
+    # including those the database filled in.
+    set_pipeline_run(snapshot_row(pipeline_run))
     return pipeline_run
 
 
