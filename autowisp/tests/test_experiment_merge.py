@@ -15,7 +15,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.experiments import ExperimentRecords
-from autowisp.database.interface import create_project_engine, get_sqlite_url
+from autowisp.database.interface import create_project_engine
+from autowisp.database.migrate import migrate_project
 from autowisp.database.pipeline_runs import record_run
 from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import (
@@ -34,8 +35,10 @@ from autowisp.database.data_model import (
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.tests import server_test_url
 from autowisp.tests.database_fixtures import (
     ProjectCopyCase,
+    get_project_url,
     stamp_previous_revision,
 )
 
@@ -101,7 +104,7 @@ def merge_crashing(project_home, crashes):
             stack.enter_context(
                 mock.patch(target, _Crash(target, crash_ncalls, action))
             )
-        engine = create_project_engine(get_sqlite_url(project_home))
+        engine = create_project_engine(get_project_url(project_home))
         try:
             ProjectExperiments(engine, project_home).merge("exp1")
         finally:
@@ -315,7 +318,8 @@ class TestMerge(ProjectCopyCase):
             {
                 owner: (
                     self._read_runs(engines[owner])
-                    if os.path.exists(os.path.join(home, "autowisp.db"))
+                    if owner == "original"
+                    or os.path.exists(os.path.join(home, "autowisp.db"))
                     else None
                 )
                 for owner, home in homes.items()
@@ -497,6 +501,15 @@ class TestMerge(ProjectCopyCase):
 
             ExperimentRecords(engine, project_home).unlock()
 
+        def migrate_both(*engines_and_homes):
+            """Upgrade the original from the release before, then the copy."""
+
+            for db_engine, home in zip(
+                engines_and_homes[::2], engines_and_homes[1::2]
+            ):
+                stamp_previous_revision(db_engine)
+                migrate_project(db_engine, home, assume_backed_up=True)
+
         # Each scenario: what prepares the copy, given the original's engine
         # and home and the experiment's engine and home, returning the ids of
         # the runs to ignore; the name given; whether forced; whether there
@@ -579,6 +592,9 @@ class TestMerge(ProjectCopyCase):
                 False,
                 untouched,
             ),
+            # Each upgraded in its turn, with the original's fingerprint
+            # recorded again in the original's.
+            "both migrated": (migrate_both, "exp1", False, False, merged),
             "path outside, in the experiment": (
                 lambda _, __, experiment_engine, ___: self._configure_outside(
                     experiment_engine
@@ -801,11 +817,12 @@ class TestMerge(ProjectCopyCase):
                 (True, True, True, None),
                 restored,
             ),
+            # On a server, the backup is the database's first copy.
             "in the database's transaction": (
                 [
                     [
                         "autowisp.project_experiments.copy_project_database",
-                        1,
+                        1 if server_test_url() is None else 2,
                         "exit",
                     ]
                 ],

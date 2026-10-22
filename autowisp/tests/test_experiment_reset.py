@@ -16,6 +16,7 @@ from autowisp.project_experiments import ProjectExperiments
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     Condition,
+    ConditionExpression,
     Configuration,
     Experiment,
     ImageType,
@@ -302,15 +303,29 @@ class TestReset(ProjectCopyCase):
                     finished=func.now(),
                 )
             )
+            verbose_id = db_session.scalar(
+                select(Parameter.id).filter_by(name="verbose")
+            )
             db_session.execute(
                 update(Configuration)
-                .where(
-                    Configuration.parameter_id
-                    == select(Parameter.id)
-                    .filter_by(name="verbose")
-                    .scalar_subquery()
-                )
+                .filter_by(parameter_id=verbose_id)
                 .values(value="debug")
+            )
+            # And another value, for the red channel only.
+            expression = ConditionExpression(expression="CLRCHNL == 'R'")
+            db_session.add(expression)
+            db_session.flush()
+            condition_id = db_session.scalar(select(func.max(Condition.id))) + 1
+            db_session.add_all(
+                [
+                    Condition(id=condition_id, expression_id=expression.id),
+                    Configuration(
+                        parameter_id=verbose_id,
+                        version=0,
+                        condition_id=condition_id,
+                        value="info",
+                    ),
+                ]
             )
         # The original changed meanwhile, once unlocked.
         experiments.unlock()
@@ -345,15 +360,26 @@ class TestReset(ProjectCopyCase):
                 [("create experiment", True), ("reset experiment", True)],
             )
             self.assertEqual(
-                db_session.scalars(
-                    select(Configuration.value).where(
-                        Configuration.parameter_id
-                        == select(Parameter.id)
-                        .filter_by(name="verbose")
-                        .scalar_subquery()
+                sorted(
+                    tuple(row)
+                    for row in db_session.execute(
+                        select(
+                            ConditionExpression.expression, Configuration.value
+                        )
+                        .join(
+                            Condition,
+                            Condition.id == Configuration.condition_id,
+                        )
+                        .join(Condition.expression)
+                        .where(
+                            Configuration.parameter_id
+                            == select(Parameter.id)
+                            .filter_by(name="verbose")
+                            .scalar_subquery()
+                        )
                     )
-                ).all(),
-                ["debug"],
+                ),
+                [("CLRCHNL == 'R'", "info"), ("True", "debug")],
             )
             self.assertIsNotNone(
                 db_session.scalars(

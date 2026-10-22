@@ -48,8 +48,10 @@ from autowisp.database.data_model.provenance import (
 # pylint: enable=no-name-in-module
 from autowisp.database.initialize_database import initialize_database
 from autowisp.database.interface import (
+    DB_URL_FNAME,
     create_project_engine,
     get_sqlite_url,
+    read_db_url,
     set_project_home,
     start_db_session,
 )
@@ -58,6 +60,7 @@ from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
 from autowisp.error_context import set_pipeline_run
 from autowisp.project_experiments import ProjectExperiments
+from autowisp.tests import empty_server_database, server_test_url
 
 # False positive: the declarative models are callable.
 # pylint: disable=not-callable
@@ -250,8 +253,19 @@ def add_create_run(db_session):
     return pipeline_run
 
 
+def get_project_url(project_home):
+    """Return the URL of the project's database, wherever it is."""
+
+    return read_db_url(project_home) or get_sqlite_url(project_home)
+
+
 class ProjectCopyCase(unittest.TestCase):
     """A new project, created once, which each test changes copies of."""
+
+    #: Whether a copy's database goes on the server under test, if one is
+    #: given (see :func:`autowisp.tests.server_test_url`). The server has a
+    #: single database, so each copy put there replaces the last.
+    _original_on_server = True
 
     @classmethod
     def setUpClass(cls):
@@ -279,18 +293,49 @@ class ProjectCopyCase(unittest.TestCase):
         super().setUp()
         self.addCleanup(set_pipeline_run, None)
 
+    def _make_dir(self):
+        """Return a new empty directory, removed after the test."""
+
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        return directory
+
+    @staticmethod
+    def _move_database_to_server(project_home, server_url):
+        """Move the home's database to the server, replacing what is there."""
+
+        empty_server_database(server_url)
+        source_engine = create_project_engine(get_sqlite_url(project_home))
+        target_engine = create_project_engine(server_url)
+        try:
+            copy_project_database(
+                source_engine, target_engine, copy_experiments=True
+            )
+        finally:
+            source_engine.dispose()
+            target_engine.dispose()
+        os.remove(os.path.join(project_home, "autowisp.db"))
+        with open(
+            os.path.join(project_home, DB_URL_FNAME), "w", encoding="utf-8"
+        ) as url_file:
+            url_file.write(server_url)
+
     def _copy_project(self):
         """Return an engine on a copy of the project, and the copy's home.
 
         The whole home is copied, since creating an experiment copies it.
+        The copy's database is on the server under test, if any, unless the
+        class keeps its originals in SQLite (see :attr:`_original_on_server`).
         """
 
-        copy_home = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, copy_home)
+        copy_home = self._make_dir()
         shutil.copytree(self._template_home, copy_home, dirs_exist_ok=True)
-        # Set up as a project's: foreign keys checked, and no pool, so that
-        # nothing holds the file open when it is removed.
-        engine = create_project_engine(get_sqlite_url(copy_home))
+        server_url = server_test_url()
+        if self._original_on_server and server_url is not None:
+            self._move_database_to_server(copy_home, server_url)
+        # Set up as a project's: foreign keys checked, and on SQLite no pool,
+        # so that nothing holds the file open when it is removed.
+        engine = create_project_engine(get_project_url(copy_home))
         self.addCleanup(engine.dispose)
         return engine, copy_home
 
@@ -316,7 +361,8 @@ class ProjectCopyCase(unittest.TestCase):
         """Return the files under a home, but its database's and experiments.
 
         The database's files are all those at the top named for it: its
-        journals, e.g. one a crash left, and its migration backups too.
+        journals, e.g. one a crash left, and its migration backups too. Or
+        the file naming it, if it is on a server.
         """
 
         contents = {}
@@ -325,7 +371,9 @@ class ProjectCopyCase(unittest.TestCase):
             subdirs[:] = [name for name in subdirs if name != "experiments"]
             for fname in fnames:
                 path = os.path.join(directory, fname)
-                if directory != home or not fname.startswith("autowisp.db"):
+                if directory != home or not (
+                    fname.startswith("autowisp.db") or fname == DB_URL_FNAME
+                ):
                     with open(path, "rb") as file:
                         contents[os.path.relpath(path, home)] = file.read()
         return contents

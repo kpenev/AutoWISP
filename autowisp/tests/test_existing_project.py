@@ -1,8 +1,6 @@
 """Tests of adding a project moved or copied by hand."""
 
 import os
-import shutil
-import tempfile
 
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
@@ -22,7 +20,6 @@ from autowisp.database.interface import (
     get_sqlite_url,
     read_db_url,
 )
-from autowisp.database.project_copy import copy_project_database
 from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import (
     DatabaseError,
@@ -40,12 +37,10 @@ from autowisp.tests.database_fixtures import (
 class TestExistingProject(ProjectCopyCase):
     """Checking a project before adding it, and cloning its server database."""
 
-    def _make_dir(self):
-        """Return a new empty directory, removed after the test."""
-
-        directory = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, directory)
-        return directory
+    # A copy keeps its database in its home, as most projects do: the check
+    # tells those from a project naming its database by URL, which the tests
+    # make by hand (see _make_server_project).
+    _original_on_server = False
 
     def _name_database(self, db_url, home=None):
         """Make a home name the database at the URL, as a server's does.
@@ -70,13 +65,59 @@ class TestExistingProject(ProjectCopyCase):
     def _move_database_out(self, home):
         """Move the home's database out, naming it by URL, and return that.
 
-        An SQLite file outside the home stands in for a server's database.
+        An SQLite file outside the home stands in for a server's database,
+        when there is no server under test.
         """
 
         db_url = get_sqlite_url(self._make_dir())
         os.replace(os.path.join(home, "autowisp.db"), make_url(db_url).database)
         self._name_database(db_url, home)
         return db_url
+
+    @staticmethod
+    def _get_server_url(suffix):
+        """
+        Return the URL of a database on the server under test, None if none.
+
+        Args:
+            suffix(str):    Added to the name of the database under test, to
+                name the one wanted.
+        """
+
+        server_url = server_test_url()
+        if server_url is None:
+            return None
+        server_url = make_url(server_url)
+        return server_url.set(
+            database=server_url.database + suffix
+        ).render_as_string(hide_password=False)
+
+    def _make_other_database(self):
+        """
+        Return the URL of an empty database, not the one under test.
+
+        On the server under test, if any, it is the database named after
+        that with ``_other`` added, created if missing, which the account
+        testing must be allowed to do or to use it. Else an SQLite file
+        outside any home.
+        """
+
+        other_url = self._get_server_url("_other")
+        if other_url is None:
+            return get_sqlite_url(self._make_dir())
+        engine = create_project_engine(server_test_url())
+        try:
+            with engine.begin() as connection:
+                connection.execute(
+                    text(
+                        "CREATE DATABASE IF NOT EXISTS "
+                        f"`{make_url(other_url).database}`"
+                    )
+                )
+        finally:
+            engine.dispose()
+        empty_server_database(other_url)
+        return other_url
 
     def _make_server_project(self, with_experiments):
         """
@@ -92,18 +133,12 @@ class TestExistingProject(ProjectCopyCase):
                 after it was copied, despite the lock; and ``stale``.
         """
 
-        engine, home = self._copy_project()
-        server_url = server_test_url()
-        if server_url is None:
+        home = self._copy_project()[1]
+        db_url = server_test_url()
+        if db_url is None:
             db_url = self._move_database_out(home)
         else:
-            empty_server_database(server_url)
-            server_engine = create_project_engine(server_url)
-            self.addCleanup(server_engine.dispose)
-            copy_project_database(engine, server_engine)
-            os.remove(os.path.join(home, "autowisp.db"))
-            self._name_database(server_url, home)
-            db_url = server_url
+            self._move_database_to_server(home, db_url)
         source_engine = create_project_engine(db_url)
         self.addCleanup(source_engine.dispose)
         if with_experiments:
@@ -120,8 +155,8 @@ class TestExistingProject(ProjectCopyCase):
         """Each directory is accepted, or refused for its own reason."""
 
         registered_home = self._copy_project()[1]
-        shared_home = self._copy_project()[1]
-        shared_url = self._move_database_out(shared_home)
+        shared_home = self._make_server_project(False)[0]
+        shared_url = read_db_url(shared_home)
         registered_homes = [registered_home, shared_home]
 
         older_engine, older_home = self._copy_project()
@@ -153,12 +188,13 @@ class TestExistingProject(ProjectCopyCase):
             "without a database": (self._make_dir(), DatabaseError),
             "newer": (newer_home, DatabaseError),
             "on an empty database": (
-                self._name_database(get_sqlite_url(self._make_dir())),
+                self._name_database(self._make_other_database()),
                 DatabaseError,
             ),
             "on a database that cannot be opened": (
                 self._name_database(
-                    get_sqlite_url(os.path.join(self._make_dir(), "missing"))
+                    self._get_server_url("_missing")
+                    or get_sqlite_url(os.path.join(self._make_dir(), "missing"))
                 ),
                 DatabaseError,
             ),
@@ -222,11 +258,11 @@ class TestExistingProject(ProjectCopyCase):
                     if scenario.get(wanted):
                         with open(os.path.join(home, fname), "wb"):
                             pass
-                target_url = {
-                    None: None,
-                    "new": get_sqlite_url(self._make_dir()),
-                    "source": read_db_url(home),
-                }[scenario.get("target")]
+                target_url = None
+                if scenario.get("target") == "new":
+                    target_url = self._make_other_database()
+                elif scenario.get("target") == "source":
+                    target_url = read_db_url(home)
                 # Of an operation on experiments, the only runs an original
                 # they lock can have going, which change nothing a merge
                 # would lose.
@@ -258,15 +294,7 @@ class TestExistingProject(ProjectCopyCase):
                     "autowisp.db" if target_url is None else DB_URL_FNAME
                 )
                 self.assertEqual(set(os.listdir(home)), fnames)
-                del contents[DB_URL_FNAME]
-                self.assertEqual(
-                    {
-                        fname: content
-                        for fname, content in self._read_tree(home).items()
-                        if fname != DB_URL_FNAME
-                    },
-                    contents,
-                )
+                self.assertEqual(self._read_tree(home), contents)
                 clone_engine = create_project_engine(
                     target_url or get_sqlite_url(home)
                 )

@@ -195,7 +195,9 @@ class TestStaleness(ProjectCopyCase):
                         result.rowcount, 0, f"{change!r} changed nothing."
                     )
 
-            migration = migrate_project(engine, project_home)
+            migration = migrate_project(
+                engine, project_home, assume_backed_up=True
+            )
             outcome[change] = (
                 {
                     experiment.name: experiment.state
