@@ -54,6 +54,11 @@ Projects
 {% endblock %}
 
 {% block main %}
+<p id="installed-versions">
+    Installed versions:
+    AutoWISP {{ installed_versions.autowisp }}
+    &middot; AstroWISP {{ installed_versions.astrowisp }}
+</p>
 <form id="project-form" method="get"
       action="{% url 'home:confirm_delete_projects' %}">
 <table class="lcars-table standard-header">

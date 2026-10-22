@@ -160,8 +160,11 @@ def select_starfind_batch(request, refresh=False):
     """Allow the user to select batch of images to tune star finding for."""
 
     if refresh:
-        request.session.flush()
-        return redirect("/processing/select_starfind_batch")
+        # Rebuild the batches without losing the selected project.
+        request.session.pop("starfind", None)
+        request.session.pop("fits_display", None)
+        request.session.pop("extracted", None)
+        return redirect("processing:select_starfind_batch")
 
     _get_pending(request)
 
