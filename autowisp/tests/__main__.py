@@ -60,6 +60,7 @@ from autowisp.tests.test_parameter_description_length import (
 )
 from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
 from autowisp.tests.test_suite_registration import TestSuiteRegistration
+from autowisp.tests.test_bui_project_refresh import TestProjectRefresh
 from autowisp.tests.test_database_migration import (
     TestAdditiveMigrations,
     TestRevisionChain,
@@ -243,6 +244,7 @@ from autowisp.tests.test_bui_db_config import (
 from autowisp.tests.test_templates import (
     TestTemplateComments,
 )
+from autowisp.tests.test_bui_package_versions import TestInstalledVersions
 from autowisp.tests.test_bui_models import (
     TestModelBase,
     TestModifiedIsMaintained,

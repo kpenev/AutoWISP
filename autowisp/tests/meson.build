@@ -15,6 +15,8 @@ py_src = [
   'synthetic_light_curve_test_case.py',
   'test_bui_db_config.py',
   'test_bui_models.py',
+  'test_bui_package_versions.py',
+  'test_bui_project_refresh.py',
   'test_calibrate.py',
   'test_catalog.py',
   'test_channel_binding.py',

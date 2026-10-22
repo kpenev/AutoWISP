@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, HttpResponse
 from sqlalchemy import select
 
+from autowisp.browser_interface.core.package_versions import get_installed_versions
 from autowisp.catalog import read_catalog_file
 from autowisp.database.defaults import master_info
 from autowisp.database.interface import (
@@ -63,6 +64,7 @@ def home(request):
             for proj in Project.objects.all()  # pylint: disable=no-member
         },
         "missing_db_ids": missing_db_ids,
+        "installed_versions": get_installed_versions(),
     }
     print(f"Context: {context!r}")  # Debugging output
     return render(request, "home/index.html", context)

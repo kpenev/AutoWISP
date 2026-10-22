@@ -360,11 +360,13 @@ def select_photref_target(request, recalc=False):
     """Display view to select which of the missing photrefs to define."""
 
     if recalc or request.method == "POST":
-        # Refresh posts the form too, so the merit chosen survives the flush
-        # that makes the photref groups be derived again.
+        # Refresh posts the form too, so retain the chosen merit while
+        # rebuilding the groups without clearing the selected project.
         merit = request.POST.get("merit")
         if recalc:
-            request.session.flush()
+            request.session.pop("need_photref", None)
+            request.session.pop("demo", None)
+            request.session.pop("fits_display", None)
         if merit:
             request.session["photref_merit"] = merit
         return redirect("processing:select_photref_target")
