@@ -132,11 +132,32 @@ def use_utc_sessions(engine):
     event.listen(engine, "connect", set_utc)
 
 
-def get_sqlite_url(project_home):
-    """Return the URL of the SQLite database of the project at the home."""
+def get_sqlite_url(project_home, db_fname="autowisp.db"):
+    """Return the URL of the SQLite database of the project at the home.
 
-    db_path = path.abspath(path.join(project_home, "autowisp.db"))
+    Args:
+        project_home(str):    The project's home.
+
+        db_fname(str):    The database's file name in the home: the
+            project's own, unless it is built under another before taking
+            its place.
+
+    Returns:
+        str:    The SQLAlchemy URL.
+    """
+
+    db_path = path.abspath(path.join(project_home, db_fname))
     return f"sqlite:///{db_path}?timeout=600&uri=true"
+
+
+def read_db_url(project_home):
+    """Return the server URL the project's home names, or None if none."""
+
+    url_file = path.join(project_home, DB_URL_FNAME)
+    if not path.exists(url_file):
+        return None
+    with open(url_file, encoding="utf-8") as fobj:
+        return fobj.read().strip()
 
 
 def create_project_engine(db_url):
@@ -268,9 +289,8 @@ def set_project_home(
         # accepted, so a rejected one leaves no half-created project whose
         # URL file points at somebody else's data.
         persist_db_url = db_url
-    elif path.exists(url_file):
-        with open(url_file, encoding="utf-8") as fobj:
-            db_url = fobj.read().strip()
+    else:
+        db_url = read_db_url(project_home)
 
     if db_url is None:
         db_url = get_sqlite_url(project_home)

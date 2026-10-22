@@ -178,6 +178,38 @@ def _is_known_revision(revision):
     return True
 
 
+def check_known_revision(engine):
+    """Raise if the project database was migrated by a newer AutoWISP.
+
+    Accepts a database this version can migrate: one at its head, behind
+    it, or predating the migration system.
+
+    Args:
+        engine:    The SQLAlchemy engine for the project database.
+
+    Returns:
+        str or None:    The revision the database is at, None if it predates
+        the migration system.
+
+    Raises:
+        DatabaseError:    If the database is at a revision the installed
+            migration scripts do not include.
+    """
+
+    current = get_project_revision(engine)
+    # The head, the usual case, is known without walking the scripts.
+    if current not in (None, get_head_revision()) and not _is_known_revision(
+        current
+    ):
+        raise DatabaseError(
+            f"The project database is at revision {current}, which this "
+            "version of AutoWISP does not know about: it was migrated by a "
+            "newer version. Upgrade AutoWISP -- migrating will not help, and "
+            "this install cannot safely write to that schema."
+        )
+    return current
+
+
 def check_project_schema(engine):
     """Raise unless the project database is at the current head revision.
 
@@ -193,18 +225,10 @@ def check_project_schema(engine):
             disagrees with the installed migration scripts.
     """
 
-    current = get_project_revision(engine)
     head = get_head_revision()
+    current = check_known_revision(engine)
     if current == head:
         return
-
-    if current is not None and not _is_known_revision(current):
-        raise DatabaseError(
-            f"The project database is at revision {current}, which this "
-            "version of AutoWISP does not know about: it was migrated by a "
-            "newer version. Upgrade AutoWISP -- migrating will not help, and "
-            "this install cannot safely write to that schema."
-        )
 
     if current is None:
         state = "it predates the migration system and has not been baselined"

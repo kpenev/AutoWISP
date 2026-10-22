@@ -264,6 +264,7 @@ def copy_project_database(  # pylint: disable=too-many-arguments
     kept_tables=(),
     kept_rows=None,
     table_consumers=(),
+    copy_experiments=False,
 ):
     """
     Copy every row of a project's database into another.
@@ -271,8 +272,8 @@ def copy_project_database(  # pylint: disable=too-many-arguments
     The source is read once, within one transaction, by
     :func:`~autowisp.database.project_rows.read_project`; the target is
     written within one transaction, so a copy that fails leaves it as it was.
-    No copy includes the ``experiment`` table: it is the original's record of
-    its experiments.
+    A copy includes the ``experiment`` table, the original's record of its
+    experiments, only when it moves the whole original (``copy_experiments``).
 
     Both engines should come from
     :func:`~autowisp.database.interface.create_project_engine`, which makes a
@@ -293,9 +294,9 @@ def copy_project_database(  # pylint: disable=too-many-arguments
             not commit implicitly) and the source's inserted, its
             ``experiment`` table left as it is. Otherwise the target must
             hold no AutoWISP tables; it gets every one, ``experiment``
-            included, empty. An SQLite target being replaced checks its
-            foreign keys at the commit, so that rows kept may refer to rows
-            deleted and inserted again.
+            included, empty unless ``copy_experiments``. An SQLite target
+            being replaced checks its foreign keys at the commit, so that
+            rows kept may refer to rows deleted and inserted again.
 
         kept_tables:    When replacing, the names of further tables the
             target keeps whole, getting none of the source's rows, e.g. an
@@ -316,6 +317,12 @@ def copy_project_database(  # pylint: disable=too-many-arguments
             :func:`~autowisp.database.project_rows.read_project`), given them
             in the same pass, e.g. one fingerprinting the source.
 
+        copy_experiments(bool):    Whether to copy the ``experiment`` table
+            too, into a new target: when the original itself moves to
+            another database, with its experiments. Their fingerprints are
+            then the caller's to record afresh (see
+            :meth:`.ProjectExperiments.clone_original`).
+
     Returns:
         None
 
@@ -325,11 +332,17 @@ def copy_project_database(  # pylint: disable=too-many-arguments
             column in a server target.
 
         ValueError:    If tables or rows are to be kept, or the target is a
-            connection, without replacing.
+            connection, without replacing, or experiments are to be copied
+            when replacing.
     """
 
     if not replace and (kept_tables or kept_rows):
         raise ValueError("Only a copy replacing rows can keep any.")
+    if replace and copy_experiments:
+        raise ValueError(
+            "A replacing copy keeps the target's experiments: they are the "
+            "records of the original it replaces."
+        )
     if isinstance(target, Connection):
         if not replace:
             raise ValueError(
@@ -340,12 +353,14 @@ def copy_project_database(  # pylint: disable=too-many-arguments
     else:
         target_engine = target
     uncopied_tables = {
-        # The original's record of its experiments, which no copy carries.
-        "experiment",
         # The revision, which the target records when its schema is created.
         "alembic_version",
         *kept_tables,
     }
+    if not copy_experiments:
+        # The original's record of its experiments, which only a copy of the
+        # whole original carries.
+        uncopied_tables.add("experiment")
     kept_rows = kept_rows or {}
     check_project_schema(source_engine)
     if replace:
