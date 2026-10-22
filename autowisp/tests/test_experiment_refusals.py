@@ -70,9 +70,8 @@ class TestRefusals(ProjectCopyCase):
                 db_session.flush()
                 ids[name] = pipeline_run.id
 
-        # pylint: disable=protected-access
         with self.assertRaises(ExperimentError) as refusal:
-            ExperimentRecords._refuse_active_runs(engine, {ids["ignored"]})
+            ExperimentRecords.refuse_active_runs(engine, {ids["ignored"]})
         with Session(engine) as db_session:
             finished = set(
                 db_session.scalars(
@@ -82,8 +81,7 @@ class TestRefusals(ProjectCopyCase):
                 )
             )
         # Raises if ignoring fails for any of them.
-        ExperimentRecords._refuse_active_runs(engine, set(ids.values()))
-        # pylint: enable=protected-access
+        ExperimentRecords.refuse_active_runs(engine, set(ids.values()))
 
         self.assertEqual(
             refusal.exception.details["runs"],

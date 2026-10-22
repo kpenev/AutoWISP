@@ -14,7 +14,6 @@ included.
 # Every operation on experiments, kept together in one class.
 # pylint: disable=too-many-lines
 
-import json
 import logging
 import os
 import re
@@ -312,7 +311,7 @@ class ProjectExperiments(ExperimentRecords):
 
         The experiment's row is inserted ``creating``, with the run creating
         it, which locks the original. A run going in the original
-        (:meth:`_refuse_active_runs`), or too little free space, then refuses
+        (:meth:`refuse_active_runs`), or too little free space, then refuses
         the create, which is undone. Otherwise the files are copied, then the
         database (:meth:`_copy_database`), and the experiment becomes current
         (:meth:`_complete_copy`). However the create ends, its run is recorded
@@ -323,7 +322,7 @@ class ProjectExperiments(ExperimentRecords):
             name(str):    The experiment's name.
 
             ignored_runs:    The ids of runs not counted as going (see
-                :meth:`_refuse_active_runs`).
+                :meth:`refuse_active_runs`).
 
         Returns:
             str:    The experiment's state: ``"current"``, or ``"stale"`` if
@@ -380,7 +379,7 @@ class ProjectExperiments(ExperimentRecords):
 
         try:
             try:
-                self._refuse_active_runs(self._engine, {*ignored_runs, run_id})
+                self.refuse_active_runs(self._engine, {*ignored_runs, run_id})
                 os.makedirs(home, exist_ok=True)
                 copy_tree(self._home, home, linked_files, self._dirname)
             except (ExperimentError, ResourceError):
@@ -524,7 +523,7 @@ class ProjectExperiments(ExperimentRecords):
             name(str):    The experiment's name.
 
             ignored_runs:    The ids of runs not counted as going (see
-                :meth:`_refuse_active_runs`).
+                :meth:`refuse_active_runs`).
 
         Returns:
             str:    The experiment's state: ``"current"``, or ``"stale"`` if
@@ -568,8 +567,8 @@ class ProjectExperiments(ExperimentRecords):
                     )
                 )
             try:
-                self._refuse_active_runs(self._engine, {*ignored_runs, run_id})
-                self._refuse_active_runs(experiment_engine, ignored_runs)
+                self.refuse_active_runs(self._engine, {*ignored_runs, run_id})
+                self.refuse_active_runs(experiment_engine, ignored_runs)
             except ExperimentError:
                 # Refused before anything was replaced: restored as it was.
                 with start_engine_session(self._engine) as db_session:
@@ -1022,7 +1021,7 @@ class ProjectExperiments(ExperimentRecords):
                 after the experiment was copied, losing the change.
 
             ignored_runs:    The ids of runs not counted as going (see
-                :meth:`_refuse_active_runs`).
+                :meth:`refuse_active_runs`).
 
         Returns:
             str:    The backup's directory, which :meth:`delete_merge_backup`
@@ -1072,20 +1071,19 @@ class ProjectExperiments(ExperimentRecords):
                 )
             try:
                 try:
-                    self._refuse_active_runs(
+                    self.refuse_active_runs(
                         self._engine, {*ignored_runs, run_id}
                     )
-                    self._refuse_active_runs(experiment_engine, ignored_runs)
-                    if not force:
-                        with self._engine.connect() as connection:
-                            fingerprint = self._get_fingerprint(connection)
-                        if fingerprint != json.loads(experiment.fingerprint):
-                            raise ExperimentError(
-                                "The original changed after experiment "
-                                f"{name!r} was copied, and merging would lose "
-                                "the change. Reset the experiment, or force "
-                                "the merge (--force) to lose it."
-                            )
+                    self.refuse_active_runs(experiment_engine, ignored_runs)
+                    if not force and not self._is_original_unchanged(
+                        experiment
+                    ):
+                        raise ExperimentError(
+                            "The original changed after experiment "
+                            f"{name!r} was copied, and merging would lose "
+                            "the change. Reset the experiment, or force "
+                            "the merge (--force) to lose it."
+                        )
                 except ExperimentError:
                     # Refused before anything was moved: restored as it was.
                     self._set_state(name, experiment.state, experiment.run_id)
@@ -1159,7 +1157,7 @@ class ProjectExperiments(ExperimentRecords):
 
             ignored_runs:    The ids of runs not counted as going, e.g. the
                 merge's, on a machine that crashed (see
-                :meth:`_refuse_active_runs`).
+                :meth:`refuse_active_runs`).
 
         Returns:
             str:    The experiment's state: ``"current"`` or ``"stale"``.
@@ -1178,15 +1176,13 @@ class ProjectExperiments(ExperimentRecords):
             kept_files = self._find_raw_images(db_session)
             run_id = record_run(db_session, self._operation_tasks["restore"]).id
         try:
-            self._refuse_active_runs(self._engine, {*ignored_runs, run_id})
+            self.refuse_active_runs(self._engine, {*ignored_runs, run_id})
             backup = self._find_backup(experiment.run_id)
             if backup is not None:
                 self._restore_backup(backup, kept_files)
-            with self._engine.connect() as connection:
-                fingerprint = self._get_fingerprint(connection)
             state = (
                 self._current_state
-                if fingerprint == json.loads(experiment.fingerprint)
+                if self._is_original_unchanged(experiment)
                 else self._stale_state
             )
             self._set_state(name, state, experiment.run_id)
@@ -1223,3 +1219,40 @@ class ProjectExperiments(ExperimentRecords):
         for backup in backups:
             remove_path(backup)
         return backups
+
+    def clone_original(self, target_engine):
+        """
+        Copy the original's database into an empty one, experiments included.
+
+        For an original moving to another database, e.g. one whose home was
+        copied with only the URL of its server database
+        (:func:`~autowisp.database.existing_project.clone_server_database`).
+        The experiments still current stay mergeable (:meth:`keep_mergeable`):
+        the original is hashed in the copy's pass, and its fingerprint in the
+        target, which may encode the same rows differently, is recorded in
+        them.
+
+        Args:
+            target_engine:    The engine of the empty database to copy into.
+
+        Returns:
+            [str]:    The names of the experiments marked stale, the original
+            having changed since they were copied.
+        """
+
+        hasher = self._make_hasher()
+        copy_project_database(
+            self._engine,
+            target_engine,
+            table_consumers=[hasher],
+            copy_experiments=True,
+        )
+        with (
+            target_engine.begin() as connection,
+            ExperimentRecords(target_engine, self._home).keep_mergeable(
+                connection, hasher.get_fingerprint()
+            ) as stale,
+        ):
+            # The copy is complete: only the fingerprints are left to record.
+            pass
+        return stale

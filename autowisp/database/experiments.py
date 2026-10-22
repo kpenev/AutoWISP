@@ -120,7 +120,14 @@ class ExperimentRecords:
         hashed columns, in the table's column order, one line per row. Values
         JSON has no form for (dates, decimals, bytes) are written as their
         ``str``. The encoding need only agree with itself: the hashes
-        compared are always of the same original, read by the same code.
+        compared are always of the same database, read by the same code.
+
+        It does not agree across databases, since the rows are read as the
+        tables reflect: a server returns its doubles as ``Decimal`` and its
+        booleans as integers, and may order the columns differently. An
+        original moved to another database by a copy therefore has its
+        experiments' fingerprints recorded afresh (see
+        :meth:`.ProjectExperiments.clone_original`).
 
         A consumer of the reader rather than a reader of its own, so that
         copying the original can hash it in the same pass.
@@ -293,16 +300,19 @@ class ExperimentRecords:
             )
             + ". Wait for them to finish. A run known to have ended without "
             "recording it, e.g. on a machine that crashed, can be ignored by "
-            "its id (wisp-experiments --ignore-run).",
+            "its id.",
             details={"runs": sorted(pipeline_run.id for pipeline_run in runs)},
         )
 
     @classmethod
-    def _refuse_active_runs(cls, engine, ignored_runs):
+    def refuse_active_runs(cls, engine, ignored_runs):
         """
         Raise if a run is going in the project, other than those ignored.
 
-        See :meth:`_find_active_runs` for the runs counted.
+        See :meth:`_find_active_runs` for the runs counted. Public, for
+        operations on whole projects besides those on experiments, e.g.
+        cloning a project's database
+        (:func:`~autowisp.database.existing_project.clone_server_database`).
 
         Raises:
             ExperimentError:    Naming each run going, with its task and host.
@@ -507,21 +517,91 @@ class ExperimentRecords:
                 )
         return unlocked
 
-    @contextmanager
-    def keep_mergeable(self, connection):
+    def mark_changed_stale(self, connection=None, fingerprint=None):
         """
-        Keep the experiments mergeable across the migration in the block.
+        Mark stale the current experiments whose original changed since.
 
-        A migration changes the original's rows, which would make every
+        An experiment is current while the original is as it was when copied,
+        which the fingerprint recorded in its row tells. The lock keeps it
+        so; one found changed means the original changed despite it, or was
+        moved to a database encoding its rows differently (see
+        :class:`_ProjectHasher`), and the experiment could no longer be merged
+        without losing the change.
+
+        Args:
+            connection:    A connection to the original's database, inside a
+                transaction to do this in, e.g. a migration's; None for a
+                transaction of its own.
+
+            fingerprint(dict):    The original's fingerprint, if read
+                elsewhere: in the database it was copied from, in the copy's
+                pass. Read here if None, only if an experiment is current.
+
+        Returns:
+            [str]:    The names of the experiments marked stale.
+        """
+
+        if connection is None:
+            with self._engine.begin() as own_connection:
+                return self.mark_changed_stale(own_connection, fingerprint)
+
+        # The session joins the connection's transaction, leaving committing
+        # it to the caller.
+        with Session(bind=connection) as db_session:
+            current = [
+                experiment
+                for experiment in self._read_experiments(db_session) or []
+                if experiment.state == self._current_state
+            ]
+            if not current:
+                return []
+            if fingerprint is None:
+                fingerprint = self._get_fingerprint(connection)
+            stale = [
+                experiment.name
+                for experiment in current
+                if json.loads(experiment.fingerprint) != fingerprint
+            ]
+            if stale:
+                db_session.execute(
+                    update(Experiment)
+                    .where(Experiment.name.in_(stale))
+                    .values(state=self._stale_state)
+                )
+        return stale
+
+    def _is_original_unchanged(self, experiment):
+        """Is the original as it was when the experiment was copied from it?
+
+        Args:
+            experiment(Experiment):    The experiment's row.
+
+        Returns:
+            bool:    Whether the original's fingerprint is the one recorded.
+        """
+
+        with self._engine.connect() as connection:
+            return self._get_fingerprint(connection) == json.loads(
+                experiment.fingerprint
+            )
+
+    @contextmanager
+    def keep_mergeable(self, connection, fingerprint=None):
+        """
+        Keep the experiments mergeable across the change in the block.
+
+        A migration changes the original's rows, and a copy to another
+        database the way they are encoded, either of which would make every
         experiment look stale and unmergeable for nothing. So around it:
 
-        * on entering, every current experiment whose recorded fingerprint
-          differs from the original's is marked stale: the original changed
-          after it was copied, which had already made it unmergeable;
+        * on entering, the experiments the original changed since they were
+          copied are marked stale (:meth:`mark_changed_stale`): they were
+          unmergeable already;
 
         * on leaving normally, the original's new fingerprint is recorded in
           every experiment still current. Each migrates with the same
-          revisions when next opened, so it stays mergeable.
+          revisions when next opened, so it stays mergeable; a copy changed
+          no row.
 
         Without a current experiment, no fingerprint is read. One still being
         created is left alone, having no fingerprint to compare until its
@@ -533,41 +613,25 @@ class ExperimentRecords:
 
         Args:
             connection:    The connection the migration runs on, inside its
-                transaction.
+                transaction; for a copy, one to the copy.
+
+            fingerprint(dict):    For a copy, the original's fingerprint in
+                the database it was copied from, read in the copy's pass.
 
         Yields:
             [str]:    The names of the experiments marked stale.
         """
 
+        stale = self.mark_changed_stale(connection, fingerprint)
+        yield stale
+
         # The session joins the connection's transaction, leaving committing
         # it to the migration.
         with Session(bind=connection) as db_session:
-            current = [
-                experiment
-                for experiment in self._read_experiments(db_session) or []
-                if experiment.state == self._current_state
-            ]
-            stale = []
-            if current:
-                fingerprint = self._get_fingerprint(connection)
-                stale = [
-                    experiment.name
-                    for experiment in current
-                    if json.loads(experiment.fingerprint) != fingerprint
-                ]
-                if stale:
-                    db_session.execute(
-                        update(Experiment)
-                        .where(Experiment.name.in_(stale))
-                        .values(state=self._stale_state)
-                    )
-
-            yield stale
-
             still_current = [
                 experiment.name
-                for experiment in current
-                if experiment.name not in stale
+                for experiment in self._read_experiments(db_session) or []
+                if experiment.state == self._current_state
             ]
             if still_current:
                 db_session.execute(
