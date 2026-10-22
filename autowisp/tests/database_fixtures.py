@@ -380,11 +380,11 @@ class ProjectCopyCase(unittest.TestCase):
                 file.write(fname)
 
     @staticmethod
-    def _add_live_run(engine, ignored):
+    def _add_live_run(engine, ignored, task=PipelineRun.processing_task):
         """Record a run of this process; return its id if ignored."""
 
         with start_engine_session(engine) as db_session:
-            run_id = record_run(db_session).id
+            run_id = record_run(db_session, task).id
         return {run_id} if ignored else set()
 
     @staticmethod

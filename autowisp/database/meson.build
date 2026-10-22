@@ -1,6 +1,7 @@
 py_src = [
   '__init__.py',
   'defaults.py',
+  'existing_project.py',
   'experiments.py',
   'frozen_row.py',
   'hdf5_file_structure.py',

@@ -41,6 +41,7 @@ py_src = [
   'test_error_render.py',
   'test_evaluator.py',
   'test_exception_hierarchy.py',
+  'test_existing_project.py',
   'test_experiment_create.py',
   'test_experiment_delete.py',
   'test_experiment_describe.py',
