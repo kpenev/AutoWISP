@@ -19,7 +19,7 @@
       "Bash(git fetch:*)",
       "Bash(git add:*)",
       "Bash(gh run:*)",
-      "Edit(*_plan.md)"
+      "Edit(/*_plan.md)"
     ]
   }
 }
