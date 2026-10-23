@@ -18,6 +18,7 @@ from autowisp.database.interface import (
     DB_URL_FNAME,
     create_project_engine,
     get_sqlite_url,
+    has_project_database,
     read_db_url,
 )
 from autowisp.database.migrate import check_known_revision
@@ -68,10 +69,7 @@ def check_existing_project(path, registered_homes=()):
     """
 
     home = os.path.realpath(path)
-    if not any(
-        os.path.isfile(os.path.join(home, fname))
-        for fname in ("autowisp.db", DB_URL_FNAME)
-    ):
+    if not has_project_database(home):
         raise DatabaseError(
             f"{path!r} holds no AutoWISP project: it has neither autowisp.db "
             f"nor {DB_URL_FNAME}."

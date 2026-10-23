@@ -15,6 +15,7 @@ from sqlalchemy import select
 from autowisp.catalog import read_catalog_file
 from autowisp.database.defaults import master_info
 from autowisp.database.interface import (
+    has_project_database,
     set_project_home,
     start_db_session,
     get_db_engine,
@@ -483,15 +484,11 @@ def find_missing_databases():
         list[Project]:  Projects for which neither database indicator exists.
     """
 
-    missing = []
-    for project in Project.objects.all():  # pylint: disable=no-member
-        sqlite_path = os.path.join(project.path, "autowisp.db")
-        url_file_path = os.path.join(project.path, DB_URL_FNAME)
-        if not os.path.isfile(sqlite_path) and not os.path.isfile(
-            url_file_path
-        ):
-            missing.append(project)
-    return missing
+    return [
+        project
+        for project in Project.objects.all()  # pylint: disable=no-member
+        if not has_project_database(project.path)
+    ]
 
 
 def select_project(request, project_id):

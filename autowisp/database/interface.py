@@ -160,6 +160,25 @@ def read_db_url(project_home):
         return fobj.read().strip()
 
 
+def has_project_database(project_home):
+    """Tell whether the home holds a project's database, or names one.
+
+    Checked before opening a project that should exist already: opening a
+    home with neither creates an empty project there.
+
+    Args:
+        project_home(str):    The directory to check.
+
+    Returns:
+        bool:    Whether it has ``autowisp.db`` or :data:`DB_URL_FNAME`.
+    """
+
+    return any(
+        path.isfile(path.join(project_home, fname))
+        for fname in ("autowisp.db", DB_URL_FNAME)
+    )
+
+
 def create_project_engine(db_url):
     """
     Return an engine for a project database, set up as every one must be.

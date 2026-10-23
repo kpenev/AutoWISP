@@ -18,6 +18,7 @@ from argparse import ArgumentParser
 from autowisp.database.interface import (
     DB_URL_FNAME,
     get_db_engine,
+    has_project_database,
     set_project_home,
 )
 from autowisp.database.migrate import describe_migration
@@ -243,10 +244,7 @@ def main(argv=None):
     config = parse_command_line(argv)
     home = os.path.abspath(config.project_home)
     # Checked first: opening a project without a database would create one.
-    if not any(
-        os.path.exists(os.path.join(home, fname))
-        for fname in ["autowisp.db", DB_URL_FNAME]
-    ):
+    if not has_project_database(home):
         raise ExperimentError(
             f"{home} holds no AutoWISP project: it has neither autowisp.db "
             f"nor {DB_URL_FNAME}."
