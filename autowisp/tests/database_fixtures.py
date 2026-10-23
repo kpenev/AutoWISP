@@ -439,6 +439,7 @@ class ProjectCopyCase(unittest.TestCase):
     def _configure_outside(engine):
         """Configure the lightcurves outside the project."""
 
+        # A template without a colon, which Windows would read as a drive's.
         with start_engine_session(engine) as db_session:
             db_session.execute(
                 update(Configuration)
@@ -448,7 +449,7 @@ class ProjectCopyCase(unittest.TestCase):
                     .filter_by(name="lc-fname")
                     .scalar_subquery()
                 )
-                .values(value=os.path.abspath("{:d}.h5"))
+                .values(value=os.path.abspath("{}.h5"))
             )
 
     @staticmethod

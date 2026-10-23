@@ -102,8 +102,10 @@ class TestRefusals(ProjectCopyCase):
         # Each value configured: the parameter, whether the value is added
         # under another condition rather than replacing the parameter's, the
         # value, and whether it is refused.
+        # Templates without a colon: Windows would read "{:" as a drive, and
+        # joining one onto another drive drops what is before it.
         configured = [
-            ("lc-fname", False, os.path.join(outside, "{:d}.h5"), True),
+            ("lc-fname", False, os.path.join(outside, "{}.h5"), True),
             (
                 "master-mask",
                 False,
