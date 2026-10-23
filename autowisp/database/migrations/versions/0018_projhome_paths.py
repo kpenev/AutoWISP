@@ -375,7 +375,9 @@ def _migrate_population(fname, project_home):
         bool:    Was the file changed?
     """
 
-    with fits.open(fname, mode="update") as hdu_list:
+    # Read into memory: replacing the table resizes the file, which astropy
+    # does by removing it, and Windows refuses that while it is mapped.
+    with fits.open(fname, mode="update", memmap=False) as hdu_list:
         if _POPULATION_TABLE not in hdu_list:
             return False
         population = hdu_list[_POPULATION_TABLE].data
