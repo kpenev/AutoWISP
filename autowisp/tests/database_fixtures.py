@@ -50,8 +50,8 @@ from autowisp.database.initialize_database import initialize_database
 from autowisp.database.interface import (
     DB_URL_FNAME,
     create_project_engine,
+    get_project_url,
     get_sqlite_url,
-    read_db_url,
     set_project_home,
     start_db_session,
 )
@@ -251,12 +251,6 @@ def add_create_run(db_session):
     db_session.add(pipeline_run)
     db_session.flush()
     return pipeline_run
-
-
-def get_project_url(project_home):
-    """Return the URL of the project's database, wherever it is."""
-
-    return read_db_url(project_home) or get_sqlite_url(project_home)
 
 
 class ProjectCopyCase(unittest.TestCase):

@@ -416,6 +416,36 @@ class ProjectExperiments(ExperimentRecords):
                 return experiment
         raise ExperimentError(f"The project has no experiment named {name!r}.")
 
+    def get_openable_home(self, name):
+        """
+        Return the named experiment's home, if it may be opened.
+
+        The browser interface finds an experiment only through its original,
+        and asks this when selecting it, and again on every page while it is
+        selected: an operation may have started on it since, e.g. from
+        another tab or the command line.
+
+        Args:
+            name(str):    The experiment's name.
+
+        Returns:
+            str:    The experiment's home directory.
+
+        Raises:
+            ExperimentError:    If the project is itself an experiment, has
+                no experiment of that name (e.g. it was deleted), or the
+                experiment may not be opened (see :meth:`can_open`).
+        """
+
+        experiment = self._find_experiment(name)
+        if not self.can_open(experiment):
+            raise ExperimentError(
+                f"Experiment {name!r} cannot be opened while it is "
+                f"{experiment.state}: an operation is working on it, or was "
+                "interrupted doing so."
+            )
+        return self._get_home(name)
+
     def _set_state(self, name, state, run_id):
         """Set an experiment's state, and the run of the operation giving it."""
 

@@ -179,6 +179,12 @@ def has_project_database(project_home):
     )
 
 
+def get_project_url(project_home):
+    """Return the URL of the project's database, wherever it is."""
+
+    return read_db_url(project_home) or get_sqlite_url(project_home)
+
+
 def create_project_engine(db_url):
     """
     Return an engine for a project database, set up as every one must be.

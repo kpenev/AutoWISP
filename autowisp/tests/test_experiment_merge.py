@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.experiments import ExperimentRecords
-from autowisp.database.interface import create_project_engine
+from autowisp.database.interface import create_project_engine, get_project_url
 from autowisp.database.migrate import migrate_project
 from autowisp.database.pipeline_runs import record_run
 from autowisp.database.sessions import start_engine_session
@@ -38,7 +38,6 @@ from autowisp.database.data_model import (
 from autowisp.tests import server_test_url
 from autowisp.tests.database_fixtures import (
     ProjectCopyCase,
-    get_project_url,
     stamp_previous_revision,
 )
 

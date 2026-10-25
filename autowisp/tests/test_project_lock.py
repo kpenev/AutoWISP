@@ -1,5 +1,6 @@
 """Tests of the lock a project's experiments hold on it."""
 
+import os
 import shutil
 import tempfile
 import unittest
@@ -9,9 +10,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from autowisp import run_pipeline
-from autowisp.database.experiments import ExperimentRecords
 from autowisp.error_context import get_error_context, set_error_context
-from autowisp.exceptions import ProjectLockedError
+from autowisp.exceptions import ExperimentError, ProjectLockedError
+from autowisp.project_experiments import ProjectExperiments
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import Experiment, PipelineRun
@@ -41,7 +42,9 @@ class TestProjectLock(ProjectCopyCase):
 
         Unlocking frees it of the current ones, while one being created or
         merged keeps it locked, and one stale or being deleted never locks
-        it. Only the current and stale ones may be opened.
+        it. Only the current and stale ones may be opened, each in its own
+        home; a name with no experiment, or a project that is an experiment,
+        is refused.
         """
 
         # Each project: the states of its experiments, None for a project
@@ -78,12 +81,17 @@ class TestProjectLock(ProjectCopyCase):
                 Experiment.__table__.drop(engine)
             else:
                 self._add_experiments(engine, states)
-            experiments = ExperimentRecords(engine, project_home)
-            openable[project] = [
-                experiment.name
-                for experiment in experiments.get_experiments() or []
-                if experiments.can_open(experiment)
-            ]
+            experiments = ProjectExperiments(engine, project_home)
+            # Each experiment's home relative to the project's, if it may be
+            # opened; also asked for one there is none of.
+            openable[project] = {}
+            for name in [*(states or {}), "missing"]:
+                try:
+                    openable[project][name] = os.path.relpath(
+                        experiments.get_openable_home(name), project_home
+                    )
+                except ExperimentError:
+                    pass
             locking[project] = self._get_locking(experiments)
             unlocked[project] = experiments.unlock()
             locking_after[project] = self._get_locking(experiments)
@@ -91,10 +99,16 @@ class TestProjectLock(ProjectCopyCase):
         self.assertEqual(
             openable,
             {
-                "an experiment": [],
-                "without experiments": [],
-                "with stale experiments": ["exp1", "exp2"],
-                "with experiments in every state": ["exp1", "exp3"],
+                "an experiment": {},
+                "without experiments": {},
+                "with stale experiments": {
+                    name: os.path.join("experiments", name)
+                    for name in ["exp1", "exp2"]
+                },
+                "with experiments in every state": {
+                    name: os.path.join("experiments", name)
+                    for name in ["exp1", "exp3"]
+                },
             },
         )
 
