@@ -47,6 +47,7 @@ from autowisp.database.user_interface import (
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
+    Error,
     ImageProcessingProgress,
     ImageType,
     LightCurveProcessingProgress,
@@ -326,6 +327,58 @@ class TestFullPipeline(_EngineProjectTestCase):
                 self._register_photref()
 
         self._assert_outputs_match()
+
+
+class TestStepSelection(_EngineProjectTestCase):
+    """Run the pipeline on some image types of a step, as the BUI selects."""
+
+    def test_unselected_requirement(self):
+        """
+        Steps needing an image type left out wait for it, without an error.
+
+        Everything is selected but calibrating darks, as unticking it on the
+        progress page does. The zero frames are calibrated and stacked;
+        stacking darks waits for their calibration, and every later step for
+        the masters. A selection leaving out only some image types of a step,
+        which a later step needs, is what this adds to the other engine tests,
+        which select a whole step or one image type alone.
+        """
+
+        with start_db_session() as db_session:
+            selected = [
+                f"{step.name}:{image_type.name}"
+                for step, image_type in get_processing_sequence(db_session)
+                if (step.name, image_type.name) != ("calibrate", "dark")
+            ]
+        run_pipeline.main(
+            Namespace(
+                project_home=self.processing_directory,
+                add_raw_images=self._get_raw_image_dirs(),
+                steps=None,
+                step_imtypes=selected,
+                detached=False,
+            )
+        )
+        with start_db_session() as db_session:
+            self.assertEqual(
+                [
+                    error.user_message
+                    for error in db_session.scalars(select(Error))
+                ],
+                [],
+            )
+            self.assertEqual(
+                {
+                    tuple(row)
+                    for row in db_session.execute(
+                        select(Step.name, ImageType.name)
+                        .select_from(ImageProcessingProgress)
+                        .join(Step)
+                        .join(ImageType)
+                    )
+                },
+                {("calibrate", "zero"), ("stack_to_master", "zero")},
+            )
 
 
 class TestRelocatedPipeline(_EngineProjectTestCase):

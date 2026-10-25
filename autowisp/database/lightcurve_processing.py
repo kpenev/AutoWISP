@@ -355,18 +355,8 @@ class LightCurveProcessingManager(ProcessingManager):
                 return False
         return True
 
-    def _prepare_processing(
-        self, step_name, single_photref_fname, limit_to_steps
-    ):
+    def _prepare_processing(self, step_name, single_photref_fname):
         """Prepare for processing images of given type by a calibration step."""
-
-        if limit_to_steps is not None and step_name not in limit_to_steps:
-            self._logger.debug(
-                "Skipping disabled %s for single photometric reference: %s",
-                step_name,
-                repr(single_photref_fname),
-            )
-            return None, None
 
         with (
             start_db_session() as db_session,
@@ -667,8 +657,14 @@ class LightCurveProcessingManager(ProcessingManager):
             for member in members
         )
 
-    def __call__(self, limit_to_steps=None):
-        """Perform all the processing for the given steps (all if None)."""
+    def __call__(self, enabled_processing=None):
+        """
+        Perform the processing of the enabled steps and image types.
+
+        Args:
+            enabled_processing:    The (step name, image type name) pairs to
+                process; None for all.
+        """
 
         with start_db_session() as db_session:
             processing_sequence = [
@@ -679,9 +675,19 @@ class LightCurveProcessingManager(ProcessingManager):
         for step_name, imtype_name in processing_sequence:
             if step_name not in self.pending:
                 continue
+            if (
+                enabled_processing is not None
+                and (step_name, imtype_name) not in enabled_processing
+            ):
+                self._logger.debug(
+                    "Skipping %s for %s frames: not enabled",
+                    step_name,
+                    imtype_name,
+                )
+                continue
             for single_photref_fname in self.pending[step_name][imtype_name][:]:
                 lc_fnames, configuration = self._prepare_processing(
-                    step_name, single_photref_fname, limit_to_steps
+                    step_name, single_photref_fname
                 )
                 if lc_fnames is None:
                     continue

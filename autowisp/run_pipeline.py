@@ -23,6 +23,7 @@ from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.database.pipeline_runs import find_earlier_run, record_run
+from autowisp.database.user_interface import get_processing_sequence
 from autowisp.error_context import get_error_context
 from autowisp.error_cli import report_error
 from autowisp.project_experiments import ProjectExperiments
@@ -53,17 +54,18 @@ def parse_command_line():
     )
     parser.add_argument(
         "--steps",
-        nargs="+",
+        nargs="*",
         default=None,
-        help="Process using only the specified steps. Leave empty for full "
-        "processing.",
+        help="Process only these steps. Given without any, only the raw "
+        "images are added. Leave out to process every step.",
     )
     parser.add_argument(
         "--step-imtypes",
         nargs="+",
         default=[],
-        help="Fine-grained filter as step:imagetype pairs "
-        "(e.g., calibrate:flat calibrate:science).",
+        help="Process the steps named here only for these image types, given "
+        "as step:imagetype pairs (e.g. calibrate:flat calibrate:object). "
+        "Steps not named here are processed for every image type.",
     )
     parser.add_argument(
         "--detached",
@@ -188,6 +190,45 @@ def _run_pipeline(config):
             )
 
 
+def _get_enabled_processing(config):
+    """
+    Return the (step, image type) pairs to process, by name; None for all.
+
+    A pair is enabled if ``--steps`` names its step, or is not given, and
+    ``--step-imtypes`` names the pair, or names no pair of its step.
+    ``--steps`` given empty enables nothing: only the raw images are added.
+
+    The processing is given the enabled pairs as one set, and records what
+    is pending for every pair, enabled or not, before skipping those not
+    enabled, so that a later step needing one waits for it.
+
+    Raises:
+        PipelineError:    If an entry of ``--step-imtypes`` is not given as
+            ``step:imagetype``.
+    """
+
+    if config.steps is None and not config.step_imtypes:
+        return None
+    image_types = {}
+    for pair in config.step_imtypes:
+        step_name, separator, image_type_name = pair.partition(":")
+        step_name = step_name.strip()
+        image_type_name = image_type_name.strip()
+        if not separator or not step_name or not image_type_name:
+            raise PipelineError(
+                f"Step and image type {pair!r} is not given as "
+                "step:imagetype, e.g. calibrate:flat."
+            )
+        image_types.setdefault(step_name, set()).add(image_type_name)
+    with start_db_session() as db_session:
+        return {
+            (step.name, image_type.name)
+            for step, image_type in get_processing_sequence(db_session)
+            if (config.steps is None or step.name in config.steps)
+            and image_type.name in image_types.get(step.name, {image_type.name})
+        }
+
+
 def _process(config, pipeline_run):
     """Add the images and process them, as the run with the given id."""
 
@@ -195,10 +236,11 @@ def _process(config, pipeline_run):
     # same time then either sees the run, or has locked the project already.
     ProjectExperiments(get_db_engine(), get_project_home()).refuse_run()
 
+    enabled_processing = _get_enabled_processing(config)
     # Recorded first, then checked, so that of runs starting together
     # exactly one goes on (find_earlier_run). Only adding images is left to
     # go alongside a run.
-    if config.steps is None or config.steps:
+    if enabled_processing is None or enabled_processing:
         with start_db_session() as db_session:
             earlier = find_earlier_run(db_session, pipeline_run)
             if earlier is not None:
@@ -210,23 +252,8 @@ def _process(config, pipeline_run):
                 )
                 return
 
-    step_imtype_filter = None
-    if hasattr(config, "step_imtypes") and config.step_imtypes:
-        per_step = {}
-        for pair in config.step_imtypes:
-            if ":" not in pair:
-                continue
-            step, imt = pair.split(":", 1)
-            step = step.strip()
-            imt = imt.strip()
-            if not step or not imt:
-                continue
-            per_step.setdefault(step, set()).add(imt)
-        if per_step:
-            step_imtype_filter = per_step
-            logging.info(
-                "Applied step-image-type filter: %s", step_imtype_filter
-            )
+    if enabled_processing is not None:
+        logging.info("Processing only: %s", sorted(enabled_processing))
 
     processing = ImageProcessingManager(pipeline_run_id=pipeline_run)
 
@@ -234,7 +261,7 @@ def _process(config, pipeline_run):
         logging.info("Adding raw images from: %s", img_to_add)
         processing.add_raw_images(find_fits_fnames(os.path.abspath(img_to_add)))
 
-    if config.steps is None or config.steps:
+    if enabled_processing is None or enabled_processing:
         logging.info(
             "Starting processing for project home %s...",
             get_project_home(),
@@ -242,16 +269,13 @@ def _process(config, pipeline_run):
         sys.stdout.flush()
         sys.stderr.flush()
 
-        processing(
-            limit_to_steps=config.steps,
-            step_imtype_filter=step_imtype_filter,
-        )
+        processing(enabled_processing)
         logging.info("Processing completed.")
         sys.stdout.flush()
         sys.stderr.flush()
 
         LightCurveProcessingManager(pipeline_run_id=pipeline_run)(
-            limit_to_steps=config.steps
+            enabled_processing
         )
 
 

@@ -1634,8 +1634,22 @@ class ImageProcessingManager(ProcessingManager):
             result.append((image.id, channel, best_pf.id))
         return result
 
-    def _prepare_processing(self, step, image_type, limit_to_steps):
-        """Prepare for processing images of given type by a calibration step."""
+    def _prepare_processing(self, step, image_type, enabled_processing):
+        """
+        Prepare for processing images of given type by a calibration step.
+
+        A step not enabled for this image type is skipped only once its
+        pending images are recorded: a later step needing it then waits for
+        them, rather than finding nothing recorded.
+
+        Args:
+            step(Step):    The step.
+
+            image_type(ImageType):    The type of images.
+
+            enabled_processing:    The (step name, image type name) pairs to
+                process; None for all.
+        """
 
         with start_db_session() as db_session:
             setup_process(
@@ -1650,9 +1664,12 @@ class ImageProcessingManager(ProcessingManager):
 
             self.set_pending(db_session, [(step, image_type)])
 
-            if limit_to_steps is not None and step.name not in limit_to_steps:
+            if (
+                enabled_processing is not None
+                and (step.name, image_type.name) not in enabled_processing
+            ):
                 self._logger.debug(
-                    "Skipping disabled %s for %s frames",
+                    "Skipping %s for %s frames: not enabled",
                     step.name,
                     image_type.name,
                 )
@@ -2042,36 +2059,23 @@ class ImageProcessingManager(ProcessingManager):
 
         return processing_progress.image_type.name
 
-    def __call__(self, limit_to_steps=None, step_imtype_filter=None):
-        """Perform all the processing for the given steps (all if None)."""
+    def __call__(self, enabled_processing=None):
+        """
+        Perform the processing of the enabled steps and image types.
+
+        Args:
+            enabled_processing:    The (step name, image type name) pairs to
+                process; None for all.
+        """
 
         with start_db_session() as db_session:
             processing_sequence = get_processing_sequence(db_session, True)
 
         DataReductionFile.get_file_structure()
 
-        if step_imtype_filter:
-            self._logger.info(
-                "Applying step-image-type filter: %s",
-                step_imtype_filter,
-            )
-
         for step, image_type in processing_sequence:
-            # If (step, image_type) combo is filtered out, skip it.
-            if (
-                step_imtype_filter
-                and step.name in step_imtype_filter
-                and image_type.name not in step_imtype_filter[step.name]
-            ):
-                self._logger.info(
-                    "User skipped %s for %s - skipping step",
-                    step.name,
-                    image_type.name,
-                )
-                continue
-
             step_name, image_type_name, processing_batches = (
-                self._prepare_processing(step, image_type, limit_to_steps)
+                self._prepare_processing(step, image_type, enabled_processing)
             )
             self._logger.debug(
                 "At start of %s step for %s images, "

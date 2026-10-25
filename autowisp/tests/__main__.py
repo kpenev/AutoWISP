@@ -137,6 +137,7 @@ from autowisp.tests.test_crash_report import (
 from autowisp.tests.test_full_pipeline import (
     TestFullPipeline,
     TestRelocatedPipeline,
+    TestStepSelection,
 )
 from autowisp.tests.test_photref_binding import (
     TestSeparationBinding,

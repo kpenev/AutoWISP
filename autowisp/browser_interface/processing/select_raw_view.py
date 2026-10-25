@@ -66,6 +66,7 @@ class SelectRawImages(WalkFSView):
                     project_home=get_project_home(),
                     add_raw_images=image_list,
                     steps=[],
+                    step_imtypes=[],
                 )
             )
         except OSError:

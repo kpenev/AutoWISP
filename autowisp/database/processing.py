@@ -1185,8 +1185,8 @@ class ProcessingManager:
                     db_session=db_session,
                 )
 
-    def __call__(self, limit_to_steps=None):
-        """Perform all the processing for the given steps (all if None)."""
+    def __call__(self, enabled_processing=None):
+        """Perform the processing of the enabled steps and image types."""
 
         raise RuntimeError("Calling instance of ProcessingManager base class!")
 
