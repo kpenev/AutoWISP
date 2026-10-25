@@ -16,6 +16,7 @@ project carries on wherever it is moved.
 
 import json
 from argparse import Namespace
+from configparser import ConfigParser
 from glob import glob
 from os import path
 from shutil import move
@@ -83,20 +84,20 @@ class _EngineProjectTestCase(H5TestCase, FITSTestCase, MagfitMastersTestCase):
 
         super().setUp()
 
-        with open(
-            path.join(self.test_directory, "test.cfg"),
-            "r",
-            encoding="utf-8",
-        ) as cfg_file:
+        cfg_fname = path.join(self.test_directory, "test.cfg")
+        with open(cfg_fname, "r", encoding="utf-8") as cfg_file:
             overwrite_default_config = parse_config_overwrites(cfg_file)
         # The DR file the test will register as the single photometric
         # reference comes from test.cfg, so adjusting the test or adding
         # new fixtures only requires editing the config file. The engine
-        # sets the option itself, so a project does not store it. In stored
-        # form, as the processing directory is the project home.
-        self._photref_dr_path = overwrite_default_config.pop(
+        # sets the option itself, so creating the project drops it, as it
+        # does any engine-set option, and it is read here on its own. In
+        # stored form, as the processing directory is the project home.
+        config = ConfigParser(interpolation=None, allow_no_value=True)
+        config.read(cfg_fname, encoding="utf-8")
+        self._photref_dr_path = config["magfit"][
             "single-photref-dr-fname"
-        )[0][1]
+        ].strip("'\"")
         # The per-step CLI uses different ``--outlier-threshold``
         # defaults for ``wisp-stack-to-master`` and
         # ``wisp-stack-to-master-flat``, but the pipeline registers a

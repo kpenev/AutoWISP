@@ -14,6 +14,7 @@ from sqlalchemy import sql, select, delete, inspect, func, and_
 from sqlalchemy.orm import ColumnProperty
 
 from autowisp.database import defaults as database_defaults
+from autowisp.database.initialize_database import engine_set_options
 from autowisp.database.interface import start_db_session, set_project_home
 from autowisp.exceptions import ConfigurationError
 from autowisp.database.data_model import provenance
@@ -1220,14 +1221,13 @@ def parse_config_overwrites(lines):
     keep their inner content (the surrounding quotes are removed).
     Section headers (``[name]``) and blank lines are skipped.
 
-    Keys that are never valid as DB parameter overrides are silently
-    dropped, mirroring what the BUI's
-    ``static/home/js/create.project.js`` does before populating the
-    textarea: ``project-home`` (the project directory itself) and
-    ``split-channels`` (generated from camera information). The list is
-    a subset of what
-    :class:`autowisp.database.initialize_database.StepCreator` already
-    refuses to insert as a Parameter row.
+    Keys a step run by hand understands but a project does not store are
+    silently dropped, so that one configuration file serves both:
+    ``project-home`` (the project directory itself), ``split-channels``
+    (generated from camera information), and the options the engine sets
+    for each batch (:data:`.engine_set_options`), e.g. the test data's
+    ``single-photref-dr-fname``.
+    Any other key a project lacks is refused when the project is created.
 
     Args:
         lines: Iterable of strings, one per config line. Trailing
@@ -1247,7 +1247,9 @@ def parse_config_overwrites(lines):
         r"\s*)?"
         r"(?:#.*)?$"
     )
-    non_parameter_keys = frozenset({"project-home", "split-channels"})
+    non_parameter_keys = frozenset(
+        {"project-home", "split-channels", *engine_set_options}
+    )
     overwrites = {}
     for raw in lines:
         stripped = raw.strip()

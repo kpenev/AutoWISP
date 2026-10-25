@@ -117,12 +117,13 @@ class TestParseConfigOverwrites(unittest.TestCase):
         )
 
     def test_non_parameter_keys_excluded(self):
-        """``project-home`` and ``split-channels`` are silently dropped.
+        """
+        Keys a step run by hand takes, but a project does not store, are
+        silently dropped.
 
-        Mirrors what
-        ``autowisp/browser_interface/home/static/home/js/create.project.js``
-        strips before populating the BUI textarea; these are never valid
-        DB parameter overrides.
+        ``project-home``, ``split-channels``, and an option the engine sets
+        for each batch, as the test data's configuration gives it, beside
+        an ordinary option and one whose name merely resembles theirs.
         """
 
         self.assertEqual(
@@ -130,10 +131,17 @@ class TestParseConfigOverwrites(unittest.TestCase):
                 [
                     "project-home = .",
                     "split-channels = 'R(0,1;0,1)'",
+                    "single-photref-dr-fname = '{PROJHOME}/DR/ref.h5'",
+                    "master-photref-fname-format = '{PROJHOME}/mphotref.fits'",
                     "verbose = debug",
                 ]
             ),
-            {"verbose": [(None, "debug")]},
+            {
+                "master-photref-fname-format": [
+                    (None, "{PROJHOME}/mphotref.fits")
+                ],
+                "verbose": [(None, "debug")],
+            },
         )
 
     def test_test_cfg_like_block(self):
