@@ -491,6 +491,17 @@ def find_missing_databases():
     ]
 
 
+def _report_migration(request, migration):
+    """Tell the user about a migration selecting a project did, if any."""
+
+    if migration is not None and migration["from"] != migration["to"]:
+        messages.add_message(
+            request,
+            messages.WARNING if migration["stale"] else messages.INFO,
+            describe_migration(migration),
+        )
+
+
 def select_project(request, project_id):
     """Redirect to the processing progress page for the selected project."""
 
@@ -508,15 +519,45 @@ def select_project(request, project_id):
         messages.error(request, str(error))
         return redirect("home:home")
 
-    if migration is not None and migration["from"] != migration["to"]:
-        messages.add_message(
-            request,
-            messages.WARNING if migration["stale"] else messages.INFO,
-            describe_migration(migration),
-        )
+    _report_migration(request, migration)
 
     request.session["project_home"] = project.path
     request.session["project_name"] = project.name
+
+    return redirect("processing:progress")
+
+
+def select_experiment(request, project_id, name):
+    """Select an experiment of a registered project, if it may be opened.
+
+    The original is opened first, and migrated if behind as selecting it
+    would: its rows say whether the experiment may be opened, and where it
+    is. The experiment is then migrated if behind, as any project is when
+    selected. The session keeps the original's id and the experiment's name,
+    for the checks on every page (``set_project_middleware``) and for going
+    back to the original.
+    """
+
+    request.session.flush()
+    original = Project.objects.get(id=project_id)  # pylint: disable=no-member
+    try:
+        _report_migration(
+            request, set_project_home(original.path, migrate=True)
+        )
+        experiment_home = ProjectExperiments(
+            get_db_engine(), original.path
+        ).get_openable_home(name)
+        _report_migration(
+            request, set_project_home(experiment_home, migrate=True)
+        )
+    except (DatabaseError, ExperimentError) as error:
+        messages.error(request, str(error))
+        return redirect("home:home")
+
+    request.session["project_home"] = experiment_home
+    request.session["project_name"] = f"{original.name} / {name}"
+    request.session["original_id"] = original.id
+    request.session["experiment_name"] = name
 
     return redirect("processing:progress")
 

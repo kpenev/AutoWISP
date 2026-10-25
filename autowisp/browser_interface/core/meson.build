@@ -2,6 +2,7 @@ py_src = [
   '__init__.py',
   'admin.py',
   'apps.py',
+  'background.py',
   'context_processors.py',
   'plot_utils.py',
   'project_lock.py',

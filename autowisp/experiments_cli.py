@@ -255,3 +255,7 @@ def main(argv=None):
     if migration is not None and migration["from"] != migration["to"]:
         print(describe_migration(migration))
     config.run(ProjectExperiments(get_db_engine(), home), config)
+
+
+if __name__ == "__main__":
+    main()

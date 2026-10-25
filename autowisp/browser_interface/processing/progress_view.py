@@ -21,7 +21,11 @@ from autowisp.error_render import (
 
 # False positive
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import ImageProcessingProgress
+from autowisp.database.data_model import (
+    Experiment,
+    ImageProcessingProgress,
+    PipelineRun,
+)
 
 # pylint: enable=no-name-in-module
 
@@ -31,6 +35,32 @@ from autowisp.browser_interface.diagnostics.quantities import (
 from .log_views import datetime_fmt
 
 logger = logging.getLogger(__name__)
+
+
+def _describe_running(running_here, db_session):
+    """
+    Return what the runs going here do, as the page names it.
+
+    An operation on experiments is named by its task and the experiment, whose
+    row refers to the operation's run; anything else is processing.
+
+    Args:
+        running_here([PipelineRun]):    The runs going on this machine.
+
+        db_session:    A session on the project's database.
+
+    Returns:
+        str:    E.g. "Create experiment exp1", or "Processing".
+    """
+
+    for pipeline_run in running_here:
+        if pipeline_run.task == PipelineRun.processing_task:
+            continue
+        name = db_session.scalar(
+            select(Experiment.name).filter_by(run_id=pipeline_run.id)
+        )
+        return f"{pipeline_run.task.capitalize()} {name}"
+    return "Processing"
 
 
 def progress(request, await_start=-1):  # pylint: disable=too-many-locals
@@ -124,6 +154,9 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
                 ", ".join(str(run.process_id) for run in running_here),
             )
             context["running"] = True
+            context["running_label"] = _describe_running(
+                running_here, db_session
+            )
             context["refresh_seconds"] = 5
             context["await_start"] = -1
 

@@ -61,6 +61,11 @@ urlpatterns = [
         name="select_project",
     ),
     path(
+        "select_experiment/<int:project_id>/<str:name>/",
+        views.select_experiment,
+        name="select_experiment",
+    ),
+    path(
         "change_master_config/<slug:master_type>",
         views.MasterConfigView.as_view(),
         name="change_master_config",

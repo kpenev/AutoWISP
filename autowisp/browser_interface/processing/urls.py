@@ -11,6 +11,11 @@ urlpatterns = [
     path("<int:await_start>", views.progress, name="progress"),
     path("start_processing", views.start_processing, name="start_processing"),
     path(
+        "experiment_operation",
+        views.run_experiment_operation,
+        name="experiment_operation",
+    ),
+    path(
         "select_raw_images/<path:dirname>/",
         views.SelectRawImages.as_view(),
         name="select_raw_images",

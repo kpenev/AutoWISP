@@ -1,16 +1,12 @@
 """The views showing the status of the processing."""
 
-import subprocess
-import threading
 from sys import executable
-import os
-import sys
 import logging
 
 from django.shortcuts import redirect
-import platformdirs
 
 from autowisp import run_pipeline
+from autowisp.browser_interface.core.background import launch_detached
 from autowisp.browser_interface.core.project_lock import get_lock_refusal
 from autowisp.database.interface import get_project_home
 
@@ -39,6 +35,7 @@ from .error_views import (
     delete_error_view,
     download_crash_report,
 )
+from .experiment_views import run_experiment_operation
 
 # pylint: enable=unused-import
 
@@ -96,31 +93,6 @@ def start_processing(request):
 
     logging.info("start_processing: cmd=%s", cmd)
 
-    sys.stdout.flush()
-    sys.stderr.flush()
-    with open(
-        os.path.join(
-            platformdirs.user_data_dir("autowisp"), "run_pipeline.out"
-        ),
-        "w",
-        encoding="utf-8",
-        buffering=1,
-    ) as outf:
-        # Not a with block, which would wait for the run: it is detached,
-        # and outlives the request.
-        # pylint: disable-next=consider-using-with
-        proc = subprocess.Popen(
-            cmd,
-            start_new_session=(os.name == "posix"),
-            stdout=outf,
-            stderr=outf,
-        )
-    if os.name == "posix":
-        # Reap the child when it exits so it does not become a zombie.
-        # On Linux the double-fork in run_pipeline.py orphans the
-        # grandchild to init (which reaps it), but the intermediate
-        # child still needs to be waited on here.  On macOS there is
-        # no double-fork so this thread is the only reaper.
-        threading.Thread(target=proc.wait, daemon=True).start()
+    launch_detached(cmd, "run_pipeline.out")
     print("Started")
     return redirect("processing:progress", await_start=0)

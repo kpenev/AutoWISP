@@ -3,8 +3,43 @@
 from django.contrib import messages
 from django.shortcuts import redirect
 
-from autowisp.database.interface import has_project_database, set_project_home
-from autowisp.exceptions import DatabaseError
+from autowisp.browser_interface.home.models import Project
+from autowisp.database.interface import (
+    create_project_engine,
+    get_project_url,
+    has_project_database,
+    set_project_home,
+)
+from autowisp.exceptions import DatabaseError, ExperimentError
+from autowisp.project_experiments import ProjectExperiments
+
+
+def _refuse_experiment(session):
+    """Return why the selected experiment may not be opened now, or None.
+
+    An operation may have started on it since it was selected, e.g. from
+    another tab or the command line, and its original's row says so. One
+    query on the original's database, through an engine of its own, the
+    current project being the experiment. This narrows the window rather
+    than closing it: an operation can still start right after.
+    """
+
+    name = session.get("experiment_name")
+    if name is None:
+        return None
+    original = Project.objects.filter(  # pylint: disable=no-member
+        id=session["original_id"]
+    ).first()
+    if original is None:
+        return f"The project experiment {name!r} belongs to is gone."
+    engine = create_project_engine(get_project_url(original.path))
+    try:
+        ProjectExperiments(engine, original.path).get_openable_home(name)
+    except ExperimentError as error:
+        return str(error)
+    finally:
+        engine.dispose()
+    return None
 
 
 def set_project_middleware(get_response):
@@ -25,24 +60,30 @@ def set_project_middleware(get_response):
 
         project_home = request.session.get("project_home")
         if project_home is not None:
-            refusal = None
             # Checked first: the project may have been deleted since it was
             # selected, e.g. from another tab, and opening a home without a
             # database would create an empty project there.
-            if has_project_database(project_home):
-                try:
-                    set_project_home(project_home)
-                except DatabaseError as error:
-                    refusal = str(error)
-            else:
+            if not has_project_database(project_home):
                 refusal = (
                     f"Project {request.session.get('project_name')!r} is no "
                     f"longer there: {project_home!r} holds no project "
                     "database."
                 )
+            else:
+                refusal = _refuse_experiment(request.session)
+            if refusal is None:
+                try:
+                    set_project_home(project_home)
+                except DatabaseError as error:
+                    refusal = str(error)
             if refusal is not None:
-                request.session.pop("project_home", None)
-                request.session.pop("project_name", None)
+                for key in [
+                    "project_home",
+                    "project_name",
+                    "original_id",
+                    "experiment_name",
+                ]:
+                    request.session.pop(key, None)
                 messages.error(request, refusal)
                 return redirect("home:home")
 
