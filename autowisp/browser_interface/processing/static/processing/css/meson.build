@@ -7,6 +7,7 @@ src = [
   'select_images.css',
   'select_photref.css',
   'checkboxes.css',
+  'confirm_experiment.css',
   'tune_starfind.css'
 ]
 

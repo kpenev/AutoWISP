@@ -11,17 +11,23 @@ import numpy
 from django.contrib import messages
 from django.shortcuts import render, redirect, HttpResponse
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError
 
+from autowisp.browser_interface.processing.experiments_menu import (
+    plan_experiments_menu,
+)
 from autowisp.catalog import read_catalog_file
 from autowisp.database.defaults import master_info
 from autowisp.database.interface import (
+    create_project_engine,
+    get_project_url,
     has_project_database,
     set_project_home,
     start_db_session,
     get_db_engine,
     DB_URL_FNAME,
 )
-from autowisp.database.migrate import describe_migration
+from autowisp.database.migrate import check_project_schema, describe_migration
 from autowisp.error_persistence import delete_all_error_sidecars
 from autowisp.exceptions import DatabaseError, ExperimentError, ViewError
 from autowisp.database.data_model.base import DataModelBase
@@ -50,6 +56,40 @@ from .models import Project
 logger = logging.getLogger(__name__)
 
 
+def _list_experiments(project):
+    """
+    Return the project's experiments, for the project list, or why none.
+
+    Read through an engine of its own, without migrating: a project behind
+    the code's revision, or whose server cannot be reached, shows the reason
+    instead, and is migrated only once selected.
+
+    Args:
+        project(Project):    A registered project whose home holds its
+            database.
+
+    Returns:
+        [dict]:    Its experiments, as :func:`plan_experiments_menu` gives
+        them, which says which can be selected; empty for a project
+        registered from an experiment's home.
+
+        str or None:    Why its experiments cannot be listed; None if they
+        are.
+    """
+
+    engine = create_project_engine(get_project_url(project.path))
+    try:
+        check_project_schema(engine)
+        described = ProjectExperiments(
+            engine, project.path
+        ).describe_experiments()
+    except (DatabaseError, OperationalError) as error:
+        return [], str(error)
+    finally:
+        engine.dispose()
+    return plan_experiments_menu(described or [])[0], None
+
+
 def home(request):
     """Display the home page."""
 
@@ -62,10 +102,20 @@ def home(request):
     missing_db_ids = {proj.id for proj in find_missing_databases()}
     context = {
         "columns": display_columns,
-        "projects": {
-            proj.id: [getattr(proj, col) for col in display_columns]
+        # Each project, with its experiments and why they are not listed,
+        # nested under it; none for a project whose database is gone.
+        "projects": [
+            (
+                proj.id,
+                [getattr(proj, col) for col in display_columns],
+                *(
+                    ([], None)
+                    if proj.id in missing_db_ids
+                    else _list_experiments(proj)
+                ),
+            )
             for proj in Project.objects.all()  # pylint: disable=no-member
-        },
+        ],
         "missing_db_ids": missing_db_ids,
     }
     print(f"Context: {context!r}")  # Debugging output
@@ -523,6 +573,9 @@ def select_project(request, project_id):
 
     request.session["project_home"] = project.path
     request.session["project_name"] = project.name
+    # As for an experiment, whose original it names: the experiments menu
+    # links to the experiments through it.
+    request.session["original_id"] = project.id
 
     return redirect("processing:progress")
 

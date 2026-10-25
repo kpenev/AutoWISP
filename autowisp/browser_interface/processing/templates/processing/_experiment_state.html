@@ -1,0 +1,4 @@
+{% comment %} An experiment's state, and the operation working on it, as
+   describe_experiments gives them: e.g. "creating: reset experiment running
+   on host2", or "merging: merge experiment interrupted". {% endcomment %}
+{{ experiment.state }}{% if experiment.operation %}: {{ experiment.operation.task }} {% if experiment.operation.running == "here" %}running{% elif experiment.operation.running %}running on {{ experiment.operation.running }}{% else %}interrupted{% endif %}{% endif %}

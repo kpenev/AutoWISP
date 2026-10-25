@@ -833,8 +833,13 @@ class ProjectExperiments(ExperimentRecords):
         move_tree(backup, self._home, kept_files, self._dirname)
         remove_path(backup)
 
-    def _list_merge_backups(self):
-        """Return the paths of the backups merges left, oldest first."""
+    def list_merge_backups(self):
+        """
+        Return the paths of the backups merges left, oldest first.
+
+        Public for the browser interface, which offers deleting them only
+        when there are some, and names them before it does.
+        """
 
         directory = os.path.join(self._home, self._dirname)
         if not os.path.isdir(directory):
@@ -873,7 +878,7 @@ class ProjectExperiments(ExperimentRecords):
     def _find_backup(self, run_id):
         """Return the backup of the merge with the given run; None if none."""
 
-        for backup in self._list_merge_backups():
+        for backup in self.list_merge_backups():
             if backup.endswith(f"-run{run_id}"):
                 return backup
         return None
@@ -1105,9 +1110,7 @@ class ProjectExperiments(ExperimentRecords):
                         self._engine, {*ignored_runs, run_id}
                     )
                     self.refuse_active_runs(experiment_engine, ignored_runs)
-                    if not force and not self._is_original_unchanged(
-                        experiment
-                    ):
+                    if not force and not self.is_original_unchanged(experiment):
                         raise ExperimentError(
                             "The original changed after experiment "
                             f"{name!r} was copied, and merging would lose "
@@ -1157,7 +1160,7 @@ class ProjectExperiments(ExperimentRecords):
             experiment_engine.dispose()
         # Merged: the backup is left holding only the original's files.
         os.remove(os.path.join(backup, self._moved_marker))
-        for earlier in self._list_merge_backups():
+        for earlier in self.list_merge_backups():
             if earlier != backup:
                 remove_path(earlier)
         return backup
@@ -1212,7 +1215,7 @@ class ProjectExperiments(ExperimentRecords):
                 self._restore_backup(backup, kept_files)
             state = (
                 self._current_state
-                if self._is_original_unchanged(experiment)
+                if self.is_original_unchanged(experiment)
                 else self._stale_state
             )
             self._set_state(name, state, experiment.run_id)
@@ -1245,7 +1248,7 @@ class ProjectExperiments(ExperimentRecords):
                 f"was interrupted: {', '.join(merging)}. Their backup holds "
                 "the original as it was before."
             )
-        backups = self._list_merge_backups()
+        backups = self.list_merge_backups()
         for backup in backups:
             remove_path(backup)
         return backups

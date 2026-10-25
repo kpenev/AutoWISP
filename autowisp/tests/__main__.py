@@ -70,6 +70,7 @@ from autowisp.tests.test_experiment_refusals import TestRefusals
 from autowisp.tests.test_experiment_reset import TestReset
 from autowisp.tests.test_experiment_staleness import TestStaleness
 from autowisp.tests.test_experiments_cli import TestExperimentsCli
+from autowisp.tests.test_experiments_menu import TestExperimentsMenu
 from autowisp.tests.test_project_lock import TestProjectLock
 from autowisp.tests.test_project_copy import TestProjectCopy
 from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting

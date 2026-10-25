@@ -16,6 +16,16 @@ urlpatterns = [
         name="experiment_operation",
     ),
     path(
+        "confirm_experiment_operation",
+        views.confirm_experiment_operation,
+        name="confirm_experiment_operation",
+    ),
+    path(
+        "delete_merge_backups",
+        views.delete_merge_backups,
+        name="delete_merge_backups",
+    ),
+    path(
         "select_raw_images/<path:dirname>/",
         views.SelectRawImages.as_view(),
         name="select_raw_images",

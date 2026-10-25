@@ -5,6 +5,10 @@
 AutoWISP Projects
 {% endblock header_title %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'home/css/project_list.css' %}">
+{% endblock extra_head %}
+
 {% block app_title %}
 Projects
 {% endblock app_title %}
@@ -69,10 +73,9 @@ Projects
         </tr>
     </thead>
     <tbody class="lcars-table select-row">
-        {% for project_id, project_data in projects.items %}
+        {% for project_id, project_data, experiments, experiments_refusal in projects %}
         {% if project_id in missing_db_ids %}
-        <tr style="color: grey; cursor: default; opacity: 0.6;"
-            title="Project data not found on disk">
+        <tr class="unavailable" title="Project data not found on disk">
             <td onclick="event.stopPropagation()">
                 <input type="checkbox" name="project_ids"
                        value="{{ project_id }}">
@@ -92,6 +95,46 @@ Projects
             </td>
             {% for value in project_data %}
             <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endif %}
+        {% comment %} The project's experiments, nested under it: tree lines
+           drawn in the name column, which the experiment's name takes; its
+           state goes under the description. Only selecting, which one being
+           worked on by an operation does not offer. {% endcomment %}
+        {% for experiment in experiments %}
+        {% if experiment.selectable %}
+        {% url 'home:select_experiment' project_id=project_id name=experiment.name as experiment_url %}
+        <tr class="experiment-row{% if forloop.last %} last{% endif %}"
+            onclick="window.location='{{ experiment_url }}'">
+        {% else %}
+        <tr class="experiment-row unavailable{% if forloop.last %} last{% endif %}">
+        {% endif %}
+            <td></td>
+            {% for column in columns %}
+            {% if column == 'name' %}
+            <td class="experiment-name">{{ experiment.name }}</td>
+            {% elif column == 'created' %}
+            <td>{{ experiment.created }}</td>
+            {% elif column == 'description' %}
+            <td>{% include 'processing/_experiment_state.html' %}</td>
+            {% else %}
+            <td></td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        {% if experiments_refusal %}
+        <tr class="experiment-row unavailable last">
+            <td></td>
+            {% for column in columns %}
+            {% if column == 'name' %}
+            <td class="experiment-name">Experiments not listed</td>
+            {% elif column == 'description' %}
+            <td>{{ experiments_refusal }}</td>
+            {% else %}
+            <td></td>
+            {% endif %}
             {% endfor %}
         </tr>
         {% endif %}

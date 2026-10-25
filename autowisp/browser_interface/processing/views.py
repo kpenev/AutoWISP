@@ -35,7 +35,11 @@ from .error_views import (
     delete_error_view,
     download_crash_report,
 )
-from .experiment_views import run_experiment_operation
+from .experiment_views import (
+    confirm_experiment_operation,
+    delete_merge_backups,
+    run_experiment_operation,
+)
 
 # pylint: enable=unused-import
 
@@ -93,6 +97,6 @@ def start_processing(request):
 
     logging.info("start_processing: cmd=%s", cmd)
 
-    launch_detached(cmd, "run_pipeline.out")
+    launch_detached(cmd, "run_pipeline.out", request.session)
     print("Started")
     return redirect("processing:progress", await_start=0)

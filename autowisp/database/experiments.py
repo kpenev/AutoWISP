@@ -570,8 +570,13 @@ class ExperimentRecords:
                 )
         return stale
 
-    def _is_original_unchanged(self, experiment):
+    def is_original_unchanged(self, experiment):
         """Is the original as it was when the experiment was copied from it?
+
+        Hashes the whole original, as a merge does. Public for the browser
+        interface's merge confirmation, which warns differently when a
+        current experiment's original changed despite the lock; asked there
+        only, never while listing experiments.
 
         Args:
             experiment(Experiment):    The experiment's row.

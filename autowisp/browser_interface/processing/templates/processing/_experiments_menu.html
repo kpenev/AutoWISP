@@ -1,0 +1,91 @@
+{% comment %} The experiments menu, for the top bar: in the original, its
+   experiments with their actions, creating one, and deleting the backups
+   merges left; in an experiment, its own actions, then the way back to the
+   original and to its siblings. What each row offers is decided by
+   plan_experiments_menu; this only draws it. Reset, merge and delete, and
+   deleting backups, lead to a confirmation page; restoring and creating
+   start at once. {% endcomment %}
+{% url 'processing:confirm_experiment_operation' as confirm_url %}
+{% url 'processing:experiment_operation' as operation_url %}
+<button type="button"
+        popovertarget="experiments-menu"
+        class="lcars-bar horizontal button popover-menu-button
+               {% if experiments_menu.needs_attention %}lcars-atomic-tangerine-bg{% else %}lcars-rust-bg{% endif %}"
+        {% if experiments_menu.needs_attention %}
+        title="An experiment is stale, or an operation on one was interrupted"
+        {% endif %}>
+    Experiments
+</button>
+<div popover id="experiments-menu" class="popover-menu">
+    {% if experiments_menu.selected %}
+    <div class="popover-menu-row">
+        <span class="popover-menu-label">{{ experiments_menu.selected }}</span>
+        <a class="popover-menu-action"
+           href="{{ confirm_url }}?command=merge&amp;name={{ experiments_menu.selected|urlencode }}">Merge</a>
+        <a class="popover-menu-action"
+           href="{{ confirm_url }}?command=reset&amp;name={{ experiments_menu.selected|urlencode }}">Reset</a>
+        <a class="popover-menu-action"
+           href="{{ confirm_url }}?command=delete&amp;name={{ experiments_menu.selected|urlencode }}">Delete</a>
+    </div>
+    <div class="popover-menu-separator"></div>
+    <div class="popover-menu-row">
+        <a class="popover-menu-label"
+           href="{% url 'home:select_project' project_id=experiments_menu.original.id %}">
+            Back to {{ experiments_menu.original.name }}
+        </a>
+    </div>
+    {% endif %}
+
+    {% for row in experiments_menu.rows %}
+    <div class="popover-menu-row">
+        {% if row.selectable %}
+        <a class="popover-menu-label"
+           href="{% url 'home:select_experiment' project_id=experiments_menu.original.id name=row.name %}">
+            {{ row.name }}
+        </a>
+        {% else %}
+        <span class="popover-menu-label unavailable">{{ row.name }}</span>
+        {% endif %}
+        <span class="popover-menu-note">
+            {% include 'processing/_experiment_state.html' with experiment=row %}
+        </span>
+        {% if not experiments_menu.selected %}
+        {% if row.offer_restore %}
+        <form method="post" action="{{ operation_url }}">
+            {% csrf_token %}
+            <input type="hidden" name="command" value="restore">
+            <input type="hidden" name="name" value="{{ row.name }}">
+            <button type="submit">Restore</button>
+        </form>
+        {% endif %}
+        {% if row.offer_delete %}
+        <a class="popover-menu-action"
+           href="{{ confirm_url }}?command=delete&amp;name={{ row.name|urlencode }}">Delete</a>
+        {% endif %}
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    {% if not experiments_menu.selected %}
+    {% if experiments_menu.rows %}
+    <div class="popover-menu-separator"></div>
+    {% endif %}
+    <form class="popover-menu-row" method="post" action="{{ operation_url }}">
+        {% csrf_token %}
+        <input type="hidden" name="command" value="create">
+        <input type="text"
+               name="name"
+               placeholder="new experiment"
+               aria-label="New experiment's name"
+               autocomplete="off"
+               required>
+        <button type="submit">Create</button>
+    </form>
+    {% if experiments_menu.has_backups %}
+    <div class="popover-menu-row">
+        <a class="popover-menu-action"
+           href="{{ confirm_url }}?command=delete-backup">Delete merge backups</a>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>

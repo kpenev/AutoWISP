@@ -2,6 +2,7 @@ src = [
   'fits_app.css',
   'lcars.css',
   'navbar.css',
+  'popover_menu.css',
   'reset.css',
   'style.css',
   'tutorial.css',

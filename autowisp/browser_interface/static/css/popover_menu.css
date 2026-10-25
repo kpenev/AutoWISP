@@ -1,0 +1,121 @@
+/* A dropdown that holds more than a <select> can: rows with their own
+ * buttons, links and text entries. A <button popovertarget="ID"> opens a
+ * <div popover id="ID" class="popover-menu"> of .popover-menu-row's. The
+ * browser opens and closes it, closes it on Escape or a click outside, and
+ * draws it above the page; CSS anchor positioning hangs it under its
+ * button.
+ *
+ * One per page for now: the anchor's name is shared, so with a second menu
+ * every panel would hang under the last button. Give each its own name
+ * then. */
+
+.popover-menu-button {
+    anchor-name: --popover-menu;
+    /* As wide as its label, rather than sharing the bar with the title. */
+    flex: 0 0 auto;
+    width: auto;
+    padding: 0 0.75rem;
+    border: none;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.popover-menu[popover] {
+    position-anchor: --popover-menu;
+    /* The browser centres a popover in the window; this one goes under its
+     * button instead. */
+    inset: auto;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin: 0.25rem 0 0 0;
+    padding: 0.25rem;
+    min-width: 18rem;
+    max-height: 70vh;
+    overflow: auto;
+    border: 2px solid #fc6;
+    background-color: #000;
+    color: #fff;
+}
+
+.popover-menu-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.15rem 0.25rem;
+}
+
+.popover-menu-row:hover {
+    background-color: #336;
+}
+
+/* What the row is about: a link to follow, or plain text. Takes the room
+ * left by the note and the buttons. */
+.popover-menu-row .popover-menu-label {
+    flex: 1 1 auto;
+    color: inherit;
+    text-decoration: none;
+}
+
+/* What the row says beside its label, e.g. an experiment's state. */
+.popover-menu-row .popover-menu-note {
+    opacity: 0.7;
+    font-size: 90%;
+    white-space: nowrap;
+}
+
+/* A label with nothing to follow just now. Faded, not hidden, so the row
+ * still says what is there and why. */
+.popover-menu-row .popover-menu-label.unavailable {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* A row's actions, as the diagnostics tables draw theirs. A form around a
+ * button would otherwise put a line break after it. */
+.popover-menu-row form {
+    display: inline;
+    margin: 0;
+}
+
+.popover-menu-row button,
+.popover-menu-row .popover-menu-action {
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.2;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid #fc6;
+    cursor: pointer;
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.popover-menu-row button:hover,
+.popover-menu-row .popover-menu-action:hover {
+    background-color: #99f;
+    color: #000;
+}
+
+.popover-menu-row input[type="text"] {
+    flex: 1 1 auto;
+    font-family: inherit;
+    font-size: 16px;
+    padding: 0.1rem 0.25rem;
+    border: 1px solid #fc6;
+    background-color: #000;
+    color: #fff;
+}
+
+.popover-menu-row input[type="text"]::placeholder {
+    color: #888;
+}
+
+/* Between groups of rows, e.g. an experiment's own actions and its
+ * siblings. */
+.popover-menu-separator {
+    border-top: 1px solid #fc6;
+    margin: 0.25rem 0;
+}

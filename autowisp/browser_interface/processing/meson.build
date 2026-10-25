@@ -5,6 +5,7 @@ py_src = [
   'display_fits_util.py',
   'error_views.py',
   'experiment_views.py',
+  'experiments_menu.py',
   'log_views.py',
   'models.py',
   'progress_view.py',

@@ -6,6 +6,7 @@ from sqlalchemy import select
 from django.contrib import messages
 from django.shortcuts import render
 
+from autowisp.browser_interface.core.background import has_run_since_launch
 from autowisp.browser_interface.core.project_lock import get_lock_refusal
 from autowisp.database.interface import start_db_session
 from autowisp.database.pipeline_runs import find_active_runs
@@ -32,6 +33,7 @@ from autowisp.database.data_model import (
 from autowisp.browser_interface.diagnostics.quantities import (
     get_quantile_names,
 )
+from .experiment_views import get_experiments_menu
 from .log_views import datetime_fmt
 
 logger = logging.getLogger(__name__)
@@ -87,6 +89,7 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
     context["locked"] = lock_refusal is not None
     if context["locked"]:
         messages.info(request, lock_refusal)
+    context["experiments_menu"] = get_experiments_menu(request.session)
 
     with start_db_session() as db_session:
         context["channels"] = sorted(list_channels(db_session))
@@ -158,6 +161,14 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
                 running_here, db_session
             )
             context["refresh_seconds"] = 5
+            context["await_start"] = -1
+        elif context["running"] and has_run_since_launch(
+            request.session, db_session
+        ):
+            # Waiting for a launch whose run started and finished between
+            # two looks: nothing left to wait for.
+            context["running"] = False
+            context["refresh_seconds"] = 0
             context["await_start"] = -1
 
     # Get selected steps from session if processing

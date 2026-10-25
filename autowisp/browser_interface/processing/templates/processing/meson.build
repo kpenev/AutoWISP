@@ -1,5 +1,8 @@
 src = [
   '_exclusion_report.html',
+  '_experiment_state.html',
+  '_experiments_menu.html',
+  'confirm_experiment_operation.html',
   'error_detail.html',
   'error_list.html',
   'progress.html',

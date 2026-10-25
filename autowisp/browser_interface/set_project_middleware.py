@@ -69,6 +69,14 @@ def set_project_middleware(get_response):
                     f"longer there: {project_home!r} holds no project "
                     "database."
                 )
+            elif "original_id" not in request.session:
+                # Selected by a version that did not keep it, which every
+                # page may now read.
+                refusal = (
+                    f"Select project {request.session.get('project_name')!r} "
+                    "again: it was selected before this version of AutoWISP "
+                    "was installed."
+                )
             else:
                 refusal = _refuse_experiment(request.session)
             if refusal is None:

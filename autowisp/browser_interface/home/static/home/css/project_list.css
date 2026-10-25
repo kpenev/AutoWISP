@@ -1,0 +1,59 @@
+/* The project list: each project's experiments in rows nested under it,
+ * told apart by tree lines and their colour rather than by background,
+ * since every row is on black and the hover is the only background
+ * change. */
+
+/* bourbon: the colour of an experiment's frame (css/frame.css). */
+.experiment-row {
+    color: #b62;
+}
+
+/* Black on the hover's background, as the projects' rows are: the colour
+ * above reads poorly on it. */
+tbody.lcars-table.select-row tr.experiment-row:hover {
+    color: #000;
+}
+
+.experiment-row .experiment-name {
+    position: relative;
+    padding-left: 2rem;
+}
+
+/* The trunk down from the project, past every experiment but the last,
+ * where it stops at the branch. */
+.experiment-row .experiment-name::before {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    border-left: 2px solid currentColor;
+}
+
+.experiment-row.last .experiment-name::before {
+    bottom: 50%;
+}
+
+/* The branch from the trunk to the experiment's name. */
+.experiment-row .experiment-name::after {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    width: 1rem;
+    border-top: 2px solid currentColor;
+}
+
+/* A row that cannot be selected: a project whose database is gone, an
+ * experiment an operation is working on, or the reason a project's
+ * experiments are not listed. Greyed, and not highlighted on hover. */
+tbody.lcars-table.select-row tr.unavailable {
+    color: grey;
+    opacity: 0.6;
+}
+
+tbody.lcars-table.select-row tr.unavailable:hover {
+    background-color: transparent;
+    color: grey;
+    cursor: default;
+}

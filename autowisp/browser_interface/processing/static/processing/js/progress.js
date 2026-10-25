@@ -68,7 +68,10 @@
     var seconds = parseInt(cfg.dataset.refreshSeconds || '0', 10);
     var url = cfg.dataset.refreshUrl || '';
     if (seconds > 0 && url) {
-      setTimeout(function () { window.location.href = url; }, seconds * 1000);
+      //not while the experiments menu is open: reloading would close it
+      setTimeout(function () {
+        whenPopoverMenusClosed(function () { window.location.href = url; });
+      }, seconds * 1000);
     }
   }
   document.addEventListener('DOMContentLoaded', setupRefresh);
