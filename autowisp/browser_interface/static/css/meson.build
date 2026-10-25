@@ -1,5 +1,6 @@
 src = [
   'fits_app.css',
+  'frame.css',
   'lcars.css',
   'navbar.css',
   'popover_menu.css',

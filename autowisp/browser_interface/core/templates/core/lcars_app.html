@@ -11,6 +11,7 @@
             {% endblock %}
         </title>
         <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
+        <link rel="stylesheet" href="{% static 'css/frame.css' %}">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
         <link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
         <link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
@@ -20,19 +21,23 @@
     </head>
     <body>
         {% csrf_token %}
-        <div class="lcars-app-container">
+        {% comment %} The container names what is selected, which colours the
+           frame: the elements marked app-frame (see css/frame.css).
+        {% endcomment %}
+        <div class="lcars-app-container
+                    {% if experiment_name %}selected-experiment{% else %}selected-project{% endif %}">
             <div id="header" class="lcars-row header">
                 <!-- ELBOW -->
-                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
+                <div class="lcars-elbow left-bottom app-frame"></div>
                 {% block header_bar_extra %}
                 {% endblock %}
-                <div class="lcars-bar horizontal top-bar">
+                <div class="lcars-bar horizontal top-bar app-frame">
                     <div class="lcars-title right">
                         {% if project_name %}{{ project_name }}: {% endif %}{% block app_title %}{% endblock %}
                     </div>
                 </div>
                 <!-- ROUNDED EDGE DECORATED -->
-                <div class="lcars-bar horizontal right-end decorated"></div>
+                <div class="lcars-bar horizontal right-end decorated app-frame"></div>
             </div>
 
             <!-- LEFT MENU -->
@@ -111,21 +116,21 @@
                 </a>
                 {% endblock home_link %}
 
-                <div class="lcars-bar lcars-u-1"></div>
+                <div class="lcars-bar lcars-u-1 app-frame"></div>
             </div>
 
             <!-- FOOTER -->
             <div id="footer" class="lcars-row ">
                 <!-- ELBOW -->
-                <div class="lcars-elbow left-top lcars-golden-tanoi-bg"></div>
+                <div class="lcars-elbow left-top app-frame"></div>
                 {% block footer_bar_extra %}
                 {% endblock footer_bar_extra %}
                 <!-- BAR -->
                 {% block footer_fill_bar %}
-                <div class="lcars-bar horizontal both-divider bottom"></div>
+                <div class="lcars-bar horizontal both-divider bottom app-frame"></div>
                 {% endblock footer_fill_bar %}
                 <!-- ROUNDED EDGE -->
-                <div class="lcars-bar horizontal right-end left-divider bottom">
+                <div class="lcars-bar horizontal right-end left-divider bottom app-frame">
                 </div>
             </div>
 

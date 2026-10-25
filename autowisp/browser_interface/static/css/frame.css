@@ -1,0 +1,22 @@
+/* The frame of a page (its elbows and plain bars, marked .app-frame) takes
+ * its colour from what is selected, which the app container names:
+ * .selected-project or .selected-experiment. Anything else meant to say
+ * the same can take the class, or use var(--frame-colour) for a text or
+ * border colour; another kind of selection is one more rule setting the
+ * variable. */
+
+.lcars-app-container {
+    /* golden tanoi: a project, or nothing selected */
+    --frame-colour: #fc6;
+}
+
+.lcars-app-container.selected-experiment {
+    /* bourbon: the colour experiments have in the project list. A red hue,
+     * as astronomical software keeps to for the sake of dark adaptation,
+     * but neither red alert nor the orange of warnings. */
+    --frame-colour: #b62;
+}
+
+.app-frame {
+    background-color: var(--frame-colour);
+}

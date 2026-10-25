@@ -5,6 +5,7 @@
         <meta charset="utf-8">
         <title>Review Processing</title>
         <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
+        <link rel="stylesheet" href="{% static 'css/frame.css' %}">
         <style>
             html, body, container {
                 margin: 0px;
@@ -22,10 +23,11 @@
         </style>
     </head>
     <body>
-        <div class="lcars-app-container">
+        <div class="lcars-app-container
+                    {% if experiment_name %}selected-experiment{% else %}selected-project{% endif %}">
             <div id="header" class="lcars-row header">
                 <!-- ELBOW -->
-                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
+                <div class="lcars-elbow left-bottom app-frame"></div>
                 <div class="lcars-bar horizontal spacer"></div>
                 {% for step in pipeline_steps %}
                 <a href="{% url 'processing:review' selected_processing_id=step.2 min_log_level='warning' %}">
@@ -44,13 +46,13 @@
                     </div>
                 </a>
                 {% endfor %}
-                <div class="lcars-bar horizontal">
+                <div class="lcars-bar horizontal app-frame">
                     <div class="lcars-title right">
                         Processing started {{selected_info.3}}
                     </div>
                 </div>
                 <!-- ROUNDED EDGE DECORATED -->
-                <div class="lcars-bar horizontal right-end decorated"></div>
+                <div class="lcars-bar horizontal right-end decorated app-frame"></div>
             </div>
 
             <!-- LEFT MENU -->
@@ -98,13 +100,13 @@
                     </div>
                 </a>
                 {% endfor %}
-                <div class="lcars-bar lcars-u-1"></div>
+                <div class="lcars-bar lcars-u-1 app-frame"></div>
             </div>
 
             <!-- FOOTER -->
             <div id="footer" class="lcars-row ">
                 <!-- ELBOW -->
-                <div class="lcars-elbow left-top lcars-golden-tanoi-bg">
+                <div class="lcars-elbow left-top app-frame">
                 </div>
                 <div class="lcars-bar horizontal spacer"></div>
                 {% for imtype in image_types %}
@@ -133,10 +135,10 @@
                 <div class="lcars-bar horizontal spacer"></div>
                 {% endfor %}
                 <!-- BAR -->
-                <div class="lcars-bar horizontal bottom">
+                <div class="lcars-bar horizontal bottom app-frame">
                 </div>
                 <!-- ROUNDED EDGE -->
-                <div class="lcars-bar horizontal right-end left-divider bottom">
+                <div class="lcars-bar horizontal right-end left-divider bottom app-frame">
                 </div>
             </div>
 

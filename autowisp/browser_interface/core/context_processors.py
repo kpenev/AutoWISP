@@ -13,6 +13,9 @@ def global_variables(request):
     open_errors, total_errors = _project_error_counts(request)
     return {
         "project_name": request.session.get("project_name", ""),
+        # Set only while an experiment is selected, whose pages draw their
+        # frame in another colour (static/css/frame.css).
+        "experiment_name": request.session.get("experiment_name", ""),
         "error_count": open_errors,
         "total_error_count": total_errors,
     }
