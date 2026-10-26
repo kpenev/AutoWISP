@@ -9,11 +9,42 @@ AutoWISP Error Log
 Error Log{% if filtered_step %} — {{ filtered_step }}{% endif %}{% if filtered_run %} — Run {{ filtered_run }}{% endif %}
 {% endblock app_title %}
 
+{% block left_menu %}
+{% if errors %}
+{% comment %} The errors ticked in the table, which cannot hold this form
+   around its rows' own forms: their checkboxes name it instead (form=).
+   Each button posts them to its own view; error_list.js refuses an empty
+   selection and confirms deleting. {% endcomment %}
+<form id="error-selection" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+</form>
+<button type="submit"
+        form="error-selection"
+        formaction="{% url 'processing:resolve_selected_errors' %}"
+        class="lcars-element button lcars-husk-bg lcars-u-1-2">
+    Resolve selected
+</button>
+<button type="submit"
+        form="error-selection"
+        formaction="{% url 'processing:delete_selected_errors' %}"
+        data-confirm-delete
+        class="lcars-element button lcars-red-alert-bg lcars-u-1-2">
+    Delete selected
+</button>
+{% endif %}
+{% endblock left_menu %}
+
 {% block main %}
 {% if errors %}
 <table class="lcars-table standard-header">
     <thead>
         <tr>
+            <th>
+                <input type="checkbox"
+                       id="aw-select-all-errors"
+                       aria-label="Select all errors shown">
+            </th>
             <th>When</th>
             <th>Step</th>
             <th>Affected</th>
@@ -26,6 +57,13 @@ Error Log{% if filtered_step %} — {{ filtered_step }}{% endif %}{% if filtered
         <tr data-href="{% url 'processing:error_detail' error.id %}"
             style="cursor: pointer; border-bottom: 3px dotted white;
                    {% if error.resolved %}opacity: 0.45;{% endif %}">
+            <td class="aw-error-actions">
+                <input type="checkbox"
+                       name="error_ids"
+                       value="{{ error.id }}"
+                       form="error-selection"
+                       aria-label="Select this error">
+            </td>
             <td style="white-space: nowrap;">
                 {{ error.created|date:"Y-m-d H:i:s"|default:"—" }}
             </td>

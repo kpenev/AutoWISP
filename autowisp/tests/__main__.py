@@ -96,6 +96,7 @@ from autowisp.tests.test_projhome_migration import (
 from autowisp.tests.test_project_creation_guard import TestNewProjectGuard
 from autowisp.tests.test_error_persistence import (
     TestPersistError,
+    TestSelectedErrors,
     TestRunPipelineHandler,
     TestCleanupErrors,
     TestParseDuration,

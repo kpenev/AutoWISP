@@ -270,6 +270,58 @@ def delete_error(error_id, db_session=None):
     return True
 
 
+def resolve_errors(error_ids, db_session=None):
+    """
+    Mark resolved those of the given errors still open.
+
+    Args:
+        error_ids:    The ids of the errors, e.g. those selected in a list.
+            An id with no error is ignored.
+
+        db_session:    Optional active session; one is opened if omitted.
+
+    Returns:
+        int:    How many errors were resolved; those resolved already are
+        left as they were, and not counted.
+    """
+
+    if db_session is None:
+        with start_db_session() as own_session:
+            return resolve_errors(error_ids, own_session)
+
+    rows = db_session.scalars(
+        select(Error).where(
+            Error.id.in_(error_ids),  # pylint: disable=no-member
+            Error.resolved.is_(None),  # pylint: disable=no-member
+        )
+    ).all()
+    resolved = datetime.now(timezone.utc)
+    for row in rows:
+        row.resolved = resolved
+    return len(rows)
+
+
+def delete_errors(error_ids, db_session=None):
+    """
+    Delete the given errors, as :func:`delete_error` deletes one.
+
+    Args:
+        error_ids:    The ids of the errors, e.g. those selected in a list.
+            An id with no error is ignored.
+
+        db_session:    Optional active session; one is opened if omitted.
+
+    Returns:
+        int:    How many errors were deleted.
+    """
+
+    if db_session is None:
+        with start_db_session() as own_session:
+            return delete_errors(error_ids, own_session)
+
+    return sum(delete_error(error_id, db_session) for error_id in error_ids)
+
+
 def delete_all_error_sidecars(db_session=None):
     """Delete the sidecar file of every recorded error.
 

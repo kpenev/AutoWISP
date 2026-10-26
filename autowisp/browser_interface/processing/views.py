@@ -34,6 +34,8 @@ from .error_views import (
     toggle_error_resolved,
     delete_error_view,
     download_crash_report,
+    resolve_selected_errors,
+    delete_selected_errors,
 )
 from .experiment_views import (
     confirm_experiment_operation,

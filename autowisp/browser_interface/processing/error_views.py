@@ -14,7 +14,11 @@ from autowisp.database.data_model import Error
 
 # pylint: enable=no-name-in-module
 from autowisp.error_render import error_detail, error_list_rows
-from autowisp.error_persistence import delete_error
+from autowisp.error_persistence import (
+    delete_error,
+    delete_errors,
+    resolve_errors,
+)
 from autowisp.crash_report import build_crash_report, find_error_progress
 
 
@@ -125,3 +129,37 @@ def delete_error_view(request, error_id):
         raise Http404("Use POST to delete an error.")
     delete_error(error_id)
     return redirect("processing:error_list")
+
+
+def _get_selected_ids(request):
+    """Return the ids of the errors ticked in the list, as integers."""
+
+    return [
+        int(error_id)
+        for error_id in request.POST.getlist("error_ids")
+        if error_id.isdigit()
+    ]
+
+
+def resolve_selected_errors(request):
+    """Mark resolved the errors ticked in the list, then return to it.
+
+    Back to the list as it was shown, filter included (``next``).
+    """
+
+    if request.method != "POST":
+        raise Http404("Use POST to resolve errors.")
+    resolve_errors(_get_selected_ids(request))
+    return redirect(request.POST.get("next") or "processing:error_list")
+
+
+def delete_selected_errors(request):
+    """Delete the errors ticked in the list (rows + sidecars), then return.
+
+    Back to the list as it was shown, filter included (``next``).
+    """
+
+    if request.method != "POST":
+        raise Http404("Use POST to delete errors.")
+    delete_errors(_get_selected_ids(request))
+    return redirect(request.POST.get("next") or "processing:error_list")

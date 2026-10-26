@@ -34,9 +34,11 @@ from autowisp.error_persistence import (
     cleanup_errors,
     delete_all_error_sidecars,
     delete_error,
+    delete_errors,
     load_sidecar,
     parse_duration,
     persist_error,
+    resolve_errors,
 )
 from autowisp.tests.database_fixtures import add_cameras, add_observing_session
 from autowisp.tests.error_fixtures import make_find_stars_error
@@ -213,6 +215,52 @@ class TestPersistError(_PersistenceTestCase):
         """Deleting a non-existent error returns False, does not raise."""
 
         self.assertFalse(delete_error(999999))
+
+
+class TestSelectedErrors(_PersistenceTestCase):
+    """Resolving and deleting the errors selected in a list."""
+
+    def _record(self, resolved=False):
+        """Record an error, resolved or not; return its id and sidecar."""
+
+        error_id = persist_error(make_find_stars_error())
+        with start_db_session() as db_session:
+            row = db_session.get(Error, error_id)
+            if resolved:
+                row.resolved = datetime(2026, 1, 1, tzinfo=timezone.utc)
+            return error_id, os.path.join(self._tmp.name, row.sidecar_path)
+
+    def test_resolve_and_delete_only_selected(self):
+        """
+        Each acts on exactly the errors selected, and counts what it changed.
+
+        Selected: an open error, one resolved already, and an id with no
+        error, e.g. deleted from another tab since the list was shown.
+        Not selected: an open error. Resolving leaves the resolved one as it
+        was; deleting removes rows and sidecars of the selected only.
+        """
+
+        open_id, open_sidecar = self._record()
+        resolved_id, resolved_sidecar = self._record(resolved=True)
+        unselected_id, unselected_sidecar = self._record()
+        missing_id = unselected_id + 1000
+        selected = [open_id, resolved_id, missing_id]
+
+        self.assertEqual(resolve_errors(selected), 1)
+        self.assertIsNotNone(self._get_error(open_id).resolved)
+        self.assertEqual(
+            self._get_error(resolved_id).resolved.replace(tzinfo=None),
+            datetime(2026, 1, 1),
+        )
+        self.assertIsNone(self._get_error(unselected_id).resolved)
+
+        self.assertEqual(delete_errors(selected), 2)
+        self.assertIsNone(self._get_error(open_id))
+        self.assertIsNone(self._get_error(resolved_id))
+        self.assertFalse(os.path.exists(open_sidecar))
+        self.assertFalse(os.path.exists(resolved_sidecar))
+        self.assertIsNotNone(self._get_error(unselected_id))
+        self.assertTrue(os.path.exists(unselected_sidecar))
 
 
 class TestRunPipelineHandler(_PersistenceTestCase):

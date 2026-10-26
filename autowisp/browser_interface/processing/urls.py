@@ -111,6 +111,16 @@ urlpatterns = [
     ),
     path("errors/", views.error_list, name="error_list"),
     path(
+        "errors/resolve_selected",
+        views.resolve_selected_errors,
+        name="resolve_selected_errors",
+    ),
+    path(
+        "errors/delete_selected",
+        views.delete_selected_errors,
+        name="delete_selected_errors",
+    ),
+    path(
         "errors/<int:error_id>/",
         views.error_detail_view,
         name="error_detail",
