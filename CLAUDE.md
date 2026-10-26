@@ -456,6 +456,15 @@ Closed as final, which reads backwards for this project and would lead you to
 Close completed work. Transition finished work to Resolved; reserve Closed for
 work being abandoned.
 
+**Checklists in Jira must be plain text to be tickable.** Written through the
+Markdown content format, `- [ ] item` becomes a checkbox only if *no* item of
+that list carries inline formatting: one `code` span or **bold** label in any
+item turns the whole list into plain bullets with literal brackets, and an
+escaped `\[ \]` is always literal. Keep checklist items plain (quotes instead
+of backticks, "Label:" instead of bold); lists around them may be formatted.
+And before rewriting a description that holds a checklist, read it first: the
+user ticks items in Jira, and a rewrite from an older copy loses the ticks.
+
 ## Key Constraints
 
 - Both **NumPy 1 and NumPy 2** are supported (`numpy >= 1.21`), via
