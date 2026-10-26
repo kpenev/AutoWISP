@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Error</title>
+        <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    </head>
+    <body>
+        {% comment %} The error a frame's request raised, shown in the frame
+           as the other pages show it in their message area. Redirected back
+           instead, the frame would load the page holding it, whose frames
+           would fail again (ErrorCaptureMiddleware). The details open in
+           the whole window, not in the frame. {% endcomment %}
+        <div class="bui-message lcars-red-alert-bg">
+            <span class="bui-message-text">{{ message }}</span>
+            {% if error_id %}
+            <a class="bui-message-link"
+               href="{% url 'processing:error_detail' error_id %}"
+               target="_top">
+                View details
+            </a>
+            {% endif %}
+        </div>
+    </body>
+</html>

@@ -23,6 +23,7 @@ from urllib.parse import urlparse
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 
 from autowisp.exceptions import AutoWISPError, ViewError
@@ -89,6 +90,27 @@ def _safe_return_url(request):
     return reverse("home:home")
 
 
+def _is_frame_request(request):
+    """
+    Does the request load a frame, e.g. one of the log review page's panes?
+
+    Redirected back to where it came from, such a request would load the
+    page holding the frame inside the frame, whose frames would fail the same
+    way: an endless nesting, recording an error for each. Browsers say what a
+    request loads (``Sec-Fetch-Dest``): ``iframe``, or ``frame`` for a
+    ``<frame>``.
+
+    Args:
+        request:    The Django request being handled.
+
+    Returns:
+        bool:    Whether it loads a frame; False if the browser did not say.
+    """
+
+    headers = getattr(request, "headers", {})
+    return headers.get("Sec-Fetch-Dest") in ("iframe", "frame")
+
+
 class ErrorCaptureMiddleware:
     """Persist an :class:`AutoWISPError` (or wrapped view error) on failure.
 
@@ -120,8 +142,10 @@ class ErrorCaptureMiddleware:
             exception(BaseException):    The exception the view raised.
 
         Returns:
-            HttpResponseRedirect to stay in the BUI, or ``None`` to defer
-            to Django (for 404/403 and on internal failure).
+            HttpResponseRedirect to stay in the BUI; for a request loading a
+            frame, the error shown in the frame instead (see
+            :func:`_is_frame_request`); or ``None`` to defer to Django (for
+            404/403 and on internal failure).
         """
 
         if isinstance(exception, (Http404, PermissionDenied)):
@@ -140,6 +164,17 @@ class ErrorCaptureMiddleware:
                 error.crashed = datetime.now(timezone.utc)
 
             error_id = persist_error(error)
+
+            if _is_frame_request(request):
+                # Shown where it happened, not redirected: see
+                # _is_frame_request. Not queued as a message as well, which
+                # the next page would show again.
+                return render(
+                    request,
+                    "core/frame_error.html",
+                    {"message": error.user_message, "error_id": error_id},
+                    status=500,
+                )
 
             # The error id rides in extra_tags so the template can link the
             # banner to the full error-detail page (empty when persistence
