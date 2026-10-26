@@ -2,6 +2,7 @@
 
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.urls import Resolver404, resolve
 
 from autowisp.browser_interface.home.models import Project
 from autowisp.database.interface import (
@@ -42,6 +43,22 @@ def _refuse_experiment(session):
     return None
 
 
+def _needs_project(request):
+    """
+    Does the request go to a page working on the selected project?
+
+    Every application's but the project list's (``home``), where projects
+    are created, selected and deleted, and the admin's. A path that resolves
+    to nothing is left to give its 404.
+    """
+
+    try:
+        namespace = resolve(request.path_info).namespace
+    except Resolver404:
+        return False
+    return namespace not in ("home", "admin")
+
+
 def set_project_middleware(get_response):
     """Middleware to set the active BUI project for processing requests."""
 
@@ -55,7 +72,8 @@ def set_project_middleware(get_response):
         Only selecting a project migrates it, and failing here would fail
         every page, the project list included, so the project is dropped
         from the session instead and the user sent to that list with the
-        reason.
+        reason. A page working on the selected project is sent there too
+        when none is selected, rather than failing for the lack of one.
         """
 
         project_home = request.session.get("project_home")
@@ -94,6 +112,11 @@ def set_project_middleware(get_response):
                     request.session.pop(key, None)
                 messages.error(request, refusal)
                 return redirect("home:home")
+        elif _needs_project(request):
+            # E.g. a form posted from a page shown before the session lost
+            # its project.
+            messages.info(request, "Select a project first.")
+            return redirect("home:home")
 
         response = get_response(request)
 
