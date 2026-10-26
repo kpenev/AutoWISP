@@ -10,15 +10,16 @@ from sqlalchemy import func, select
 
 # False positive
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import PipelineRun
+from autowisp.database.data_model import Error, PipelineRun
 
 # pylint: enable=no-name-in-module
 from autowisp.database.interface import create_project_engine, get_project_url
 from autowisp.database.sessions import start_engine_session
+from autowisp.exceptions import Component
 
-# The session key under which the newest run of the project is kept when a
-# command is launched, which tells the progress page a run started since.
-_launched_after_key = "launched_after_run"
+# The session key under which the last launch is kept (see launch_detached),
+# for the progress page to tell what it recorded since.
+_last_launch_key = "last_launch"
 
 
 def launch_detached(cmd, log_name, session):
@@ -27,8 +28,18 @@ def launch_detached(cmd, log_name, session):
 
     The command records what it does itself (a run, its errors), in the
     selected project, which is how the interface follows it; the log is for
-    what goes wrong before it can, e.g. a broken install. The project's
-    newest run is noted first (:func:`_note_newest_run`).
+    what goes wrong before it can, e.g. a broken install.
+
+    A command records its run only once it has started, and one that ends
+    quickly may be over before the progress page next looks: unfinished runs
+    alone cannot tell "not started yet" from "already finished". So the
+    project's newest run and error are noted first, and what the command
+    recorded since can (see :func:`find_since_launch`), a refusal before its
+    run included, which records only an error. They are read through an
+    engine of their own: the request's may be another project's, e.g. the
+    experiment's when an operation on it has just made its original the
+    selected project. Nothing is noted with no project selected, e.g. from
+    the project list, where nothing waits for a run.
 
     Args:
         cmd([str]):    The command and its arguments.
@@ -37,13 +48,35 @@ def launch_detached(cmd, log_name, session):
             Overwritten by each launch with that name.
 
         session:    The request's session, whose selected project, if any,
-            the command records its run in.
+            the command records in. The launch returned is kept in it too,
+            as the last launch (:func:`get_last_launch`).
 
     Returns:
-        None
+        dict or None:    The launch, for :func:`find_since_launch`: the ids of
+        the project's newest ``pipeline_run`` and ``error`` before it, and
+        the ``process`` started. Whether that process still runs says whether
+        the command's work is over only for a command doing the work itself:
+        the pipeline's hands it to another process on Linux. None with no
+        project selected.
     """
 
-    _note_newest_run(session)
+    launch = None
+    project_home = session.get("project_home")
+    if project_home is not None:
+        engine = create_project_engine(get_project_url(project_home))
+        try:
+            with start_engine_session(engine) as db_session:
+                launch = {
+                    table.__tablename__: db_session.scalar(
+                        # pylint: disable-next=not-callable
+                        select(func.max(table.id))
+                    )
+                    or 0
+                    for table in (PipelineRun, Error)
+                }
+        finally:
+            engine.dispose()
+
     sys.stdout.flush()
     sys.stderr.flush()
     with open(
@@ -68,62 +101,54 @@ def launch_detached(cmd, log_name, session):
         # be waited on here.
         threading.Thread(target=process.wait, daemon=True).start()
 
-
-def _get_newest_run_id(db_session):
-    """Return the id of the project's newest run, 0 if it has none."""
-
-    # pylint: disable-next=not-callable
-    return db_session.scalar(select(func.max(PipelineRun.id))) or 0
+    if launch is not None:
+        launch["process"] = process.pid
+        session[_last_launch_key] = launch
+    return launch
 
 
-def _note_newest_run(session):
+def get_last_launch(session):
+    """Return the last launch from the session (see launch_detached)."""
+
+    return session.get(_last_launch_key)
+
+
+def find_since_launch(launch, db_session):
     """
-    Remember the selected project's newest run, before launching a command.
-
-    A command records its run only once it has started, and one that ends
-    quickly may be over before the progress page next looks: unfinished runs
-    alone cannot tell "not started yet" from "already finished". A run newer
-    than this one can (see :func:`has_run_since_launch`).
-
-    Read through an engine of its own: the request's may be another
-    project's, e.g. the experiment's when an operation on it has just made
-    its original the selected project. Nothing is noted with no project
-    selected, e.g. from the project list, where nothing waits for a run.
+    Return what a command launched has recorded since: runs and errors.
 
     Args:
-        session:    The request's session.
-    """
+        launch(dict or None):    The launch, as :func:`launch_detached`
+            returned it.
 
-    project_home = session.get("project_home")
-    if project_home is None:
-        session.pop(_launched_after_key, None)
-        return
-    engine = create_project_engine(get_project_url(project_home))
-    try:
-        with start_engine_session(engine) as db_session:
-            session[_launched_after_key] = _get_newest_run_id(db_session)
-    finally:
-        engine.dispose()
-
-
-def has_run_since_launch(session, db_session):
-    """
-    Has a run been recorded since the last command launched?
-
-    Args:
-        session:    The request's session.
-
-        db_session:    A session on the database the command records its run
-            in.
+        db_session:    A session on the database the command records in.
 
     Returns:
-        bool:    Whether a run newer than the one noted at launch
-        (:func:`note_newest_run`) exists, going or finished. False if no
-        launch was noted.
+        [PipelineRun]:    The runs newer than those noted at launch, going or
+        finished, oldest first.
+
+        [Error]:    The errors newer than those noted at launch, but the
+        interface's own, oldest first.
+
+        Both are empty if the launch is None.
     """
 
-    launched_after = session.get(_launched_after_key)
+    if launch is None:
+        return [], []
     return (
-        launched_after is not None
-        and _get_newest_run_id(db_session) > launched_after
+        list(
+            db_session.scalars(
+                select(PipelineRun)
+                .where(PipelineRun.id > launch["pipeline_run"])
+                .order_by(PipelineRun.id)
+            )
+        ),
+        list(
+            db_session.scalars(
+                select(Error)
+                .where(Error.id > launch["error"])
+                .where(Error.component != Component.BUI.value)
+                .order_by(Error.id)
+            )
+        ),
     )

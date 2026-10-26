@@ -1,25 +1,29 @@
 /* A dropdown that holds more than a <select> can: rows with their own
  * buttons, links and text entries. A <button popovertarget="ID"> opens a
  * <div popover id="ID" class="popover-menu"> of .popover-menu-row's. The
- * browser opens and closes it, closes it on Escape or a click outside, and
- * draws it above the page; CSS anchor positioning hangs it under its
- * button.
+ * browser closes it on Escape or a click outside, and draws it above the
+ * page; CSS anchor positioning hangs it under its button. It opens while
+ * the pointer is over the button or the menu, and a click keeps it open
+ * (popover_menu.js).
  *
  * One per page for now: the anchor's name is shared, so with a second menu
  * every panel would hang under the last button. Give each its own name
  * then. */
 
+/* Sized as a button in a bar by .bar-button (css/style.css). */
 .popover-menu-button {
     anchor-name: --popover-menu;
-    /* As wide as its label, rather than sharing the bar with the title. */
-    flex: 0 0 auto;
-    width: auto;
-    padding: 0 0.75rem;
-    border: none;
-    font-family: inherit;
-    font-size: 16px;
-    font-weight: bold;
-    white-space: nowrap;
+}
+
+/* Says the button opens a menu, unlike a button beside it. On a .lcars-bar
+ * button this is the pseudo-element the library draws a bar's black
+ * dividers with (.lcars-bar:after: absolute, black), so those are undone:
+ * the arrow follows the label, in its colour. */
+.popover-menu-button::after {
+    content: "\00a0\25BE";
+    position: static;
+    display: inline;
+    background: none;
 }
 
 .popover-menu[popover] {
@@ -29,7 +33,9 @@
     inset: auto;
     top: anchor(bottom);
     left: anchor(left);
-    margin: 0.25rem 0 0 0;
+    /* Touching the button, so that the pointer moves from one straight into
+     * the other, which opening on hover needs (popover_menu.js). */
+    margin: 0;
     padding: 0.25rem;
     min-width: 18rem;
     max-height: 70vh;

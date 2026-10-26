@@ -6,7 +6,10 @@ from sqlalchemy import select
 from django.contrib import messages
 from django.shortcuts import render
 
-from autowisp.browser_interface.core.background import has_run_since_launch
+from autowisp.browser_interface.core.background import (
+    find_since_launch,
+    get_last_launch,
+)
 from autowisp.browser_interface.core.project_lock import get_lock_refusal
 from autowisp.database.interface import start_db_session
 from autowisp.database.pipeline_runs import find_active_runs
@@ -33,7 +36,10 @@ from autowisp.database.data_model import (
 from autowisp.browser_interface.diagnostics.quantities import (
     get_quantile_names,
 )
-from .experiment_views import get_experiments_menu
+from .experiment_views import (
+    get_experiments_menu,
+    report_finished_operation,
+)
 from .log_views import datetime_fmt
 
 logger = logging.getLogger(__name__)
@@ -69,6 +75,12 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
     """Display the current processing progress."""
 
     print(f"Generating progress page with await start: {await_start}")
+    # Once the operation on experiments launched last is over, it is
+    # reported here, whichever project's page this is; after a create, the
+    # new experiment is shown instead.
+    response = report_finished_operation(request)
+    if response is not None:
+        return response
     context = {"await_start": await_start + 1}
     if 0 <= await_start < 10:
         context = {
@@ -162,11 +174,12 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
             )
             context["refresh_seconds"] = 5
             context["await_start"] = -1
-        elif context["running"] and has_run_since_launch(
-            request.session, db_session
+        elif context["running"] and any(
+            find_since_launch(get_last_launch(request.session), db_session)
         ):
-            # Waiting for a launch whose run started and finished between
-            # two looks: nothing left to wait for.
+            # Waiting for a launch that started and ended between two looks,
+            # recording a run, or only an error if refused before its run:
+            # nothing left to wait for.
             context["running"] = False
             context["refresh_seconds"] = 0
             context["await_start"] = -1

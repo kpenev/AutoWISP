@@ -20,12 +20,14 @@ tbody.lcars-table.select-row tr.experiment-row:hover {
 }
 
 /* The trunk down from the project, past every experiment but the last,
- * where it stops at the branch. */
+ * where it stops at the branch. It starts above its cell by the table's
+ * spacing between rows (table.standard-header's border-spacing), so that
+ * it joins the trunk of the row above, or the project's row. */
 .experiment-row .experiment-name::before {
     content: "";
     position: absolute;
     left: 0.5rem;
-    top: 0;
+    top: -0.25rem;
     bottom: 0;
     border-left: 2px solid currentColor;
 }

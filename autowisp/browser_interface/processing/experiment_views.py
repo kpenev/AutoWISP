@@ -4,12 +4,17 @@ import os
 from contextlib import contextmanager
 from sys import executable
 
+import platformdirs
+import psutil
 from django.contrib import messages
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 
-from autowisp.browser_interface.core.background import launch_detached
+from autowisp.browser_interface.core.background import (
+    find_since_launch,
+    launch_detached,
+)
 from autowisp.browser_interface.home.models import Project
 from autowisp.database.interface import (
     create_project_engine,
@@ -22,6 +27,10 @@ from autowisp.database.sessions import start_engine_session
 from autowisp.exceptions import ExperimentError
 from autowisp.project_experiments import ProjectExperiments
 from .experiments_menu import plan_experiments_menu
+
+# The session key under which the operation launched last is kept, until the
+# progress page reports how it ended (report_finished_operation).
+_awaited_key = "awaited_operation"
 
 
 def select_original(session):
@@ -252,7 +261,15 @@ def run_experiment_operation(request):
     # After "--": a name may start with "-", which is not an option.
     cmd.extend(["--", request.POST["name"]])
 
-    launch_detached(cmd, "wisp_experiments.out", request.session)
+    request.session[_awaited_key] = {
+        "command": command,
+        "name": request.POST["name"],
+        "original_id": request.session["original_id"],
+        # Its own copy, which a later launch elsewhere does not replace.
+        # The process started is the operation itself: wisp-experiments
+        # does its work in it, so its end is the operation's.
+        "launch": launch_detached(cmd, "wisp_experiments.out", request.session),
+    }
     return redirect("processing:progress", await_start=0)
 
 
@@ -279,3 +296,107 @@ def delete_merge_backups(request):
                 + ".",
             )
     return redirect("processing:progress")
+
+
+def _is_running(process_id):
+    """
+    Is the process of an operation still running?
+
+    The process started is the operation itself, wisp-experiments handing
+    its work to no other, so once it has exited the operation has recorded
+    all it ever will: its run as finished, then the error that ended it, if
+    any. The run alone would not tell: it is finished first.
+    """
+
+    try:
+        # Reaped by launch_detached once it ends, so never left a zombie
+        # for long.
+        return psutil.Process(process_id).status() != psutil.STATUS_ZOMBIE
+    except psutil.NoSuchProcess:
+        return False
+
+
+def _describe_done(command, name, original_name):
+    """Return what an operation that succeeded did, as reported."""
+
+    if command == "create":
+        return f"Created experiment {name!r} of {original_name}."
+    if command == "reset":
+        return (
+            f"Reset experiment {name!r} to the processing of "
+            f"{original_name}."
+        )
+    if command == "merge":
+        return (
+            f"Merged experiment {name!r} into {original_name}, which is "
+            "backed up until the merge backups are deleted."
+        )
+    if command == "restore":
+        return (
+            f"Restored {original_name} from the interrupted merge of "
+            f"experiment {name!r}."
+        )
+    return f"Deleted experiment {name!r} of {original_name}."
+
+
+def report_finished_operation(request):
+    """
+    Report how the operation launched last ended, once it has.
+
+    Reported once, as a message, whatever is selected by then: the error
+    that ended it, linked to its details; or that it ended without recording
+    anything, e.g. failing to start; or what it did. Read from the original's
+    database, through an engine of its own. A created experiment is then
+    selected, if its original still is. Forgotten if the original is gone.
+
+    Returns:
+        HttpResponse or None:    Where to go instead of the progress page:
+        the experiment just created. None to show the progress page.
+    """
+
+    awaited = request.session.get(_awaited_key)
+    if awaited is None or _is_running(awaited["launch"]["process"]):
+        return None
+    del request.session[_awaited_key]
+    original = Project.objects.filter(  # pylint: disable=no-member
+        id=awaited["original_id"]
+    ).first()
+    if original is None:
+        return None
+
+    engine = create_project_engine(get_project_url(original.path))
+    try:
+        with start_engine_session(engine) as db_session:
+            runs, errors = find_since_launch(awaited["launch"], db_session)
+            failure = (errors[0].id, errors[0].user_message) if errors else None
+    finally:
+        engine.dispose()
+
+    command, name = awaited["command"], awaited["name"]
+    if failure is not None:
+        messages.error(
+            request,
+            f"{command.capitalize()} experiment {name!r} of {original.name} "
+            f"failed: {failure[1]}",
+            extra_tags=str(failure[0]),
+        )
+        return None
+    if not runs:
+        messages.error(
+            request,
+            f"{command.capitalize()} experiment {name!r} of {original.name} "
+            "ended without recording anything: see wisp_experiments.out in "
+            f"{platformdirs.user_data_dir('autowisp')}.",
+        )
+        return None
+
+    messages.success(request, _describe_done(command, name, original.name))
+    if (
+        command == "create"
+        and request.session.get("original_id") == original.id
+        and request.session.get("experiment_name") is None
+    ):
+        return redirect(
+            "home:select_experiment", project_id=original.id, name=name
+        )
+    return None

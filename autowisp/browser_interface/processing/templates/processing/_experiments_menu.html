@@ -1,33 +1,32 @@
-{% comment %} The experiments menu, for the top bar: in the original, its
-   experiments with their actions, creating one, and deleting the backups
-   merges left; in an experiment, its own actions, then the way back to the
-   original and to its siblings. What each row offers is decided by
-   plan_experiments_menu; this only draws it. Reset, merge and delete, and
-   deleting backups, lead to a confirmation page; restoring and creating
-   start at once. {% endcomment %}
+{% comment %} The experiments menu, for the top bar. In the original,
+   "Experiments": its experiments with their actions, creating one, and
+   deleting the backups merges left. In an experiment, "Switch to": the way
+   back to the original and to its siblings, with the experiment's own
+   actions as buttons beside it, outside the menu. What each row offers is
+   decided by plan_experiments_menu; this only draws it. Reset, merge and
+   delete, and deleting backups, lead to a confirmation page; restoring and
+   creating start at once. {% endcomment %}
 {% url 'processing:confirm_experiment_operation' as confirm_url %}
 {% url 'processing:experiment_operation' as operation_url %}
 <button type="button"
         popovertarget="experiments-menu"
-        class="lcars-bar horizontal button popover-menu-button
+        class="lcars-bar horizontal button bar-button popover-menu-button
                {% if experiments_menu.needs_attention %}lcars-atomic-tangerine-bg{% else %}lcars-rust-bg{% endif %}"
         {% if experiments_menu.needs_attention %}
         title="An experiment is stale, or an operation on one was interrupted"
         {% endif %}>
-    Experiments
+    {% if experiments_menu.selected %}Switch to{% else %}Experiments{% endif %}
 </button>
+{% if experiments_menu.selected %}
+<a class="lcars-bar horizontal button bar-button lcars-rust-bg"
+   href="{{ confirm_url }}?command=merge&amp;name={{ experiments_menu.selected|urlencode }}">Merge</a>
+<a class="lcars-bar horizontal button bar-button lcars-rust-bg"
+   href="{{ confirm_url }}?command=reset&amp;name={{ experiments_menu.selected|urlencode }}">Reset</a>
+<a class="lcars-bar horizontal button bar-button lcars-rust-bg"
+   href="{{ confirm_url }}?command=delete&amp;name={{ experiments_menu.selected|urlencode }}">Delete</a>
+{% endif %}
 <div popover id="experiments-menu" class="popover-menu">
     {% if experiments_menu.selected %}
-    <div class="popover-menu-row">
-        <span class="popover-menu-label">{{ experiments_menu.selected }}</span>
-        <a class="popover-menu-action"
-           href="{{ confirm_url }}?command=merge&amp;name={{ experiments_menu.selected|urlencode }}">Merge</a>
-        <a class="popover-menu-action"
-           href="{{ confirm_url }}?command=reset&amp;name={{ experiments_menu.selected|urlencode }}">Reset</a>
-        <a class="popover-menu-action"
-           href="{{ confirm_url }}?command=delete&amp;name={{ experiments_menu.selected|urlencode }}">Delete</a>
-    </div>
-    <div class="popover-menu-separator"></div>
     <div class="popover-menu-row">
         <a class="popover-menu-label"
            href="{% url 'home:select_project' project_id=experiments_menu.original.id %}">
