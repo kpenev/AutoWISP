@@ -10,6 +10,14 @@ description: Conventions for BUI code
 - JavaScript should be in .js files, not inline in the HTML. This allows for
   better separation of concerns and easier maintenance.
 
+- **Prefer red hues when picking a colour, and avoid the blue family for
+  anything prominent.** Astronomical software keeps to red so as not to spoil
+  the observer's dark adaptation. Red alert (`#e10`) and the orange of
+  warnings (`atomic-tangerine`, `#f90`) mean alerts, so a colour that is to
+  say anything else takes another warm LCARS colour: an experiment's frame
+  and rows are bourbon (`#b62`) for that reason. Check that it stands apart
+  from the controls beside it (rust and chestnut-rose are close to red).
+
 - Maximize reusability of components. If you find yourself copying and pasting
   code, it's a sign that you should create a base component (e.g. template) and
   inherit from it.
