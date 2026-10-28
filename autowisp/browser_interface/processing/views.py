@@ -41,6 +41,7 @@ from .experiment_views import (
     confirm_experiment_operation,
     delete_merge_backups,
     run_experiment_operation,
+    unlock_project,
 )
 
 # pylint: enable=unused-import

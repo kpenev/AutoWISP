@@ -44,12 +44,18 @@ Processing Progress
 {% endif %}
 {% elif locked %}
 <!-- Locked by experiments: the message area says which, and how to release
-     them. -->
-<div class="lcars-element
-            lcars-golden-tanoi-bg
-            lcars-u-1-2">
-    Locked by experiments
-</div>
+     them. A second click leads to the confirmation of unlocking, as starting
+     over pending errors takes one (handled in progress.js). -->
+<a href="{% url 'processing:confirm_experiment_operation' %}?command=unlock">
+    <div class="lcars-element
+                button
+                lcars-golden-tanoi-bg
+                lcars-u-1-2"
+         data-confirm-click="1"
+         data-confirm-text="Click again to unlock">
+        Locked by experiments
+    </div>
+</a>
 {% else %}
 <!-- Submit Start Processing with selected steps. When open processing
      errors exist the button turns red and requires a second click to
@@ -61,7 +67,7 @@ Processing Progress
                lcars-u-1-2"
         id="tutorial-start-processing"
         {% if gate_error_count %}
-        data-confirm-start="1"
+        data-confirm-click="1"
         data-confirm-text="Click again to start anyway"
         {% endif %}>
     {% if gate_error_count %}

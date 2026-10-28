@@ -482,6 +482,34 @@ class ExperimentRecords:
             details={"experiments": locking},
         )
 
+    def plan_unlock(self):
+        """
+        Return what unlocking would do, for confirming it first.
+
+        Returns:
+            [str]:    The names of the experiments :meth:`unlock` would mark
+                stale: the current ones.
+
+            dict:    The states of the experiments that would still lock the
+                project, by name: those an operation is working on, or was
+                interrupted doing so, e.g. one still being created.
+        """
+
+        experiments = self.get_experiments() or []
+        return (
+            [
+                experiment.name
+                for experiment in experiments
+                if experiment.state == self._current_state
+            ],
+            {
+                experiment.name: experiment.state
+                for experiment in experiments
+                if experiment.state
+                not in {self._current_state, *self._unlocked_states}
+            },
+        )
+
     def unlock(self):
         """
         Release the lock by marking every current experiment stale.
@@ -498,14 +526,7 @@ class ExperimentRecords:
             [str]:    The names of the experiments marked stale.
         """
 
-        experiments = self.get_experiments()
-        if experiments is None:
-            return []
-        unlocked = [
-            experiment.name
-            for experiment in experiments
-            if experiment.state == self._current_state
-        ]
+        unlocked = self.plan_unlock()[0]
         if unlocked:
             # By name, so that an experiment created since the read above is
             # not marked stale without being reported.

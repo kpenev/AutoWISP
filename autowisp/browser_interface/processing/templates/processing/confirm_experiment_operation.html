@@ -2,9 +2,10 @@
 {% load static %}
 
 {% comment %} Confirms an operation that loses something, saying what:
-   resetting, merging or deleting an experiment, or deleting the backups
-   merges left. A merge's warning depends on why it would lose a change to
-   the original (merge_case). {% endcomment %}
+   resetting, merging or deleting an experiment, deleting the backups merges
+   left, or unlocking the original, which makes its current experiments
+   stale. A merge's warning depends on why it would lose a change to the
+   original (merge_case). {% endcomment %}
 
 {% block header_title %}
 Confirm
@@ -16,7 +17,7 @@ Confirm
 {% endblock extra_head %}
 
 {% block app_title %}
-{% if command == 'delete-backup' %}Delete merge backups{% else %}{{ command }} experiment {{ name }}{% endif %}
+{% if command == 'delete-backup' %}Delete merge backups{% elif command == 'unlock' %}Unlock {{ original.name }}{% else %}{{ command }} experiment {{ name }}{% endif %}
 {% endblock app_title %}
 
 {% block left_menu %}
@@ -30,6 +31,8 @@ Confirm
     {% if merge_case == 'unchanged' %}Merge{% else %}Merge anyway{% endif %}
     {% elif command == 'delete-backup' %}
     Delete backups
+    {% elif command == 'unlock' %}
+    Unlock
     {% else %}
     {{ command }}
     {% endif %}
@@ -44,7 +47,7 @@ Confirm
 {% block main %}
 <form id="confirm-operation"
       method="post"
-      action="{% if command == 'delete-backup' %}{% url 'processing:delete_merge_backups' %}{% else %}{% url 'processing:experiment_operation' %}{% endif %}">
+      action="{% if command == 'delete-backup' %}{% url 'processing:delete_merge_backups' %}{% elif command == 'unlock' %}{% url 'processing:unlock_project' %}{% else %}{% url 'processing:experiment_operation' %}{% endif %}">
     {% csrf_token %}
     <input type="hidden" name="command" value="{{ command }}">
     {% if name %}
@@ -86,6 +89,39 @@ Confirm
         Without them, putting the project back as it was before a merge is
         no longer possible.
     </p>
+
+    {% elif command == 'unlock' %}
+    <p>
+        Unlock {{ original.name }}, so that it can be processed and
+        configured again.
+    </p>
+    {% if marked_stale %}
+    <p>These experiments become stale:</p>
+    <ul>
+        {% for experiment in marked_stale %}
+        <li>{{ experiment }}</li>
+        {% endfor %}
+    </ul>
+    <p>
+        Their configurations are kept. Merging one later loses whatever
+        changes in {{ original.name }} meanwhile, so it then takes "Merge
+        anyway". Resetting one instead brings its processing up to date with
+        {{ original.name }}, and locks it again.
+    </p>
+    {% else %}
+    <p>No experiment is current, so none becomes stale.</p>
+    {% endif %}
+    {% if still_locking %}
+    <p>
+        These keep it locked, since an operation is working on them or was
+        interrupted doing so:
+    </p>
+    <ul>
+        {% for experiment, state in still_locking.items %}
+        <li>{{ experiment }} ({{ state }})</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 
     {% elif command == 'merge' %}
     {% if merge_case == 'stale' %}

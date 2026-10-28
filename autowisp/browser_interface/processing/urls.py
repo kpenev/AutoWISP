@@ -25,6 +25,7 @@ urlpatterns = [
         views.delete_merge_backups,
         name="delete_merge_backups",
     ),
+    path("unlock_project", views.unlock_project, name="unlock_project"),
     path(
         "select_raw_images/<path:dirname>/",
         views.SelectRawImages.as_view(),

@@ -72,6 +72,7 @@ class TestProjectLock(ProjectCopyCase):
         }
 
         locking = {}
+        planned = {}
         unlocked = {}
         locking_after = {}
         openable = {}
@@ -93,6 +94,7 @@ class TestProjectLock(ProjectCopyCase):
                 except ExperimentError:
                     pass
             locking[project] = self._get_locking(experiments)
+            planned[project] = experiments.plan_unlock()
             unlocked[project] = experiments.unlock()
             locking_after[project] = self._get_locking(experiments)
 
@@ -126,6 +128,14 @@ class TestProjectLock(ProjectCopyCase):
         self.assertEqual(
             locking_after,
             {project: after for project, (_, _, after) in projects.items()},
+        )
+        # Confirming asks first: what it says matches what unlocking did.
+        self.assertEqual(
+            planned,
+            {
+                project: (unlocked[project], locking_after[project])
+                for project in projects
+            },
         )
 
     def test_run_refused(self):

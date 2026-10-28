@@ -155,11 +155,12 @@ def confirm_experiment_operation(request):
     change to the original: the experiment is stale, or it is current but
     the original changed despite the lock, which only hashing the original
     tells -- done here, never in the menu. A delete names the runs it would
-    stop.
+    stop. Unlocking the project (``command`` alone, ``unlock``) names the
+    experiments it makes stale, and those that would still lock it.
     """
 
     command = request.GET.get("command")
-    if command not in ("reset", "merge", "delete", "delete-backup"):
+    if command not in ("reset", "merge", "delete", "delete-backup", "unlock"):
         return HttpResponseBadRequest(f"Nothing to confirm for {command!r}.")
     name = request.GET.get("name")
     context = {"command": command, "name": name}
@@ -174,6 +175,10 @@ def confirm_experiment_operation(request):
                     os.path.basename(backup)
                     for backup in experiments.list_merge_backups()
                 ]
+            elif command == "unlock":
+                context["marked_stale"], context["still_locking"] = (
+                    experiments.plan_unlock()
+                )
             elif command == "merge":
                 experiment = next(
                     (
@@ -295,6 +300,30 @@ def delete_merge_backups(request):
                 + ", ".join(os.path.basename(backup) for backup in deleted)
                 + ".",
             )
+    return redirect("processing:progress")
+
+
+@require_POST
+def unlock_project(request):
+    """
+    Unlock the original, at once, by marking its current experiments stale.
+
+    Quick, and recording no run, so not a background operation. Experiments
+    an operation is working on keep the lock, which the progress page then
+    goes on showing.
+    """
+
+    with _get_project_experiments(request.session) as (experiments, original):
+        unlocked = experiments.unlock()
+    if unlocked:
+        messages.success(
+            request,
+            f"Unlocked {original.name}, marking stale: "
+            + ", ".join(unlocked)
+            + ".",
+        )
+    else:
+        messages.info(request, "No experiment was current to mark stale.")
     return redirect("processing:progress")
 
 

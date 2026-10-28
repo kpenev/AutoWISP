@@ -78,10 +78,11 @@
   window.addEventListener('load', setupRefresh);
 })();
 
-//two-click confirm before starting over pending errors
+//two-click confirm: before starting over pending errors, and before going on
+//to unlock a project locked by its experiments
 (function () {
   document.addEventListener('click', function (e) {
-    var btn = e.target && e.target.closest('[data-confirm-start]');
+    var btn = e.target && e.target.closest('[data-confirm-click]');
     if (!btn) return;
     if (btn.dataset.armed === '1') return; //second click: let it submit
     e.preventDefault();
