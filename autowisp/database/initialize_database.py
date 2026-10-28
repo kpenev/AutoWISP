@@ -56,6 +56,18 @@ engine_set_options = (
     "master-photref-fname",
 )
 
+#: The values a new project stores in place of a step's own default, where
+#: the engine knows more than a step run by hand. The engine runs a step for
+#: one image type at a time, so its logs can be named by it, which is how
+#: the logs of one step for several types are told apart; a step run by hand
+#: has no image type to name them by.
+engine_run_defaults = {
+    "logging-fname": "{PROJHOME}/LOGS/"
+    "{processing_step:s}_{image_type:s}_{task:s}_{now:s}_pid{pid:d}.log",
+    "std-out-err-fname": "{PROJHOME}/LOGS/"
+    "{processing_step:s}_{image_type:s}_{task:s}_{now:s}_pid{pid:d}.outerr",
+}
+
 
 def get_command_line_parser():
     """Create a parser with all required command line arguments."""
@@ -169,16 +181,16 @@ class StepCreator:
                     self._db_parameters[param] = Parameter(
                         name=param, description=description
                     )
-                    print(
-                        f"Setting {param} = "
-                        f'{default_step_config["argument_defaults"][param]}'
+                    default_value = engine_run_defaults.get(
+                        param, default_step_config["argument_defaults"][param]
                     )
+                    print(f"Setting {param} = {default_value}")
                     # False positive
                     # pylint: disable=not-callable
                     configuration = Configuration(
                         version=0,
                         condition_id=self._default_condition.id,
-                        value=default_step_config["argument_defaults"][param],
+                        value=default_value,
                     )
                     # pylint: enable=not-callable
                     configuration.parameter = self._db_parameters[param]

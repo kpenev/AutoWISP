@@ -30,6 +30,7 @@ from autowisp.database.migrate import (
     get_schema_drift,
 )
 from autowisp.exceptions import DatabaseError
+from autowisp.project_paths import PROJHOME_MARKER
 from autowisp.tests.test_database_migration import (
     BackendMixin,
     expected_timestamp_triggers,
@@ -224,6 +225,12 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
         # name, so moving it would lose the ones already written.
         "epd-statistics-fname",
         "tfa-statistics-fname",
+        # A new project names its logs by image type too. The BUI finds a
+        # run's logs by expanding the stored name, so changing it would lose
+        # the ones already written, and they cannot be renamed: an
+        # ``.outerr`` file does not say which image type it was for.
+        "logging-fname",
+        "std-out-err-fname",
     )
     """Parameters whose default has changed since one of the releases.
 
@@ -623,7 +630,12 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                 engine = self._initialize_project(
                     self._export_release(ref), f"from_{ref}"
                 )
-                stored_values = self._get_stored_values(engine)
+                # Kept as they mean, though 0018 spells the home in the log
+                # names as every other stored path does.
+                stored_values = [
+                    (name, value.replace("{project_home}", PROJHOME_MARKER))
+                    for name, value in self._get_stored_values(engine)
+                ]
                 self._run_alembic(
                     engine, alembic_command.upgrade, self.last_schema_revision
                 )

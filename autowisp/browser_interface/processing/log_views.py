@@ -8,6 +8,7 @@ from sqlalchemy import select, func, and_
 
 from autowisp.database.interface import start_db_session
 from autowisp.database.image_processing import ImageProcessingManager
+from autowisp.exceptions import LogLookupError
 
 # False positive
 # pylint: disable=no-name-in-module
@@ -130,9 +131,16 @@ def review_single(
         "selected_subp": sub_process,
     }
 
-    log_output_fnames = ImageProcessingManager(
-        pipeline_run_id=None
-    ).find_processing_outputs(selected_processing_id)
+    try:
+        log_output_fnames = ImageProcessingManager(
+            pipeline_run_id=None
+        ).find_processing_outputs(selected_processing_id)
+    except LogLookupError as refusal:
+        # A refusal, not a failure of the page: shown in the pane without
+        # being recorded as an error, which every opening would repeat.
+        return render(
+            request, "core/frame_error.html", {"message": str(refusal)}
+        )
     context["sub_processes"] = range(1, len(log_output_fnames[1][0]) + 1)
     assert len(log_output_fnames[1][0]) == len(log_output_fnames[1][1])
 

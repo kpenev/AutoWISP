@@ -135,6 +135,7 @@ from autowisp.tests.test_crash_report import (
     TestCrashReportCli,
     TestCollectEnvironment,
 )
+from autowisp.tests.test_log_lookup import TestLogLookup
 from autowisp.tests.test_full_pipeline import (
     TestFullPipeline,
     TestRelocatedPipeline,

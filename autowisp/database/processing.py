@@ -23,7 +23,11 @@ from autowisp.database.interface import (
     start_db_session,
 )
 from autowisp.database.experiments import ExperimentRecords
-from autowisp.exceptions import ConfigurationError, PipelineError
+from autowisp.exceptions import (
+    ConfigurationError,
+    LogLookupError,
+    PipelineError,
+)
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
@@ -730,6 +734,10 @@ class ProcessingManager:
         Returns:
             tuple:    ``(main_fnames, worker_fnames)`` as produced by
                 ``get_log_outerr_filenames``.
+
+        Raises:
+            LogLookupError:    If the run's main process does not have exactly
+                one log and one output file matching the configured names.
         """
 
         if db_session is None:
@@ -765,11 +773,20 @@ class ProcessingManager:
             **self._processing_config,
         )
         logging.info("Main fnames: %s", repr(main_fnames))
-        assert len(main_fnames[0]) == len(main_fnames[1]) == 1, (
-            f"{processing_progress.step.name} reported "
-            f"{len(main_fnames[0])} input and {len(main_fnames[1])} output "
-            "files where exactly one of each was expected!"
+        run_description = (
+            f"{processing_progress.step.name} of {image_type} frames by "
+            f"process {processing_progress.run.process_id}"
         )
+        if max(map(len, main_fnames)) > 1:
+            raise LogLookupError(
+                f"The logs of {run_description} cannot be told apart from "
+                "those of the same process for other image types or steps: "
+                f"{len(main_fnames[0])} logs and {len(main_fnames[1])} "
+                "outputs match. Adding {image_type} to both logging-fname "
+                "and std-out-err-fname fixes this for later runs."
+            )
+        if min(map(len, main_fnames)) == 0:
+            raise LogLookupError(f"No logs of {run_description} were found.")
 
         return (
             tuple(fname[0] for fname in main_fnames),

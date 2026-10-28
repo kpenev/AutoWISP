@@ -608,6 +608,10 @@ class ExperimentError(PipelineError):
     """An operation on experiments refused, or unable to complete."""
 
 
+class LogLookupError(PipelineError):
+    """No log, or several that cannot be told apart, found for a run."""
+
+
 # --- BUI-level exceptions. --------------------------------------------
 
 
