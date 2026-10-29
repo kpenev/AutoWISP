@@ -120,7 +120,7 @@ Confirm
 
     {% elif command == 'merge' %}
     {% if merge_case == 'stale' %}
-    <div class="bui-calloutlcars-atomic-tangerine-bg">
+    <div class="bui-callout lcars-atomic-tangerine-bg">
         <p>
             {{ original.name }} changed after experiment {{ name }} was
             copied from it: it was unlocked, another experiment was merged,
@@ -138,7 +138,7 @@ Confirm
     <input type="hidden" name="force" value="1">
 
     {% elif merge_case == 'changed' %}
-    <div class="bui-calloutlcars-red-alert-bg">
+    <div class="bui-callout lcars-red-alert-bg">
         <p>
             {{ original.name }} changed although experiment {{ name }} locked
             it. AutoWISP cannot tell what changed, and merging discards it.
