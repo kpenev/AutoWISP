@@ -16,8 +16,9 @@ directory's ``pending_projects/``, which is how the interface follows it:
   or ``"failed"`` with a ``message``.
 
 Each write replaces the whole file at once, so it is never read half
-written. Free of Django: the interface registers the project itself, once it
-finds the clone done (:func:`list_pending`).
+written. The clone's log is kept beside the record (:func:`get_log_fname`).
+Free of Django: the interface registers the project itself, once it finds
+the clone done (:func:`list_pending`).
 """
 
 import json
@@ -29,11 +30,15 @@ from uuid import uuid4
 
 import platformdirs
 
-from autowisp.database.existing_project import clone_server_database
+from autowisp.database.existing_project import (
+    clone_fname,
+    clone_server_database,
+)
 from autowisp.database.pipeline_runs import (
     get_process_started,
     is_process_alive,
 )
+from autowisp.exceptions import ProjectStateError
 
 _logger = logging.getLogger(__name__)
 
@@ -77,6 +82,14 @@ def get_pending_fname(pending_id, pending_dir=None):
     if not _is_pending_id(pending_id):
         raise ValueError(f"{pending_id!r} is not the id of a pending addition.")
     return os.path.join(pending_dir or get_pending_dir(), pending_id + ".json")
+
+
+def get_log_fname(pending_id, pending_dir=None):
+    """Return the log of a pending addition's clone, beside its record."""
+
+    return (
+        os.path.splitext(get_pending_fname(pending_id, pending_dir))[0] + ".log"
+    )
 
 
 def _write_record(fname, record):
@@ -188,6 +201,20 @@ def _judge_record(record):
     return "not started"
 
 
+def _read_pending(pending_id, pending_dir):
+    """Return the addition's record, with its ``id`` and ``state``."""
+
+    fname = get_pending_fname(pending_id, pending_dir)
+    record = _read_record(fname)
+    state = _judge_record(record)
+    if state in ("interrupted", "not started"):
+        # The clone may have recorded more since: its outcome, written
+        # before its process ends, or its process, once it has started.
+        record = _read_record(fname)
+        state = _judge_record(record)
+    return dict(record, id=pending_id, state=state)
+
+
 def list_pending(pending_dir=None):
     """
     Return each pending addition, with how it stands, oldest first.
@@ -213,22 +240,59 @@ def list_pending(pending_dir=None):
     result = []
     for entry in os.listdir(pending_dir):
         pending_id, extension = os.path.splitext(entry)
-        # Anything else in the directory is not a record add_pending wrote.
+        # Anything else in the directory, e.g. a clone's log, is not a record
+        # add_pending wrote.
         if extension != ".json" or not _is_pending_id(pending_id):
             continue
-        fname = os.path.join(pending_dir, entry)
-        record = _read_record(fname)
-        state = _judge_record(record)
-        if state in ("interrupted", "not started"):
-            # The clone may have recorded more since: its outcome, written
-            # before its process ends, or its process, once it has started.
-            record = _read_record(fname)
-            state = _judge_record(record)
-        result.append(dict(record, id=pending_id, state=state))
+        result.append(_read_pending(pending_id, pending_dir))
     return sorted(result, key=lambda pending: pending["launched"])
 
 
 def remove_pending(pending_id, pending_dir=None):
-    """Remove the record of a pending addition, e.g. once it is registered."""
+    """Remove the record of a pending addition and its clone's log, if any.
+
+    E.g. once the project is registered. The record goes first, so that a
+    second call for the same addition raises ``FileNotFoundError``: only one
+    of two requests settling it at once registers the project.
+    """
 
     os.remove(get_pending_fname(pending_id, pending_dir))
+    log_fname = get_log_fname(pending_id, pending_dir)
+    if os.path.exists(log_fname):
+        os.remove(log_fname)
+
+
+def dismiss_pending(pending_id, pending_dir=None):
+    """
+    Give up on a pending addition that did not finish, cleaning up after it.
+
+    Its record and log are removed, and so is an unfinished SQLite clone,
+    which only the clone writes. A server database it was cloning into is
+    left as it is: the clone may have ended before finding it empty, leaving
+    tables that are another's.
+
+    Args:
+        pending_id(str):    The addition's id.
+
+        pending_dir(str):    The directory of the records, None for
+            :func:`get_pending_dir`.
+
+    Returns:
+        None
+
+    Raises:
+        ProjectStateError:    If the addition is still cloning or done: there
+            is nothing to give up on.
+    """
+
+    pending = _read_pending(pending_id, pending_dir)
+    if pending["state"] in ("cloning", "done"):
+        raise ProjectStateError(
+            f"The addition of {pending['name']!r} cannot be dismissed: it is "
+            f"{pending['state']}."
+        )
+    if pending["target_url"] is None:
+        clone_path = os.path.join(pending["home"], clone_fname)
+        if os.path.exists(clone_path):
+            os.remove(clone_path)
+    remove_pending(pending_id, pending_dir)

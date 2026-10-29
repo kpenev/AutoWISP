@@ -59,3 +59,16 @@ tbody.lcars-table.select-row tr.unavailable:hover {
     color: grey;
     cursor: default;
 }
+
+/* Giving up on a project being added whose clone did not finish: beside
+ * the reason, in its greyed row. */
+.dismiss-button {
+    margin-left: 1rem;
+    padding: 0.25rem 0.75rem;
+    border: none;
+    border-radius: 1rem;
+    font-family: inherit;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+}

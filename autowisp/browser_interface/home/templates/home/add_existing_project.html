@@ -1,0 +1,157 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% comment %} Adds a project moved or copied by hand: its home, its name and
+   description, and for one naming a server database, what to do with that
+   (home/existing_project_views.py). The home is checked each time the page
+   is shown: one refused sends the user back to choosing it, with the
+   reason. {% endcomment %}
+
+{% block extra_head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'home/css/create_project.css' %}">
+<link rel="stylesheet"
+      href="{% static 'home/css/add_existing_project.css' %}">
+{% endblock extra_head %}
+
+{% block header_title %}
+Add Existing Project
+{% endblock header_title %}
+
+{% block app_title %}
+ADD EXISTING PROJECT
+{% endblock app_title %}
+
+{% block left_menu %}
+{% if project %}
+<input type="submit"
+       name="add"
+       value="Add Project"
+       form="add-existing-project"
+       class="lcars-element button lcars-u-1-2 lcars-melrose-bg"/>
+{% endif %}
+
+{{ block.super }}
+
+<a href="{% url 'home:home' %}">
+    <div class="lcars-element button lcars-red-alert-bg">Cancel</div>
+</a>
+{% endblock left_menu %}
+
+{% block main %}
+
+<form id="add-existing-project" method="post">
+    {% csrf_token %}
+    {% if project %}
+    {% comment %} First, so that Enter in a field adds the project rather
+       than choosing the home again. {% endcomment %}
+    <input type="submit" name="add" value="Add Project" hidden/>
+    {% endif %}
+    <input type="submit"
+           id="select-home"
+           name="select-home"
+           value="Select Home"
+           hidden/>
+
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <label for="select-home"
+                           class="project-param-label button">
+                        Project&nbsp;Home:
+                    </label>
+                </td>
+                <td>
+                    <label for="select-home"
+                           class="project-text-input button lcars-u--1 home-path">
+                        {% if home %}{{ home }}{% else %}click to choose{% endif %}
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="project-name" class="project-param-label">
+                        Project Name:
+                    </label>
+                </td>
+                <td>
+                    <input type="text"
+                           id="project-name"
+                           name="name"
+                           value="{{ name }}"
+                           placeholder="the home's directory name"
+                           class="project-text-input lcars-u-3-1"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="project-description"
+                           class="lcars-u--2 project-param-label">
+                        Project&nbsp;Description (optional):
+                    </label>
+                </td>
+                <td>
+                    <textarea id="project-description"
+                              name="description"
+                              class="project-text-input
+                                     lcars-u-3-2">{{ description }}</textarea>
+                </td>
+            </tr>
+            {% if project %}
+            <tr>
+                <td>
+                    <span class="project-param-label">Database:</span>
+                </td>
+                <td class="database-choices">
+                    {% if project.db_url is None %}
+                    <p>
+                        Its own, autowisp.db in its home. Migrated, if
+                        behind, when the project is first selected.
+                    </p>
+                    {% else %}
+                    <p>On a server: {{ project.db_url }}</p>
+                    <label>
+                        <input type="radio"
+                               name="choice"
+                               value="clone-sqlite"
+                               {% if choice == 'clone-sqlite' %}checked{% endif %}>
+                        Clone it into SQLite, in the project's home
+                    </label>
+                    <label>
+                        <input type="radio"
+                               name="choice"
+                               value="clone-server"
+                               {% if choice == 'clone-server' %}checked{% endif %}>
+                        Clone it into the empty database at:
+                    </label>
+                    <input type="text"
+                           name="target-url"
+                           value="{{ target_url }}"
+                           placeholder="e.g. mysql+pymysql://user:pass@host:3306/dbname"
+                           class="project-text-input lcars-u-3-1 target-url"/>
+                    <label>
+                        <input type="radio"
+                               name="choice"
+                               value="use-existing"
+                               {% if choice == 'use-existing' %}checked{% endif %}>
+                        Use it as it is
+                    </label>
+                    {% if project.sharing_homes %}
+                    <div class="bui-callout lcars-atomic-tangerine-bg">
+                        It is the database of the registered
+                        project{{ project.sharing_homes|pluralize }} in
+                        {{ project.sharing_homes|join:", " }}.
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</form>
+
+{{ block.super }}
+
+{% endblock main %}

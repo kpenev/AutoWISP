@@ -51,6 +51,7 @@ from .create_project_view import (  # pylint: disable=unused-import
     CreateProjectView,
     MasterConfigView,
 )
+from .existing_project_views import settle_pending
 from .models import Project
 
 logger = logging.getLogger(__name__)
@@ -93,6 +94,8 @@ def _list_experiments(project):
 def home(request):
     """Display the home page."""
 
+    # First, so that a project whose clone is done is listed with the rest.
+    pending = settle_pending(request)
     display_columns = [
         field.name
         for field in Project._meta.get_fields()  # pylint: disable=no-member, protected-access
@@ -117,6 +120,8 @@ def home(request):
             for proj in Project.objects.all()  # pylint: disable=no-member
         ],
         "missing_db_ids": missing_db_ids,
+        # Projects being added, whose clone is not done.
+        "pending": pending,
     }
     print(f"Context: {context!r}")  # Debugging output
     return render(request, "home/index.html", context)

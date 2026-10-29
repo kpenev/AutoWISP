@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from . import views
+from . import existing_project_views, views
 
 app_name = "home"
 
@@ -54,6 +54,31 @@ urlpatterns = [
             template="home/create_directory.html",
         ),
         name="create_directory",
+    ),
+    path(
+        "add_existing_project",
+        existing_project_views.add_existing_project,
+        name="add_existing_project",
+    ),
+    path(
+        "select_existing_home/",
+        existing_project_views.SelectExistingHomeView.as_view(),
+        name="select_existing_home",
+    ),
+    path(
+        "select_existing_home/<path:dirname>/",
+        existing_project_views.SelectExistingHomeView.as_view(),
+        name="select_existing_home",
+    ),
+    path(
+        "confirm_existing_database",
+        existing_project_views.confirm_existing_database,
+        name="confirm_existing_database",
+    ),
+    path(
+        "dismiss_pending_project/<slug:pending_id>/",
+        existing_project_views.dismiss_pending_project,
+        name="dismiss_pending_project",
     ),
     path(
         "select_project/<int:project_id>/",

@@ -31,6 +31,7 @@ SELECT PROJECT HOME
        style="display: none"/>
 {% endif %}
 
+{% block create_dir_link %}
 {% with parent_dir_list|last as current_dir %}
 <a href="{% url 'home:create_directory' dirname=current_dir.0 %}">
     <div class="lcars-element button lcars-u-1-2 lcars-chestnut-rose-bg">
@@ -38,6 +39,7 @@ SELECT PROJECT HOME
     </div>
 </a>
 {% endwith %}
+{% endblock create_dir_link %}
 
 {% endblock create_dir_button %}
 

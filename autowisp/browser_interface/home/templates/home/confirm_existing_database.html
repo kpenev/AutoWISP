@@ -1,0 +1,68 @@
+{% extends 'core/lcars_app.html' %}
+
+{% comment %} Confirms adding a project on the server database its home
+   names, rather than on a clone of it: anything else using that database
+   would then share it. Said more strongly when a registered project is
+   known to (project.sharing_homes). {% endcomment %}
+
+{% block header_title %}
+Confirm
+{% endblock header_title %}
+
+{% block app_title %}
+Use the database of {{ name }} as it is
+{% endblock app_title %}
+
+{% block left_menu %}
+<button type="submit"
+        form="confirm-existing-database"
+        class="lcars-element
+               button
+               {% if project.sharing_homes %}lcars-red-alert-bg{% else %}lcars-chestnut-rose-bg{% endif %}
+               lcars-u-1-2">
+    Use It
+</button>
+<a href="{% url 'home:add_existing_project' %}">
+    <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+        Cancel
+    </div>
+</a>
+{% endblock left_menu %}
+
+{% block main %}
+<form id="confirm-existing-database" method="post">
+    {% csrf_token %}
+    <p>
+        Add project {{ name }}, in {{ project.home }}, on the database its
+        home names: {{ project.db_url }}.
+    </p>
+    {% if project.sharing_homes %}
+    <div class="bui-callout lcars-red-alert-bg">
+        <p>
+            That is the database of the registered
+            project{{ project.sharing_homes|pluralize }} in:
+        </p>
+        <ul>
+            {% for sharing_home in project.sharing_homes %}
+            <li>{{ sharing_home }}</li>
+            {% endfor %}
+        </ul>
+        <p>
+            Both homes would then record their processing in it, each
+            finding there the other's, whose files are not in its home.
+            Clone the database instead, unless the other home is no longer
+            used.
+        </p>
+    </div>
+    {% else %}
+    <div class="bui-callout lcars-atomic-tangerine-bg">
+        <p>
+            Anything else still using this database, e.g. the project this
+            home was copied from, perhaps on another computer, would record
+            its processing in it too, mixed with this one's. Clone the
+            database instead, unless nothing else uses it.
+        </p>
+    </div>
+    {% endif %}
+</form>
+{% endblock main %}

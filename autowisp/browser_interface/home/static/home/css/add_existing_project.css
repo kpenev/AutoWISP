@@ -1,0 +1,32 @@
+/* The page adding an existing project. Its labels and inputs are the create
+ * page's (create_project.css); these are only what that page has no rule
+ * for. */
+
+/* The values take the page's width, the labels only theirs. */
+#add-existing-project td:last-child {
+    width: 100%;
+}
+
+.home-path {
+    text-wrap-mode: nowrap;
+}
+
+/* What to do with a server project's database: one choice per line, the
+ * URL to clone into under its own. */
+.database-choices p {
+    margin: 0.5rem 0;
+}
+
+.database-choices label {
+    display: block;
+    margin: 0.5rem 0;
+    cursor: pointer;
+}
+
+.database-choices .target-url {
+    margin-left: 2rem;
+}
+
+.database-choices .bui-callout {
+    margin-top: 1rem;
+}

@@ -38,6 +38,14 @@ Projects
         New Project
     </div>
 </a>
+<a href="{% url 'home:add_existing_project' %}">
+    <div class="lcars-element
+                button
+                lcars-husk-bg
+                lcars-u-1-2">
+        Add Existing Project
+    </div>
+</a>
 <div class="lcars-element
             button
             lcars-chestnut-rose-bg
@@ -139,9 +147,61 @@ Projects
         </tr>
         {% endif %}
         {% endfor %}
+        {% comment %} Projects being added, until their clone is done: not
+           selectable, their state under the description, with a Dismiss
+           once the clone is over. Dismiss submits a form of its own, after
+           this one, which a form cannot hold. {% endcomment %}
+        {% for addition in pending %}
+        <tr class="unavailable">
+            <td></td>
+            {% for column in columns %}
+            {% if column == 'name' %}
+            <td>{{ addition.name }}</td>
+            {% elif column == 'path' %}
+            <td>{{ addition.home }}</td>
+            {% elif column == 'description' %}
+            <td>
+                {% if addition.state == 'cloning' %}
+                Cloning its database&hellip;
+                {% elif addition.state == 'failed' %}
+                Cloning its database failed: {{ addition.message }}
+                Its log: {{ addition.log }}
+                {% elif addition.state == 'interrupted' %}
+                Cloning its database was interrupted.
+                {% if addition.target %}
+                {{ addition.target }} may hold the start of the clone: empty
+                it before cloning into it again.
+                {% endif %}
+                Its log: {{ addition.log }}
+                {% else %}
+                Cloning its database never started: see {{ addition.log }}
+                {% endif %}
+                {% if addition.state != 'cloning' %}
+                <button type="submit"
+                        form="dismiss-{{ addition.id }}"
+                        class="dismiss-button lcars-chestnut-rose-bg">
+                    Dismiss
+                </button>
+                {% endif %}
+            </td>
+            {% else %}
+            <td></td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
 </form>
+{% for addition in pending %}
+{% if addition.state != 'cloning' %}
+<form id="dismiss-{{ addition.id }}"
+      method="post"
+      action="{% url 'home:dismiss_pending_project' pending_id=addition.id %}">
+    {% csrf_token %}
+</form>
+{% endif %}
+{% endfor %}
 {% endblock main %}
 
 {% block scripts %}

@@ -25,6 +25,9 @@ from autowisp.database.migrate import check_known_revision
 from autowisp.exceptions import DatabaseError, ProjectStateError
 from autowisp.project_experiments import ProjectExperiments
 
+# Where an SQLite clone is built, in the home, until it is complete.
+clone_fname = "autowisp.db-clone"
+
 
 def _get_database_key(db_url):
     """
@@ -187,14 +190,14 @@ def clone_server_database(project_home, target_url=None, ignored_runs=()):
                 f"{project_home!r} into {db_fname!r}, which exists already. "
                 "Remove it, or clone into a server database."
             )
-        clone_fname = os.path.join(project_home, "autowisp.db-clone")
-        if os.path.exists(clone_fname):
+        clone_path = os.path.join(project_home, clone_fname)
+        if os.path.exists(clone_path):
             # Left by a clone that failed or was interrupted.
-            os.remove(clone_fname)
+            os.remove(clone_path)
 
     source_engine = create_project_engine(source_url)
     target_engine = create_project_engine(
-        target_url or get_sqlite_url(project_home, "autowisp.db-clone")
+        target_url or get_sqlite_url(project_home, clone_fname)
     )
     try:
         experiments = ProjectExperiments(source_engine, project_home)
@@ -206,7 +209,7 @@ def clone_server_database(project_home, target_url=None, ignored_runs=()):
         target_engine.dispose()
 
     if target_url is None:
-        os.replace(clone_fname, db_fname)
+        os.replace(clone_path, db_fname)
         os.remove(os.path.join(project_home, DB_URL_FNAME))
     else:
         _write_db_url(project_home, target_url)
