@@ -118,11 +118,27 @@ def is_this_machine(pipeline_run):
     return pipeline_run.host == get_hostname()
 
 
-def _is_process_alive(pipeline_run):
-    """Is the process of a run of this machine still running it?"""
+def is_process_alive(process_id, process_started):
+    """
+    Is a process of this machine still running, and still the one recorded?
+
+    By its id together with when it started, so that a process reusing the
+    id is not taken for it: a run's, or a clone's (see
+    :mod:`~autowisp.database.pending_projects`).
+
+    Args:
+        process_id(int):    The process's id.
+
+        process_started(float or None):    When it started, as
+            :func:`get_process_started` gives it; None if not recorded, e.g.
+            a run from before start times were, leaving only the id to go by.
+
+    Returns:
+        bool:    Whether it is still running.
+    """
 
     try:
-        process = psutil.Process(pipeline_run.process_id)
+        process = psutil.Process(process_id)
         if process.status() == psutil.STATUS_ZOMBIE:
             # Ended, and only waiting for its parent to collect it.
             return False
@@ -132,10 +148,9 @@ def _is_process_alive(pipeline_run):
     except psutil.AccessDenied:
         # Another user's process: it exists, which is all there is to know.
         return True
-    if pipeline_run.process_started is None:
-        # Recorded before start times were: the process id is all there is.
+    if process_started is None:
         return True
-    return abs(started - pipeline_run.process_started) <= _START_TIME_TOLERANCE
+    return abs(started - process_started) <= _START_TIME_TOLERANCE
 
 
 def find_active_runs(db_session):
@@ -163,7 +178,9 @@ def find_active_runs(db_session):
     ).all():
         if not is_this_machine(pipeline_run):
             elsewhere.append(pipeline_run)
-        elif _is_process_alive(pipeline_run):
+        elif is_process_alive(
+            pipeline_run.process_id, pipeline_run.process_started
+        ):
             here.append(pipeline_run)
         else:
             _logger.info(
@@ -205,7 +222,9 @@ def stop_run(pipeline_run):
             f"Run {pipeline_run.id} is on {pipeline_run.host}, so it cannot "
             "be stopped from this machine."
         )
-    if not _is_process_alive(pipeline_run):
+    if not is_process_alive(
+        pipeline_run.process_id, pipeline_run.process_started
+    ):
         return False
     try:
         process = psutil.Process(pipeline_run.process_id)

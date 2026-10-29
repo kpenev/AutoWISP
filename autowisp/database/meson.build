@@ -13,6 +13,7 @@ py_src = [
   'lightcurve_processing.py',
   'migrate.py',
   'migrate_cli.py',
+  'pending_projects.py',
   'photref_selection.py',
   'pipeline_runs.py',
   'processing.py',

@@ -1,5 +1,6 @@
 """Tests of adding a project moved or copied by hand."""
 
+import contextlib
 import os
 
 from sqlalchemy import text
@@ -14,6 +15,12 @@ from autowisp.database.existing_project import (
     clone_server_database,
 )
 from autowisp.database.experiments import ExperimentRecords
+from autowisp.database.pending_projects import (
+    add_pending,
+    get_pending_fname,
+    list_pending,
+    run_clone,
+)
 from autowisp.database.interface import (
     DB_URL_FNAME,
     create_project_engine,
@@ -315,3 +322,43 @@ class TestExistingProject(ProjectCopyCase):
 
         with self.assertRaises(DatabaseError):
             clone_server_database(self._copy_project()[1])
+
+    def test_clone_from_record(self):
+        """A clone run from its record writes there how it ended."""
+
+        pending_dir = self._make_dir()
+        homes = {
+            "cloned": self._make_server_project(True)[0],
+            "refused": self._make_server_project(False)[0],
+        }
+        # Refused: an SQLite clone would replace a database there already.
+        with open(os.path.join(homes["refused"], "autowisp.db"), "wb"):
+            pass
+
+        for name, home in homes.items():
+            fname = get_pending_fname(
+                add_pending(name, "", home, None, pending_dir), pending_dir
+            )
+            with (
+                self.assertLogs("autowisp.database.pending_projects", "ERROR")
+                if name == "refused"
+                else contextlib.nullcontext()
+            ):
+                run_clone(fname)
+
+        outcomes = {
+            entry["name"]: (
+                entry["state"],
+                entry.get("stale"),
+                bool(entry.get("message")),
+            )
+            for entry in list_pending(pending_dir)
+        }
+        self.assertEqual(
+            outcomes,
+            {
+                "cloned": ("done", ["changed"], False),
+                "refused": ("failed", None, True),
+            },
+        )
+        self.assertIsNone(read_db_url(homes["cloned"]))

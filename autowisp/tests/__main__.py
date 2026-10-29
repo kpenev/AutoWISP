@@ -62,6 +62,7 @@ from autowisp.tests.test_path_options import TestPathOptions
 from autowisp.tests.test_pipeline_runs import TestFindActiveRuns
 from autowisp.tests.test_copy_tree import TestCopyTree
 from autowisp.tests.test_existing_project import TestExistingProject
+from autowisp.tests.test_pending_projects import TestPendingProjects
 from autowisp.tests.test_experiment_create import TestCreate
 from autowisp.tests.test_experiment_delete import TestDelete
 from autowisp.tests.test_experiment_describe import TestDescribe
