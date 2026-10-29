@@ -11,11 +11,6 @@
 Confirm
 {% endblock header_title %}
 
-{% block extra_head %}
-<link rel="stylesheet"
-      href="{% static 'processing/css/confirm_experiment.css' %}">
-{% endblock extra_head %}
-
 {% block app_title %}
 {% if command == 'delete-backup' %}Delete merge backups{% elif command == 'unlock' %}Unlock {{ original.name }}{% else %}{{ command }} experiment {{ name }}{% endif %}
 {% endblock app_title %}
@@ -125,7 +120,7 @@ Confirm
 
     {% elif command == 'merge' %}
     {% if merge_case == 'stale' %}
-    <div class="experiment-callout lcars-atomic-tangerine-bg">
+    <div class="bui-calloutlcars-atomic-tangerine-bg">
         <p>
             {{ original.name }} changed after experiment {{ name }} was
             copied from it: it was unlocked, another experiment was merged,
@@ -143,7 +138,7 @@ Confirm
     <input type="hidden" name="force" value="1">
 
     {% elif merge_case == 'changed' %}
-    <div class="experiment-callout lcars-red-alert-bg">
+    <div class="bui-calloutlcars-red-alert-bg">
         <p>
             {{ original.name }} changed although experiment {{ name }} locked
             it. AutoWISP cannot tell what changed, and merging discards it.
