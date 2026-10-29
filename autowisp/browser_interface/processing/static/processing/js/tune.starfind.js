@@ -20,7 +20,9 @@ async function updateDetectedStars(starfindURL)
     const data = await showImageLocations(
         starfindURL,
         getExtractParams(),
-        true
+        true,
+        undefined,
+        "Source extraction"
     );
     if ( data && Array.isArray(data.stars) && !data.message ) {
         document.getElementById("detected-star-count").textContent =
@@ -36,7 +38,8 @@ async function updateProjectedCatalog(projectCatalogURL)
         projectCatalogURL,
         getExtractParams(),
         false,
-        {"shape": "circle", "r": 8.0, "color": "#f00"}
+        {"shape": "circle", "r": 8.0, "color": "#f00"},
+        "Project Catalog"
     );
     if ( data && Array.isArray(data.stars) && !data.message ) {
         document.getElementById("projected-catalog-count").textContent =

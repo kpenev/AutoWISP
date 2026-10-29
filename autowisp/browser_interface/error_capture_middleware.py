@@ -22,7 +22,7 @@ from urllib.parse import urlparse
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 from autowisp.exceptions import AutoWISPError, ViewError
@@ -120,6 +120,7 @@ class ErrorCaptureMiddleware:
             exception(BaseException):    The exception the view raised.
 
         Returns:
+            JsonResponse for requests explicitly accepting JSON, otherwise
             HttpResponseRedirect to stay in the BUI, or ``None`` to defer
             to Django (for 404/403 and on internal failure).
         """
@@ -140,6 +141,25 @@ class ErrorCaptureMiddleware:
                 error.crashed = datetime.now(timezone.utc)
 
             error_id = persist_error(error)
+
+            # Overlay requests consume JSON; an HTML redirect hides the real
+            # error behind a JSON parsing failure in the tuning page.
+            if (
+                getattr(request, "headers", {}).get("Accept")
+                == "application/json"
+            ):
+                return JsonResponse(
+                    {
+                        "message": error.user_message,
+                        "error_id": error_id,
+                        "details_url": (
+                            reverse("processing:error_detail", args=[error_id])
+                            if error_id is not None
+                            else None
+                        ),
+                    },
+                    status=500,
+                )
 
             # The error id rides in extra_tags so the template can link the
             # banner to the full error-detail page (empty when persistence
