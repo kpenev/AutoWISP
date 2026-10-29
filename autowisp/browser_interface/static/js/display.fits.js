@@ -301,13 +301,50 @@ async function updateView(change)
 
 var image = document.getElementById("main-image")
 
+//Use the same dismissible LCARS banner as server-rendered BUI errors.
+function showSourceError(message, detailsURL)
+{
+    document.getElementById("source-overlay-error")?.remove();
+    let messages = document.getElementById("bui-messages");
+    if ( !messages ) {
+        messages = document.createElement("div");
+        messages.id = "bui-messages";
+        document.getElementById("container").prepend(messages);
+    }
+    const banner = document.createElement("div");
+    banner.id = "source-overlay-error";
+    banner.className = "bui-message lcars-red-alert-bg";
+    banner.setAttribute("role", "alert");
+    const text = document.createElement("span");
+    text.className = "bui-message-text";
+    text.textContent = message;
+    banner.append(text);
+    if ( detailsURL ) {
+        const link = document.createElement("a");
+        link.className = "bui-message-link";
+        link.href = detailsURL;
+        link.textContent = "View details";
+        banner.append(link);
+    }
+    const dismiss = document.createElement("button");
+    dismiss.type = "button";
+    dismiss.className = "bui-message-dismiss";
+    dismiss.textContent = "Dismiss";
+    dismiss.onclick = () => banner.remove();
+    banner.append(dismiss);
+    messages.append(banner);
+}
+
 //Ask the server for locations, display them, and return the parsed response.
-async function showImageLocations(getLocationsURL, params, replace, marker)
+async function showImageLocations(
+    getLocationsURL, params, replace, marker, action = "Adding sources"
+)
 {
     let csrftoken = getCookie('csrftoken');
     let headers = new Headers();
     headers.append('X-CSRFToken', csrftoken);
     headers.append("Content-type", "application/json; charset=UTF-8")
+    headers.append("Accept", "application/json");
     return fetch(getLocationsURL, {
         method: "POST",
         body: JSON.stringify(params),
@@ -315,18 +352,30 @@ async function showImageLocations(getLocationsURL, params, replace, marker)
         credentials: 'include'
     })
         .then((response) => {
-            console.log(response);
+            if ( response.redirected ||
+                 !response.headers.get("Content-Type")?.includes("application/json") ) {
+                throw new Error(
+                    `The server returned an unexpected response (HTTP ${response.status}). ` +
+                    "Reload the page and check Processing Errors for details."
+                );
+            }
             return response.json();
         })
         .then((data) => {
             console.log(data);
-            if ( data.stars.length === 0 && data.message )
-                alert(data.message);
+            if ( data.message ) {
+                showSourceError(data.message, data.details_url);
+                return null;
+            }
+            if ( !Array.isArray(data.stars) ) {
+                throw new Error("The server returned no source positions.");
+            }
+            document.getElementById("source-overlay-error")?.remove();
             markImageLocations(data.stars, replace, marker);
             return data;
         })
         .catch(function(error) {
-            alert("Adding sources failed:" + error);
+            showSourceError(`${action} failed: ${error.message}`);
             return null;
         })
 }

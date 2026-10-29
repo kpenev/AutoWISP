@@ -6,7 +6,9 @@ Django server), against a throwaway project database.
 
 import tempfile
 import unittest
+import json
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from sqlalchemy import delete, select
 
@@ -92,6 +94,73 @@ class TestErrorCaptureMiddleware(unittest.TestCase):
         self.assertIn("steps", snapshot["post_keys"])
         # The secret value must not appear anywhere in the snapshot.
         self.assertNotIn("hunter2", repr(snapshot))
+
+    def test_json_error_is_recorded_without_redirect(self):
+        """Overlay failures retain their error report and a JSON response."""
+
+        request = _mock_request()
+        request.headers = {"Accept": "application/json"}
+        error = ViewError("projection failed")
+        with patch(
+            "autowisp.browser_interface.error_capture_middleware.messages.error"
+        ) as banner:
+            response = self.middleware.process_exception(request, error)
+        row, sidecar = self._only_error()
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response["Content-Type"], "application/json")
+        self.assertNotIn("Location", response)
+        payload = json.loads(response.content)
+        self.assertEqual(payload["message"], error.user_message)
+        self.assertEqual(payload["error_id"], row.id)
+        self.assertEqual(
+            payload["details_url"], f"/processing/errors/{row.id}/"
+        )
+        self.assertEqual(
+            sidecar["details"]["bui_request"]["path"], request.path
+        )
+        banner.assert_not_called()
+
+    def test_html_error_keeps_banner_redirect(self):
+        """Regular browser requests still get the existing error banner."""
+
+        request = _mock_request()
+        request.headers = {"Accept": "text/html"}
+        error = ViewError("projection failed")
+        with (
+            patch(
+                "autowisp.browser_interface.error_capture_middleware"
+                ".messages.error"
+            ) as banner,
+            patch(
+                "autowisp.browser_interface.error_capture_middleware"
+                "._safe_return_url",
+                return_value="/processing/",
+            ),
+        ):
+            response = self.middleware.process_exception(request, error)
+        row, _sidecar = self._only_error()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/processing/")
+        banner.assert_called_once_with(
+            request, error.user_message, extra_tags=str(row.id)
+        )
+
+    def test_json_error_survives_recording_failure(self):
+        """A failed error write must not become an HTML/JSON parsing error."""
+
+        request = _mock_request()
+        request.headers = {"Accept": "application/json"}
+        error = ViewError("projection failed")
+        with patch(
+            "autowisp.browser_interface.error_capture_middleware.persist_error",
+            return_value=None,
+        ):
+            response = self.middleware.process_exception(request, error)
+        self.assertEqual(response.status_code, 500)
+        payload = json.loads(response.content)
+        self.assertEqual(payload["message"], error.user_message)
+        self.assertIsNone(payload["error_id"])
+        self.assertIsNone(payload["details_url"])
 
     def test_recording_failure_is_swallowed(self):
         """A failure while recording does not propagate from the hook."""

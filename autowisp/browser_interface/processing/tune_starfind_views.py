@@ -2,8 +2,8 @@
 
 import json
 import logging
-from traceback import print_exc
 from functools import reduce
+from os.path import basename
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -35,6 +35,7 @@ from autowisp.database.data_model import provenance
 
 # pylint: enable=no-name-in-module
 from autowisp.bui_util import encode_fits
+from autowisp.exceptions import AutoWISPError, FileKind, RelatedFile, ViewError
 
 from .display_fits_util import update_fits_display
 
@@ -245,9 +246,29 @@ def find_stars(request, fits_fname):
 def project_catalog(request, fits_fname):
     """Solve for astrometry with current extracted stars and project catalog."""
 
+    extracted = request.session.get("extracted")
+    if not extracted or not extracted.get("x"):
+        raise ViewError(
+            f"Cannot project catalog sources for {fits_fname!r}: "
+            "no extracted sources are available in the tuning session.",
+            user_message="Project Catalog needs detected stars. Click Update "
+            "to extract sources first.",
+            related_files=[
+                RelatedFile(FileKind.CALIBRATED_IMAGE, fits_fname, role="input")
+            ],
+            details={
+                "stage": "checking extracted sources",
+                "remediation": "Click Update to extract sources first. If no "
+                "stars are detected, lower the brightness threshold or relax "
+                "the source filter, then click Update again.",
+            },
+        )
+
+    stage = "reading the image header"
     try:
         header = get_primary_header(fits_fname)
         evaluate = Evaluator(header)
+        stage = "loading the astrometry configuration"
         processing = ImageProcessingManager(pipeline_run_id=None)
         with start_db_session() as db_session:
             config = prepare_configuration(
@@ -262,11 +283,12 @@ def project_catalog(request, fits_fname):
             )
         fov_estimate = max(config["frame_fov_estimate"]).to_value("deg")
 
-        logging.info("Extracted: %r", request.session["extracted"])
+        logging.info("Extracted: %r", extracted)
 
+        stage = "solving astrometry"
         approx_trans, status = estimate_transformation(
             dr_file=None,
-            xy_extracted=request.session["extracted"],
+            xy_extracted=extracted,
             config={
                 "astrometry_order": config["tweak_order"][1],
                 "tweak_order_range": (
@@ -285,24 +307,60 @@ def project_catalog(request, fits_fname):
             header=header,
         )
         if status != "success":
-            return JsonResponse(
-                {"stars": [], "message": "Projecting catalog sources failed!"}
+            raise ViewError(
+                f"Astrometry solver returned {status!r}.",
+                user_message=f"The astrometry solver could not match the "
+                f"detected stars to the sky ({status}).",
+                details={"solver_status": status},
             )
         approx_trans = construct_transformation(approx_trans)
 
+        stage = "retrieving the catalog"
         catalog = ensure_catalog(
             transformation=approx_trans,
             header=header,
             configuration=get_catalog_config(config, "astrometry"),
             return_metadata=False,
         )[0]
+        stage = "projecting the catalog coordinates"
         projected = approx_trans(catalog)
         return JsonResponse(
             {"stars": [{"x": s["x"], "y": s["y"]} for s in projected]}
         )
-    except:
-        print_exc()
-        raise
+    except Exception as error:
+        reason = (
+            error.user_message
+            if isinstance(error, AutoWISPError)
+            else str(error)
+        ) or type(error).__name__
+        remediation = {
+            "reading the image header": "Check that the calibrated FITS file "
+            "exists and is readable.",
+            "loading the astrometry configuration": "Check the astrometry "
+            "configuration, especially the field-of-view expressions and "
+            "the image header values they use.",
+            "solving astrometry": "Adjust the brightness threshold or source "
+            "filter and click Update to extract stars again. Check the "
+            "field-of-view estimate and local Astrometry.net solver/index "
+            "paths, or the web solver API key and network connection.",
+            "retrieving the catalog": "Check the catalog query settings, "
+            "catalog cache permissions, and connection to the Gaia service.",
+            "projecting the catalog coordinates": "Check the catalog sky "
+            "coordinates and the astrometry solution.",
+        }[stage]
+        raise ViewError(
+            f"Project Catalog failed while {stage}: {error}",
+            user_message=f"Could not project catalog sources for "
+            f"{basename(fits_fname)} while {stage}: {reason}",
+            related_files=[
+                RelatedFile(FileKind.CALIBRATED_IMAGE, fits_fname, role="input")
+            ],
+            details={
+                **(error.details if isinstance(error, AutoWISPError) else {}),
+                "stage": stage,
+                "remediation": remediation,
+            },
+        ) from error
 
 
 def save_starfind_config(request, imtype, batch_index):
