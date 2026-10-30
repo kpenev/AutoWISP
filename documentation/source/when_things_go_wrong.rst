@@ -60,33 +60,45 @@ Telling whether a run is still going
 A run that stops without warning cannot record that it has stopped, so
 the interface works it out: it offers to start processing only once the
 last run has ended. A run started anyway, e.g. from a terminal, gives up
-if another run on the same machine is already processing the project;
-of runs started together, the first to record itself goes on. Each run
-records the machine it runs on and the process running it, and a run of
-this machine whose process is gone is taken to have ended. The machine is known by an identifier the operating
-system keeps for it, not by its name, which can change while a run goes
-on -- a laptop renames itself as it moves between networks. A run of
-another machine sharing the project's database is never taken to have
-ended from here, since there is no telling.
+if another run is already processing the project; of runs started
+together, the first to record itself goes on. Each run records the
+machine it runs on and the process running it, with when that process
+started, and a run whose process is gone is taken to have ended. The
+start time is what tells the run's process from a later one given the
+same number. The machine is known by an identifier the operating system
+keeps for it, not by its name, which can change while a run goes on -- a
+laptop renames itself as it moves between networks.
 
-Machines made from a single image -- virtual machines, cluster nodes,
-containers -- often share that identifier, unless it is regenerated on
-each (on Linux, by deleting ``/etc/machine-id`` and running
-``systemd-machine-id-setup``). Such machines take each other's runs for
-their own, and one of them may decide that a run still going on another
-has ended. Where several machines share a project's database, give each
-its own identifier.
+A project is processed on one machine at a time: processing it from
+several, even with its database on a server they can all reach, is not
+supported. A run of another machine can still turn up, in a project
+moved or copied from it (see "Moving or copying a project" in
+:doc:`configuration`) while a run there was going or after one was
+interrupted. There is no telling from here whether such a run has ended,
+so it is never taken to have: processing starts with a warning that the
+run may still be going, while the experiment operations refuse until
+told to ignore it (see :doc:`experiments`), and so does cloning the
+project's database. Move a project only once its processing has
+finished, and after an interruption, open its progress page on the
+machine it is leaving first, which records the interrupted run as ended.
 
 The logs
 ========
 
-Every process writes two files into ``logs/`` under the project home: the
-log proper, and a second holding whatever the process wrote to its output
-directly. Their names are built from the stage, the task, the time and
-the process id, so a run leaves a separate trail for each stage rather
-than one tangled file. :option:`logging-fname` and
+Every process writes two files into ``LOGS/`` under the project home: the
+log proper, ending in ``.log``, and a second, ending in ``.outerr``,
+holding whatever the process wrote to its output directly. Their names
+are built from the stage, the type of image it worked on, the task, the
+time and the process id, so a run leaves a separate trail for each stage
+rather than one tangled file. (A ``wisp-*`` step run on its own has no
+image type to name its logs by, and leaves it out.) :option:`logging-fname` and
 :option:`std-out-err-fname` control the naming, and :option:`verbose`
-decides how much detail goes in.
+decides how much detail goes in. A project created by an earlier version
+keeps the names it was created with, which leave out the type of image:
+the logs of, say, stacking the master zero and the master dark then
+cannot be told apart, and the interface says so rather than showing them.
+Adding ``{image_type:s}`` to both settings, after the stage, fixes that
+for the runs that follow.
 
 Reading these is worthwhile when a stage produced something odd rather
 than failing outright, which is the case the error log cannot help with.

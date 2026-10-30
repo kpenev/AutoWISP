@@ -157,6 +157,49 @@ the sub-pixel sensitivity map and the temporary storage directory
 outside any project. A relative name is refused, since it would mean
 whatever directory a process happened to run in.
 
+Moving or copying a project
+===========================
+
+Since every file inside a project is named from its home, the home can be
+moved or copied as a whole, and the copy is the same project, its
+experiments included. To use it, click **Add Existing Project** on the
+project list, choose the directory, and give the project a name (by
+default the directory's) and a description. The directory is refused if
+it holds no project, if its project is registered already under any path,
+or if a newer AutoWISP has migrated it; an older one is migrated when
+first selected.
+
+A project whose database is ``autowisp.db`` in its home is added at once:
+the database came with it. A project whose database is on a server is
+different. Its home holds only the database's address, in
+``autowisp_db.url``, so a copy still names the original's database.
+Adding it offers three choices:
+
+**Clone it into SQLite**, the default
+    The database is copied into ``autowisp.db`` in the home, which then no
+    longer names the server.
+
+**Clone it into the empty database at** a URL you give
+    The same, into another server database, which must hold nothing.
+
+**Use it as it is**
+    Only for a home that was moved, or whose original nothing uses any
+    more. Two projects on one database would each find the other's
+    processing in it, against files that are not in their home. The
+    confirmation says so, more strongly when a registered project uses
+    that database.
+
+A clone runs in the background, and is refused while processing is
+running in that database, since the copied home would then fall out of
+step with it. The project joins the list once the clone is done; until
+then the list shows it greyed, with how the clone is going. Its
+experiments come with it, and those the original had changed since they
+were copied are made stale, as the message saying it was added names. A
+clone that failed, was interrupted or never started stays in the list,
+with its log, until you **Dismiss** it. One interrupted while cloning into
+a server may have left tables there, which must be removed before cloning
+into that database again.
+
 Settings you will not find in your configuration
 ================================================
 

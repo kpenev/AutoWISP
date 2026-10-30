@@ -10,17 +10,50 @@ original stays exactly as it was. If the experiment turns out better, you
 merge it back and the original becomes a copy of it; if not, you delete it
 and nothing has changed.
 
-Everything here is done with one command, run on the original::
+Experiments are created and operated on from the original's progress page in the
+browser interface, or using a command line tool::
 
     wisp-experiments <project home> <subcommand> ...
 
 ``wisp-experiments --help`` lists the subcommands, and ``--help`` after
-any of them describes it.
+any of them describes it. Each section below gives the way in the
+interface first, then the command. In this command ``<project home>`` is the
+home of the original project, not the experiment's.
+
+In the browser interface
+========================
+
+The project list shows each project's experiments nested under it, with
+their state. Click one to open it, as you would a project. One that an
+operation is working on is greyed, and cannot be opened until the
+operation is over.
+
+In the original, the **Experiments** button at the left of the progress
+page's top bar opens the menu of its experiments. Each is listed with its
+state and a **Delete**, and with a **Restore** after an interrupted merge.
+Below them are a box for creating a new one and, once a merge has left a
+backup, **Delete merge backups**. The button turns orange when an
+experiment is stale or an operation on one was interrupted.
+
+You can visually tell you are working within an experiment as opposed to an
+original project by the color of the frame, bourbon rather than gold, and by its
+title, "<original> / <experiment>". In its top bar, **Switch to** opens a menu
+leading back to the original or to another of its experiments, and **Merge**,
+**Reset** and **Delete** act on the experiment itself.
+
+Resetting, merging, deleting and deleting the merge backups first show a
+page saying what will be lost, to confirm or cancel. Creating and
+restoring start at once. Each operation then runs in the background,
+followed on the original's progress page, which shows it running and then
+how it ended. It is recorded as a run of the original: a refusal or
+failure appears among the original's errors, with its details.
 
 Creating an experiment
 ======================
 
-::
+In the interface, type the experiment's name in the **Experiments**
+menu's "new experiment" box, and press Enter or click **Create**. Once it
+is created, the experiment opens. Or::
 
     wisp-experiments <project home> create <name>
 
@@ -57,18 +90,25 @@ The lock
 Merging replaces the original with the experiment, so anything that
 changed the original meanwhile would be lost. While it has an experiment
 that may still be merged, the original is therefore locked: it refuses to
-start processing, to take new images or to save configuration changes,
-and the interface says so. The experiment itself is not locked.
+start processing, to take new images or to save configuration changes.
+Its progress page shows **Locked by experiments** in place of **Start
+Processing**, and offers no **Add New Images**. The experiment itself is
+not locked.
 
 An experiment releases the lock when it is merged or deleted. To work on
-the original while keeping an experiment, release the lock by hand::
+the original while keeping an experiment, release the lock by hand: click
+**Locked by experiments** twice, then **Unlock** on the page that follows,
+which lists what it will change. Or::
 
     wisp-experiments <project home> unlock
 
 This marks every current experiment *stale*: it is kept, with its
 configuration, but can no longer be merged as it is, since the original
 may now change. Resetting it (below) brings it up to date and locks the
-original again.
+original again. An experiment that an operation is working on, or that
+one left behind when interrupted, e.g. one being created, is not marked
+stale and keeps the original locked; the Unlock page names it, with its
+state.
 
 What the lock cannot catch
 --------------------------
@@ -88,7 +128,8 @@ alone while it is being reset, merged or deleted.
 Listing experiments
 ===================
 
-::
+The **Experiments** menu and the project list show each experiment with
+its state. Or::
 
     wisp-experiments <project home> list
 
@@ -109,7 +150,7 @@ Each experiment is listed with its state and when it was created:
 Resetting an experiment
 =======================
 
-::
+**Reset** in the experiment's top bar, once confirmed. Or::
 
     wisp-experiments <project home> reset <name>
 
@@ -127,7 +168,7 @@ original uses to match its master frames to images.
 Merging an experiment
 =====================
 
-::
+**Merge** in the experiment's top bar, once confirmed. Or::
 
     wisp-experiments <project home> merge <name>
 
@@ -142,12 +183,20 @@ anyway, losing the change. Even forced, a merge is refused if the original
 was processed after the copy, since that is processing the experiment
 does not have.
 
+In the interface, the confirmation says which case it is. For a stale
+experiment it explains what merging would lose, offers resetting the
+experiment instead, and merges only with **Merge anyway**. For an original
+changed despite the lock, by something the lock cannot catch (above), it
+asks you to type the experiment's name before merging anyway, since
+AutoWISP cannot tell what the change was.
+
 Before anything is replaced, the original is backed up into
 ``experiments/.pre-merge-<time>-run<id>``. Its files are moved there, not
 copied, so this is quick and needs no space; its raw images stay where
 they are. Its database is copied there as ``autowisp.db``. If the merge
 then fails, everything is put back as it was. Once satisfied that the
-merge is right, delete the backup::
+merge is right, delete the backup, with **Delete merge backups** in the
+original's **Experiments** menu, or::
 
     wisp-experiments <project home> delete-backup
 
@@ -163,7 +212,9 @@ An interrupted merge
 A merge stopped part way, by a crash or a power cut, leaves the
 experiment ``merging`` and the original's files partly in the backup. The
 original stays locked, and the experiment cannot be deleted, since its
-record is the only sign that the original needs putting back. Restore it::
+record is the only sign that the original needs putting back. Restore it,
+with **Restore** on the experiment's row of the original's
+**Experiments** menu, or::
 
     wisp-experiments <project home> restore <name>
 
@@ -182,7 +233,9 @@ experiments on a filesystem that does.
 Deleting an experiment
 ======================
 
-::
+**Delete** in the experiment's top bar, or on its row of the original's
+**Experiments** menu, once confirmed; the confirmation lists any
+processing it will stop. Or::
 
     wisp-experiments <project home> delete <name>
 
@@ -203,16 +256,18 @@ reason is shown.
 Runs on other machines
 ======================
 
-Several machines can work on a project that keeps its database on a
-server. An operation that finds a run going on another machine refuses,
-since it can neither stop that run nor tell whether it has ended, and
-names the run by its id. If you know the run has ended without saying so,
-for instance because its machine crashed, name it to be ignored::
+A project moved or copied from another machine may hold a run of that
+machine that never finished (see :doc:`when_things_go_wrong`). An
+operation that finds one refuses, since it can neither stop that run nor
+tell whether it has ended, and names the run by its id. If you know the
+run has ended without saying so, for instance because its machine
+crashed, name it to be ignored::
 
     wisp-experiments <project home> merge <name> --ignore-run <id>
 
 Every subcommand that checks for runs takes ``--ignore-run``, as many
-times as needed.
+times as needed. The interface has no way to ignore a run: use the
+command.
 
 Refusals and failures are recorded in the original's error log, like any
 other (see :doc:`when_things_go_wrong`).
@@ -225,6 +280,7 @@ changes it, and would make every experiment unmergeable for nothing. So
 migrating an original keeps its current experiments current: each is
 migrated in turn when next opened, and remains a copy of the original. An
 experiment that was already out of date is reported stale by the
-migration. ``wisp-experiments`` migrates the original it is given as any
+migration. In the interface, opening an experiment migrates its original
+first, if that is behind, then the experiment. ``wisp-experiments`` migrates the original it is given as any
 command opening a project does; a server database needs
 ``--assume-backed-up`` (see ``wisp-migrate``).
