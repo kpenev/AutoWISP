@@ -327,15 +327,15 @@ class TestExistingProject(ProjectCopyCase):
         """A clone run from its record writes there how it ended."""
 
         pending_dir = self._make_dir()
-        homes = {
-            "cloned": self._make_server_project(True)[0],
-            "refused": self._make_server_project(False)[0],
-        }
-        # Refused: an SQLite clone would replace a database there already.
-        with open(os.path.join(homes["refused"], "autowisp.db"), "wb"):
-            pass
-
-        for name, home in homes.items():
+        homes = {}
+        # One at a time: on a server under test, each project made there
+        # replaces the one database, so each is cloned before the next.
+        for name in ["cloned", "refused"]:
+            home = homes[name] = self._make_server_project(name == "cloned")[0]
+            if name == "refused":
+                # An SQLite clone would replace a database there already.
+                with open(os.path.join(home, "autowisp.db"), "wb"):
+                    pass
             fname = get_pending_fname(
                 add_pending(name, "", home, None, pending_dir), pending_dir
             )
