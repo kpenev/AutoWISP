@@ -1,13 +1,15 @@
 """Autowisp unit-test init."""
 
 from collections.abc import Sequence
-from os import path, makedirs, environ
+from os import path, makedirs, environ, dup, fdopen
+from pathlib import PurePath
 from subprocess import run, PIPE, STDOUT
 from shutil import copytree, copy, move, rmtree
 from tempfile import TemporaryDirectory
 from glob import glob
 import atexit
 import logging
+import sys
 
 import platformdirs
 import sqlalchemy
@@ -357,9 +359,39 @@ class AutoWISPTestCase(FloatTestCase):
             for test, _ in getattr(result, group, ())
         )
 
+    def _release_process_files(self):
+        """
+        Close the files in the project a step run in this process left open.
+
+        :func:`~autowisp.multiprocessing_util.setup_process` points the
+        logging and the standard output and error at files in the project,
+        until it is next called. A step run in the test's own process, e.g.
+        through the engine, so keeps them open after it ends, and Windows
+        refuses to delete an open file. The standard streams go back to the
+        process's own, whose stream objects ``setup_process`` closed.
+        """
+
+        def is_in_project(fname):
+            """Is ``fname`` a file name inside the processing directory?"""
+
+            return isinstance(fname, str) and PurePath(fname).is_relative_to(
+                self.processing_directory
+            )
+
+        for handler in logging.root.handlers[:]:
+            if is_in_project(getattr(handler, "baseFilename", None)):
+                logging.root.removeHandler(handler)
+                handler.close()
+        if is_in_project(getattr(sys.stdout, "name", None)):
+            # setup_process makes standard error the same stream.
+            sys.stdout.close()
+            sys.stdout = fdopen(dup(1), "w", encoding="utf-8", buffering=1)
+            sys.stderr = fdopen(dup(2), "w", encoding="utf-8", buffering=1)
+
     def tearDown(self):
         """Remove the processing directory."""
 
+        self._release_process_files()
         print(f"Tearing down processing in {self.processing_directory!r}")
         if self.preserve_failed_processing and self._test_failed():
             # Preserve every failed test in its own subdirectory (keyed by
