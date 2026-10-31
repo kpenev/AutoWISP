@@ -15,7 +15,7 @@ home, it names something that exists. That misses templates and the names
 of deleted files; the rules on configured paths and
 :func:`autowisp.project_paths.to_stored_path` cover those.
 
-Everything in the project is scanned except ``logs/``, which holds only
+Everything in the project is scanned except ``LOGS/``, which holds only
 records of runs that nothing reads back.
 """
 
@@ -295,8 +295,8 @@ def find_unstored_paths(project_home, db_engine):
     finder.scan_database(db_engine)
     project_home = os.path.abspath(project_home)
     for directory, subdirectories, fnames in os.walk(project_home):
-        if directory == project_home and "logs" in subdirectories:
-            subdirectories.remove("logs")
+        if directory == project_home and "LOGS" in subdirectories:
+            subdirectories.remove("LOGS")
         subdirectories.sort()
         for fname in sorted(fnames):
             fname = os.path.join(directory, fname)
