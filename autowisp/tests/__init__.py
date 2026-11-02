@@ -1,7 +1,7 @@
 """Autowisp unit-test init."""
 
 from collections.abc import Sequence
-from os import path, makedirs, environ, dup, fdopen
+from os import path, makedirs, environ, dup, fdopen, remove
 from pathlib import PurePath
 from subprocess import run, PIPE, STDOUT
 from shutil import copytree, copy, move, rmtree
@@ -61,8 +61,11 @@ environ.pop("AUTOWISP_BUI_DB_URL", None)
 from autowisp.database.interface import (
     set_project_home,
     initialize_cmdline_database,
+    create_project_engine,
+    get_sqlite_url,
     DB_URL_FNAME,
 )
+from autowisp.database.project_copy import copy_project_database
 from autowisp.database.user_interface import import_json_to_survey
 from autowisp.database.initialize_database import initialize_database
 
@@ -388,6 +391,38 @@ class AutoWISPTestCase(FloatTestCase):
             sys.stdout = fdopen(dup(1), "w", encoding="utf-8", buffering=1)
             sys.stderr = fdopen(dup(2), "w", encoding="utf-8", buffering=1)
 
+    @staticmethod
+    def _save_server_database(destination):
+        """
+        Save the server database under test with a failed test's directory.
+
+        The next test empties it, and the server is gone with the CI job, so
+        without a copy a failure on a server leaves only its logs. It is
+        saved as ``autowisp.db``, in place of ``autowisp_db.url``, so that
+        the directory opens as a project of its own. A copy that fails says
+        why instead of raising: the processing directory must still be
+        removed, or the next test fails too.
+
+        Args:
+            destination(str):    The failed test's copy of the processing
+                directory.
+        """
+
+        source_engine = create_project_engine(server_test_url())
+        target_engine = create_project_engine(get_sqlite_url(destination))
+        try:
+            copy_project_database(
+                source_engine, target_engine, copy_experiments=True
+            )
+        # Whatever stops the copy, the test's own failure is what matters.
+        except Exception as error:  # pylint: disable=broad-exception-caught
+            print(f"Could not save the server database: {error!r}")
+        else:
+            remove(path.join(destination, DB_URL_FNAME))
+        finally:
+            source_engine.dispose()
+            target_engine.dispose()
+
     def tearDown(self):
         """Remove the processing directory."""
 
@@ -404,6 +439,8 @@ class AutoWISPTestCase(FloatTestCase):
             if path.exists(destination):
                 rmtree(destination, ignore_errors=False)
             copytree(self.processing_directory, destination)
+            if server_test_url() is not None:
+                self._save_server_database(destination)
         if self.preserve_processing_dir is not None:
             destination = path.join(
                 self.preserve_processing_dir,
