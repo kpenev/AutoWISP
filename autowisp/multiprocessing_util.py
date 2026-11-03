@@ -12,7 +12,7 @@ import sys
 
 import platformdirs
 
-from autowisp.database.interface import set_project_home
+from autowisp.database.interface import get_db_engine, set_project_home
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.catalog import WISPGaia
 from autowisp.error_context import ErrorContext, set_error_context
@@ -235,6 +235,12 @@ def setup_process_map(config):
 
     logging.info("Starting process with configuration: %s", repr(config))
 
+    inherited_engine = get_db_engine()
+    if config.get("parent_pid") and inherited_engine is not None:
+        # A forked worker shares its parent's pooled connections, sockets
+        # and all. Closing them would end the parent's sessions on a server,
+        # so the pool is only dropped, and the worker opens its own.
+        inherited_engine.dispose(close=False)
     set_project_home(config["project_home"])
     if "data_reduction_fname" in config:
         DataReductionFile.fname_template = config["data_reduction_fname"]
