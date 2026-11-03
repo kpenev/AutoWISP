@@ -6,7 +6,7 @@
 import logging
 from math import inf
 
-from sqlalchemy import sql, select, update, and_, or_
+from sqlalchemy import sql, select, text, update, and_, or_
 from astropy.coordinates import SkyCoord
 from astropy import units as astropy_units
 
@@ -1958,6 +1958,22 @@ class ImageProcessingManager(ProcessingManager):
                     query.where(failed_prereq_subquery.c.image_id != None)
                 ).all()
             )
+            # TEMPORARY: diagnoses the MariaDB CI failure of
+            # TestRelocatedPipeline.
+            if db_session.get_bind().dialect.name != "sqlite":
+                self._check_pending_on_server(
+                    db_session,
+                    (step, image_type),
+                    failed_prereq_subquery,
+                    {
+                        "pending": pending_query.where(
+                            failed_prereq_subquery.c.image_id == None
+                        ),
+                        "failed dependencies": query.where(
+                            failed_prereq_subquery.c.image_id != None
+                        ),
+                    },
+                )
             # pylint: enable=singleton-comparison
 
             self._logger.debug(
@@ -1969,6 +1985,89 @@ class ImageProcessingManager(ProcessingManager):
             )
 
         self._logger.debug("Pending: %s", repr(self.pending))
+
+    def _check_pending_on_server(
+        self, db_session, step_imtype, failed_prereq_subquery, statements
+    ):
+        """
+        TEMPORARY: log the query plans if a failed image was found pending.
+
+        On MariaDB in CI, TestRelocatedPipeline finds an image pending whose
+        solve_astrometry failure was committed before the query ran. This
+        runs the failed-prerequisite subquery on its own, and if it names a
+        pending image, logs what the server did with each query.
+
+        Args:
+            db_session(Session):    The session ``set_pending`` used.
+
+            step_imtype((Step, ImageType)):    What pending was found for.
+
+            failed_prereq_subquery:    The subquery of the images and channels
+                with a failed prerequisite.
+
+            statements(dict):    The pending and failed-dependency statements
+                ``set_pending`` ran, by name.
+
+        Returns:
+            None
+        """
+
+        step, image_type = step_imtype
+        failed = set(
+            tuple(row)
+            for row in db_session.execute(
+                select(
+                    failed_prereq_subquery.c.image_id,
+                    failed_prereq_subquery.c.channel,
+                )
+            )
+        )
+        wrongly_pending = [
+            (row[0].id, row[1])
+            for row in self.pending[(step.id, image_type.id)]
+            if (row[0].id, row[1]) in failed
+        ]
+        if not wrongly_pending:
+            return
+        report = [
+            f"{step.name} for {image_type.name} images: pending "
+            f"{wrongly_pending!r} despite failed prerequisites "
+            f"{sorted(failed)!r}"
+        ]
+        # Whatever stops the report, the run itself must go on as it would.
+        try:
+            dialect = db_session.get_bind().dialect
+            report.append(
+                "optimizer_switch: "
+                + db_session.execute(
+                    text("SELECT @@optimizer_switch")
+                ).scalar_one()
+            )
+            for name, statement in statements.items():
+                compiled = statement.compile(
+                    dialect=dialect, compile_kwargs={"literal_binds": True}
+                )
+                report.append(f"ANALYZE of the {name} query:")
+                report.extend(
+                    row[0]
+                    for row in db_session.execute(
+                        text(f"ANALYZE FORMAT=JSON {compiled}")
+                    )
+                )
+            report.append("InnoDB table statistics:")
+            report.extend(
+                repr(tuple(row))
+                for row in db_session.execute(
+                    text(
+                        "SELECT table_name, n_rows, last_update "
+                        "FROM mysql.innodb_table_stats "
+                        "WHERE database_name = DATABASE()"
+                    )
+                )
+            )
+        except Exception as error:  # pylint: disable=broad-exception-caught
+            report.append(f"Report stopped by {error!r}")
+        self._logger.warning("\n".join(report))
 
     def group_pending_by_conditions(  # pylint: disable=too-many-arguments
         self,
