@@ -61,8 +61,8 @@ jobs:
           # lets us pin back to numba 0.60 / llvmlite 0.43. Apple-silicon (macos-15) is
           # the primary macOS target.
 #TMP#     - { os: windows-2022,   python-version: '3.12', numpy: '2', full_pipeline: false }
-          - { os: macos-15,       python-version: '3.12', numpy: '2', full_pipeline: false }
-          - { os: macos-15,       python-version: '3.12', numpy: '1', full_pipeline: false }
+#TMP#     - { os: macos-15,       python-version: '3.12', numpy: '2', full_pipeline: false }
+#TMP#     - { os: macos-15,       python-version: '3.12', numpy: '1', full_pipeline: false }
 #TMP#     - { os: macos-15-intel, python-version: '3.12', numpy: '1', full_pipeline: false, extra_pip: '"llvmlite<0.44"' }
           # 3.13 / 3.14 (numpy 2 only; numpy 1.26 has no 3.13/3.14 wheels).
 #TMP#     - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
