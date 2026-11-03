@@ -117,6 +117,140 @@ def empty_server_database(url):
         engine.dispose()
 
 
+def _save_server_diagnostics(engine, destination):
+    """
+    TEMPORARY: save the server's view of a failed test's database.
+
+    On MariaDB in CI, TestRelocatedPipeline fails in about half the runs
+    because fit_star_shape's failed-dependency query misses a committed
+    solve_astrometry failure. This reruns that query on the live server,
+    with ``ANALYZE``, and records what the planner worked from, in
+    ``server_diagnostics.txt``. Whatever stops it is written there too.
+
+    Args:
+        engine:    An engine connected to the server database under test.
+
+        destination(str):    The failed test's copy of the processing
+            directory.
+    """
+
+    failed_prereq_sql = """
+SELECT processed_images.image_id AS image_id,
+       processed_images.channel AS channel
+FROM step_dependencies INNER JOIN image_processing_progress
+  ON step_dependencies.blocking_step_id = image_processing_progress.step_id
+ AND step_dependencies.blocking_image_type_id
+     = image_processing_progress.image_type_id
+INNER JOIN processed_images
+  ON image_processing_progress.id = processed_images.progress_id
+WHERE step_dependencies.blocked_step_id = {step_id}
+  AND step_dependencies.blocked_image_type_id = {image_type_id}
+  AND processed_images.status < 0
+GROUP BY processed_images.image_id, processed_images.channel
+"""
+    failed_dependencies_sql = """
+SELECT image.raw_fname, image.image_type_id, image.observing_session_id,
+       image.jd, image.notes, image.id, image.timestamp, camera_channel.name,
+       anon_1.status
+FROM image
+INNER JOIN observing_session
+  ON observing_session.id = image.observing_session_id
+INNER JOIN camera ON camera.id = observing_session.camera_id
+INNER JOIN camera_type ON camera_type.id = camera.camera_type_id
+INNER JOIN camera_channel ON camera_type.id = camera_channel.camera_type_id
+LEFT OUTER JOIN (
+  SELECT processed_images.image_id AS image_id,
+         processed_images.channel AS channel
+  FROM processed_images INNER JOIN image_processing_progress
+    ON image_processing_progress.id = processed_images.progress_id
+  WHERE image_processing_progress.step_id = {step_id}
+    AND image_processing_progress.image_type_id = {image_type_id}
+    AND image_processing_progress.configuration_version = 0
+    AND processed_images.final = 1
+) AS anon_2
+  ON image.id = anon_2.image_id AND camera_channel.name = anon_2.channel
+LEFT OUTER JOIN ({failed_prereq}) AS anon_3
+  ON image.id = anon_3.image_id AND camera_channel.name = anon_3.channel
+LEFT OUTER JOIN (
+  SELECT processed_images.image_id AS image_id,
+         processed_images.channel AS channel,
+         max(processed_images.status) AS status
+  FROM processed_images INNER JOIN image_processing_progress
+    ON image_processing_progress.id = processed_images.progress_id
+  WHERE processed_images.status > 0 AND processed_images.final = 0
+    AND image_processing_progress.step_id = {step_id}
+    AND image_processing_progress.image_type_id = {image_type_id}
+    AND image_processing_progress.configuration_version = 0
+  GROUP BY processed_images.image_id, processed_images.channel
+) AS anon_1
+  ON image.id = anon_1.image_id AND camera_channel.name = anon_1.channel
+WHERE image.image_type_id = {image_type_id}
+  AND anon_2.image_id IS NULL AND anon_3.image_id IS NOT NULL
+"""
+    report = []
+    try:
+        with engine.connect() as connection:
+
+            def run_sql(statement):
+                """Return all rows ``statement`` gives on the server."""
+                return connection.execute(sqlalchemy.text(statement)).all()
+
+            report.append(
+                "version, optimizer_switch, isolation: "
+                + repr(
+                    run_sql(
+                        "SELECT @@version, @@optimizer_switch, "
+                        "@@transaction_isolation"
+                    )
+                )
+            )
+            ids = {
+                "step_id": run_sql(
+                    "SELECT id FROM step WHERE name = 'fit_star_shape'"
+                )[0][0],
+                "image_type_id": run_sql(
+                    "SELECT id FROM image_type WHERE name = 'object'"
+                )[0][0],
+            }
+            failed_prereq = failed_prereq_sql.format(**ids)
+            for name, statement in [
+                ("failed-prerequisite subquery alone", failed_prereq),
+                (
+                    "failed-dependency query",
+                    failed_dependencies_sql.format(
+                        failed_prereq=failed_prereq, **ids
+                    ),
+                ),
+            ]:
+                report.append(f"Rows of the {name}: {run_sql(statement)!r}")
+                report.append(f"ANALYZE of the {name}:")
+                report.extend(
+                    row[0] for row in run_sql("ANALYZE FORMAT=JSON " + statement)
+                )
+            for table in ["innodb_table_stats", "innodb_index_stats"]:
+                report.append(f"mysql.{table}:")
+                report.extend(
+                    repr(tuple(row))
+                    for row in run_sql(
+                        f"SELECT * FROM mysql.{table} "
+                        "WHERE database_name = DATABASE()"
+                    )
+                )
+            report.append("SHOW TABLE STATUS:")
+            report.extend(
+                repr(tuple(row)) for row in run_sql("SHOW TABLE STATUS")
+            )
+            for (table,) in run_sql("SHOW TABLES"):
+                report.append(run_sql(f"SHOW CREATE TABLE `{table}`")[0][1])
+    # Whatever stops the report, the copy of the database must still be made.
+    except Exception as error:  # pylint: disable=broad-exception-caught
+        report.append(f"Stopped by {error!r}")
+    with open(
+        path.join(destination, "server_diagnostics.txt"), "w", encoding="utf-8"
+    ) as report_file:
+        report_file.write("\n".join(report) + "\n")
+
+
 class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
 
@@ -410,6 +544,7 @@ class AutoWISPTestCase(FloatTestCase):
 
         source_engine = create_project_engine(server_test_url())
         target_engine = create_project_engine(get_sqlite_url(destination))
+        _save_server_diagnostics(source_engine, destination)
         try:
             copy_project_database(
                 source_engine, target_engine, copy_experiments=True
