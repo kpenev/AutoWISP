@@ -1848,6 +1848,9 @@ class ImageProcessingManager(ProcessingManager):
             .group_by(ProcessedImages.image_id, ProcessedImages.channel)
         )
 
+        # TEMPORARY: run after every step's queries, so the checks change
+        # nothing the queries see.
+        server_checks = []
         for step, image_type in steps_imtypes or get_processing_sequence(
             db_session, True
         ):
@@ -1961,18 +1964,19 @@ class ImageProcessingManager(ProcessingManager):
             # TEMPORARY: diagnoses the MariaDB CI failure of
             # TestRelocatedPipeline.
             if db_session.get_bind().dialect.name != "sqlite":
-                self._check_pending_on_server(
-                    db_session,
-                    (step, image_type),
-                    failed_prereq_subquery,
-                    {
-                        "pending": pending_query.where(
-                            failed_prereq_subquery.c.image_id == None
-                        ),
-                        "failed dependencies": query.where(
-                            failed_prereq_subquery.c.image_id != None
-                        ),
-                    },
+                server_checks.append(
+                    (
+                        (step, image_type),
+                        failed_prereq_subquery,
+                        {
+                            "pending": pending_query.where(
+                                failed_prereq_subquery.c.image_id == None
+                            ),
+                            "failed dependencies": query.where(
+                                failed_prereq_subquery.c.image_id != None
+                            ),
+                        },
+                    )
                 )
             # pylint: enable=singleton-comparison
 
@@ -1983,6 +1987,9 @@ class ImageProcessingManager(ProcessingManager):
                 len(self._failed_dependencies[(step.id, image_type.id)]),
                 image_type.name,
             )
+
+        for check in server_checks:
+            self._check_pending_on_server(db_session, *check)
 
         self._logger.debug("Pending: %s", repr(self.pending))
 
