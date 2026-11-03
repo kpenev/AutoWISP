@@ -43,7 +43,7 @@ jobs:
   # excluded here and runs in its own job.
   pipeline:
     if: inputs.only == 'all' || inputs.only == 'pipeline' || inputs.only == 'quick'
-    name: ${{ matrix.os }} py${{ matrix.python-version }} np${{ matrix.numpy }}
+    name: ${{ matrix.os }} py${{ matrix.python-version }} np${{ matrix.numpy }}${{ matrix.copy && format(' copy {0}', matrix.copy) || '' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -78,7 +78,16 @@ jobs:
           # `services:` container, because services are Linux-only and
           # job-level: declaring one here would break the Windows and macOS
           # cells. Same pinned image either way.
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 1 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 2 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 3 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 4 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 5 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 6 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 7 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 8 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 9 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 10 }
     env:
       AUTOWISP_NO_LIVE_CATALOG: '1'
     steps:
@@ -180,7 +189,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: failed-${{ matrix.os }}-py${{ matrix.python-version }}-np${{ matrix.numpy }}
+          name: failed-${{ matrix.os }}-py${{ matrix.python-version }}-np${{ matrix.numpy }}${{ matrix.copy && format('-copy{0}', matrix.copy) || '' }}
           path: |
             failed_test
             test-output.txt
