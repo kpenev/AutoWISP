@@ -1959,13 +1959,16 @@ class ImageProcessingManager(ProcessingManager):
                     query.where(failed_prereq_subquery.c.image_id != None)
                 ).all()
             )
-            # pylint: enable=singleton-comparison
             # TEMPORARY: diagnoses the MariaDB CI failure of
             # TestRelocatedPipeline.
             if db_session.get_bind().dialect.name != "sqlite":
                 self._check_failed_on_fresh_connection(
-                    db_session, (step, image_type), failed_prereq_subquery
+                    db_session,
+                    (step, image_type),
+                    failed_prereq_subquery,
+                    query.where(failed_prereq_subquery.c.image_id != None),
                 )
+            # pylint: enable=singleton-comparison
 
             self._logger.debug(
                 "%s is pending for %d and failed dependencies for %d %s images",
@@ -1978,7 +1981,7 @@ class ImageProcessingManager(ProcessingManager):
         self._logger.debug("Pending: %s", repr(self.pending))
 
     def _check_failed_on_fresh_connection(
-        self, db_session, step_imtype, failed_prereq_subquery
+        self, db_session, step_imtype, failed_prereq_subquery, failed_statement
     ):
         """
         TEMPORARY: log the server's state if another connection sees more.
@@ -1996,6 +1999,9 @@ class ImageProcessingManager(ProcessingManager):
 
             failed_prereq_subquery:    The subquery of the images and channels
                 with a failed prerequisite.
+
+            failed_statement:    The failed-dependency query ``set_pending``
+                ran, rerun with ``ANALYZE`` when it missed one.
 
         Returns:
             None
@@ -2048,6 +2054,35 @@ class ImageProcessingManager(ProcessingManager):
                     + " sees failed prerequisites: "
                     + repr(sorted(map(tuple, db_session.execute(failed_select))))
                 )
+                report.append(
+                    "Session rerun of the failed-dependency query: "
+                    + repr(
+                        [
+                            (row[0].id, row[1])
+                            for row in db_session.execute(failed_statement)
+                        ]
+                    )
+                )
+                compiled = failed_statement.compile(
+                    dialect=db_session.get_bind().dialect,
+                    compile_kwargs={"literal_binds": True},
+                )
+                report.append("Session ANALYZE of the failed-dependency query:")
+                report.extend(
+                    row[0]
+                    for row in db_session.execute(
+                        text(f"ANALYZE FORMAT=JSON {compiled}")
+                    )
+                )
+                for table in ["innodb_table_stats", "innodb_index_stats"]:
+                    result = connection.execute(
+                        text(
+                            f"SELECT * FROM mysql.{table} "
+                            "WHERE database_name = DATABASE()"
+                        )
+                    )
+                    report.append(f"mysql.{table}: {list(result.keys())!r}")
+                    report.extend(repr(tuple(row)) for row in result)
                 for name in ["innodb_trx", "processlist"]:
                     result = connection.execute(
                         text(f"SELECT * FROM information_schema.{name}")
