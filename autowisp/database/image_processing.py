@@ -6,7 +6,8 @@
 import logging
 from math import inf
 
-from sqlalchemy import sql, select, update, and_, or_
+from sqlalchemy import sql, select, update, and_, or_, create_engine, text
+from sqlalchemy.pool import NullPool
 from astropy.coordinates import SkyCoord
 from astropy import units as astropy_units
 
@@ -1959,6 +1960,12 @@ class ImageProcessingManager(ProcessingManager):
                 ).all()
             )
             # pylint: enable=singleton-comparison
+            # TEMPORARY: diagnoses the MariaDB CI failure of
+            # TestRelocatedPipeline.
+            if db_session.get_bind().dialect.name != "sqlite":
+                self._check_failed_on_fresh_connection(
+                    db_session, (step, image_type), failed_prereq_subquery
+                )
 
             self._logger.debug(
                 "%s is pending for %d and failed dependencies for %d %s images",
@@ -1969,6 +1976,91 @@ class ImageProcessingManager(ProcessingManager):
             )
 
         self._logger.debug("Pending: %s", repr(self.pending))
+
+    def _check_failed_on_fresh_connection(
+        self, db_session, step_imtype, failed_prereq_subquery
+    ):
+        """
+        TEMPORARY: log the server's state if another connection sees more.
+
+        On MariaDB in CI, TestRelocatedPipeline finds an image pending whose
+        solve_astrometry failure was committed before the query ran, while
+        the same query at teardown finds it. This asks a fresh connection
+        which images have failed prerequisites, and if one of them is
+        pending, logs both connections' view and the open transactions.
+
+        Args:
+            db_session(Session):    The session ``set_pending`` used.
+
+            step_imtype((Step, ImageType)):    What pending was found for.
+
+            failed_prereq_subquery:    The subquery of the images and channels
+                with a failed prerequisite.
+
+        Returns:
+            None
+        """
+
+        step, image_type = step_imtype
+        failed_select = select(
+            failed_prereq_subquery.c.image_id,
+            failed_prereq_subquery.c.channel,
+        )
+        fresh_engine = create_engine(
+            db_session.get_bind().url, poolclass=NullPool
+        )
+        report = []
+        try:
+            with fresh_engine.connect() as connection:
+                fresh_failed = {
+                    tuple(row) for row in connection.execute(failed_select)
+                }
+                fresh_id = connection.execute(
+                    text("SELECT CONNECTION_ID()")
+                ).scalar_one()
+                self._logger.debug(
+                    "Fresh connection %d sees failed prerequisites of %s for "
+                    "%s images: %r",
+                    fresh_id,
+                    step.name,
+                    image_type.name,
+                    sorted(fresh_failed),
+                )
+                wrongly_pending = [
+                    (row[0].id, row[1])
+                    for row in self.pending[(step.id, image_type.id)]
+                    if (row[0].id, row[1]) in fresh_failed
+                ]
+                if not wrongly_pending:
+                    return
+                report.append(
+                    f"{step.name} for {image_type.name} images: pending "
+                    f"{wrongly_pending!r}, whose prerequisites failed per "
+                    f"fresh connection {fresh_id}: {sorted(fresh_failed)!r}"
+                )
+                report.append(
+                    "Session connection "
+                    + repr(
+                        db_session.execute(
+                            text("SELECT CONNECTION_ID()")
+                        ).scalar_one()
+                    )
+                    + " sees failed prerequisites: "
+                    + repr(sorted(map(tuple, db_session.execute(failed_select))))
+                )
+                for name in ["innodb_trx", "processlist"]:
+                    result = connection.execute(
+                        text(f"SELECT * FROM information_schema.{name}")
+                    )
+                    report.append(f"{name}: {list(result.keys())!r}")
+                    report.extend(repr(tuple(row)) for row in result)
+        # Whatever stops the check, the run itself must go on as it would.
+        except Exception as error:  # pylint: disable=broad-exception-caught
+            report.append(f"Check stopped by {error!r}")
+        finally:
+            fresh_engine.dispose()
+        if report:
+            self._logger.warning("\n".join(report))
 
     def group_pending_by_conditions(  # pylint: disable=too-many-arguments
         self,
