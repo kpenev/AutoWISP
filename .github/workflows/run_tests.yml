@@ -43,30 +43,30 @@ jobs:
   # excluded here and runs in its own job.
   pipeline:
     if: inputs.only == 'all' || inputs.only == 'pipeline' || inputs.only == 'quick'
-    name: ${{ matrix.os }} py${{ matrix.python-version }} np${{ matrix.numpy }}${{ matrix.copy && format(' copy {0}', matrix.copy) || '' }}
+    name: ${{ matrix.os }} py${{ matrix.python-version }} np${{ matrix.numpy }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           # ubuntu: full python x numpy sweep; full_pipeline on the 3.12 cells
-#TMP#     - { os: ubuntu-latest,  python-version: '3.11', numpy: '1', full_pipeline: false }
-#TMP#     - { os: ubuntu-latest,  python-version: '3.11', numpy: '2', full_pipeline: false }
-#TMP#     - { os: ubuntu-latest,  python-version: '3.12', numpy: '1', full_pipeline: true  }
-#TMP#     - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true  }
+          - { os: ubuntu-latest,  python-version: '3.11', numpy: '1', full_pipeline: false }
+          - { os: ubuntu-latest,  python-version: '3.11', numpy: '2', full_pipeline: false }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '1', full_pipeline: true  }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true  }
           # OS coverage: one representative cell per non-ubuntu OS + off-Linux numpy 1.
           # macos-15-intel runs numpy 1 with an older llvmlite (<0.44 -> 0.43, the last
           # with an x86_64 macOS wheel). The numpy-2.4-compatible numba pulls llvmlite
           # 0.48, which ships no Intel wheel and would need an LLVM source build; numpy 1
           # lets us pin back to numba 0.60 / llvmlite 0.43. Apple-silicon (macos-15) is
           # the primary macOS target.
-#TMP#     - { os: windows-2022,   python-version: '3.12', numpy: '2', full_pipeline: false }
-#TMP#     - { os: macos-15,       python-version: '3.12', numpy: '2', full_pipeline: false }
-#TMP#     - { os: macos-15,       python-version: '3.12', numpy: '1', full_pipeline: false }
-#TMP#     - { os: macos-15-intel, python-version: '3.12', numpy: '1', full_pipeline: false, extra_pip: '"llvmlite<0.44"' }
+          - { os: windows-2022,   python-version: '3.12', numpy: '2', full_pipeline: false }
+          - { os: macos-15,       python-version: '3.12', numpy: '2', full_pipeline: false }
+          - { os: macos-15,       python-version: '3.12', numpy: '1', full_pipeline: false }
+          - { os: macos-15-intel, python-version: '3.12', numpy: '1', full_pipeline: false, extra_pip: '"llvmlite<0.44"' }
           # 3.13 / 3.14 (numpy 2 only; numpy 1.26 has no 3.13/3.14 wheels).
-#TMP#     - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
-#TMP#     - { os: ubuntu-latest,  python-version: '3.14', numpy: '2', full_pipeline: false }
+          - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
+          - { os: ubuntu-latest,  python-version: '3.14', numpy: '2', full_pipeline: false }
           # Centralised project database. AutoWISP runs against MariaDB in
           # production, but every other cell puts the project database in
           # SQLite -- which compares strings case-sensitively, enforces
@@ -78,16 +78,7 @@ jobs:
           # `services:` container, because services are Linux-only and
           # job-level: declaring one here would break the Windows and macOS
           # cells. Same pinned image either way.
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 1 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 2 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 3 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 4 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 5 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 6 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 7 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 8 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 9 }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true, copy: 10 }
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true }
     env:
       AUTOWISP_NO_LIVE_CATALOG: '1'
     steps:
@@ -189,7 +180,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: failed-${{ matrix.os }}-py${{ matrix.python-version }}-np${{ matrix.numpy }}${{ matrix.copy && format('-copy{0}', matrix.copy) || '' }}
+          name: failed-${{ matrix.os }}-py${{ matrix.python-version }}-np${{ matrix.numpy }}
           path: |
             failed_test
             test-output.txt
