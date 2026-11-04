@@ -132,6 +132,40 @@ def use_utc_sessions(engine):
     event.listen(engine, "connect", set_utc)
 
 
+def disable_split_materialized(engine):
+    """Keep MariaDB from splitting grouped derived tables into lateral ones.
+
+    MariaDB 11.8.9 can answer the pending-image queries wrongly with its
+    ``split_materialized`` optimization: it ran the subquery listing images
+    with failed prerequisites once, for the first image, and reused that
+    result for every image, so a failed image looked ready for the next
+    step. Whether it chooses that plan depends on the table statistics, so
+    the same query is sometimes right and sometimes wrong. MySQL has no such
+    optimization, nor the switch, so only MariaDB gets it set.
+
+    Args:
+        engine:    The SQLAlchemy engine for a project database, before
+            anything has connected through it.
+
+    Returns:
+        None
+    """
+
+    if engine.dialect.name not in ("mysql", "mariadb"):
+        return
+
+    def set_switch(dbapi_connection, _record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("SELECT VERSION()")
+        if "MariaDB" in cursor.fetchone()[0]:
+            cursor.execute(
+                "SET SESSION optimizer_switch = 'split_materialized=off'"
+            )
+        cursor.close()
+
+    event.listen(engine, "connect", set_switch)
+
+
 def get_sqlite_url(project_home, db_fname="autowisp.db"):
     """Return the URL of the SQLite database of the project at the home.
 
@@ -190,8 +224,9 @@ def create_project_engine(db_url):
     Return an engine for a project database, set up as every one must be.
 
     The one place a project engine is made, so that every connection to a
-    project, whichever code opens it, checks foreign keys on SQLite and uses
-    UTC on a server.
+    project, whichever code opens it, checks foreign keys on SQLite, uses
+    UTC on a server, and avoids a MariaDB optimization that gives wrong
+    results.
 
     Args:
         db_url(str):    SQLAlchemy URL of the project database.
@@ -212,6 +247,7 @@ def create_project_engine(db_url):
     engine = create_engine(db_url, **engine_kwargs)
     enforce_sqlite_foreign_keys(engine)
     use_utc_sessions(engine)
+    disable_split_materialized(engine)
     return engine
 
 
