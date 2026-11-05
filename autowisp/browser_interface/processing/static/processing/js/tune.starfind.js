@@ -1,25 +1,95 @@
+// Read a numeric input field and validate it is a finite number.
+function _parseNumber(fieldId, fieldLabel) {
+    const fieldValue = document.getElementById(fieldId).value;
+    const parsedValue = Number(fieldValue);
+    if (!Number.isFinite(parsedValue)) {
+        alert(fieldLabel + " must be a valid number.");
+        return null;
+    }
+    return parsedValue;
+}
 
-function getExtractParams()
-{
-    let extractParams = { 
-        "srcfind-tool": null,
-        "brightness-threshold": null, 
-        "filter-sources": null, 
-        "max-sources": null
+// Show/hide threshold controls based on the selected threshold mode.
+function setThresholdModeUI(mode) {
+    const isQuantileMode = mode === "quantile";
+    document.getElementById("brightness-threshold-row").style.display =
+        isQuantileMode ? "none" : "";
+    document.getElementById("brightness-threshold-break").style.display =
+        isQuantileMode ? "none" : "";
+    document.getElementById("brightness-quantile-row").style.display =
+        isQuantileMode ? "" : "none";
+    document.getElementById("brightness-quantile-break").style.display =
+        isQuantileMode ? "" : "none";
+    document.getElementById("brightness-quantile-scale-row").style.display =
+        isQuantileMode ? "" : "none";
+    document.getElementById("brightness-quantile-scale-break").style.display =
+        isQuantileMode ? "" : "none";
+}
+
+// Collect and validate source-extraction parameters from the form.
+function getExtractParams() {
+    const thresholdMode = document.getElementById("threshold-mode").value;
+    let extractParams = {
+        "srcfind-tool": document.getElementById("srcfind-tool").value,
+        "threshold-mode": thresholdMode,
+        "filter-sources": document.getElementById("filter-sources").value,
+        "max-sources": document.getElementById("max-sources").value,
     };
 
-    for ( param in extractParams ) {
-        extractParams[param] = document.getElementById(param).value
+    // Manual absolute threshold mode.
+    if (thresholdMode === "brightness-threshold") {
+        const threshold = _parseNumber(
+            "brightness-threshold",
+            "Brightness threshold"
+        );
+        if (threshold === null) {
+            return null;
+        }
+        if (threshold <= 0) {
+            alert("Brightness threshold must be positive.");
+            return null;
+        }
+        extractParams["brightness-threshold"] = threshold;
+    } else {
+        // Quantile-based threshold mode.
+        const quantile = _parseNumber("brightness-quantile", "Quantile");
+        if (quantile === null) {
+            return null;
+        }
+        if (quantile < 0 || quantile > 1) {
+            alert("Quantile must be between 0 and 1.");
+            return null;
+        }
+
+        const quantileScale = _parseNumber(
+            "brightness-quantile-scale",
+            "Quantile scale"
+        );
+        if (quantileScale === null) {
+            return null;
+        }
+        if (quantileScale <= 0) {
+            alert("Quantile scale must be positive.");
+            return null;
+        }
+
+        extractParams["brightness-quantile"] = quantile;
+        extractParams["brightness-quantile-scale"] = quantileScale;
     }
+
     return extractParams;
 }
 
 //Extract sources and display the number detected.
 async function updateDetectedStars(starfindURL)
 {
+    const params = getExtractParams();
+    if (!params) {
+        return;
+    }
     const data = await showImageLocations(
         starfindURL,
-        getExtractParams(),
+        params,
         true
     );
     if ( data && Array.isArray(data.stars) && !data.message ) {
@@ -32,9 +102,13 @@ async function updateDetectedStars(starfindURL)
 //Project the catalog and display the number of projected sources.
 async function updateProjectedCatalog(projectCatalogURL)
 {
+    const params = getExtractParams();
+    if (!params) {
+        return;
+    }
     const data = await showImageLocations(
         projectCatalogURL,
-        getExtractParams(),
+        params,
         false,
         {"shape": "circle", "r": 8.0, "color": "#f00"}
     );
@@ -43,4 +117,46 @@ async function updateProjectedCatalog(projectCatalogURL)
             data.stars.length;
     }
 }
+
+// Refresh extracted source overlays using current form parameters.
+function updateExtractedSources(starfindURL) {
+    return updateDetectedStars(starfindURL);
+}
+
+// Ensure Save Current writes mode-consistent values to the backend.
+function prepareStarfindConfigForSave() {
+    const params = getExtractParams();
+    if (!params) {
+        return false;
+    }
+
+    const thresholdMode = params["threshold-mode"];
+    const thresholdField = document.getElementById("brightness-threshold");
+    const quantileField = document.getElementById("brightness-quantile");
+    const quantileScaleField = document.getElementById(
+        "brightness-quantile-scale"
+    );
+
+    if (thresholdMode === "quantile") {
+        // Empty string is interpreted as None in the save view.
+        thresholdField.value = "";
+        quantileField.value = String(params["brightness-quantile"]);
+        quantileScaleField.value = String(params["brightness-quantile-scale"]);
+    } else {
+        thresholdField.value = String(params["brightness-threshold"]);
+    }
+    return true;
+}
+
+const saveFormElement = document.getElementById("save_config");
+if (saveFormElement) {
+    saveFormElement.addEventListener("submit", function (event) {
+        if (!prepareStarfindConfigForSave()) {
+            event.preventDefault();
+        }
+    });
+}
+
+// Initialize the threshold controls when the page loads.
+setThresholdModeUI(document.getElementById("threshold-mode").value);
 

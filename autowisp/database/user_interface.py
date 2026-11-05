@@ -413,15 +413,20 @@ def _get_config_info(version, step="All"):
                 continue
             if config.parameter.name not in config_info:
                 config_info[config.parameter.name] = {
-                    "values": {},
+                    "values": [],
                     "expression_counts": {},
                     "description": config.parameter.description,
                 }
             param_info = config_info[config.parameter.name]
-            param_info["values"][config.value] = set(
-                expr.expression
-                for expr in config.condition_expressions
-                if expr.expression != "True"
+            param_info["values"].append(
+                {
+                    "value": config.value,
+                    "expressions": set(
+                        expr.expression
+                        for expr in config.condition_expressions
+                        if expr.expression != "True"
+                    ),
+                }
             )
             for expression in config.condition_expressions:
                 param_info["expression_counts"][expression.expression] = (
@@ -433,6 +438,27 @@ def _get_config_info(version, step="All"):
     return config_info
 
 
+_CONFIG_EXPRESSION_ORDER = (
+    "EXPTIME",
+    "INTSN",
+    "CAMSN",
+    "TELSCPID",
+    "CAMERAID",
+    "CLRCHNL",
+)
+
+
+def _config_expression_sort_key(expression_count):
+    """Return deterministic ordering key for configuration conditions."""
+
+    expression, count = expression_count
+    for order, expression_prefix in enumerate(_CONFIG_EXPRESSION_ORDER):
+        if expression.startswith(expression_prefix):
+            return (order, -count, expression)
+
+    return (len(_CONFIG_EXPRESSION_ORDER), -count, expression)
+
+
 def get_json_config(version=0, step="All", **dump_kwargs):
     """Return the configuration as a JSON object."""
 
@@ -440,17 +466,23 @@ def get_json_config(version=0, step="All", **dump_kwargs):
         """Return the sub-tree for the given expressions."""
 
         result = []
-        child_values = {}
-        sibling_values = {}
-        for value, val_expressions in values.items():
-            if not val_expressions:
+        child_values = []
+        sibling_values = []
+        for value_info in values:
+            value = value_info["value"]
+            val_expressions = value_info["expressions"]
+            if not val_expressions or not expression_order:
                 result.append({"name": value, "type": "value", "children": []})
             elif expression_order[0] in val_expressions:
-                child_values[value] = val_expressions - set(
-                    [expression_order[0]]
+                child_values.append(
+                    {
+                        "value": value,
+                        "expressions": val_expressions
+                        - set([expression_order[0]]),
+                    }
                 )
             else:
-                sibling_values[value] = val_expressions
+                sibling_values.append(value_info)
 
         if child_values:
             result.append(
@@ -463,7 +495,9 @@ def get_json_config(version=0, step="All", **dump_kwargs):
                 }
             )
         if sibling_values:
-            result.extend(get_children(sibling_values, expression_order[1:]))
+            result.extend(
+                get_children(sibling_values, expression_order[1:])
+            )
         return result
 
     config_data = {
@@ -476,8 +510,7 @@ def get_json_config(version=0, step="All", **dump_kwargs):
             expr_count[0]
             for expr_count in sorted(
                 param_info["expression_counts"].items(),
-                key=lambda expr_count: expr_count[1],
-                reverse=True,
+                key=_config_expression_sort_key,
             )
         ]
         config_data["children"].append(

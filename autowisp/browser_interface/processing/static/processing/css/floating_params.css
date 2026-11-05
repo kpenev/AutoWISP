@@ -21,10 +21,44 @@ input.param {
 }
 
 .param-parent {
-    width: 10rem; 
+    width: 10rem;
     position: absolute
 }
 
 div.param {
     background-color: #000
+}
+
+select#threshold-mode.param {
+    color: #000;
+    border: 0.2rem solid #fc6;
+    border-radius: 0.5em;
+    background-color: #fc6;
+    width: 7.5rem;
+    min-width: 7.5rem;
+    height: 2rem;
+    min-height: 2rem;
+    padding: 0 2rem 0 0.5rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #000 50%),
+        linear-gradient(135deg, #000 50%, transparent 50%);
+    background-position: calc(100% - 1rem) 0.75rem,
+        calc(100% - 0.6rem) 0.75rem;
+    background-size: 0.4rem 0.4rem, 0.4rem 0.4rem;
+    background-repeat: no-repeat;
+}
+
+select#threshold-mode.param:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.12rem #fc6;
+}
+
+select#threshold-mode.param option {
+    color: #000;
+    background-color: #fc6;
 }
